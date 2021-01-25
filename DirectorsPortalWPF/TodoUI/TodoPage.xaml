@@ -8,12 +8,49 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="TodoPage">
 
-    <Grid>
-        <Grid Margin="50,50,50,50">
-            <Grid.Background>
-                <SolidColorBrush Color="#FFF1F2F7" />
-            </Grid.Background>
-            <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="100,55,0,0" TextWrapping="Wrap" Text="Todo Page" VerticalAlignment="Top" FontSize="72" RenderTransformOrigin="0.446,0.474"/>
-        </Grid>
-    </Grid>
+    <ScrollViewer>
+        <StackPanel Background="White">
+            <TextBlock x:Name="lblTobo" Text="TODOs" Foreground="Black"  Padding="49,15,0,15" FontSize="20" FontWeight="Bold" />
+            <Grid Margin="50,0,50,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.Background>
+                    <SolidColorBrush Color="#FFF1F2F7" />
+                </Grid.Background>
+                <Border BorderBrush="#FFACACAC" BorderThickness="1" />
+
+                <StackPanel Grid.Row="0" Grid.Column="0">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="5,10,10,10">
+                        <Button x:Name="btnMarkAllDone" Content="Mark All As Done" Padding="5,5,5,5" />
+                    </StackPanel>
+
+                    <StackPanel x:Name="sPanelTodoList" Margin="0,5,0,10">
+
+                        <StackPanel x:Name="card1" Background="White" Margin="50,1,50,1" Orientation="Horizontal" >
+                            <Button x:Name="btnDone1" Content="Done" Margin="5,5,5,5" Padding="10,5,10,5" />
+                            <StackPanel >
+                                <TextBlock Text="Sushi House has made changes to their information that requires approval" Margin="5,5,5,0" />
+                                <TextBlock Text="Click to View" Margin="5,0,5,5" FontSize="10" />
+                            </StackPanel>
+                        </StackPanel>
+
+
+                        <StackPanel x:Name="card2" Background="White" Margin="50,1,50,1" Orientation="Horizontal" >
+                            <Button x:Name="btnDone2" Content="Done" Margin="5,5,5,5" Padding="10,5,10,5" />
+                            <StackPanel >
+                                <TextBlock Text="Changes to the website need to be approve as memeber information has changed" Margin="5,5,5,0" />
+                                <TextBlock Text="Click to View" Margin="5,0,5,5" FontSize="10" />
+                            </StackPanel>
+                        </StackPanel>
+                    
+                    </StackPanel>
+                </StackPanel>
+            
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
 </Page>
