@@ -20,6 +20,38 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+/// <summary>
+/// 
+/// File Name: MainWindow.xaml.cs
+/// 
+/// Part of Project: DirectorsPortal
+/// 
+/// Original Author: Benjamin J. Dore
+/// 
+/// Date Created: 1/20/2021
+/// 
+/// File Purpose:
+///     This file defines the Main Window object that will contain all the screens used across the Director's Portal Application. 
+///     The CCOC heading and sidebar are defined here along with a WPF Frame to contain each screen (WPF Page).
+///     
+/// Command Line Parameter List:
+///     (NONE)
+/// 
+/// Environmental Returns: 
+///     (NONE)
+/// 
+/// Sample Invocation:
+///     This code is executed when the user navigates to the "Todo" screen from the Directors
+///     portal main menu. 
+///     
+/// Global Variable List:
+///     (NONE)
+///     
+/// Modification History:
+///     1/20/2021 - BD: Inital creation
+///     
+/// </summary>
+
 namespace DirectorsPortalWPF
 {
     /// <summary>
@@ -34,37 +66,37 @@ namespace DirectorsPortalWPF
 
         private void PaymentsPage_Navigate(object sender, RoutedEventArgs e)
         {
-            this.MainFrame.Navigate(new PaymentsPage());
+            mainFrame.Navigate(new PaymentsPage());
         }
 
         private void MembersPage_Navigate(object sender, RoutedEventArgs e)
         {
-            this.MainFrame.Navigate(new MembersPage());
+            mainFrame.Navigate(new MembersPage());
         }
 
         private void EmailPage_Navigate(object sender, RoutedEventArgs e)
         {
-            this.MainFrame.Navigate(new EmailPage());
+            mainFrame.Navigate(new EmailPage());
         }
 
         private void WebsitePreviewPage_Navigate(object sender, RoutedEventArgs e)
         {
-            this.MainFrame.Navigate(new WebsitePreviewPage());
+            mainFrame.Navigate(new WebsitePreviewPage());
         }
 
         private void TodoPage_Navigate(object sender, RoutedEventArgs e)
         {
-            this.MainFrame.Navigate(new TodoPage());
+            mainFrame.Navigate(new TodoPage());
         }
 
         private void SettingsPage_Navigate(object sender, RoutedEventArgs e)
         {
-            this.MainFrame.Navigate(new SettingsPage());
+            mainFrame.Navigate(new SettingsPage());
         }
 
         private void GenerateReportsPage_Navigate(object sender, RoutedEventArgs e)
         {
-            this.MainFrame.Navigate(new GenerateReportsPage());
+            mainFrame.Navigate(new GenerateReportsPage());
         }
     }
 }

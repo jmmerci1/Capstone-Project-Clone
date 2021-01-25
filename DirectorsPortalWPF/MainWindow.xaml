@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DirectorsPortalWPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="700" Width="1400">
+        Title="Director's Portal" Height="700" Width="1400">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" />
@@ -19,7 +19,7 @@
         <Rectangle Grid.Row="0" Grid.ColumnSpan="2" Fill="#FF00B0F0"/>
 
         <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-            <Image x:Name="ImgChesaningMainLogo" Source="./Resources/chamberlogo_1.jpg" Cursor="None" HorizontalAlignment="Left"  />
+            <Image x:Name="imgChesaningMainLogo" Source="./Resources/chamberlogo_1.jpg" Cursor="None" HorizontalAlignment="Left"  />
             <TextBlock Text="Chesaning Chamber of Commerce"  Foreground="White" Padding="10,0,0,0" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
         </StackPanel>
        
@@ -38,6 +38,6 @@
             <Button Content="Settings" Click="SettingsPage_Navigate"  Background="{x:Null}" BorderBrush="{x:Null}" FontSize="14" HorizontalContentAlignment="Left" Height="35"/>
 
         </StackPanel>
-        <Frame x:Name="MainFrame" Grid.Row="1" Grid.Column="1" NavigationUIVisibility="Hidden" Source="./MemberInfoUI/MembersPage.xaml"/>
+        <Frame x:Name="mainFrame" Grid.Row="1" Grid.Column="1" NavigationUIVisibility="Hidden" Source="./MemberInfoUI/MembersPage.xaml"/>
     </Grid>
 </Window>

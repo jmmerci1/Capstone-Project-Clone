@@ -23,6 +23,9 @@ namespace DirectorsPortalWPF.ValidateWebsite
         public WebsitePreviewPage()
         {
             InitializeComponent();
+
+            // Template code
+            frmValidateWebpage.Navigate(new Uri("http://www.chesaningchamber.org/our-members.html"));
         }
     }
 }
