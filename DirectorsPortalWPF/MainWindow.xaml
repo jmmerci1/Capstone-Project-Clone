@@ -36,6 +36,7 @@
 
             <Button Content="TODOs" Click="TodoPage_Navigate" BorderBrush="{x:Null}" Background="{x:Null}" FontSize="14" HorizontalContentAlignment="Left" Height="35" />
             <Button Content="Settings" Click="SettingsPage_Navigate"  Background="{x:Null}" BorderBrush="{x:Null}" FontSize="14" HorizontalContentAlignment="Left" Height="35"/>
+            <Button Content="Help" Click="HelpScreenPage_Navigate" Background="{x:Null}" BorderBrush="{x:Null}" FontSize="14" HorizontalContentAlignment="Left" Height="35" />
 
         </StackPanel>
         <Frame x:Name="mainFrame" Grid.Row="1" Grid.Column="1" NavigationUIVisibility="Hidden" Source="./MemberInfoUI/MembersPage.xaml"/>

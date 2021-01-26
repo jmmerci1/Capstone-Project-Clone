@@ -1,5 +1,6 @@
 ﻿using DirectorsPortalWPF.EmailMembersUI;
 using DirectorsPortalWPF.GenerateReportsUI;
+using DirectorsPortalWPF.HelpUI;
 using DirectorsPortalWPF.MemberInfoUI;
 using DirectorsPortalWPF.PaymentInfoUI;
 using DirectorsPortalWPF.SettingsUI;
@@ -97,6 +98,11 @@ namespace DirectorsPortalWPF
         private void GenerateReportsPage_Navigate(object sender, RoutedEventArgs e)
         {
             mainFrame.Navigate(new GenerateReportsPage());
+        }
+
+        private void HelpScreenPage_Navigate(object sender, RoutedEventArgs e)
+        {
+            mainFrame.Navigate(new HelpScreenPage());
         }
     }
 }

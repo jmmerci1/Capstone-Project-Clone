@@ -61,6 +61,9 @@
     <Compile Include="GenerateReportsUI\GenerateReportsPage.xaml.cs">
       <DependentUpon>GenerateReportsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HelpUI\HelpScreenPage.xaml.cs">
+      <DependentUpon>HelpScreenPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MemberInfoUI\MembersPage.xaml.cs">
       <DependentUpon>MembersPage.xaml</DependentUpon>
     </Compile>
@@ -81,6 +84,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="GenerateReportsUI\GenerateReportsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="HelpUI\HelpScreenPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
