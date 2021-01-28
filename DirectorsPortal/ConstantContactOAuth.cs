@@ -10,31 +10,31 @@ using Newtonsoft.Json;
 namespace DirectorsPortal
 {
     class ConstantContactOAuth
+        //keep an eye on testing this class. after relocated the methods, the returned JS would fail to close the current tab. no idea how, but i fixed it. 
     {
 
-        readonly private HttpListener LocalListener = new HttpListener();
-        private string _accessToken;
-        private string _refreshToken;
-        private string _localRoute;
-        private string _encodedRedirect;
-        readonly private string _oAuthUrl_1 = "https://idfed.constantcontact.com/as/token.oauth2?code=";
-        readonly private string _oAuthUrl_2 = "&grant_type=authorization_code&redirect_uri=";
-        public string AppAPIKey;
-        public string AppAPISecret;
-
+        readonly private HttpListener objLocalListener = new HttpListener();
+        private string mstrAccessToken;
+        private string mstrRefreshToken;
+        private string mstrLocalRoute;
+        private string mstrEncodedRedirect;
+        readonly private string mstrOAuthUrlPart1 = "https://idfed.constantcontact.com/as/token.oauth2?code=";
+        readonly private string mstrOAuthUrlPart2 = "&grant_type=authorization_code&redirect_uri=";
+        public string mstrAppAPIKey;
+        public string mstrAppAPISecret;
 
         public string LocalRoute
         {
             get
             {
-                return this._localRoute;
+                return this.mstrLocalRoute;
             }
             set
             {
                 if (value.Contains("localhost"))
                 {
-                    this._localRoute = value;
-                    this._encodedRedirect = value.Remove(value.Length - 1, 1).Replace(":", "%3A").Replace("/", "%2F");
+                    this.mstrLocalRoute = value;
+                    this.mstrEncodedRedirect = value.Remove(value.Length - 1, 1).Replace(":", "%3A").Replace("/", "%2F");
                 }
                 else
                 {
@@ -47,7 +47,7 @@ namespace DirectorsPortal
         {
             get
             {
-                return this._accessToken;
+                return this.mstrAccessToken;
             }
         }
 
@@ -55,124 +55,8 @@ namespace DirectorsPortal
         {
             get
             {
-                return this._refreshToken;
+                return this.mstrRefreshToken;
             }
-        }
-
-        private string Base64Encode(string value)
-        {
-            UTF8Encoding utf8 = new UTF8Encoding();
-            byte[] encodedValue = utf8.GetBytes(value);
-            return Convert.ToBase64String(encodedValue);
-        }
-
-        private void SetPrefixes()
-        {
-            if (this._localRoute != null)
-            {
-                this.LocalListener.Prefixes.Add(this._localRoute);
-            }
-        }
-
-        private string GenerateAccessCodeUrl()
-        {
-            return $"https://api.cc.email/v3/idfed?client_id={this.AppAPIKey}&response_type=code&redirect_uri={this._encodedRedirect}";
-        }
-        
-        private void OpenChromeToRedirect()
-        {
-            try
-            {
-                System.Diagnostics.Process.Start(this.GenerateAccessCodeUrl());
-
-            }
-            catch (System.ComponentModel.Win32Exception)
-            {
-                Console.WriteLine("oof");
-            };
-        }
-
-        private void ParseTokenFromHTTP(string httpdata)
-        {
-            Dictionary<string, string> JSON = JsonConvert.DeserializeObject<Dictionary<string, string>>(httpdata);
-            this._accessToken = JSON["access_token"];
-            this._refreshToken = JSON["refresh_token"];
-        }
-
-        private void GetAccessCode(HttpListenerRequest request)
-        {
-            string access_code = request.QueryString["code"];
-
-            string OAuthUrl = this._oAuthUrl_1 + access_code + this._oAuthUrl_2 + this._encodedRedirect;
-
-            //Console.Write(OAuthUrl);
-            string httpdata = ReadOAuthContents(OAuthUrl);
-            this.ParseTokenFromHTTP(httpdata);
-
-        }
-
-        private string GenerateHeader()
-        {
-            string value = "Basic " + this.Base64Encode($"{this.AppAPIKey}:{this.AppAPISecret}");
-            return value;
-        }
-
-        private string ReadOAuthContents(string url)
-        {
-
-            HttpWebRequest accessTokenRequest = (HttpWebRequest)WebRequest.Create(url);
-            accessTokenRequest.Headers["Authorization"] = this.GenerateHeader();
-
-            accessTokenRequest.Method = "POST";
-            HttpWebResponse responce = (HttpWebResponse)accessTokenRequest.GetResponse();
-
-            Stream streamResponse = responce.GetResponseStream();
-            StreamReader streamRead = new StreamReader(streamResponse);
-            Char[] readBuff = new Char[256];
-            int count = streamRead.Read(readBuff, 0, 256);
-
-            string contents = "";
-
-            while (count > 0)
-            {
-                String outputData = new String(readBuff, 0, count);
-                contents += outputData;
-                count = streamRead.Read(readBuff, 0, 256);
-            }
-
-            return contents;
-
-        }
-
-        private void HandleHttpConnectionResponse(HttpListenerResponse response)
-        {
-            // Construct a response.
-            string responseString = "<script>close();</script>";
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
-
-            // Get a response stream and write the response to it.
-            response.ContentLength64 = buffer.Length;
-            Stream output = response.OutputStream;
-            output.Write(buffer, 0, buffer.Length);
-
-            // You must close the output stream.
-            output.Close();
-
-        }
-
-        private void ManageListener()
-        {
-
-            // Note: The GetContext method blocks while waiting for a request.
-            this.LocalListener.Start();
-            HttpListenerContext context = this.LocalListener.GetContext();
-            this.GetAccessCode(context.Request);
-
-            // Obtain a response object.
-            this.HandleHttpConnectionResponse(context.Response);
-
-
-            this.LocalListener.Stop();
         }
 
         public void GetAccessToken()
@@ -185,7 +69,7 @@ namespace DirectorsPortal
             this.SetPrefixes();
 
             //other data validation
-            if (!(this.LocalRoute ==null | this.AppAPIKey ==null | this.AppAPISecret == null))
+            if (!(this.LocalRoute == null | this.mstrAppAPIKey == null | this.mstrAppAPISecret == null))
             {
                 this.OpenChromeToRedirect();
                 this.ManageListener();
@@ -197,5 +81,118 @@ namespace DirectorsPortal
             }
 
         }
+
+        private void SetPrefixes()
+        {
+            if (this.mstrLocalRoute != null)
+            {
+                this.objLocalListener.Prefixes.Add(this.mstrLocalRoute);
+            }
+        }
+
+        private void OpenChromeToRedirect()
+        {
+            //authorization link
+            try
+            {
+                string strAccessCodeURL = $"https://api.cc.email/v3/idfed?client_id={this.mstrAppAPIKey}&response_type=code&scope=contact_data+campaign_data+account_read+account_update&redirect_uri={this.mstrEncodedRedirect}";
+                System.Diagnostics.Process.Start(strAccessCodeURL);
+
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                Console.WriteLine("oof");
+            };
+        }
+
+        private void ManageListener()
+        {
+
+            // Note: The GetContext method blocks while waiting for a request.
+            this.objLocalListener.Start();
+            HttpListenerContext objHttpContext = this.objLocalListener.GetContext();
+            this.GetAccessCode(objHttpContext.Request);
+
+            // Obtain a response object.
+            this.HandleHttpConnectionResponse(objHttpContext.Response);
+
+
+            this.objLocalListener.Stop();
+        }
+
+        private void GetAccessCode(HttpListenerRequest objRequest)
+        {
+            string strAccesscode = objRequest.QueryString["code"];
+
+            string strOAuthUrl = this.mstrOAuthUrlPart1 + strAccesscode + this.mstrOAuthUrlPart2 + this.mstrEncodedRedirect;
+
+            //Console.Write(OAuthUrl);
+            string strHttpResponse = ReadOAuthContents(strOAuthUrl);
+            this.ParseTokenFromHTTP(strHttpResponse);
+
+        }
+
+        private void HandleHttpConnectionResponse(HttpListenerResponse objRecvResponse)
+        {
+            // Construct a response.
+            string strResponse = "<script>close();</script>";
+            byte[] bytBufferArray = Encoding.UTF8.GetBytes(strResponse);
+
+            // Get a response stream and write the response to it.
+            objRecvResponse.ContentLength64 = bytBufferArray.Length;
+            Stream objResponseStream = objRecvResponse.OutputStream;
+            objResponseStream.Write(bytBufferArray, 0, bytBufferArray.Length);
+
+            // You must close the output stream.
+            objResponseStream.Close();
+
+        }
+
+        private string ReadOAuthContents(string strUrl)
+        {
+
+            HttpWebRequest objAccessTokenRequest = (HttpWebRequest)WebRequest.Create(strUrl);
+            objAccessTokenRequest.Headers["Authorization"] = this.GenerateHeader();
+
+            objAccessTokenRequest.Method = "POST";
+            HttpWebResponse responce = (HttpWebResponse)objAccessTokenRequest.GetResponse();
+
+            Stream objStreamResponse = responce.GetResponseStream();
+            StreamReader objStreamRead = new StreamReader(objStreamResponse);
+            Char[] chrBufferArray = new Char[256];
+            int intCount = objStreamRead.Read(chrBufferArray, 0, 256);
+
+            string strHttpResponse = "";
+
+            while (intCount > 0)
+            {
+                String outputData = new String(chrBufferArray, 0, intCount);
+                strHttpResponse += outputData;
+                intCount = objStreamRead.Read(chrBufferArray, 0, 256);
+            }
+
+            return strHttpResponse;
+
+        }
+
+        private void ParseTokenFromHTTP(string strHttpResponse)
+        {
+            Dictionary<string, string> dctDecodedJson = JsonConvert.DeserializeObject<Dictionary<string, string>>(strHttpResponse);
+            this.mstrAccessToken = dctDecodedJson["access_token"];
+            this.mstrRefreshToken = dctDecodedJson["refresh_token"];
+        }
+
+        private string GenerateHeader()
+        {
+            return "Basic " + this.Base64Encode($"{this.mstrAppAPIKey}:{this.mstrAppAPISecret}");
+        }
+
+        private string Base64Encode(string strValue)
+        {
+            UTF8Encoding objUTF8 = new UTF8Encoding();
+            byte[] bytValueArray = objUTF8.GetBytes(strValue);
+            return Convert.ToBase64String(bytValueArray);
+        }
+
     }
 }
