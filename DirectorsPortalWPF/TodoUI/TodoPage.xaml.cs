@@ -223,7 +223,7 @@ namespace DirectorsPortalWPF.TodoUI
                 Content = buttonText,
 
                 Margin = new Thickness(5,5,5,5),
-                Padding = new Thickness(10,5,10,5)
+                Template = (ControlTemplate)Application.Current.Resources["xtraSmallButtonGrey"],
             };
             return newButton;
         }

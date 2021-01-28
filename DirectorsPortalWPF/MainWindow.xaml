@@ -25,17 +25,17 @@
        
 
         <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FFF1F2F7"  Width="150"/>
-        <StackPanel Grid.Row="1" Grid.Column="0" Margin="5">
-            <Button Content="Member Info" Click="MembersPage_Navigate"  Background="{x:Null}" BorderBrush="{x:Null}" FontSize="14" HorizontalContentAlignment="Left" Height="35" />
-            <Button Content="Payment Info" Click="PaymentsPage_Navigate" Background="{x:Null}" BorderBrush="{x:Null}" FontSize="14" HorizontalContentAlignment="Left" Height="35" />
-            <Button Content="Email Members" Click="EmailPage_Navigate" Background="{x:Null}" BorderBrush="{x:Null}" FontSize="14" HorizontalContentAlignment="Left" Height="35" />
-            <Button Content="Generate Reports" Click="GenerateReportsPage_Navigate" Background="{x:Null}" BorderBrush="{x:Null}" FontSize="14" HorizontalContentAlignment="Left" Height="35 "/>
-            <Button Content="Validate Website" Click="WebsitePreviewPage_Navigate" BorderBrush="{x:Null}" Background="{x:Null}" FontSize="14" HorizontalContentAlignment="Left" Height="35" />
+        <StackPanel Grid.Row="1" Grid.Column="0">
+            <Button Content="Member Info" Click="MembersPage_Navigate" Template="{StaticResource sideBarButton}" FontSize="14" />
+            <Button Content="Payment Info" Click="PaymentsPage_Navigate" Template="{StaticResource sideBarButton}" FontSize="14" />
+            <Button Content="Email Members" Click="EmailPage_Navigate" Template="{StaticResource sideBarButton}" FontSize="14" />
+            <Button Content="Generate Reports" Click="GenerateReportsPage_Navigate" Template="{StaticResource sideBarButton}" FontSize="14" />
+            <Button Content="Validate Website" Click="WebsitePreviewPage_Navigate" Template="{StaticResource sideBarButton}" FontSize="14" />
 
             <Separator Height="70" Foreground="{x:Null}" Background="{x:Null}"/>
 
-            <Button Content="TODOs" Click="TodoPage_Navigate" BorderBrush="{x:Null}" Background="{x:Null}" FontSize="14" HorizontalContentAlignment="Left" Height="35" />
-            <Button Content="Settings" Click="SettingsPage_Navigate"  Background="{x:Null}" BorderBrush="{x:Null}" FontSize="14" HorizontalContentAlignment="Left" Height="35"/>
+            <Button Content="TODOs" Click="TodoPage_Navigate" Template="{StaticResource sideBarButton}" FontSize="14" />
+            <Button x:Name="btnSettings" Content="Settings" Click="SettingsPage_Navigate" Template="{StaticResource sideBarButton}" FontSize="14" />
 
         </StackPanel>
         <Frame x:Name="mainFrame" Grid.Row="1" Grid.Column="1" NavigationUIVisibility="Hidden" Source="./MemberInfoUI/MembersPage.xaml"/>

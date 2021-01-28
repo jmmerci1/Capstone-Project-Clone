@@ -65,6 +65,9 @@ namespace DirectorsPortalWPF.SettingsUI
         {
             InitializeComponent();
 
+            cmbNotificationFrequency.ItemsSource = new List<string> { "None", "Daily", "Weekly", "Monthly" };
+            cmbNotificationTime.ItemsSource = GenerateDropdownTimeList();
+
             for (int i = 0; i < 10; i++)
             {
                 StackPanel sPanelTxtBoxAndBtn = CreateStackPanel(Orientation.Horizontal);
@@ -86,6 +89,51 @@ namespace DirectorsPortalWPF.SettingsUI
                 sPanelFields.Children.Add(sPanelTxtBoxAndBtn);
             }    
 
+        }
+
+        /// <summary>
+        ///
+        /// Creates a list of times to be used in the dropdown list in the Backup and Restore section 
+        /// of Settings.
+        /// 
+        /// Original Author: Benjamin J. Dore
+        /// Date Created: 1/26/2021
+        /// 
+        /// Modification History:
+        ///     1/26/2021 - BD: Initial creation
+        ///
+        /// </summary>
+        /// <returns></returns>
+        private List<string> GenerateDropdownTimeList()
+        {
+            return new List<string>
+            {
+                "",
+                "12:00am",
+                "1:00am",
+                "2:00am",
+                "3:00am",
+                "4:00am",
+                "5:00am",
+                "6:00am",
+                "7:00am",
+                "8:00am",
+                "9:00am",
+                "10:00am",
+                "11:00am",
+                "12:00pm",
+                "1:00pm",
+                "2:00pm",
+                "3:00pm",
+                "4:00pm",
+                "5.00pm",
+                "6:00pm",
+                "7:00pm",
+                "8:00pm",
+                "9:00pm",
+                "10:00pm",
+                "11:00pm"
+            };
         }
 
         /// <summary>
@@ -184,7 +232,7 @@ namespace DirectorsPortalWPF.SettingsUI
                 Height = 30,
                 Width = 300,
                 VerticalContentAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(5, 5, 5, 0),
+                VerticalAlignment = VerticalAlignment.Center,
                 IsEnabled = isEnabled
             };
 
@@ -210,7 +258,8 @@ namespace DirectorsPortalWPF.SettingsUI
             StackPanel newStackPanel = new StackPanel
             {
                 Orientation = desiredOrientation,
-                Height = 40
+                Height = 40,
+                VerticalAlignment = VerticalAlignment.Center
             };
 
             return newStackPanel;
@@ -233,9 +282,8 @@ namespace DirectorsPortalWPF.SettingsUI
             Button newButtton = new Button
             {
                 Content = buttonText,
-
-                Margin = new Thickness(5, 5, 5, 0),
-                Padding = new Thickness(10, 0, 10, 0)
+                Template = (ControlTemplate)Application.Current.Resources["xtraSmallButton"],
+                Margin = new Thickness(5)
             };
 
             return newButtton;
