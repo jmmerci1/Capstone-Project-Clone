@@ -9,11 +9,41 @@
       Title="MembersPage">
 
     <Grid>
-        <Grid Margin="50,50,50,50">
+        <Grid Margin="10,10,0,0">
             <Grid.Background>
-                <SolidColorBrush Color="#FFF1F2F7" />
+                <SolidColorBrush Color="White" />
             </Grid.Background>
-            <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="100,55,0,0" TextWrapping="Wrap" Text="Members Page" VerticalAlignment="Top" FontSize="72" RenderTransformOrigin="0.446,0.474"/>
+            <TabControl x:Name="tabMemberScreen" HorizontalAlignment="Left" Height="420" Margin="23,10,0,0" VerticalAlignment="Top" Width="757">
+                <TabItem x:Name="tabAllMembers" Header="All Members" Width="120" Background="#FF00B0F0" BorderBrush="#FF7E2D2D">
+                    <Grid Background="#FFE5E5E5" Margin="0,0,-107,-108">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="85*"/>
+                            <ColumnDefinition Width="773*"/>
+                        </Grid.ColumnDefinitions>
+                        <GroupBox x:Name="grpMemberFilters" Header="Members Filters" HorizontalAlignment="Left" Height="49" VerticalAlignment="Top" Width="738" Margin="10,10,0,0" Background="#66787676" OpacityMask="#FF939292" Foreground="#FF3A3A3A" RenderTransformOrigin="0.507,2.303" Grid.ColumnSpan="2">
+                            <TextBox x:Name="txtFilter" HorizontalAlignment="Left" Height="20" Margin="0,0,-2,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="728" AutomationProperties.HelpText="Type to filter the data"/>
+                        </GroupBox>
+                        <DataGrid x:Name="dgdMemberData" HorizontalAlignment="Left" Height="294" Margin="10,67,0,0" VerticalAlignment="Top" Width="671" SelectionChanged="DataGrid_SelectionChanged" FrozenColumnCount="10" Grid.ColumnSpan="2"/>
+                        <Button x:Name="btnAddMember" Content="Add Member" HorizontalAlignment="Left" Margin="498.764,366,0,0" VerticalAlignment="Top" Width="97" Grid.Column="1"/>
+                        <Button x:Name="btnEditSelected" Content="Edit Selected" HorizontalAlignment="Left" Height="20" Margin="10,366,0,0" VerticalAlignment="Top" Width="113" Grid.ColumnSpan="2"/>
+                    </Grid>
+                </TabItem>
+                <TabItem x:Name="tabMemberChanges" Header="Member Changes" Width="120" Background="#FF00B0F0">
+                    <Grid Background="#FFE5E5E5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50*"/>
+                            <ColumnDefinition Width="11*"/>
+                            <ColumnDefinition Width="588*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="btnAcceptAllChanges" Content="Accept All Changes" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="140" Grid.ColumnSpan="3"/>
+                        <Button x:Name="btnRejectAllChanges" Content="Reject All Changes" Grid.Column="2" HorizontalAlignment="Left" Margin="96.074,10,0,0" VerticalAlignment="Top" Width="140"/>
+                        <Button x:Name="btnAccept" Content="Accept" Grid.Column="2" HorizontalAlignment="Left" Margin="595,36,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+                        <Button x:Name="btnReject" Content="Reject" Grid.Column="2" HorizontalAlignment="Left" Margin="595,61,0,0" VerticalAlignment="Top" Width="75"/>
+                        <DataGrid HorizontalAlignment="Left" Height="347" Margin="10,35,0,0" VerticalAlignment="Top" Width="651" SelectionChanged="DataGrid_SelectionChanged" FrozenColumnCount="10" Grid.ColumnSpan="3"/>
+                    </Grid>
+                </TabItem>
+            </TabControl>
         </Grid>
+
     </Grid>
 </Page>
