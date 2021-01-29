@@ -36,8 +36,8 @@
             
             <StackPanel Grid.Row="1" Grid.Column="0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button x:Name="btnRejectChange" Content="Reject"  Padding="10,5,10,5" Margin="10,10,10,20"/>
-                    <Button x:Name="btnAcceptChange" Content="Accept" Padding="10,5,10,5" Margin="10,10,20,20"/>
+                    <Button x:Name="btnRejectChange" Content="Reject" Template="{StaticResource smallButton}" Margin="10,10,10,20"/>
+                    <Button x:Name="btnAcceptChange" Content="Accept" Template="{StaticResource smallButton}" Margin="10,10,20,20"/>
                 </StackPanel>
             </StackPanel>
         </Grid>

@@ -8,10 +8,95 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="GenerateReportsPage">
 
-    <Grid Margin="50,50,50,50">
-        <Grid.Background>
+    <StackPanel>
+        <TextBlock Text="Generate Reports" Foreground="Black"  Padding="48,15,0,15" FontSize="20" FontWeight="Bold"/>
+        <TabControl TabStripPlacement="Top" Background="#FFF1F2F7" BorderThickness="1" Margin="50,0,50,0">
+            <TabItem Header="Generate Report" IsSelected="True" Background="Gray">
+                <Grid Height="450">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Row="0" Margin="0,15,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Report Type" Grid.Row="0" Grid.Column="0" Margin="25,0,0,0" VerticalAlignment="Center"></TextBlock>
+                        <ComboBox Name="cboReportType" Grid.Row="0" Grid.Column="1" Width="300" HorizontalAlignment="Left">
+                            <ComboBoxItem IsSelected="True">Member</ComboBoxItem>
+                        </ComboBox>
+                    </Grid>
+                    <Grid Grid.Row="1" Margin="25,10,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Report Fields" Grid.Row="0"></TextBlock>
+                        <ListBox Name="lstReportFields" SelectionMode="Multiple" Grid.Row="1" Width="400" Height="210" HorizontalAlignment="Left">
+                            <ListBoxItem>Business Name</ListBoxItem>
+                            <ListBoxItem>Mailing Address</ListBoxItem>
+                            <ListBoxItem>Location Address</ListBoxItem>
+                            <ListBoxItem>City/State/Zip</ListBoxItem>
+                            <ListBoxItem>Contact Person</ListBoxItem>
+                            <ListBoxItem>Phone Number</ListBoxItem>
+                            <ListBoxItem>Fax Number</ListBoxItem>
+                            <ListBoxItem>Email Address</ListBoxItem>
+                            <ListBoxItem>Website</ListBoxItem>
+                            <ListBoxItem>Level</ListBoxItem>
+                        </ListBox>
+                        <Button Name="btnCreateReport" Grid.Row="2" Margin="0,15,0,0" Width="100" Height="30" HorizontalAlignment="Left">Create Report</Button>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Saved Reports" Background="Gray">
+                <Grid Height="450">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"></ColumnDefinition>
+                        <ColumnDefinition Width="100"></ColumnDefinition>
+                        <ColumnDefinition Width="100"></ColumnDefinition>
+                        <ColumnDefinition Width="100"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <!--Row 0-->
+                    <TextBlock Text="Members at a Glance" Grid.Row="0" Grid.Column="0" Margin="0,10,0,0"></TextBlock>
+                    <Button Grid.Row="0" Grid.Column="1" Margin="0,10,0,0">View Report</Button>
+                    <Button Grid.Row="0" Grid.Column="2" Margin="0,10,0,0">Export to Excel</Button>
+                    <Button Grid.Row="0" Grid.Column="3" Margin="0,10,0,0" Background="White">Delete Report</Button>
+                    <!--Row 1-->
+                    <TextBlock Text="All Email Groups" Grid.Row="1" Grid.Column="0" Margin="0,10,0,0"></TextBlock>
+                    <Button Grid.Row="1" Grid.Column="1" Margin="0,10,0,0">View Report</Button>
+                    <Button Grid.Row="1" Grid.Column="2" Margin="0,10,0,0">Export to Excel</Button>
+                    <Button Grid.Row="1" Grid.Column="3" Margin="0,10,0,0" Background="White">Delete Report</Button>
+                    <!--Row 2-->
+                    <TextBlock Text="Monthly Payments" Grid.Row="2" Grid.Column="0" Margin="0,10,0,0"></TextBlock>
+                    <Button Grid.Row="2" Grid.Column="1" Margin="0,10,0,0">View Report</Button>
+                    <Button Grid.Row="2" Grid.Column="2" Margin="0,10,0,0">Export to Excel</Button>
+                    <Button Grid.Row="2" Grid.Column="3" Margin="0,10,0,0" Background="White">Delete Report</Button>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </StackPanel>
+    <!--<Grid Margin="50,50,50,50">
+        --><!--<Grid.Background>
             <SolidColorBrush Color="#FFF1F2F7" />
-        </Grid.Background>
-        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="100,55,0,0" TextWrapping="Wrap" Text="Generate Reports Page" VerticalAlignment="Top" FontSize="72" RenderTransformOrigin="0.446,0.474"/>
-    </Grid>
+        </Grid.Background>-->
+
+        <!--<TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,55,0,0" TextWrapping="Wrap" Text="Generate Reports Page" VerticalAlignment="Top" FontSize="72" RenderTransformOrigin="0.446,0.474"/>--><!--
+    </Grid>-->
 </Page>
