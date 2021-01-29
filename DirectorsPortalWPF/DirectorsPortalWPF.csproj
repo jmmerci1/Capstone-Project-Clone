@@ -146,6 +146,8 @@
   <ItemGroup>
     <Resource Include="Resources\chamberlogo_1.jpg" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Resources\MembershipTemplate.html" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

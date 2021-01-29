@@ -1,17 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 /// <summary>
 /// 
@@ -95,14 +85,14 @@ namespace DirectorsPortalWPF.TodoUI
                 //
                 TextBlock txtBoxCardContent = new TextBlock
                 {
-                    Text = $"A pending task {i+3}",
+                    Text = $"A pending task {i + 3}",
                     Margin = new Thickness(5, 5, 5, 0)
                 };
 
                 TextBlock txtBoxCardClicker = new TextBlock
                 {
                     Text = "Click to View",
-                    Margin = new Thickness(5,0,5,5),
+                    Margin = new Thickness(5, 0, 5, 5),
                     FontSize = 10
                 };
 
@@ -196,7 +186,7 @@ namespace DirectorsPortalWPF.TodoUI
             {
                 Orientation = Orientation.Horizontal,
                 Background = Brushes.White,
-                Margin = new Thickness(50,1,50,1)
+                Margin = new Thickness(50, 1, 50, 1)
             };
 
             return newStackPanel;
@@ -222,7 +212,7 @@ namespace DirectorsPortalWPF.TodoUI
             {
                 Content = buttonText,
 
-                Margin = new Thickness(5,5,5,5),
+                Margin = new Thickness(5, 5, 5, 5),
                 Template = (ControlTemplate)Application.Current.Resources["xtraSmallButtonGrey"],
             };
             return newButton;

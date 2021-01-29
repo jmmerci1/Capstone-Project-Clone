@@ -1,17 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+using System.IO;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DirectorsPortalWPF.ValidateWebsite
 {
@@ -25,7 +14,15 @@ namespace DirectorsPortalWPF.ValidateWebsite
             InitializeComponent();
 
             // Template code
-            frmValidateWebpage.Navigate(new Uri("http://www.chesaningchamber.org/our-members.html"));
+            frmValidateWebpage.Source = new Uri(GetTemplateLocation());
+        }
+
+        public string GetTemplateLocation()
+        {
+            var exePath = AppDomain.CurrentDomain.BaseDirectory;
+            var pagesFolder = Directory.GetParent(exePath).Parent.Parent;
+            string templateFullPath = pagesFolder.FullName + "\\Resources\\MembershipTemplate.html";
+            return templateFullPath;
         }
     }
 }
