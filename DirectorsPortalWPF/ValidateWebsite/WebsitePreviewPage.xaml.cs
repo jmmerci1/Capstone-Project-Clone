@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace DirectorsPortalWPF.ValidateWebsite
@@ -23,6 +25,23 @@ namespace DirectorsPortalWPF.ValidateWebsite
             var pagesFolder = Directory.GetParent(exePath).Parent.Parent;
             string templateFullPath = pagesFolder.FullName + "\\Resources\\MembershipTemplate.html";
             return templateFullPath;
+        }
+
+        private void BtnCopyContent_Click(object sender, RoutedEventArgs e)
+        {
+            using (StreamReader reader = new StreamReader(GetTemplateLocation()))
+            {
+                string line = reader.ReadToEnd();
+
+                Console.WriteLine(reader.ReadToEnd());
+                Clipboard.SetText(line);
+
+            }
+
+            MessageBox.Show("Updated Webpage Content Copied to Clipboard!",
+                "Copied to Clipboard",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
     }
 }

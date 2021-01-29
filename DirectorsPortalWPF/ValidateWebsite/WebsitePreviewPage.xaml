@@ -37,7 +37,7 @@
             <StackPanel Grid.Row="1" Grid.Column="0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button x:Name="btnRejectChange" Content="Reject" Template="{StaticResource smallButton}" Margin="10,10,10,20"/>
-                    <Button x:Name="btnAcceptChange" Content="Accept" Template="{StaticResource smallButton}" Margin="10,10,20,20"/>
+                    <Button x:Name="btnCopyContent" Content="Copy Content" Template="{StaticResource smallButton}" Click="BtnCopyContent_Click"  Margin="10,10,20,20"/>
                 </StackPanel>
             </StackPanel>
         </Grid>
