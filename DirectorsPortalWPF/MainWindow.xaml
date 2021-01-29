@@ -36,7 +36,8 @@
 
             <Button Content="TODOs" Click="TodoPage_Navigate" Template="{StaticResource sideBarButton}" FontSize="14" />
             <Button x:Name="btnSettings" Content="Settings" Click="SettingsPage_Navigate" Template="{StaticResource sideBarButton}" FontSize="14" />
-
+            <Button x:Name="btnHelp" Content="Help" Click="HelpScreenPage_Navigate" Template="{StaticResource sideBarButton}" FontSize="14" />
+            
         </StackPanel>
         <Frame x:Name="mainFrame" Grid.Row="1" Grid.Column="1" NavigationUIVisibility="Hidden" Source="./MemberInfoUI/MembersPage.xaml"/>
     </Grid>
