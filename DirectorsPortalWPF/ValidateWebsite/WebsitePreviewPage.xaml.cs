@@ -31,10 +31,10 @@ namespace DirectorsPortalWPF.ValidateWebsite
         {
             using (StreamReader reader = new StreamReader(GetTemplateLocation()))
             {
-                string line = reader.ReadToEnd();
+                string strHTML = reader.ReadToEnd();
 
                 Console.WriteLine(reader.ReadToEnd());
-                Clipboard.SetText(line);
+                Clipboard.SetText(strHTML);
 
             }
 
