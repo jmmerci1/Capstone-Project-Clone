@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -42,6 +41,13 @@ namespace DirectorsPortalWPF.ValidateWebsite
                 "Copied to Clipboard",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
+        }
+
+        private void BtnRefreshPreview_Click(object sender, RoutedEventArgs e)
+        {
+            // Do database stuff...
+            frmValidateWebpage.Source = new Uri(GetTemplateLocation());
+            frmValidateWebpage.Refresh();
         }
     }
 }
