@@ -54,8 +54,8 @@
         </ControlTemplate>
 
         <ControlTemplate x:Key="smallButton" TargetType="Button">
-            <Grid>
-                <Border Width="90" x:Name="backgroundElement" CornerRadius="5" Background="#FF00B0F0" Padding="10" />
+            <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}">
+                <Border x:Name="backgroundElement" CornerRadius="5" Background="#FF00B0F0" Padding="{TemplateBinding Padding}" />
                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" TextBlock.Foreground="White" />
             </Grid>
             <ControlTemplate.Triggers>
