@@ -50,6 +50,7 @@ namespace DirectorsPortalWPF
         public MainWindow()
         {
             InitializeComponent();
+            btnMember.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD8D8D8"));       // Appears selected
         }
 
         private void PaymentsPage_Navigate(object sender, RoutedEventArgs e)
