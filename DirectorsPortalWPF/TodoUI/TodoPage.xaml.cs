@@ -103,6 +103,7 @@ namespace DirectorsPortalWPF.TodoUI
                 sPanelCard.Children.Add(sPanelCardContent);
 
                 sPanelTodoList.Children.Add(sPanelCard);
+                lblNumberOfTodo.Content = $"{sPanelTodoList.Children.Count} Number of TODO";
             }
         }
 
@@ -131,6 +132,7 @@ namespace DirectorsPortalWPF.TodoUI
 
             sPanelCardContent.Children.Add(txtBoxCardContent);
             sPanelCard.Children.Add(sPanelCardContent);
+            lblNumberOfTodo.Content = "0 Number of TODO";
 
             return sPanelCard;
 
@@ -158,6 +160,8 @@ namespace DirectorsPortalWPF.TodoUI
         {
             sPanelTodoList.Children.Remove(sPanelCard);
             sPanelCard.Children.Clear();
+
+            lblNumberOfTodo.Content = $"{sPanelTodoList.Children.Count} Number of TODO";
 
             if (sPanelTodoList.Children.Count == 0)
             {
