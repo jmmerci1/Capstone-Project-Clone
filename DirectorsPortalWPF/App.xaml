@@ -25,7 +25,7 @@
 
         <ControlTemplate x:Key="sideBarButton" TargetType="Button">
             <Grid>
-                <Rectangle x:Name="backgroundElement" Fill="{x:Null}" Stroke="{x:Null}" Height="35"/>
+                <Rectangle x:Name="backgroundElement" Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" Height="35"/>
                 <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" />
             </Grid>
             <ControlTemplate.Triggers>
