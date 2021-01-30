@@ -33,7 +33,7 @@
                     </Grid.RowDefinitions>
 
                     <GroupBox x:Name="grpMemberFilters" Header="Members Filters" Grid.Row="0" Grid.ColumnSpan="2" BorderThickness="0">
-                        <TextBox x:Name="txtFilter" AutomationProperties.HelpText="Type to filter the data"/>
+                        <TextBox x:Name="txtFilter" AutomationProperties.HelpText="Type to filter the data" Height="25" Width="300" HorizontalAlignment="Left" VerticalContentAlignment="Center"/>
                     </GroupBox>
                     <DataGrid Margin="5,5,5,5" x:Name="dgdMemberData" Grid.Row="1" Grid.Column="0" SelectionChanged="DataGrid_SelectionChanged" FrozenColumnCount="10" Grid.ColumnSpan="2"/>
                     <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="2">

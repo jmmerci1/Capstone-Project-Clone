@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Media;
 
 /// <summary>
 /// 
@@ -124,9 +125,11 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             {
                 ToggleButton tglBtnCustomer = new ToggleButton();
                 tglBtnCustomer.HorizontalContentAlignment = HorizontalAlignment.Stretch;
+                tglBtnCustomer.VerticalAlignment = VerticalAlignment.Center;
                 tglBtnCustomer.Tag = customer.Id.ToString();
                 tglBtnCustomer.Checked += new RoutedEventHandler(CustomerChecked);
                 tglBtnCustomer.Unchecked += new RoutedEventHandler(CustomerUnchecked);
+                tglBtnCustomer.Template = (ControlTemplate)Application.Current.Resources["largeToggleButton"];
 
                 DockPanel dockPnlText = new DockPanel();
 
@@ -335,14 +338,18 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             btnCancel.Tag =
             btnCancel.Margin = new Thickness(1, 0, 1, 0);
             btnCancel.Padding = new Thickness(2, 0, 2, 0);
+            btnCancel.Width = 100;
             btnCancel.Content = "Cancel";
             btnCancel.Click += CancelNewPayment;
+            btnCancel.Template = (ControlTemplate)Application.Current.Resources["smallButton"];
 
             Button btnSave = new Button();
             btnSave.Margin = new Thickness(1, 0, 1, 0);
             btnSave.Padding = new Thickness(2, 0, 2, 0);
+            btnSave.Width = 100;
             btnSave.Content = "Add Payment";
             btnSave.Click += SaveNewPayment;
+            btnSave.Template = (ControlTemplate)Application.Current.Resources["smallButton"]; 
 
             spSaveAndCancel.Children.Add(btnCancel);
             spSaveAndCancel.Children.Add(btnSave);
@@ -424,7 +431,7 @@ namespace DirectorsPortalWPF.PaymentInfoUI
                 StackPanel spPaymentHeader = new StackPanel();
 
                 Label lblPaymentDate = new Label();
-                lblPaymentDate.FontSize = 7;
+                lblPaymentDate.FontSize = 10;
                 lblPaymentDate.Padding = new Thickness(10, 0, 0, 0);
                 lblPaymentDate.Content = payment.PaymentDate.ToString("MM/dd/yyyy");
 
