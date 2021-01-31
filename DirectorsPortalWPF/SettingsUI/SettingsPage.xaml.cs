@@ -2,18 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 /// <summary>
 /// 
@@ -87,7 +77,7 @@ namespace DirectorsPortalWPF.SettingsUI
                 sPanelTxtBoxAndBtn.Children.Add(btnDelete);
 
                 sPanelFields.Children.Add(sPanelTxtBoxAndBtn);
-            }    
+            }
 
         }
 
@@ -157,12 +147,12 @@ namespace DirectorsPortalWPF.SettingsUI
 
             TextBox txtBoxFieldEdit = (TextBox)stackPanel.Children[0];
             MessageBoxResult confirmDelete = MessageBox.Show(
-                $"Are you sure you want to delete \'{txtBoxFieldEdit.Text}\'?", 
-                "Warning!", 
-                MessageBoxButton.YesNo, 
+                $"Are you sure you want to delete \'{txtBoxFieldEdit.Text}\'?",
+                "Warning!",
+                MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 
-            switch(confirmDelete)
+            switch (confirmDelete)
             {
                 case MessageBoxResult.Yes:
                     sPanelFields.Children.Remove(stackPanel);
@@ -203,7 +193,8 @@ namespace DirectorsPortalWPF.SettingsUI
                 txtBox.Text = txtBox.Text;
                 btnEditText.Content = "Edit";
                 btnDelete.Visibility = Visibility.Hidden;
-            } else
+            }
+            else
             {   // Enable the TextBox and change the button label to "Save"
                 txtBox.IsEnabled = true;
                 btnEditText.Content = "Save";

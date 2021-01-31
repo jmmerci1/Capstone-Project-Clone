@@ -1,18 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 /// <summary>
 /// 
@@ -75,7 +68,7 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             int numOfCustomers = randomNum.Next(4, 10);
 
             int customerItr;
-            for(customerItr = 0; customerItr < numOfCustomers; customerItr++) 
+            for (customerItr = 0; customerItr < numOfCustomers; customerItr++)
             {
                 Customer customer = new Customer();
                 customer.Id = customerItr;
@@ -85,7 +78,7 @@ namespace DirectorsPortalWPF.PaymentInfoUI
                 int numOfPayments = randomNum.Next(1, 10);
 
                 int paymentItr;
-                for (paymentItr = 0; paymentItr < numOfPayments; paymentItr++) 
+                for (paymentItr = 0; paymentItr < numOfPayments; paymentItr++)
                 {
                     Payment payment = new Payment();
                     payment.PaymentDate = new DateTime(2020, 12, paymentItr + 1);
@@ -95,7 +88,7 @@ namespace DirectorsPortalWPF.PaymentInfoUI
                     int numOfItems = randomNum.Next(1, 5);
 
                     int itemItr;
-                    for (itemItr = 0; itemItr < numOfItems; itemItr++) 
+                    for (itemItr = 0; itemItr < numOfItems; itemItr++)
                     {
                         PaymentRowModel paymentItem = new PaymentRowModel();
                         paymentItem.Item = "Item " + itemItr;
@@ -126,15 +119,17 @@ namespace DirectorsPortalWPF.PaymentInfoUI
         /// </summary>
         /// <param name="sender">The UI object that called the function.</param>
         /// <param name="e">Event data asscociated with this event.</param>
-        void LoadCustomerNames(object sender, RoutedEventArgs e) 
+        void LoadCustomerNames(object sender, RoutedEventArgs e)
         {
-            foreach(Customer customer in CustomerList) 
+            foreach (Customer customer in CustomerList)
             {
                 ToggleButton tglBtnCustomer = new ToggleButton();
                 tglBtnCustomer.HorizontalContentAlignment = HorizontalAlignment.Stretch;
+                tglBtnCustomer.VerticalAlignment = VerticalAlignment.Center;
                 tglBtnCustomer.Tag = customer.Id.ToString();
                 tglBtnCustomer.Checked += new RoutedEventHandler(CustomerChecked);
                 tglBtnCustomer.Unchecked += new RoutedEventHandler(CustomerUnchecked);
+                tglBtnCustomer.Template = (ControlTemplate)Application.Current.Resources["largeToggleButton"];
 
                 DockPanel dockPnlText = new DockPanel();
 
@@ -340,17 +335,21 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             spSaveAndCancel.Margin = new Thickness(2, 5, 2, 1);
 
             Button btnCancel = new Button();
-            btnCancel.Tag = 
+            btnCancel.Tag =
             btnCancel.Margin = new Thickness(1, 0, 1, 0);
             btnCancel.Padding = new Thickness(2, 0, 2, 0);
+            btnCancel.Width = 100;
             btnCancel.Content = "Cancel";
             btnCancel.Click += CancelNewPayment;
+            btnCancel.Template = (ControlTemplate)Application.Current.Resources["smallButton"];
 
             Button btnSave = new Button();
             btnSave.Margin = new Thickness(1, 0, 1, 0);
             btnSave.Padding = new Thickness(2, 0, 2, 0);
+            btnSave.Width = 100;
             btnSave.Content = "Add Payment";
             btnSave.Click += SaveNewPayment;
+            btnSave.Template = (ControlTemplate)Application.Current.Resources["smallButton"]; 
 
             spSaveAndCancel.Children.Add(btnCancel);
             spSaveAndCancel.Children.Add(btnSave);
@@ -380,7 +379,7 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             List<ToggleButton> customerBtnsList = spCustomerNames.Children.OfType<ToggleButton>().ToList();
 
             int customerBtnIterator;
-            for(customerBtnIterator = 0; customerBtnIterator < customerBtnsList.Count; customerBtnIterator++) 
+            for (customerBtnIterator = 0; customerBtnIterator < customerBtnsList.Count; customerBtnIterator++)
             {
                 ToggleButton tglBtnCustomer = customerBtnsList[customerBtnIterator];
                 string btnTag = tglBtnCustomer.Tag.ToString();
@@ -388,7 +387,7 @@ namespace DirectorsPortalWPF.PaymentInfoUI
                 DockPanel dockPnlContent = tglBtnCustomer.Content as DockPanel;
                 Label lblClick = dockPnlContent.Children.OfType<Label>().LastOrDefault();
 
-                if (btnTag.Equals(selectedBtnTag)) 
+                if (btnTag.Equals(selectedBtnTag))
                 {
                     /* We found the currently selected button so continue. */
                     lblClick.Visibility = Visibility.Hidden;
@@ -420,7 +419,7 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             lblSelectedCustomer.Content = selectedCust.Name;
             dpSelectedCustomer.Visibility = Visibility.Visible;
 
-            foreach (Payment payment in selectedCust.Payments) 
+            foreach (Payment payment in selectedCust.Payments)
             {
                 Expander expPayment = new Expander();
                 expPayment.HorizontalAlignment = HorizontalAlignment.Left;
@@ -432,7 +431,7 @@ namespace DirectorsPortalWPF.PaymentInfoUI
                 StackPanel spPaymentHeader = new StackPanel();
 
                 Label lblPaymentDate = new Label();
-                lblPaymentDate.FontSize = 7;
+                lblPaymentDate.FontSize = 10;
                 lblPaymentDate.Padding = new Thickness(10, 0, 0, 0);
                 lblPaymentDate.Content = payment.PaymentDate.ToString("MM/dd/yyyy");
 
@@ -468,7 +467,7 @@ namespace DirectorsPortalWPF.PaymentInfoUI
                 colUnitCost.Binding = new Binding("UnitPrice");
                 dgPaymentItems.Columns.Add(colUnitCost);
 
-                foreach (PaymentRowModel paymentItems in payment.PaymentItems) 
+                foreach (PaymentRowModel paymentItems in payment.PaymentItems)
                 {
                     dgPaymentItems.Items.Add(paymentItems);
                 }
@@ -496,7 +495,7 @@ public class PaymentRowModel
 /// A test class that defines the properties of a payment.
 /// </summary>
 public class Payment
-{ 
+{
     public DateTime PaymentDate { get; set; }
     public string Name { get; set; }
     public List<PaymentRowModel> PaymentItems { get; set; }
@@ -506,8 +505,8 @@ public class Payment
 /// A test class that defines the properties of a customer.
 /// </summary>
 public class Customer
-{ 
+{
     public int Id { get; set; }
     public string Name { get; set; }
-    public List<Payment> Payments { get; set; } 
+    public List<Payment> Payments { get; set; }
 }

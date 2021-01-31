@@ -78,10 +78,14 @@ namespace DirectorsPortalWPF.EmailMembersUI
                     };
                     Button btnEmailGroupEditButton = new Button()
                     {
-                        Content = "Edit"
+                        Content = "Edit",
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        Template = (ControlTemplate)Application.Current.Resources["smallButton"],
+                        Padding = new Thickness(0,0,35,0),
+                        Height = 15
                     };
-                    hspEmailGroupRow.Children.Add(lblEmailGroupName);
                     hspEmailGroupRow.Children.Add(btnEmailGroupEditButton);
+                    hspEmailGroupRow.Children.Add(lblEmailGroupName);
                     vspGroupList.Children.Add(hspEmailGroupRow);
                 }
 
