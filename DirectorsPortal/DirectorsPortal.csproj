@@ -52,9 +52,12 @@
     <Compile Include="ConstantContact.cs" />
     <Compile Include="ConstantContactAPIObjects\ContactCustomFeild.cs" />
     <Compile Include="ConstantContactAPIObjects\ContactList.cs" />
+    <Compile Include="ConstantContactAPIObjects\Contact\Contact.cs" />
+    <Compile Include="ConstantContactAPIObjects\Contact\PUTContact.cs" />
     <Compile Include="ConstantContactAPIObjects\EmailCampaign.cs" />
+    <Compile Include="ConstantContactAPIObjects\Contact\POSTContact.cs" />
     <Compile Include="ConstantContactOAuth.cs" />
-    <Compile Include="ConstantContactAPIObjects\Contact.cs" />
+    <Compile Include="ConstantContactAPIObjects\Contact\GETContacts.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

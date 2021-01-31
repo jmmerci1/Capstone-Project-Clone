@@ -32,7 +32,7 @@ namespace DirectorsPortal
             CC.Authenticate();
 
             CC.RefreshCCData();
-            Console.WriteLine(CC.mlstContacts.ToString());
+            Console.WriteLine(CC.mdctContacts.ToString());
 
         }
     }

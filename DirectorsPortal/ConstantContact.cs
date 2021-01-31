@@ -17,10 +17,10 @@ namespace DirectorsPortal
         readonly private string mstrContactCustomFieldUrl = "contact_custom_fields?limit=100";
         readonly private string mstrEmailCampaignUrl = "emails?limit=500";
 
-        public Dictionary<string, Contact> mlstContacts = new Dictionary<string, Contact>();
-        public Dictionary<string, ContactList> mlstContactLists = new Dictionary<string, ContactList>();
-        public Dictionary<string, ContactCustomField> mlstContactCustomFields = new Dictionary<string, ContactCustomField>();
-        public Dictionary<string, EmailCampaign> mlstEmailCampaigns = new Dictionary<string, EmailCampaign>();
+        public Dictionary<string, Contact> mdctContacts = new Dictionary<string, Contact>();
+        public Dictionary<string, ContactList> mdctContactLists = new Dictionary<string, ContactList>();
+        public Dictionary<string, ContactCustomField> mdctContactCustomFields = new Dictionary<string, ContactCustomField>();
+        public Dictionary<string, EmailCampaign> mdctEmailCampaigns = new Dictionary<string, EmailCampaign>();
 
         ConstantContactOAuth CCO = new ConstantContactOAuth();
 
@@ -44,8 +44,8 @@ namespace DirectorsPortal
 
         public void RefreshCCData()
         {
-            this.AddContact();/*
-            this.UpdateContacts();
+            this.AddContact();
+            this.UpdateContacts();/*
             this.UpdateContactLists();
             this.UpdateContactCustomFields();
             this.UpdateEmailCampaigns();
@@ -59,14 +59,14 @@ namespace DirectorsPortal
 
             Console.WriteLine(strJson);
 
-            Dictionary<string, List<Contact>> dctDecodedJson = JsonConvert.DeserializeObject<Dictionary<string, List<Contact>>>(strJson);
+            Dictionary<string, List<GETContact>> dctDecodedJson = JsonConvert.DeserializeObject<Dictionary<string, List<GETContact>>>(strJson);
             
-            foreach (Contact contact in dctDecodedJson["contacts"])
+            foreach (GETContact contact in dctDecodedJson["contacts"])
             {
-                this.mlstContacts.Add(contact.contact_id, contact);
+                this.mdctContacts.Add(contact.contact_id, Contact.FillFromGET(contact));
             }
 
-
+            Console.WriteLine(strJson);
         }
 
         private void UpdateContactLists()
@@ -79,7 +79,7 @@ namespace DirectorsPortal
 
             foreach (ContactList lstContactList in dctDecodedJson["lists"])
             {
-                this.mlstContactLists.Add(lstContactList.list_id, lstContactList);
+                this.mdctContactLists.Add(lstContactList.list_id, lstContactList);
             }
         }
 
@@ -93,7 +93,7 @@ namespace DirectorsPortal
 
             foreach (ContactCustomField lstFieldList in dctDecodedJson["custom_fields"])
             {
-                this.mlstContactCustomFields.Add(lstFieldList.custom_field_id, lstFieldList);
+                this.mdctContactCustomFields.Add(lstFieldList.custom_field_id, lstFieldList);
             }
         }
 
@@ -107,7 +107,7 @@ namespace DirectorsPortal
 
             foreach (EmailCampaign lstContactList in dctDecodedJson["campaigns"])
             {
-                this.mlstEmailCampaigns.Add(lstContactList.campaign_id, lstContactList);
+                this.mdctEmailCampaigns.Add(lstContactList.campaign_id, lstContactList);
             }
         }
 
@@ -116,7 +116,6 @@ namespace DirectorsPortal
             Contact test = new Contact();
 
         }
-
 
         private string ReadJsonFromUrl(string strUrl)
         {
