@@ -17,10 +17,22 @@ namespace DirectorsPortal
             ///Application.EnableVisualStyles();
             ///Application.SetCompatibleTextRenderingDefault(false);
             ///Application.Run(new Form1());
+            ///
+
+            //Constant Contact Dev Account
+            //Username: edwalk@svsu.edu
+            //password: ayC&Aybab6sC422
+            //
+            // yes this is intentional, this is an accoutn we can all use for dev
+
+
+
 
             ConstantContact CC = new ConstantContact();
             CC.Authenticate();
-            CC.GetEmailAccounts();
+
+            CC.RefreshCCData();
+            Console.WriteLine(CC.mlstContacts.ToString());
 
         }
     }

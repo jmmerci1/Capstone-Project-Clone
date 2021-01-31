@@ -177,9 +177,11 @@ namespace DirectorsPortal
 
         private void ParseTokenFromHTTP(string strHttpResponse)
         {
+
             Dictionary<string, string> dctDecodedJson = JsonConvert.DeserializeObject<Dictionary<string, string>>(strHttpResponse);
             this.mstrAccessToken = dctDecodedJson["access_token"];
             this.mstrRefreshToken = dctDecodedJson["refresh_token"];
+
         }
 
         private string GenerateHeader()

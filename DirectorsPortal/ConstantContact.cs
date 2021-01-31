@@ -11,13 +11,20 @@ namespace DirectorsPortal
 {
     class ConstantContact
     {
-        readonly private HttpListener objLocalListener = new HttpListener();
-        readonly private string strBaseURL = "https://api.cc.email/v3/";
-        readonly private string strAccountEmail = "contacts";
+        readonly private string mstrBaseURL = "https://api.cc.email/v3/";
+        readonly private string mstrContactsUrl = "contacts?include=custom_fields,list_memberships,phone_numbers,street_addresses&limit=500";
+        readonly private string mstrContactListUrl = "contact_lists?limit=1000";
+        readonly private string mstrContactCustomFieldUrl = "contact_custom_fields?limit=100";
+        readonly private string mstrEmailCampaignUrl = "emails?limit=500";
+
+        public Dictionary<string, Contact> mlstContacts = new Dictionary<string, Contact>();
+        public Dictionary<string, ContactList> mlstContactLists = new Dictionary<string, ContactList>();
+        public Dictionary<string, ContactCustomField> mlstContactCustomFields = new Dictionary<string, ContactCustomField>();
+        public Dictionary<string, EmailCampaign> mlstEmailCampaigns = new Dictionary<string, EmailCampaign>();
 
         ConstantContactOAuth CCO = new ConstantContactOAuth();
 
-        private string strTokenHeader
+        private string mstrTokenHeader
         {
             get
             {
@@ -35,12 +42,78 @@ namespace DirectorsPortal
             CCO.GetAccessToken();
         }
 
-        public void GetEmailAccounts()
+        public void RefreshCCData()
+        {
+            this.AddContact();/*
+            this.UpdateContacts();
+            this.UpdateContactLists();
+            this.UpdateContactCustomFields();
+            this.UpdateEmailCampaigns();
+            */
+        }
+
+        private void UpdateContacts()
         {
 
-            string ye = this.ReadJsonFromUrl(this.strBaseURL + this.strAccountEmail);
+            string strJson = this.ReadJsonFromUrl(this.mstrContactsUrl);
 
-            Dictionary<string, string> dctDecodedJson = JsonConvert.DeserializeObject<Dictionary<string, string>>(ye);
+            Console.WriteLine(strJson);
+
+            Dictionary<string, List<Contact>> dctDecodedJson = JsonConvert.DeserializeObject<Dictionary<string, List<Contact>>>(strJson);
+            
+            foreach (Contact contact in dctDecodedJson["contacts"])
+            {
+                this.mlstContacts.Add(contact.contact_id, contact);
+            }
+
+
+        }
+
+        private void UpdateContactLists()
+        {
+            string strJson = this.ReadJsonFromUrl(this.mstrContactListUrl);
+
+            Console.WriteLine(strJson);
+
+            Dictionary<string, List<ContactList>> dctDecodedJson = JsonConvert.DeserializeObject<Dictionary<string, List<ContactList>>>(strJson);
+
+            foreach (ContactList lstContactList in dctDecodedJson["lists"])
+            {
+                this.mlstContactLists.Add(lstContactList.list_id, lstContactList);
+            }
+        }
+
+        private void UpdateContactCustomFields()
+        {
+            string strJson = this.ReadJsonFromUrl(this.mstrContactCustomFieldUrl);
+
+            Console.WriteLine(strJson);
+
+            Dictionary<string, List<ContactCustomField>> dctDecodedJson = JsonConvert.DeserializeObject<Dictionary<string, List<ContactCustomField>>>(strJson);
+
+            foreach (ContactCustomField lstFieldList in dctDecodedJson["custom_fields"])
+            {
+                this.mlstContactCustomFields.Add(lstFieldList.custom_field_id, lstFieldList);
+            }
+        }
+
+        private void UpdateEmailCampaigns()
+        {
+            string strJson = this.ReadJsonFromUrl(this.mstrEmailCampaignUrl);
+
+            Console.WriteLine(strJson);
+
+            Dictionary<string, List<EmailCampaign>> dctDecodedJson = JsonConvert.DeserializeObject<Dictionary<string, List<EmailCampaign>>>(strJson);
+
+            foreach (EmailCampaign lstContactList in dctDecodedJson["campaigns"])
+            {
+                this.mlstEmailCampaigns.Add(lstContactList.campaign_id, lstContactList);
+            }
+        }
+
+        private void AddContact()
+        {
+            Contact test = new Contact();
 
         }
 
@@ -48,9 +121,8 @@ namespace DirectorsPortal
         private string ReadJsonFromUrl(string strUrl)
         {
 
-            HttpWebRequest objAccessTokenRequest = (HttpWebRequest)WebRequest.Create(strUrl);
-            objAccessTokenRequest.Headers["Authorization"] = this.strTokenHeader;
-            Console.WriteLine(this.strTokenHeader);
+            HttpWebRequest objAccessTokenRequest = (HttpWebRequest)WebRequest.Create(this.mstrBaseURL + strUrl);
+            objAccessTokenRequest.Headers["Authorization"] = this.mstrTokenHeader;
             objAccessTokenRequest.ContentType = "application/json";
 
             objAccessTokenRequest.Method = "GET";
@@ -69,7 +141,8 @@ namespace DirectorsPortal
                 strHttpResponse += outputData;
                 intCount = objStreamRead.Read(chrBufferArray, 0, 256);
             }
-            Console.WriteLine(strHttpResponse);
+
+            strHttpResponse = strHttpResponse.Replace("\n", "");
             return strHttpResponse;
 
         }
