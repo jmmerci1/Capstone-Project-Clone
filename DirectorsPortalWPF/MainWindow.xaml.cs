@@ -1,5 +1,6 @@
 ﻿using DirectorsPortalWPF.EmailMembersUI;
 using DirectorsPortalWPF.GenerateReportsUI;
+using DirectorsPortalWPF.HelpUI;
 using DirectorsPortalWPF.MemberInfoUI;
 using DirectorsPortalWPF.PaymentInfoUI;
 using DirectorsPortalWPF.SettingsUI;
@@ -142,6 +143,11 @@ namespace DirectorsPortalWPF
             btnPayment.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnTodo.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnValWeb.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+        }
+
+        private void HelpScreenPage_Navigate(object sender, RoutedEventArgs e)
+        {
+            mainFrame.Navigate(new HelpScreenPage());
         }
     }
 }
