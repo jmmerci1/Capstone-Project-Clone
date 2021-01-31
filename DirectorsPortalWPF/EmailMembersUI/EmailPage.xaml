@@ -8,55 +8,113 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="EmailPage">
 
-    <Grid HorizontalAlignment="Stretch"  Margin="10,10,0,0" VerticalAlignment="Stretch">
+
+    <Grid Background="White">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200" />
-            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="20" />
         </Grid.RowDefinitions>
-        <Grid.Background>
-            <SolidColorBrush Color="#FFF1F2F7" />
-        </Grid.Background>
-        <StackPanel>
-            <Grid Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="1*"/>
-                </Grid.RowDefinitions>
-                <StackPanel  Background="LightBlue">
-                    <Label Content="Email Groups"></Label>
-                </StackPanel>
-                <StackPanel Name="EmailGroupList" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical">
-                </StackPanel>
-            </Grid>
-        </StackPanel>
-        <Grid Margin="10,10,10,10" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Grid.Resources>
-                <Style TargetType="{x:Type TextBox}">
-                    <Setter Property="Margin" Value="5,5,5,10"></Setter>
-                </Style>
-            </Grid.Resources>
+
+        <TextBlock x:Name="lblEmailMembers" Grid.Column="0" Grid.Row="0" Text="Email Members" Foreground="Black"  Padding="49,15,0,15" FontSize="20" FontWeight="Bold" />
+        
+        <Grid Margin="50,0,50,0" Grid.Column="0" Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"/>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="40"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Label Grid.ColumnSpan="3" Content="Email" Background="LightBlue"></Label>
-            <Label Grid.Row="1" HorizontalAlignment="Right" Content="To:"></Label>
-            <TextBox x:Name="txtToField" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"></TextBox>
-            <Label Grid.Row="2" HorizontalAlignment="Right" Content="Subject:"></Label>
-            <TextBox x:Name="txtSubject" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"></TextBox>
-            <TextBox x:Name="txtBody" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Grid.Row="3" Grid.ColumnSpan="3"></TextBox>
-            <Button Click="Send_Email" Grid.Column="2" Grid.Row="4" Content="Send" Margin="5,5,5,5"></Button>
+
+            <Grid Grid.RowSpan="2" Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.Background>
+                    <SolidColorBrush Color="#FFF1F2F7" />
+                </Grid.Background>
+                <Border Grid.RowSpan="2" Grid.ColumnSpan="1" BorderBrush="#FFACACAC" BorderThickness="1" CornerRadius="5" />
+
+                <Grid Grid.Row="0" Grid.Column="0" Width="200">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    
+                    <Border Background="#FF00B0F0" Grid.RowSpan="5" Grid.ColumnSpan="3" BorderBrush="#FFACACAC" BorderThickness="0" CornerRadius="5,5,0,0"/>
+                    
+                    <Grid Grid.Column="1" VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+                        <Button Content="Add" Template="{StaticResource smallButtonGrey}" FontSize="11" Margin="5,5,5,5" Width="35" Padding="10,10,10,10" />
+                    </Grid>
+
+                    
+                    <Label Content="Email Groups" VerticalAlignment="Center" Foreground="White" HorizontalAlignment="Left" Margin="10,0,0,0" />
+                </Grid>
+
+                <StackPanel Name="EmailGroupList" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" Margin="10,10,10,10">
+                </StackPanel>
+            </Grid>
+
+            <Grid Margin="15,0,0,0" Grid.Column="2" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.Resources>
+                    <Style TargetType="{x:Type TextBox}">
+                        <Setter Property="Margin" Value="5,5,5,10"></Setter>
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <Grid.Background>
+                    <SolidColorBrush Color="#FFF1F2F7" />
+                </Grid.Background>
+                <Border Grid.RowSpan="6" Grid.ColumnSpan="2" BorderBrush="#FFACACAC" BorderThickness="1" CornerRadius="5" />
+
+                <Grid Grid.Row="0" Grid.ColumnSpan="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border Background="#FF00B0F0" Grid.RowSpan="5" Grid.ColumnSpan="3" Height="30" BorderBrush="#FFACACAC" BorderThickness="0" CornerRadius="5,5,0,0"/>
+                    <Label Content="Email" HorizontalAlignment="Left" Foreground="White" Margin="10,0,15,0" VerticalAlignment="Center" />
+                </Grid>
+
+                <Label Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Content="To:" Margin="50,0,0,0" />
+                <TextBox x:Name="txtToField" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,10,10,10" Width="200" Height="25" />
+                <Label Grid.Row="2" HorizontalAlignment="Right" Content="Subject:" VerticalAlignment="Center" Margin="50,0,0,0" />
+                <TextBox x:Name="txtSubject" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,10,10,10" Width="200" Height="25" />
+                <TextBox x:Name="txtBody" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Grid.Row="3" Grid.ColumnSpan="3" Margin="10,0,10,0" />
+                <Button Click="Send_Email" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Grid.Column="2" Grid.Row="4" Content="Send" Margin="5,10,10,10" Padding="0,0,75,0" Height="20" />
+            </Grid>
         </Grid>
     </Grid>
 </Page>

@@ -25,7 +25,7 @@
 
         <ControlTemplate x:Key="sideBarButton" TargetType="Button">
             <Grid>
-                <Rectangle x:Name="backgroundElement" Fill="{x:Null}" Stroke="{x:Null}" Height="35"/>
+                <Rectangle x:Name="backgroundElement" Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" Height="35"/>
                 <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" />
             </Grid>
             <ControlTemplate.Triggers>
@@ -34,6 +34,27 @@
                 </Trigger>
                 <Trigger Property="IsPressed" Value="true">
                     <Setter Property="Fill" TargetName="backgroundElement" Value="#FFB9B9B9"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="largeToggleButton" TargetType="ToggleButton">
+            <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}">
+                <Border x:Name="backgroundElement" Height="35" Background="{TemplateBinding Background}" BorderBrush="#FFACACAC" BorderThickness="1" Padding="{TemplateBinding Padding}" />
+                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalAlignment}" VerticalAlignment="{TemplateBinding VerticalAlignment}" TextBlock.Foreground="White" />
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Background" TargetName="backgroundElement" Value="#FF079AD0"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="true">
+                    <Setter Property="Background" TargetName="backgroundElement" Value="#FF098AB9" />
+                </Trigger>
+                <Trigger Property="IsChecked" Value="true">
+                    <Setter Property="Background" TargetName="backgroundElement" Value="#FF079AD0"/>
+                </Trigger>
+                <Trigger Property="IsChecked" Value="false">
+                    <Setter Property="Background" TargetName="backgroundElement" Value="White"/>
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -54,8 +75,8 @@
         </ControlTemplate>
 
         <ControlTemplate x:Key="smallButton" TargetType="Button">
-            <Grid>
-                <Border Width="90" x:Name="backgroundElement" CornerRadius="5" Background="#FF00B0F0" Padding="10" />
+            <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}">
+                <Border x:Name="backgroundElement" CornerRadius="5" Background="#FF00B0F0" Padding="{TemplateBinding Padding}" />
                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" TextBlock.Foreground="White" />
             </Grid>
             <ControlTemplate.Triggers>
@@ -84,8 +105,8 @@
         </ControlTemplate>
 
         <ControlTemplate x:Key="smallButtonGrey" TargetType="Button">
-            <Grid>
-                <Border Height="25" x:Name="backgroundElement" CornerRadius="5" Background="#FFBFBFBF" Padding="60,0,60,0" />
+            <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}">
+                <Border  x:Name="backgroundElement" CornerRadius="5" Background="#FFBFBFBF" Padding="{TemplateBinding Padding}"/>
                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" TextBlock.Foreground="White" />
             </Grid>
             <ControlTemplate.Triggers>

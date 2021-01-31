@@ -157,7 +157,7 @@
     <Resource Include="Resources\chamberlogo_1.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="hnet.com-image.ico" />
+    <Content Include="Resources\MembershipTemplate.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

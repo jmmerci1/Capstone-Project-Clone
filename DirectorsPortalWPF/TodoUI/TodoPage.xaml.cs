@@ -1,17 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 /// <summary>
 /// 
@@ -95,14 +85,14 @@ namespace DirectorsPortalWPF.TodoUI
                 //
                 TextBlock txtBoxCardContent = new TextBlock
                 {
-                    Text = $"A pending task {i+3}",
+                    Text = $"A pending task {i + 3}",
                     Margin = new Thickness(5, 5, 5, 0)
                 };
 
                 TextBlock txtBoxCardClicker = new TextBlock
                 {
                     Text = "Click to View",
-                    Margin = new Thickness(5,0,5,5),
+                    Margin = new Thickness(5, 0, 5, 5),
                     FontSize = 10
                 };
 
@@ -113,6 +103,7 @@ namespace DirectorsPortalWPF.TodoUI
                 sPanelCard.Children.Add(sPanelCardContent);
 
                 sPanelTodoList.Children.Add(sPanelCard);
+                lblNumberOfTodo.Content = $"{sPanelTodoList.Children.Count} Number of TODO";
             }
         }
 
@@ -141,6 +132,7 @@ namespace DirectorsPortalWPF.TodoUI
 
             sPanelCardContent.Children.Add(txtBoxCardContent);
             sPanelCard.Children.Add(sPanelCardContent);
+            lblNumberOfTodo.Content = "0 Number of TODO";
 
             return sPanelCard;
 
@@ -169,6 +161,8 @@ namespace DirectorsPortalWPF.TodoUI
             sPanelTodoList.Children.Remove(sPanelCard);
             sPanelCard.Children.Clear();
 
+            lblNumberOfTodo.Content = $"{sPanelTodoList.Children.Count} Number of TODO";
+
             if (sPanelTodoList.Children.Count == 0)
             {
                 sPanelTodoList.Children.Add(ShowNoTodo());      // If there is no Todo items, notify the end user.
@@ -196,7 +190,7 @@ namespace DirectorsPortalWPF.TodoUI
             {
                 Orientation = Orientation.Horizontal,
                 Background = Brushes.White,
-                Margin = new Thickness(50,1,50,1)
+                Margin = new Thickness(50, 1, 50, 1)
             };
 
             return newStackPanel;
@@ -222,7 +216,7 @@ namespace DirectorsPortalWPF.TodoUI
             {
                 Content = buttonText,
 
-                Margin = new Thickness(5,5,5,5),
+                Margin = new Thickness(5, 5, 5, 5),
                 Template = (ControlTemplate)Application.Current.Resources["xtraSmallButtonGrey"],
             };
             return newButton;
