@@ -15,7 +15,7 @@ namespace DirectorPortalDatabase.Models
         public int GIntId { get; set; }
         [Column("name")]
         public string GStrName { get; set; }
-        
+
         public virtual List<Email> GRGEmails { get; set; }
     }
 }

@@ -20,13 +20,13 @@ namespace DirectorPortalDatabase.Models
         [Column("notes")]
         public string GStrNotes { get; set; }
         [Column("type")]
-        public PhoneType GIntPhoneType { get; set; }
+        public PhoneType GEnumPhoneType { get; set; }
     }
 
     public enum PhoneType
     {
-        Mobile,
-        Office,
-        Fax
+        Mobile = 0,
+        Office = 1,
+        Fax = 2
     }
 }

@@ -18,7 +18,7 @@ namespace DirectorPortalDatabase.Models
         [Column("established")]
         public int GIntYearEstablished { get; set; }
         [Column("level")]
-        public MembershipLevel GIntMembershipLevel { get; set; }
+        public MembershipLevel GEnumMembershipLevel { get; set; }
         [Column("mailingAddressId")]
         public int GIntMailingAddressId { get; set; }
         [Column("physicalAddressId")]
@@ -41,7 +41,7 @@ namespace DirectorPortalDatabase.Models
 
     public enum MembershipLevel
     {
-        GOLD,
-        SILVER
+        GOLD = 0,
+        SILVER = 1
     }
 }

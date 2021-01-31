@@ -24,7 +24,7 @@ namespace DirectorPortalDatabase.Models
         [Column("credit")]
         public double GDblCredit { get; set; }
         [Column("terms")]
-        public TermLength GIntTermLength { get; set; }
+        public TermLength GEnumTermLength { get; set; }
         [Column("ballotNum")]
         public int GIntBallotNumber { get; set; }
         [Column("extraFields")]
@@ -33,9 +33,9 @@ namespace DirectorPortalDatabase.Models
 
     public enum TermLength
     {
-        Annually,
-        Semiannually,
-        Quarterly,
-        Monthly
+        Annually = 0,
+        Semiannually = 1,
+        Quarterly = 2,
+        Monthly = 3
     }
 }
