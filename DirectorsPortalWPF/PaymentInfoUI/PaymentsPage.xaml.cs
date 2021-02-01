@@ -62,6 +62,24 @@ namespace DirectorsPortalWPF.PaymentInfoUI
         {
             InitializeComponent();
 
+
+            // Pull PayPal user config
+            var config = PayPal.Api.ConfigManager.Instance.GetProperties();
+            // Using config pull an OAuth token from paypal
+            var accessToken = new PayPal.Api.OAuthTokenCredential(config).GetAccessToken();
+            // Define the HTTP config that the api will use while actually calling PayPal endpoints
+            var apiContext = new PayPal.Api.APIContext(accessToken);
+            // Get entire payment history
+            PayPal.Api.PaymentHistory paymentHistory = PayPal.Api.Payment.List(apiContext);
+            
+            foreach(PayPal.Api.Payment payment in paymentHistory.payments)
+            {
+                Console.WriteLine("payment " + payment.id + ":");
+                Console.WriteLine(payment.ConvertToJson());
+            }
+
+
+
             /* Generate the customer objects to populate some test payment
              * Expanders. */
             Random randomNum = new Random();
