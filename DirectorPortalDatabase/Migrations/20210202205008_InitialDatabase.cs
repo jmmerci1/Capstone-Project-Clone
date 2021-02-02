@@ -2,7 +2,7 @@
 
 namespace DirectorPortalDatabase.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class InitialDatabase : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -46,20 +46,6 @@ namespace DirectorPortalDatabase.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BusinessReps",
-                columns: table => new
-                {
-                    id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    businessId = table.Column<int>(nullable: false),
-                    contactPersonId = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BusinessReps", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ContactPeople",
                 columns: table => new
                 {
@@ -86,6 +72,21 @@ namespace DirectorPortalDatabase.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PhoneNumbers", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TodoListItems",
+                columns: table => new
+                {
+                    id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    title = table.Column<string>(nullable: true),
+                    description = table.Column<string>(nullable: true),
+                    complete = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TodoListItems", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -116,6 +117,27 @@ namespace DirectorPortalDatabase.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BusinessReps",
+                columns: table => new
+                {
+                    id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    businessId = table.Column<int>(nullable: false),
+                    contactPersonId = table.Column<int>(nullable: false),
+                    ContactPersonGIntId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BusinessReps", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_BusinessReps_ContactPeople_ContactPersonGIntId",
+                        column: x => x.ContactPersonGIntId,
+                        principalTable: "ContactPeople",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Emails",
                 columns: table => new
                 {
@@ -135,6 +157,11 @@ namespace DirectorPortalDatabase.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BusinessReps_ContactPersonGIntId",
+                table: "BusinessReps",
+                column: "ContactPersonGIntId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BusinessYearlyData_BusinessGIntId",
@@ -163,6 +190,9 @@ namespace DirectorPortalDatabase.Migrations
 
             migrationBuilder.DropTable(
                 name: "PhoneNumbers");
+
+            migrationBuilder.DropTable(
+                name: "TodoListItems");
 
             migrationBuilder.DropTable(
                 name: "Businesses");

@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DirectorPortalDatabase.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20210202185928_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20210202205008_InitialDatabase")]
+    partial class InitialDatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -109,6 +109,9 @@ namespace DirectorPortalDatabase.Migrations
                         .HasColumnName("id")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("ContactPersonGIntId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("GIntBusinessId")
                         .HasColumnName("businessId")
                         .HasColumnType("INTEGER");
@@ -118,6 +121,8 @@ namespace DirectorPortalDatabase.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("GIntId");
+
+                    b.HasIndex("ContactPersonGIntId");
 
                     b.ToTable("BusinessReps");
                 });
@@ -191,6 +196,30 @@ namespace DirectorPortalDatabase.Migrations
                     b.ToTable("PhoneNumbers");
                 });
 
+            modelBuilder.Entity("DirectorPortalDatabase.Models.Todo", b =>
+                {
+                    b.Property<int>("GIntId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("GBlnMarkedAsDone")
+                        .HasColumnName("complete")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("GStrDescription")
+                        .HasColumnName("description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("GStrTitle")
+                        .HasColumnName("title")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("GIntId");
+
+                    b.ToTable("TodoListItems");
+                });
+
             modelBuilder.Entity("DirectorPortalDatabase.Models.YearlyData", b =>
                 {
                     b.Property<int>("GIntId")
@@ -238,6 +267,13 @@ namespace DirectorPortalDatabase.Migrations
                     b.HasIndex("BusinessGIntId");
 
                     b.ToTable("BusinessYearlyData");
+                });
+
+            modelBuilder.Entity("DirectorPortalDatabase.Models.BusinessRep", b =>
+                {
+                    b.HasOne("DirectorPortalDatabase.Models.ContactPerson", null)
+                        .WithMany("GRGRepresentations")
+                        .HasForeignKey("ContactPersonGIntId");
                 });
 
             modelBuilder.Entity("DirectorPortalDatabase.Models.Email", b =>

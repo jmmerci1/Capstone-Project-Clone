@@ -8,15 +8,16 @@ using System.Threading.Tasks;
 
 namespace DirectorPortalDatabase.Models
 {
-    public class ContactPerson
+    public class Todo
     {
         [Key]
         [Column("id")]
         public int GIntId { get; set; }
-        [Column("name")]
-        public string GStrName { get; set; }
-
-        public virtual List<BusinessRep> GRGRepresentations { get; set; }
-        public virtual List<Email> GRGEmails { get; set; }
+        [Column("title")]
+        public string GStrTitle { get; set; }
+        [Column("description")]
+        public string GStrDescription { get; set; }
+        [Column("complete")]
+        public bool GBlnMarkedAsDone { get; set; }
     }
 }

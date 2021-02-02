@@ -155,17 +155,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseContext.cs" />
-    <Compile Include="Migrations\20210202185928_InitialMigration.cs" />
-    <Compile Include="Migrations\20210202185928_InitialMigration.designer.cs">
-      <DependentUpon>20210202185928_InitialMigration.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\DatabaseContextModelSnapshot.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Business.cs" />
     <Compile Include="Models\BusinessRep.cs" />
     <Compile Include="Models\ContactPerson.cs" />
     <Compile Include="Models\Email.cs" />
     <Compile Include="Models\PhoneNumber.cs" />
+    <Compile Include="Models\Todo.cs" />
     <Compile Include="Models\YearlyData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

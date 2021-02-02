@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DirectorPortalDatabase
 {
-    public class DatabaseContext: DbContext
+    public class DatabaseContext : DbContext
     {
         public DatabaseContext() : base()
         {
@@ -23,6 +23,7 @@ namespace DirectorPortalDatabase
         public DbSet<Email> Emails { get; set; }
         public DbSet<PhoneNumber> PhoneNumbers { get; set; }
         public DbSet<YearlyData> BusinessYearlyData { get; set; }
+        public DbSet<Todo> TodoListItems { get; set; }
 
         /// <summary>
         /// Pulls the connection string from the App.config file,
@@ -39,7 +40,7 @@ namespace DirectorPortalDatabase
             string strConnectionString = ConfigurationManager.ConnectionStrings["DatabaseContext"].ConnectionString;
             string newConnectionString = strConnectionString.Replace("%APPDATA%",
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
-            Console.WriteLine(newConnectionString);
+            // Console.WriteLine(newConnectionString); // Debug purposes, show the altered connection string
             return newConnectionString;
         }
 
