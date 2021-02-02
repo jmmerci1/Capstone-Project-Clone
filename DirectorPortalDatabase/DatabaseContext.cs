@@ -1,8 +1,9 @@
 ﻿using DirectorPortalDatabase.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.Entity.ModelConfiguration.Conventions;
+using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace DirectorPortalDatabase
 {
     public class DatabaseContext: DbContext
     {
-        public DatabaseContext() : base("DatabaseContext")
+        public DatabaseContext() : base()
         {
         }
 
@@ -23,10 +24,43 @@ namespace DirectorPortalDatabase
         public DbSet<PhoneNumber> PhoneNumbers { get; set; }
         public DbSet<YearlyData> BusinessYearlyData { get; set; }
 
-
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        /// <summary>
+        /// Pulls the connection string from the App.config file,
+        /// then manipulates it to remove the %APPDATA% and replace it
+        /// with the value of <code>Environment.GetFolderPath(ApplicationData)</code>.
+        /// This gives an easy to find folder for the database to reside in, while
+        /// not being immediately accessible to any person that's directly looking
+        /// for it.
+        /// </summary>
+        /// <returns>The connection string with the %APPDATA% replaced with the
+        /// actual file path to the AppData/Roaming folder.</returns>
+        private static string GetConnectionString()
         {
-            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
+            string strConnectionString = ConfigurationManager.ConnectionStrings["DatabaseContext"].ConnectionString;
+            string newConnectionString = strConnectionString.Replace("%APPDATA%",
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
+            Console.WriteLine(newConnectionString);
+            return newConnectionString;
+        }
+
+        /// <summary>
+        /// Needs a good implementation still
+        /// Currently just returns a hardcoded value
+        /// 
+        /// Parses out the folder from the connection string to create the path to it.
+        /// </summary>
+        /// <param name="strConnectionString"></param>
+        /// <returns></returns>
+        private static string GetFolderPathFromConnectionString(string strConnectionString)
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ChamberOfCommerce", "DirectorsPortal");
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            string strConnectionString = GetConnectionString();
+            Directory.CreateDirectory(GetFolderPathFromConnectionString(strConnectionString));
+            optionsBuilder.UseSqlite(strConnectionString);
         }
 
     }
