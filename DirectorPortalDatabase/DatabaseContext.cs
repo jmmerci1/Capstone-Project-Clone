@@ -1,12 +1,8 @@
 ﻿using DirectorPortalDatabase.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DirectorPortalDatabase
 {
@@ -16,13 +12,45 @@ namespace DirectorPortalDatabase
         {
         }
 
+        /// <summary>
+        /// Addresses table. Represents a list of addresses so that each business can
+        /// have a mailing address and a physical address
+        /// </summary>
         public DbSet<Address> Addresses { get; set; }
+        /// <summary>
+        /// Businesses table. Represents the basic information about all of the businesses
+        /// that are members of the chamber of commerce.
+        /// </summary>
         public DbSet<Business> Businesses { get; set; }
+        /// <summary>
+        /// Represents the link between a business and a contact person.
+        /// Allows for a business to have multiple contact people,
+        /// while a person can also represent multiple businesses.
+        /// </summary>
         public DbSet<BusinessRep> BusinessReps { get; set; }
+        /// <summary>
+        /// Represents the person that is a point of contact for a business.
+        /// Stores their basic information, as well as phone numbers or emails.
+        /// </summary>
         public DbSet<ContactPerson> ContactPeople { get; set; }
+        /// <summary>
+        /// A table with email addresses. Links an email to a contact person.
+        /// </summary>
         public DbSet<Email> Emails { get; set; }
+        /// <summary>
+        /// A table with phone numbers. Links a phone number to a contact person.
+        /// Each phone number has a different type assosciated with it to help
+        /// identify it against the others.
+        /// </summary>
         public DbSet<PhoneNumber> PhoneNumbers { get; set; }
+        /// <summary>
+        /// The information that changes about a business every year. Stores
+        /// information about raffle tickets, ballots, and dues.
+        /// </summary>
         public DbSet<YearlyData> BusinessYearlyData { get; set; }
+        /// <summary>
+        /// Stores a list of todo items.
+        /// </summary>
         public DbSet<Todo> TodoListItems { get; set; }
 
         /// <summary>
@@ -33,8 +61,10 @@ namespace DirectorPortalDatabase
         /// not being immediately accessible to any person that's directly looking
         /// for it.
         /// </summary>
-        /// <returns>The connection string with the %APPDATA% replaced with the
-        /// actual file path to the AppData/Roaming folder.</returns>
+        /// <returns>
+        /// The connection string with the %APPDATA% replaced with the
+        /// actual file path to the AppData/Roaming folder.
+        /// </returns>
         private static string GetConnectionString()
         {
             string strConnectionString = ConfigurationManager.ConnectionStrings["DatabaseContext"].ConnectionString;
@@ -50,13 +80,28 @@ namespace DirectorPortalDatabase
         /// 
         /// Parses out the folder from the connection string to create the path to it.
         /// </summary>
-        /// <param name="strConnectionString"></param>
-        /// <returns></returns>
+        /// <param name="strConnectionString">
+        /// The connection string to parse the folder path from
+        /// </param>
+        /// <returns>
+        /// The folder path as specified by the connection string
+        /// </returns>
         private static string GetFolderPathFromConnectionString(string strConnectionString)
         {
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ChamberOfCommerce", "DirectorsPortal");
         }
 
+        /// <summary>
+        /// Gets automatically run when the database context is being created.
+        /// Pulls the connection string from the App.config file, then creates
+        /// the folder that the database should reside in (because apparently
+        /// EntityFramework doesn't do this by default).
+        /// 
+        /// Then sets up the database to use sqlite
+        /// </summary>
+        /// <param name="optionsBuilder">
+        /// Options object that lets the database be configured
+        /// </param>
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             string strConnectionString = GetConnectionString();

@@ -155,6 +155,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseContext.cs" />
+    <Compile Include="Migrations\20210202205008_InitialDatabase.cs" />
+    <Compile Include="Migrations\20210202205008_InitialDatabase.designer.cs">
+      <DependentUpon>20210202205008_InitialDatabase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\DatabaseContextModelSnapshot.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Business.cs" />
     <Compile Include="Models\BusinessRep.cs" />
