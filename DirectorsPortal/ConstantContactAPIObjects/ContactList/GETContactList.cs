@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DirectorsPortal
 {
-    public class List
+    public class GETContactList
     {
         public string list_id { get; set; }
         public string name { get; set; }
@@ -17,20 +17,4 @@ namespace DirectorsPortal
         public int membership_count { get; set; }
     }
 
-    public class Next
-    {
-        public string href { get; set; }
-    }
-
-    public class Links
-    {
-        public Next next { get; set; }
-    }
-
-    public class GETContactList
-    {
-        public List<List> lists { get; set; }
-        public int lists_count { get; set; }
-        public Links _links { get; set; }
-    }
 }
