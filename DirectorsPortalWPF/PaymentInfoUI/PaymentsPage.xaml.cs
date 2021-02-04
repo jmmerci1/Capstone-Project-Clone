@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DirectorPortalDatabase;
+using DirectorPortalDatabase.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -50,10 +52,12 @@ namespace DirectorsPortalWPF.PaymentInfoUI
         /// </summary>
         List<Customer> CustomerList = new List<Customer>();
 
+        List<Business> glstBusinesses = new List<Business>();
+
         /// <summary>
         /// Global Variable for tracking the currently selected customer button.
         /// </summary>
-        string CurrentCustomer = "";
+        string gstrCurrentBusiness = "";
 
         /// <summary>
         /// Intializes the Page and content within the Page
@@ -62,10 +66,16 @@ namespace DirectorsPortalWPF.PaymentInfoUI
         {
             InitializeComponent();
 
+            /* Pull Buisnesses from the database. */
+            using (var context = new DatabaseContext()) 
+            {
+                glstBusinesses = context.Businesses.ToList();
+            }
+
             /* Generate the customer objects to populate some test payment
              * Expanders. */
             Random randomNum = new Random();
-            int numOfCustomers = randomNum.Next(4, 10);
+            int numOfCustomers = 7;
 
             int customerItr;
             for (customerItr = 0; customerItr < numOfCustomers; customerItr++)
@@ -119,35 +129,35 @@ namespace DirectorsPortalWPF.PaymentInfoUI
         /// </summary>
         /// <param name="sender">The UI object that called the function.</param>
         /// <param name="e">Event data asscociated with this event.</param>
-        void LoadCustomerNames(object sender, RoutedEventArgs e)
+        void LoadBusinessNames(object sender, RoutedEventArgs e)
         {
-            foreach (Customer customer in CustomerList)
+            foreach (Business business in glstBusinesses)
             {
-                ToggleButton tglBtnCustomer = new ToggleButton();
-                tglBtnCustomer.HorizontalContentAlignment = HorizontalAlignment.Stretch;
-                tglBtnCustomer.VerticalAlignment = VerticalAlignment.Center;
-                tglBtnCustomer.Tag = customer.Id.ToString();
-                tglBtnCustomer.Checked += new RoutedEventHandler(CustomerChecked);
-                tglBtnCustomer.Unchecked += new RoutedEventHandler(CustomerUnchecked);
-                tglBtnCustomer.Template = (ControlTemplate)Application.Current.Resources["largeToggleButton"];
+                ToggleButton tglBtnBusiness = new ToggleButton();
+                tglBtnBusiness.HorizontalContentAlignment = HorizontalAlignment.Stretch;
+                tglBtnBusiness.VerticalAlignment = VerticalAlignment.Center;
+                tglBtnBusiness.Tag = business.GIntId;
+                tglBtnBusiness.Checked += new RoutedEventHandler(BusinessChecked);
+                tglBtnBusiness.Unchecked += new RoutedEventHandler(BusinessUnchecked);
+                tglBtnBusiness.Template = (ControlTemplate)Application.Current.Resources["largeToggleButton"];
 
-                DockPanel dockPnlText = new DockPanel();
+                DockPanel dpText = new DockPanel();
 
-                Label lblCustName = new Label();
-                lblCustName.Content = customer.Name;
-                lblCustName.FontWeight = FontWeights.Bold;
-                DockPanel.SetDock(lblCustName, Dock.Left);
+                Label lblBusinessName = new Label();
+                lblBusinessName.Content = business.GStrBusinessName;
+                lblBusinessName.FontWeight = FontWeights.Bold;
+                DockPanel.SetDock(lblBusinessName, Dock.Left);
 
                 Label lblClickToSelect = new Label();
                 lblClickToSelect.Content = "Click to select";
                 lblClickToSelect.HorizontalContentAlignment = HorizontalAlignment.Right;
 
-                dockPnlText.Children.Add(lblCustName);
-                dockPnlText.Children.Add(lblClickToSelect);
+                dpText.Children.Add(lblBusinessName);
+                dpText.Children.Add(lblClickToSelect);
 
-                tglBtnCustomer.Content = dockPnlText;
+                tglBtnBusiness.Content = dpText;
 
-                spCustomerNames.Children.Add(tglBtnCustomer);
+                spBusinessNames.Children.Add(tglBtnBusiness);
             }
         }
 
@@ -162,15 +172,15 @@ namespace DirectorsPortalWPF.PaymentInfoUI
         /// </summary>
         /// <param name="sender">The UI object that called the function.</param>
         /// <param name="e">Event data asscociated with this event.</param>
-        private void CustomerChecked(object sender, RoutedEventArgs e)
+        private void BusinessChecked(object sender, RoutedEventArgs e)
         {
             ToggleButton tglBtnSender = sender as ToggleButton;
-            string btnTag = tglBtnSender.Tag.ToString();
-            CurrentCustomer = btnTag;
+            string strBtnTag = tglBtnSender.Tag.ToString();
+            gstrCurrentBusiness = strBtnTag;
 
-            ResetAllButtons(btnTag);
+            ResetAllButtons(strBtnTag);
 
-            PopulateCustomerPaymentsColumn(btnTag);
+            PopulateCustomerPaymentsColumn(strBtnTag);
         }
 
         /// <summary>
@@ -184,16 +194,16 @@ namespace DirectorsPortalWPF.PaymentInfoUI
         /// </summary>
         /// <param name="sender">The UI object that called the function.</param>
         /// <param name="e">Event data asscociated with this event.</param>
-        private void CustomerUnchecked(object sender, RoutedEventArgs e)
+        private void BusinessUnchecked(object sender, RoutedEventArgs e)
         {
             ToggleButton tglBtnSender = sender as ToggleButton;
             DockPanel dockPnlContent = tglBtnSender.Content as DockPanel;
             Label lblClick = dockPnlContent.Children.OfType<Label>().LastOrDefault();
             lblClick.Visibility = Visibility.Visible;
 
-            dpSelectedCustomer.Visibility = Visibility.Hidden;
+            dpSelectedBusiness.Visibility = Visibility.Hidden;
 
-            spCustomerPayments.Children.Clear();
+            spBusinessPayments.Children.Clear();
         }
 
         /// <summary>
@@ -212,8 +222,8 @@ namespace DirectorsPortalWPF.PaymentInfoUI
         private void SaveNewPayment(object sender, RoutedEventArgs e)
         {
             btnAddPayment.Visibility = Visibility.Visible;
-            spCustomerPayments.Children.Clear();
-            PopulateCustomerPaymentsColumn(CurrentCustomer);
+            spBusinessPayments.Children.Clear();
+            PopulateCustomerPaymentsColumn(gstrCurrentBusiness);
         }
 
         /// <summary>
@@ -230,8 +240,8 @@ namespace DirectorsPortalWPF.PaymentInfoUI
         private void CancelNewPayment(object sender, RoutedEventArgs e)
         {
             btnAddPayment.Visibility = Visibility.Visible;
-            spCustomerPayments.Children.Clear();
-            PopulateCustomerPaymentsColumn(CurrentCustomer);
+            spBusinessPayments.Children.Clear();
+            PopulateCustomerPaymentsColumn(gstrCurrentBusiness);
         }
 
         /// <summary>
@@ -249,12 +259,12 @@ namespace DirectorsPortalWPF.PaymentInfoUI
         /// <param name="e">Event data asscociated with this event.</param>
         private void AddNewPayment(object sender, RoutedEventArgs e)
         {
-            spCustomerPayments.Children.Clear();
+            spBusinessPayments.Children.Clear();
 
             btnAddPayment.Visibility = Visibility.Hidden;
 
-            Grid gTextFields = new Grid();
-            gTextFields.Width = spCustomerPayments.Width;
+            Grid grdTextFields = new Grid();
+            grdTextFields.Width = spBusinessPayments.Width;
 
             /* Define the grid columns. */
             ColumnDefinition colDef1 = new ColumnDefinition();
@@ -262,15 +272,15 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             ColumnDefinition colDef2 = new ColumnDefinition();
             colDef2.Width = new GridLength(2, GridUnitType.Star);
 
-            gTextFields.ColumnDefinitions.Add(colDef1);
-            gTextFields.ColumnDefinitions.Add(colDef2);
+            grdTextFields.ColumnDefinitions.Add(colDef1);
+            grdTextFields.ColumnDefinitions.Add(colDef2);
 
             /* Define the grid rows */
             RowDefinition rowDef1 = new RowDefinition();
             RowDefinition rowDef2 = new RowDefinition();
 
-            gTextFields.RowDefinitions.Add(rowDef1);
-            gTextFields.RowDefinitions.Add(rowDef2);
+            grdTextFields.RowDefinitions.Add(rowDef1);
+            grdTextFields.RowDefinitions.Add(rowDef2);
 
             /* Create the payment title entry. */
             Label lblPaymentName = new Label();
@@ -296,18 +306,18 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             Grid.SetRow(datePkrPaymentDate, 1);
             Grid.SetColumn(datePkrPaymentDate, 1);
 
-            gTextFields.Children.Add(lblPaymentName);
-            gTextFields.Children.Add(txtPaymentName);
-            gTextFields.Children.Add(lblPaymentDate);
-            gTextFields.Children.Add(datePkrPaymentDate);
+            grdTextFields.Children.Add(lblPaymentName);
+            grdTextFields.Children.Add(txtPaymentName);
+            grdTextFields.Children.Add(lblPaymentDate);
+            grdTextFields.Children.Add(datePkrPaymentDate);
 
             /* Create the data grid for enterig new payments. */
-            List<PaymentRowModel> newPaymentItems = new List<PaymentRowModel>();
+            List<PaymentRowModel> lstNewPaymentItems = new List<PaymentRowModel>();
 
             DataGrid dgNewPayment = new DataGrid();
             dgNewPayment.AutoGenerateColumns = false;
             dgNewPayment.Margin = new Thickness(2, 5, 2, 1);
-            dgNewPayment.ItemsSource = newPaymentItems;
+            dgNewPayment.ItemsSource = lstNewPaymentItems;
 
             DataGridTextColumn colItem = new DataGridTextColumn();
             colItem.Width = new DataGridLength(2, DataGridLengthUnitType.Star);
@@ -329,13 +339,12 @@ namespace DirectorsPortalWPF.PaymentInfoUI
 
             /* Create the save and cancel buttons. */
             StackPanel spSaveAndCancel = new StackPanel();
-            spSaveAndCancel.Width = spCustomerPayments.Width;
+            spSaveAndCancel.Width = spBusinessPayments.Width;
             spSaveAndCancel.Orientation = Orientation.Horizontal;
             spSaveAndCancel.HorizontalAlignment = HorizontalAlignment.Right;
             spSaveAndCancel.Margin = new Thickness(2, 5, 2, 1);
 
             Button btnCancel = new Button();
-            btnCancel.Tag =
             btnCancel.Margin = new Thickness(1, 0, 1, 0);
             btnCancel.Padding = new Thickness(2, 0, 2, 0);
             btnCancel.Width = 100;
@@ -354,9 +363,9 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             spSaveAndCancel.Children.Add(btnCancel);
             spSaveAndCancel.Children.Add(btnSave);
 
-            spCustomerPayments.Children.Add(gTextFields);
-            spCustomerPayments.Children.Add(dgNewPayment);
-            spCustomerPayments.Children.Add(spSaveAndCancel);
+            spBusinessPayments.Children.Add(grdTextFields);
+            spBusinessPayments.Children.Add(dgNewPayment);
+            spBusinessPayments.Children.Add(spSaveAndCancel);
         }
 
         /// <summary>
@@ -374,20 +383,20 @@ namespace DirectorsPortalWPF.PaymentInfoUI
         /// 
         /// </summary>
         /// <param name="selectedBtnTag">The tag of the currently selected customer button.</param>
-        private void ResetAllButtons(string selectedBtnTag)
+        private void ResetAllButtons(string strSelectedBtnTag)
         {
-            List<ToggleButton> customerBtnsList = spCustomerNames.Children.OfType<ToggleButton>().ToList();
+            List<ToggleButton> lstBusinessBtns = spBusinessNames.Children.OfType<ToggleButton>().ToList();
 
-            int customerBtnIterator;
-            for (customerBtnIterator = 0; customerBtnIterator < customerBtnsList.Count; customerBtnIterator++)
+            int intBusinessBtnItr;
+            for (intBusinessBtnItr = 0; intBusinessBtnItr < lstBusinessBtns.Count; intBusinessBtnItr++)
             {
-                ToggleButton tglBtnCustomer = customerBtnsList[customerBtnIterator];
-                string btnTag = tglBtnCustomer.Tag.ToString();
+                ToggleButton tglBtnCustomer = lstBusinessBtns[intBusinessBtnItr];
+                string strBtnTag = tglBtnCustomer.Tag.ToString();
 
-                DockPanel dockPnlContent = tglBtnCustomer.Content as DockPanel;
-                Label lblClick = dockPnlContent.Children.OfType<Label>().LastOrDefault();
+                DockPanel dpContent = tglBtnCustomer.Content as DockPanel;
+                Label lblClick = dpContent.Children.OfType<Label>().LastOrDefault();
 
-                if (btnTag.Equals(selectedBtnTag))
+                if (strBtnTag.Equals(strSelectedBtnTag))
                 {
                     /* We found the currently selected button so continue. */
                     lblClick.Visibility = Visibility.Hidden;
@@ -413,11 +422,11 @@ namespace DirectorsPortalWPF.PaymentInfoUI
         /// 
         /// </summary>
         /// <param name="custId">The ID of the currently selected customer.</param>
-        private void PopulateCustomerPaymentsColumn(string custId)
+        private void PopulateCustomerPaymentsColumn(string strCustId)
         {
-            Customer selectedCust = CustomerList[int.Parse(custId)];
-            lblSelectedCustomer.Content = selectedCust.Name;
-            dpSelectedCustomer.Visibility = Visibility.Visible;
+            Customer selectedCust = CustomerList[int.Parse(strCustId)];
+            lblSelectedBusiness.Content = selectedCust.Name;
+            dpSelectedBusiness.Visibility = Visibility.Visible;
 
             foreach (Payment payment in selectedCust.Payments)
             {
@@ -426,7 +435,7 @@ namespace DirectorsPortalWPF.PaymentInfoUI
                 expPayment.ExpandDirection = ExpandDirection.Down;
                 expPayment.FontSize = 15;
                 expPayment.FontWeight = FontWeights.Bold;
-                expPayment.Width = spCustomerPayments.Width;
+                expPayment.Width = spBusinessPayments.Width;
 
                 StackPanel spPaymentHeader = new StackPanel();
 
@@ -446,7 +455,7 @@ namespace DirectorsPortalWPF.PaymentInfoUI
                 expPayment.Header = spPaymentHeader;
 
                 DataGrid dgPaymentItems = new DataGrid();
-                dgPaymentItems.Width = spCustomerPayments.Width;
+                dgPaymentItems.Width = spBusinessPayments.Width;
                 dgPaymentItems.IsReadOnly = true;
 
                 DataGridTextColumn colItem = new DataGridTextColumn();
@@ -474,7 +483,7 @@ namespace DirectorsPortalWPF.PaymentInfoUI
 
                 expPayment.Content = dgPaymentItems;
 
-                spCustomerPayments.Children.Add(expPayment);
+                spBusinessPayments.Children.Add(expPayment);
             }
         }
     }
