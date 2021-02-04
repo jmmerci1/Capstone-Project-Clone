@@ -307,9 +307,10 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="e"></param>
         private void BtnOpenFile_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            if (openFileDialog.ShowDialog() == true)
-                txtBoxFileBackup.Text = File.ReadAllText(openFileDialog.FileName);
+            BackupUtility backupUtility = new BackupUtility();
+            
+            txtBoxFileBackup.Text = backupUtility.CreateBackup();
+           
         }
 
         /// <summary>
@@ -378,6 +379,17 @@ namespace DirectorsPortalWPF.SettingsUI
             sPanelFields.Children.Add(sPanelTxtBoxAndBtn);
 
             btnAddField.Content = "Add Field";
+        }
+
+        private void btnRestoreFromBackup_Click(object sender, RoutedEventArgs e)
+        {
+            BackupUtility backupUtility = new BackupUtility();
+            backupUtility.RestoreFromBackup();
+        }
+
+        private void btnCreateBackupNow_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
