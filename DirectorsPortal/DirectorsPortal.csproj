@@ -56,6 +56,9 @@
     <Compile Include="ConstantContactAPIObjects\Contact\PUTContact.cs" />
     <Compile Include="ConstantContactAPIObjects\EmailCampaign.cs" />
     <Compile Include="ConstantContactAPIObjects\Contact\POSTContact.cs" />
+    <Compile Include="ConstantContactAPIObjects\EmailCampaigns\GETEmailCampaigns.cs" />
+    <Compile Include="ConstantContactAPIObjects\EmailCampaigns\POSTEmailCampaigns.cs" />
+    <Compile Include="ConstantContactAPIObjects\EmailCampaigns\PUTEmailCampaigns.cs" />
     <Compile Include="ConstantContactOAuth.cs" />
     <Compile Include="ConstantContactAPIObjects\Contact\GETContacts.cs" />
     <Compile Include="Form1.cs">
