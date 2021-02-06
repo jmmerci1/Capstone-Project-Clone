@@ -33,9 +33,6 @@ namespace DirectorPortalDatabase.Migrations
                     level = table.Column<int>(nullable: false),
                     mailingAddressId = table.Column<int>(nullable: false),
                     physicalAddressId = table.Column<int>(nullable: false),
-                    city = table.Column<string>(nullable: true),
-                    state = table.Column<string>(nullable: true),
-                    zip = table.Column<int>(nullable: false),
                     website = table.Column<string>(nullable: true),
                     notes = table.Column<string>(nullable: true),
                     extraFields = table.Column<string>(nullable: true)

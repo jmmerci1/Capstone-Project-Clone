@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DirectorPortalDatabase.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20210202205008_InitialDatabase")]
+    [Migration("20210203175503_InitialDatabase")]
     partial class InitialDatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -69,16 +69,8 @@ namespace DirectorPortalDatabase.Migrations
                         .HasColumnName("established")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("GIntZipCode")
-                        .HasColumnName("zip")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("GStrBusinessName")
                         .HasColumnName("name")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("GStrCity")
-                        .HasColumnName("city")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("GStrExtraFields")
@@ -87,10 +79,6 @@ namespace DirectorPortalDatabase.Migrations
 
                     b.Property<string>("GStrExtraNotes")
                         .HasColumnName("notes")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("GStrState")
-                        .HasColumnName("state")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("GStrWebsite")
