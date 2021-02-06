@@ -13,31 +13,13 @@ using System.Windows.Controls;
 /// 
 /// Original Author: Benjamin J. Dore
 /// 
-/// Date Created: 1/20/2021
-/// 
 /// File Purpose:
 ///     This file defines the logic for the 'Settings' screen in the Directors Portal application. The 
 ///     'Settings' screen consists of tabs including:
 ///         - Backup and Restore
 ///         - Edit Fields
 ///         - OTHERS TO BE DETERMINED
-///     
-/// Command Line Parameter List:
-///     (NONE)
-/// 
-/// Environmental Returns: 
-///     (NONE)
-/// 
-/// Sample Invocation:
-///     This code is executed when the user navigates to the "Settings" screen from the Directors
-///     portal main menu. 
-///     
-/// Global Variable List:
-///     (NONE)
-///     
-/// Modification History:
-///     1/20/2021 - BD: Inital creation
-///     
+///         
 /// </summary>
 
 namespace DirectorsPortalWPF.SettingsUI
@@ -82,18 +64,10 @@ namespace DirectorsPortalWPF.SettingsUI
         }
 
         /// <summary>
-        ///
         /// Creates a list of times to be used in the dropdown list in the Backup and Restore section 
         /// of Settings.
-        /// 
-        /// Original Author: Benjamin J. Dore
-        /// Date Created: 1/26/2021
-        /// 
-        /// Modification History:
-        ///     1/26/2021 - BD: Initial creation
-        ///
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A list of all times in a day</returns>
         private List<string> GenerateDropdownTimeList()
         {
             return new List<string>
@@ -127,25 +101,17 @@ namespace DirectorsPortalWPF.SettingsUI
         }
 
         /// <summary>
-        /// 
         /// Deletes a Field from the list (will need to be converted for DB use). Will also display a message confirming the delete operation.
         /// 
         /// TODO: Modify the DeleteTextField method in 'Settings' to work with the DB
-        /// 
-        /// Original Author: Benjamin J. Dore
-        /// Date Created: 1/23/2021
-        /// 
-        /// Modification History:
-        ///     1/23/2020 - BD: Intial creation
-        ///     
         /// </summary>
         /// <param name="sender">The Delete Button</param>
         /// <param name="e">The Click Event</param>
-        /// <param name="stackPanel">The Stack Panel containing the Field to be deleted.</param>
-        private void DeleteTextField(object sender, RoutedEventArgs e, StackPanel stackPanel)
+        /// <param name="sPanelToDelete">The Stack Panel containing the Field to be deleted.</param>
+        private void DeleteTextField(object sender, RoutedEventArgs e, StackPanel sPanelToDelete)
         {
 
-            TextBox txtBoxFieldEdit = (TextBox)stackPanel.Children[0];
+            TextBox txtBoxFieldEdit = (TextBox)sPanelToDelete.Children[0];
             MessageBoxResult confirmDelete = MessageBox.Show(
                 $"Are you sure you want to delete \'{txtBoxFieldEdit.Text}\'?",
                 "Warning!",
@@ -155,8 +121,8 @@ namespace DirectorsPortalWPF.SettingsUI
             switch (confirmDelete)
             {
                 case MessageBoxResult.Yes:
-                    sPanelFields.Children.Remove(stackPanel);
-                    stackPanel.Children.Clear();
+                    sPanelFields.Children.Remove(sPanelToDelete);
+                    sPanelToDelete.Children.Clear();
 
                     GC.Collect();               // Initiate garbage collection so rogue stack panel children isn't floating around in heap.
                     break;
@@ -166,18 +132,10 @@ namespace DirectorsPortalWPF.SettingsUI
         }
 
         /// <summary>
-        /// 
         /// Sets the TextBox that contains the name of the Field from the database. Currently just
         /// changes the TextField text that is there. This method can be modified to work with a database.
         /// 
         /// TODO: Modify the SetTextField method in the 'Settings' to work with the DB
-        /// 
-        /// Original Author: Benjamin J. Dore
-        /// Date Created: 1/23/2021
-        /// 
-        ///  Modification History:
-        ///     1/23/2020 - BD: Intial creation
-        ///     
         /// </summary>
         /// <param name="sender">The button that is calling the Click event</param>
         /// <param name="e">The event itself</param>
@@ -204,95 +162,63 @@ namespace DirectorsPortalWPF.SettingsUI
         }
 
         /// <summary>
-        /// 
         /// Creates a new Text Box for the 'Edit Fields' tab on the Settings screen.
-        /// 
-        /// Original Author: Benjamin J. Dore
-        /// Date Created: 1/23/2021
-        /// 
-        ///  Modification History:
-        ///     1/23/2020 - BD: Intial creation
-        ///     
         /// </summary>
-        /// <param name="isEnabled">Set the Text Field to either be enabled or disabled</param>
+        /// <param name="blnIsEnabled">Set the Text Field to either be enabled or disabled</param>
         /// <returns>Returns a generated TextBox object with pre-set formatting</returns>
-        private TextBox CreateTextBox(bool isEnabled)
+        private TextBox CreateTextBox(bool blnIsEnabled)
         {
-            TextBox newTextBox = new TextBox
+            TextBox txtBoxNewTextBox = new TextBox
             {
                 Height = 30,
                 Width = 300,
                 VerticalContentAlignment = VerticalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                IsEnabled = isEnabled
+                IsEnabled = blnIsEnabled
             };
 
-            return newTextBox;
+            return txtBoxNewTextBox;
         }
 
         /// <summary>
-        /// 
         /// Created a new Stack Panel to be used by the 'Edit Fields' tab on the Settings screen.
-        /// 
-        /// Original Author: Benjamin J. Dore
-        /// Date Created: 1/23/2021
-        /// 
-        ///  Modification History:
-        ///     1/23/2020 - BD: Intial creation
-        ///     
         /// </summary>
-        /// <param name="desiredOrientation">Set the orientation of the Stack Panel, either Vertical or Horizontal
+        /// <param name="OriDesiredOrientation">Set the orientation of the Stack Panel, either Vertical or Horizontal
         /// (NOTE: use Orientation.[Vertial | Horizontal]</param>
         /// <returns>Returns a generated StackPanel object with pre-set formatting</returns>
-        private StackPanel CreateStackPanel(Orientation desiredOrientation)
+        private StackPanel CreateStackPanel(Orientation OriDesiredOrientation)
         {
-            StackPanel newStackPanel = new StackPanel
+            StackPanel sPanelNewStackPanel = new StackPanel
             {
-                Orientation = desiredOrientation,
+                Orientation = OriDesiredOrientation,
                 Height = 40,
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            return newStackPanel;
+            return sPanelNewStackPanel;
         }
 
         /// <summary>
-        /// 
         /// Creates a new Button to be used by the 'Edit Fields' tab on the Settings screen.
-        /// 
-        /// Original Author: Benjamin J. Dore
-        /// Date Created: 1/23/2021
-        /// 
-        ///  Modification History:
-        ///     1/23/2020 - BD: Intial creation
-        ///     
         /// </summary>
         /// <returns>Returns a generated Button object with pre-set formatting</returns>
-        private Button CreateButton(string buttonText)
+        private Button CreateButton(string strButtonText)
         {
-            Button newButtton = new Button
+            Button btnNewButtton = new Button
             {
-                Content = buttonText,
+                Content = strButtonText,
                 Template = (ControlTemplate)Application.Current.Resources["xtraSmallButton"],
                 Margin = new Thickness(5)
             };
 
-            return newButtton;
+            return btnNewButtton;
         }
 
         /// <summary>
-        /// 
         /// Defines the logic for when the 'Open File' button is clicked. Intended to be used to 
         /// select a backup filepath for the application.
         /// 
         /// TODO: The BtnOpenFile_Click method doesn't list a Filepath properly, pursuit a fix.
-        /// 
-        /// Original Author: Benjamin J. Dore
-        /// Date Created: 1/23/2021
-        /// 
-        ///  Modification History:
-        ///     1/23/2020 - BD: Intial creation
-        ///     
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -304,15 +230,7 @@ namespace DirectorsPortalWPF.SettingsUI
         }
 
         /// <summary>
-        /// 
         /// Hides and unhides the UI elements for adding a new field to the database.
-        /// 
-        /// Original Author: Benjamin J. Dore
-        /// Date Created: 1/23/2021
-        /// 
-        ///  Modification History:
-        ///     1/23/2020 - BD: Intial creation
-        ///     
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -331,17 +249,9 @@ namespace DirectorsPortalWPF.SettingsUI
         }
 
         /// <summary>
-        /// 
         /// Saves a new Field to the list when the SaveField button is clicked.
         /// 
         /// TODO: Modify the BtnSaveField_Click to add a new field to the DB.
-        /// 
-        /// Original Author: Benjamin J. Dore
-        /// Date Created: 1/23/2021
-        /// 
-        ///  Modification History:
-        ///     1/23/2020 - BD: Intial creation
-        ///     
         /// </summary>
         /// <param name="sender">The button for the Save Field event</param>
         /// <param name="e">The click event</param>
@@ -349,22 +259,22 @@ namespace DirectorsPortalWPF.SettingsUI
         {
             StackPanel sPanelTxtBoxAndBtn = CreateStackPanel(Orientation.Horizontal);
 
-            TextBox newField = CreateTextBox(false);
-            newField.Text = txtBoxFieldName.Text;
+            TextBox txtBoxNewField = CreateTextBox(false);
+            txtBoxNewField.Text = txtBoxFieldName.Text;
 
             txtBoxFieldName.Text = "";
             gridAddField.Visibility = Visibility.Hidden;
 
-            Button newButtonEdit = CreateButton("Edit");
-            Button newButtonDelete = CreateButton("Delete");
-            newButtonDelete.Visibility = Visibility.Hidden;
+            Button btnNewButtonEdit = CreateButton("Edit");
+            Button btnNewButtonDelete = CreateButton("Delete");
+            btnNewButtonDelete.Visibility = Visibility.Hidden;
 
-            newButtonEdit.Click += (next_Sender, next_e) => SetTextField(next_Sender, next_e, newField, newButtonDelete);
-            newButtonDelete.Click += (next_Sender, next_e) => DeleteTextField(next_Sender, next_e, sPanelTxtBoxAndBtn);
+            btnNewButtonEdit.Click += (next_Sender, next_e) => SetTextField(next_Sender, next_e, txtBoxNewField, btnNewButtonDelete);
+            btnNewButtonDelete.Click += (next_Sender, next_e) => DeleteTextField(next_Sender, next_e, sPanelTxtBoxAndBtn);
 
-            sPanelTxtBoxAndBtn.Children.Add(newField);
-            sPanelTxtBoxAndBtn.Children.Add(newButtonEdit);
-            sPanelTxtBoxAndBtn.Children.Add(newButtonDelete);
+            sPanelTxtBoxAndBtn.Children.Add(txtBoxNewField);
+            sPanelTxtBoxAndBtn.Children.Add(btnNewButtonEdit);
+            sPanelTxtBoxAndBtn.Children.Add(btnNewButtonDelete);
 
             sPanelFields.Children.Add(sPanelTxtBoxAndBtn);
 

@@ -49,6 +49,7 @@
             
             <StackPanel Grid.Row="2" Grid.Column="0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="btnViewInWeb" Content="Preview In Web Browser" Template="{StaticResource smallButton}" Click="BtnViewInWeb_Click"  Margin="10,10,10,20" Padding="0,0,140,0" Height="20" />
                     <Button x:Name="btnRefreshPreview" Content="Refresh Preview" Template="{StaticResource smallButton}" Click="BtnRefreshPreview_Click" Margin="10,10,10,20" Padding="0,0,100,0" Height="20" />
                     <Button x:Name="btnCopyContent" Content="Copy Content" Template="{StaticResource smallButton}" Click="BtnCopyContent_Click"  Margin="10,10,20,20" Padding="0,0,100,0" Height="20" />
                 </StackPanel>

@@ -11,8 +11,6 @@ using System.Windows.Media;
 /// 
 /// Original Author: Benjamin J. Dore
 /// 
-/// Date Created: 1/20/2021
-/// 
 /// File Purpose:
 ///     This file defines the logic for the 'Todo' screen in the Directors Portal application. The
 ///     To do page displays a list of outstanding tasks that need to be completed by the end user. These
@@ -20,22 +18,6 @@ using System.Windows.Media;
 ///         - Reviewing a new member data change
 ///         - Performing a DB backup
 ///         - Reviewing a new member request.
-///     
-/// Command Line Parameter List:
-///     (NONE)
-/// 
-/// Environmental Returns: 
-///     (NONE)
-/// 
-/// Sample Invocation:
-///     This code is executed when the user navigates to the "Todo" screen from the Directors
-///     portal main menu. 
-///     
-/// Global Variable List:
-///     (NONE)
-///     
-/// Modification History:
-///     1/20/2021 - BD: Inital creation
 ///     
 /// </summary>
 
@@ -108,15 +90,7 @@ namespace DirectorsPortalWPF.TodoUI
         }
 
         /// <summary>
-        /// 
-        /// Intended to show a Todo item that simply states there is no items in the Todo list
-        /// 
-        /// Original Author: Benjamin J. Dore
-        /// Date Created: 1/21/2021
-        /// 
-        /// Modification History:
-        ///     1/23/2021 - BD: Initial Creation
-        ///     
+        /// Intended to show a Todo item that simply states there is no items in the Todo list  
         /// </summary>
         /// <returns>Returns a StackPanel containing the contents to show a Todo item indicating there are no Todo items</returns>
         private StackPanel ShowNoTodo()
@@ -139,19 +113,11 @@ namespace DirectorsPortalWPF.TodoUI
         }
 
         /// <summary>
-        /// 
         /// Invokes when a Todo item's 'Done' button is clicked. Essentially marks an item as done.
         /// For the moment this function simply removes the card from the Todo list but can be modified to work
         /// with a DB.
         /// 
         /// TODO: Modify the MarkAsDone method in Todo to use DB
-        /// 
-        /// Original Author: Benjamin J. Dore
-        /// Date Created: 1/21/2021
-        /// 
-        /// Modification History:
-        ///     1/21/2021 - BD: Initial creation
-        /// 
         /// </summary>
         /// <param name="sender">Done button from the selected task</param>
         /// <param name="e">The Click event</param>
@@ -172,54 +138,38 @@ namespace DirectorsPortalWPF.TodoUI
         }
 
         /// <summary>
-        /// 
         /// Creates a new Stack Panel to be used on the 'Todo' screen. This Stack Panel represents a 'Card'
         /// That will contain the contents of a single Todo item.
-        /// 
-        /// Original Author: Benjamin J. Dore
-        /// Date Created: 1/23/2021
-        /// 
-        /// Modification History:
-        ///     1/23/2021 - BD: Initial creation
-        ///     
         /// </summary>
         /// <returns>Returns a generated StackPanel object with pre-set formatting</returns>
         private StackPanel CreateStackPanelCard()
         {
-            StackPanel newStackPanel = new StackPanel
+            StackPanel sPanelNewStackPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
                 Background = Brushes.White,
                 Margin = new Thickness(50, 1, 50, 1)
             };
 
-            return newStackPanel;
+            return sPanelNewStackPanel;
         }
 
 
         /// <summary>
-        /// 
         /// Creates a new Button to  be used on the 'Todo' screen.
-        /// 
-        /// Original Author: Benjamin J. Dore
-        /// Date Created: 1/23/2021
-        /// 
-        /// Modification History:
-        ///     1/23/2021 - BD: Inital creation
-        ///     
         /// </summary>
-        /// <param name="buttonText">Returns a generated Button object with pre-set formatting</param>
+        /// <param name="strButtonText">Returns a generated Button object with pre-set formatting</param>
         /// <returns></returns>
-        private Button CreateButton(string buttonText)
+        private Button CreateButton(string strButtonText)
         {
-            Button newButton = new Button()
+            Button btnNewButton = new Button()
             {
-                Content = buttonText,
+                Content = strButtonText,
 
                 Margin = new Thickness(5, 5, 5, 5),
                 Template = (ControlTemplate)Application.Current.Resources["xtraSmallButtonGrey"],
             };
-            return newButton;
+            return btnNewButton;
         }
     }
 }

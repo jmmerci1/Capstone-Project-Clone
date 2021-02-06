@@ -191,6 +191,7 @@
     <Compile Include="TodoUI\TodoPage.xaml.cs">
       <DependentUpon>TodoPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ValidateWebsite\HtmlPreviewGenerator.cs" />
     <Compile Include="ValidateWebsite\WebsitePreviewPage.xaml.cs">
       <DependentUpon>WebsitePreviewPage.xaml</DependentUpon>
     </Compile>
