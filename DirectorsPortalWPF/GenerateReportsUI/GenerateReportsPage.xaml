@@ -31,9 +31,13 @@
                                 <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Report Type" Grid.Row="0" Grid.Column="0" Margin="25,0,0,0" VerticalAlignment="Center"></TextBlock>
-                            <ComboBox Name="cboReportType" Grid.Row="0" Grid.Column="1" Width="300" HorizontalAlignment="Left">
-                                <ComboBoxItem IsSelected="True">Member</ComboBoxItem>
-                            </ComboBox>
+                            <StackPanel Grid.Row="0" Grid.Column="1" Width="300" HorizontalAlignment="Left">
+                                <ComboBox Name="cboReportType"
+                                          ItemsSource="{Binding Path=GUdtyReportTypes}"
+                                          SelectionChanged="ReportTypeSelectedHandler">
+                                    <!--<ComboBoxItem IsSelected="True">Member</ComboBoxItem>-->
+                                </ComboBox>
+                            </StackPanel>
                         </Grid>
                         <Grid Grid.Row="1" Margin="25,10,0,0">
                             <Grid.RowDefinitions>
@@ -48,7 +52,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Report Fields" Grid.Row="0"></TextBlock>
                             <ListBox Name="lstReportFields" SelectionMode="Multiple" Grid.Row="1" Width="400" Height="210" HorizontalAlignment="Left">
-                                <ListBoxItem>Business Name</ListBoxItem>
+                                <!--<ListBoxItem>Business Name</ListBoxItem>
                                 <ListBoxItem>Mailing Address</ListBoxItem>
                                 <ListBoxItem>Location Address</ListBoxItem>
                                 <ListBoxItem>City/State/Zip</ListBoxItem>
@@ -57,11 +61,13 @@
                                 <ListBoxItem>Fax Number</ListBoxItem>
                                 <ListBoxItem>Email Address</ListBoxItem>
                                 <ListBoxItem>Website</ListBoxItem>
-                                <ListBoxItem>Level</ListBoxItem>
+                                <ListBoxItem>Level</ListBoxItem>-->
                             </ListBox>
-                            <Button Name="btnCreateReport" Template="{StaticResource largeButton}" Grid.Row="2" Margin="0,15,0,15" Width="100"  HorizontalAlignment="Left">Create Report</Button>
+                            <Button Name="btnCreateReport" Click="GenerateReportButtonHandler" Template="{StaticResource largeButton}" Grid.Row="2" Margin="0,15,0,15" Width="100"  HorizontalAlignment="Left">Create Report</Button>
+                            
                             <Border BorderThickness="1" Grid.Row="3"/>
-                            <DataGrid x:Name="dgdMemberData" Grid.Row="3" FrozenColumnCount="10" Visibility="Hidden"/>
+                            <Grid Grid.Row="4" Name="grdReportContent"></Grid>
+                            <!--<DataGrid x:Name="dgdMemberData" Grid.Row="3" FrozenColumnCount="10" Visibility="Hidden"/>-->
                         </Grid>
                     </Grid>
                 </TabItem>
