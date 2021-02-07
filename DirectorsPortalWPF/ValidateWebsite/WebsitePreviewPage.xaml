@@ -24,20 +24,34 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
             <Grid.Background>
                 <SolidColorBrush Color="#FFF1F2F7" />
             </Grid.Background>
-            <Border Grid.RowSpan="2" BorderBrush="#FFACACAC" BorderThickness="1" />
+            <Border Grid.RowSpan="3" BorderBrush="#FFACACAC" BorderThickness="1" CornerRadius="5" />
+
+            <Grid Grid.Row="0" Grid.ColumnSpan="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Background="#FF00B0F0" Grid.RowSpan="5" Grid.ColumnSpan="3" Height="30" BorderBrush="#FFACACAC" BorderThickness="0" CornerRadius="5,5,0,0"/>
+                <Label Content="Membership Details Preview" HorizontalAlignment="Left" Foreground="White" Margin="10,0,15,0" VerticalAlignment="Center" />
+            </Grid>
             
-            <Frame x:Name="frmValidateWebpage" Grid.Row="0" NavigationUIVisibility="Hidden" Margin="20,20,20,20" Panel.ZIndex="10" />
+            <WebBrowser x:Name="frmValidateWebpage" Grid.Row="1" Margin="20,20,20,0" Panel.ZIndex="10" />
             
-            <StackPanel Grid.Row="1" Grid.Column="0">
+            <StackPanel Grid.Row="2" Grid.Column="0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button x:Name="btnRejectChange" Content="Reject" Template="{StaticResource smallButton}" Margin="10,10,10,20"/>
-                    <Button x:Name="btnAcceptChange" Content="Accept" Template="{StaticResource smallButton}" Margin="10,10,20,20"/>
+                    <Button x:Name="btnViewInWeb" Content="Preview In Web Browser" Template="{StaticResource smallButton}" Click="BtnViewInWeb_Click"  Margin="10,10,10,20" Padding="0,0,140,0" Height="20" />
+                    <Button x:Name="btnRefreshPreview" Content="Refresh Preview" Template="{StaticResource smallButton}" Click="BtnRefreshPreview_Click" Margin="10,10,10,20" Padding="0,0,100,0" Height="20" />
+                    <Button x:Name="btnCopyContent" Content="Copy Content" Template="{StaticResource smallButton}" Click="BtnCopyContent_Click"  Margin="10,10,20,20" Padding="0,0,100,0" Height="20" />
                 </StackPanel>
             </StackPanel>
         </Grid>

@@ -1,5 +1,17 @@
-﻿using System.Windows;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
 /// <summary>
 /// File Name: EmailPage.xaml.cs
@@ -78,10 +90,14 @@ namespace DirectorsPortalWPF.EmailMembersUI
                     };
                     Button btnEmailGroupEditButton = new Button()
                     {
-                        Content = "Edit"
+                        Content = "Edit",
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        Template = (ControlTemplate)Application.Current.Resources["smallButton"],
+                        Padding = new Thickness(0,0,35,0),
+                        Height = 15
                     };
-                    hspEmailGroupRow.Children.Add(lblEmailGroupName);
                     hspEmailGroupRow.Children.Add(btnEmailGroupEditButton);
+                    hspEmailGroupRow.Children.Add(lblEmailGroupName);
                     vspGroupList.Children.Add(hspEmailGroupRow);
                 }
 
