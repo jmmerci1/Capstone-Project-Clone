@@ -90,6 +90,10 @@ namespace DirectorPortalDatabase
         {
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ChamberOfCommerce", "DirectorsPortal");
         }
+        public static string GetFolderPath()
+        {
+            return GetFolderPathFromConnectionString(GetConnectionString());
+        }
 
         /// <summary>
         /// Gets automatically run when the database context is being created.

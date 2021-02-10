@@ -28,7 +28,7 @@
 
                         <Label Grid.Row="0" Grid.Column="0" Content="Backup File Location:" HorizontalAlignment="Right" VerticalAlignment="Center" />
                         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" >
-                            <TextBox Name="txtBoxFileBackup" Width="300" VerticalAlignment="Center" Height="21.5"/>
+                            <TextBox IsReadOnly="True" Name="txtBoxFileBackup" Width="300" VerticalAlignment="Center" Height="21.5"/>
                             <Button x:Name="btnOpenFile" Content="Browse..." Template="{StaticResource smallButton}" Margin="10,5,0,5" Padding="0,0,75,0" Height="20" Click="BtnOpenFile_Click" />
                         </StackPanel>
                        

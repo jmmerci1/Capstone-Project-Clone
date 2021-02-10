@@ -219,6 +219,14 @@ namespace DirectorsPortalWPF.SettingsUI
         /// select a backup filepath for the application.
         /// 
         /// TODO: The BtnOpenFile_Click method doesn't list a Filepath properly, pursuit a fix.
+        /// 
+        /// Original Author: Benjamin J. Dore
+        /// Date Created: 1/23/2021
+        /// 
+        ///  Modification History:
+        ///     1/23/2020 - BD: Intial creation
+        ///     1/25/2020 - BD: Moved to a different class - Kaden Thompson
+        ///     
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -226,7 +234,7 @@ namespace DirectorsPortalWPF.SettingsUI
         {
             BackupUtility backupUtility = new BackupUtility();
             
-            txtBoxFileBackup.Text = backupUtility.CreateBackup();
+            txtBoxFileBackup.Text = backupUtility.ChooseBackupLocation();
            
         }
 
@@ -282,15 +290,18 @@ namespace DirectorsPortalWPF.SettingsUI
             btnAddField.Content = "Add Field";
         }
 
+        //kaden
         private void btnRestoreFromBackup_Click(object sender, RoutedEventArgs e)
         {
             BackupUtility backupUtility = new BackupUtility();
-            backupUtility.RestoreFromBackup();
+            backupUtility.RestoreFromBackup(txtBoxFileBackup.Text);
         }
 
+        //kaden - needs logic
         private void btnCreateBackupNow_Click(object sender, RoutedEventArgs e)
         {
-
+            BackupUtility backupUtility = new BackupUtility();
+            backupUtility.CreateBackup(txtBoxFileBackup.Text);
         }
     }
 }
