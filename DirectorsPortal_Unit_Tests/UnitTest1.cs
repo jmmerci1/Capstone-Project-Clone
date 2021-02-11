@@ -20,7 +20,6 @@ using System;
 ///     Assert steps verify the goodness or badness of the Act response. Sometimes, assertions are as simple as checking
 ///     numeric or string values. Other times, they may require checking multiple facets of a system. Assertions
 ///     will ultimately determine if the test passes or fails. 
-///         
 /// 
 ///     See NUnit documentation to learn more:
 ///     https://docs.nunit.org/articles/nunit/intro.html
@@ -45,14 +44,14 @@ namespace DirectorsPortal_Unit_Tests
     [TestFixture]
     public class ValidateWebsiteTests
     {
-        string strUserName;
+        private string GStrUserName;
 
         [SetUp]
         public void Setup()
         {
             //This code always runs before tests.
             //Anything that needs to be setup before a test should be done here. (i.e. instantiating objects, assigning variables, etc.)
-            strUserName = Environment.UserName;
+            GStrUserName = Environment.UserName;
         }
 
         [TearDown]
@@ -60,7 +59,7 @@ namespace DirectorsPortal_Unit_Tests
         {
             //This code runs after tests.
             //Use this to perform any actions you need after a test.
-            strUserName = null;
+            GStrUserName = null;
         }
 
         /// <summary>
@@ -74,13 +73,11 @@ namespace DirectorsPortal_Unit_Tests
             HtmlPreviewGenerator HtmlPreviewFilePath = new HtmlPreviewGenerator();
 
             //Act
-            string filePath = HtmlPreviewFilePath.GetTemplateLocation();
+            string strFilePath = HtmlPreviewFilePath.GetTemplateLocation();
 
             //Assert
-            Assert.AreEqual($"C:\\Users\\{strUserName}\\source\\repos\\DirectorPortal\\DirectorsPortal_Unit_Tests" +
-                "\\bin\\Resources\\MembershipTemplate.html", filePath);
+            Assert.AreEqual($"C:\\Users\\{GStrUserName}\\source\\repos\\DirectorPortal\\DirectorsPortal_Unit_Tests" +
+                "\\bin\\Resources\\MembershipTemplate.html", strFilePath);
         }
-
-
     }
 }
