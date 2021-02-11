@@ -29,7 +29,7 @@ namespace DirectorsPortalWPF.ValidateWebsite
     /// Preview generator responsible for writing an HTML file with
     /// latest membership data.
     /// </summary>
-    class HtmlPreviewGenerator
+    public class HtmlPreviewGenerator
     {
 
         // Writer will be used to write an HTML file
