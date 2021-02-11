@@ -27,6 +27,9 @@ using DirectorsPortalWPF.ValidateWebsite;
 ///     Microsoft Documentation on NUnit:
 ///     https://docs.microsoft.com/en-us/dotnet/core/testing/unit-testing-with-nunit
 ///     
+///     More Help:
+///     https://karthikekblog.com/explains-basics-of-nunit-testing-tools-for-beginners/
+///     
 /// </summary>
 namespace DirectorsPortal_Unit_Tests
 {
