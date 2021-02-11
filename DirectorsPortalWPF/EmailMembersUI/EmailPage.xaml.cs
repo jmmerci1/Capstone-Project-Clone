@@ -36,6 +36,12 @@ namespace DirectorsPortalWPF.EmailMembersUI
     public partial class EmailPage : Page
     {
         /// <summary>
+        /// Test list for setting up the UI. This variable should not be used in
+        /// the final implmentation.
+        /// </summary>
+        List<Group> GroupList = new List<Group>();
+
+        /// <summary>
         /// Initialize the email page. Automatically gets run
         /// upon creating the page in WPF. Will call the
         /// <see cref="EmailPage.LoadEmailGroups()"/> function
@@ -45,6 +51,7 @@ namespace DirectorsPortalWPF.EmailMembersUI
         /// Original Author: Josh Bacon
         /// Date Created: 1/27/2021
         /// </remarks>
+
         public EmailPage()
         {
             InitializeComponent();
@@ -73,10 +80,11 @@ namespace DirectorsPortalWPF.EmailMembersUI
                 // Cast email list to stack panel so it can be used
                 StackPanel vspGroupList = nodGroupList as StackPanel;
 
-                // TODO: This should be retrieved from an API from SDK team or database team
-                string[] rgstrGroups = { "Gold Members", "Silver Members", "Restaurants" };
+                // TODO: GroupList should be retrieved from an API from SDK team or database team. Values added for test purposes
+                GroupList.Add(new Group("Silver",new string[] { "Tom", "John" } , "Test Note"));
+                GroupList.Add(new Group("Gold", new string[] { "Jane", "Bill" }, "Test Note2"));
 
-                foreach (var strGroup in rgstrGroups)
+                foreach (Group group in GroupList)
                 {
                     // For every email group found in the database, create a row
                     // in the email groups list with label and an edit button
@@ -86,7 +94,7 @@ namespace DirectorsPortalWPF.EmailMembersUI
                     };
                     Label lblEmailGroupName = new Label()
                     {
-                        Content = strGroup
+                        Content = group.Name
                     };
                     Button btnEmailGroupEditButton = new Button()
                     {
@@ -94,34 +102,51 @@ namespace DirectorsPortalWPF.EmailMembersUI
                         HorizontalAlignment = HorizontalAlignment.Right,
                         Template = (ControlTemplate)Application.Current.Resources["smallButton"],
                         Padding = new Thickness(0,0,35,0),
-                        Height = 15
+                        Height = 15,
                     };
-                    hspEmailGroupRow.Children.Add(btnEmailGroupEditButton);
+
+                    btnEmailGroupEditButton.Click += (s, e) => 
+                    {
+                        /// <summary>
+                        /// Navigates to the EditGroups screen and passes the corresponding group name
+                        /// </summary>
+                        /// <param name="sender">The 'Edit' Button</param>
+                        /// <param name="e">The Click Event</param>
+                        emailFrame.Navigate(new EmailMembersEditGroupsUI.EmailMembersEditGroupsPage(group.Name)); 
+                    };
+                        hspEmailGroupRow.Children.Add(btnEmailGroupEditButton);
                     hspEmailGroupRow.Children.Add(lblEmailGroupName);
                     vspGroupList.Children.Add(hspEmailGroupRow);
                 }
 
             }
         }
-
         /// <summary>
-        /// Gets called on the click of the "Send" button on the email page.
-        /// Will pull the email list, subject, and body, then send it to the
-        /// email service to be sent to the appropriate people.
+        /// Navigates to the AddGroups screen.
         /// </summary>
-        /// 
-        /// <remarks>
-        /// Original Author: Josh Bacon
-        /// Date Created: 1/27/2021
-        /// </remarks>
-        /// 
-        /// <param name="sender">The Send button object that has called the function.</param>
-        /// <param name="e">The button press event</param>
-        private void Send_Email(object sender, RoutedEventArgs e)
+        /// <param name="sender">The 'Add' Button</param>
+        /// <param name="e">The Click Event</param>
+        private void AddGroupsPage_Navigate(object sender, RoutedEventArgs e)
         {
-            // TODO: Still needs to be implemented
-            // Need API to call from the SDK team
+            emailFrame.Navigate(new EmailMembersAddGroupsUI.EmailMembersAddGroupsPage());
         }
     }
 
+}
+
+/// <summary>
+/// A test class that defines the properties of a Group.
+/// </summary>
+public class Group
+{
+    public string Name { get; set; }
+    public string[] Members { get; set; }
+    public string Note { get; set; }
+
+    public Group(string name, string[] members, string note)
+    {
+        Name = name;
+        Members = members;
+        Note = note;
+    }
 }

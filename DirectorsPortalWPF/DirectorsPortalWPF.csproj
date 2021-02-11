@@ -170,6 +170,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="EmailMembersUI\EmailMembersAddGroupsUI\EmailMembersAddGroupsPage.xaml.cs">
+      <DependentUpon>EmailMembersAddGroupsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EmailMembersUI\EmailMembersEditGroupsUI\EmailMembersEditGroupsPage.xaml.cs">
+      <DependentUpon>EmailMembersEditGroupsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EmailMembersUI\EmailMembersSendEmailUI\EmailMembersSendEmailPage.xaml.cs">
+      <DependentUpon>EmailMembersSendEmailPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="EmailMembersUI\EmailPage.xaml.cs">
       <DependentUpon>EmailPage.xaml</DependentUpon>
     </Compile>
@@ -195,6 +204,18 @@
     <Compile Include="ValidateWebsite\WebsitePreviewPage.xaml.cs">
       <DependentUpon>WebsitePreviewPage.xaml</DependentUpon>
     </Compile>
+    <Page Include="EmailMembersUI\EmailMembersAddGroupsUI\EmailMembersAddGroupsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EmailMembersUI\EmailMembersEditGroupsUI\EmailMembersEditGroupsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EmailMembersUI\EmailMembersSendEmailUI\EmailMembersSendEmailPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="EmailMembersUI\EmailPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
