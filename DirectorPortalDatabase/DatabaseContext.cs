@@ -52,6 +52,10 @@ namespace DirectorPortalDatabase
         /// Stores a list of todo items.
         /// </summary>
         public DbSet<Todo> TodoListItems { get; set; }
+        /// <summary>
+        /// Stores the various buissness type categories
+        /// </summary>
+        public DbSet<Categories> Categories { get; set; }
 
         /// <summary>
         /// Pulls the connection string from the App.config file,

@@ -65,6 +65,10 @@ namespace DirectorPortalDatabase.Models
         /// Represents an array of the yearly data objects
         /// </summary>
         public virtual List<YearlyData> GRGYearlyData { get; set; }
+        /// <summary>
+        /// Represents an array of buisness type categories
+        /// </summary>
+        public virtual List<Categories> GRGCategories { get; set; }
     }
 
     /// <summary>
@@ -73,6 +77,9 @@ namespace DirectorPortalDatabase.Models
     public enum MembershipLevel
     {
         GOLD = 0,
-        SILVER = 1
+        SILVER = 1,
+        ASSOCIATE = 2,
+        INDIVIDUAL = 3,
+        COURTESY = 4
     }
 }

@@ -163,6 +163,7 @@
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Business.cs" />
     <Compile Include="Models\BusinessRep.cs" />
+    <Compile Include="Models\Categories.cs" />
     <Compile Include="Models\ContactPerson.cs" />
     <Compile Include="Models\Email.cs" />
     <Compile Include="Models\PhoneNumber.cs" />
