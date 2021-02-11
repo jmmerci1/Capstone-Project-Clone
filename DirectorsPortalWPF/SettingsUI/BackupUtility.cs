@@ -1,10 +1,10 @@
 ﻿using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
-using System.Globalization;
 using DirectorPortalDatabase;
 using System.IO;
 using System.Windows;
+
 
 /// <summary>
 /// 
@@ -69,7 +69,6 @@ namespace DirectorsPortalWPF.SettingsUI
             if(commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
             { 
                 return commonOpenFileDialog.FileName;
-                //FileStream fs = (FileStream)saveFileDialog.OpenFile();
             }
             else
             {
@@ -77,28 +76,23 @@ namespace DirectorsPortalWPF.SettingsUI
             }
         }
 
-
         /// <summary>
         ///
         /// Allows user to select a database file to restore the system from
         /// 
-        /// Original Author: Kaden Thompson
-        /// Date Created: 1/27/2021
-        /// 
-        /// Modification History:
-        ///     1/26/2021 - BD: Initial creation
-        ///
         /// </summary>
         public void RestoreFromBackup(string strTargetPath)
         {
 
-            string strFilePath;
-            string strFileContent;
+            string strBackupFilePath;
+            string strDestFile = Path.Combine(DatabaseContext.GetFolderPath(), "database.db");
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "txt files (*.txt)|.txt";
+            openFileDialog.Filter = "Database files (*.db)|*.db";
             openFileDialog.FilterIndex = 1;
             openFileDialog.RestoreDirectory = true;
+
+
             if (strTargetPath.Length > 0)
             {
                 openFileDialog.InitialDirectory = strTargetPath;
@@ -111,40 +105,75 @@ namespace DirectorsPortalWPF.SettingsUI
 
             if (openFileDialog.ShowDialog() == true)
             {
-                
+                strBackupFilePath = openFileDialog.FileName;
+                File.Copy(strBackupFilePath, strDestFile, true);
+                MessageBox.Show("Database restored from backup");
             }
         }
 
+        /// <summary>
+        /// 
+        /// Creates a copy from the database that is stored in the AppData>roaming folder and places it where the user chooses
+        /// 
+        /// Database backups include the data and time so the user can tell what backups are from when.
+        /// 
+        /// finally checks to make sure the file was actually created
+        /// 
+        /// </summary>
+        /// <param name="strTargetPath">
+        /// String that contains the path where the database will be backed up to, decided by the user when choosing browse
+        /// from the UI
+        /// </param>
         public void CreateBackup(string strTargetPath)
         {
+            string strSourcePath = DatabaseContext.GetFolderPath();
+            string strBackupFileName;
+            string strSourcePathAndFile;
+            string strDestPathAndFile;
+
             if (strTargetPath.Length == 0)
             {
                 MessageBox.Show("Please choose a path first");
             }
             else
             {
-                string strSourcePath = DatabaseContext.GetFolderPath();
+                
 
-                string fileName = "DB_Backup " + ToSafeFileName(DateTime.Now.ToString()) + ".db";
+                strBackupFileName= "DB_Backup " + ToSafeFileName(DateTime.Now.ToString()) + ".db";
 
-                string strSourceFile = Path.Combine(strSourcePath, "database.db");
-                string strDestFile = Path.Combine(strTargetPath, fileName);
+                strSourcePathAndFile = Path.Combine(strSourcePath, "database.db");
+                strDestPathAndFile = Path.Combine(strTargetPath, strBackupFileName);
 
-                File.Copy(strSourceFile, strDestFile, true);
+                File.Copy(strSourcePathAndFile, strDestPathAndFile, false);
 
-                if (File.Exists(strSourceFile))
+                if (File.Exists(strDestPathAndFile))
                 {
                     MessageBox.Show("File saved successfully");
                 }
             }
 
         }
-        public string ToSafeFileName(string s)
+
+        /// <summary>
+        /// 
+        /// Removes colons and forward slashes created by the backup file name when assigning the current data and time to it
+        /// 
+        /// </summary>
+        /// 
+        /// <param name="strFileNameToClean">
+        /// File name with illegal characters
+        /// </param>
+        /// 
+        /// <returns>
+        /// File name with illegal characters removed
+        /// </returns>
+        public string ToSafeFileName(string strFileNameToClean)
         {
-            return s
+            return strFileNameToClean
                 .Replace(":", "_")
                 .Replace("/", "_");
         }
 
     }
+    
 }
