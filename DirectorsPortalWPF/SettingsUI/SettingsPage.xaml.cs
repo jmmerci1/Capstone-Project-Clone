@@ -1,4 +1,6 @@
-﻿using Microsoft.Win32;
+﻿using DirectorPortalDatabase.Utility;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,6 +31,7 @@ namespace DirectorsPortalWPF.SettingsUI
     /// </summary>
     public partial class SettingsPage : Page
     {
+        private ClsMetadataHelper.ClsModelInfo GUdtSelectedReportType { get; set; }
 
         /// <summary>
         /// Intializes the Page and content within the Page
@@ -40,26 +43,25 @@ namespace DirectorsPortalWPF.SettingsUI
             cmbNotificationFrequency.ItemsSource = new List<string> { "None", "Daily", "Weekly", "Monthly" };
             cmbNotificationTime.ItemsSource = GenerateDropdownTimeList();
 
-            for (int i = 0; i < 10; i++)
+            ComboBoxItem[] rgReportTypeItems = new ComboBoxItem[ClsMetadataHelper.IntNumberOfModels];
+
+            for (int i = 0; i < ClsMetadataHelper.IntNumberOfModels; i++)
             {
-                StackPanel sPanelTxtBoxAndBtn = CreateStackPanel(Orientation.Horizontal);
+                // Gets info on the i-th database model.
+                Type typeModelType = ClsMetadataHelper.GetModelTypeByIndex(i);
+                ClsMetadataHelper.ClsModelInfo udtModelInfo = ClsMetadataHelper.GetModelInfo(typeModelType);
 
-                Button btnEdit = CreateButton("Edit");
-                Button btnDelete = CreateButton("Delete");
-                btnDelete.Visibility = Visibility.Hidden;
+                // Stores model information in a new ComboBoxItem.
+                ComboBoxItem cbiModelItem = new ComboBoxItem();
+                cbiModelItem.Content = udtModelInfo.StrHumanReadableName;
+                cbiModelItem.Tag = udtModelInfo;
 
-                TextBox txtBoxFieldEdit = CreateTextBox(false);
-                txtBoxFieldEdit.Text = $"Field {i + 1}";
-
-                btnEdit.Click += (sender, e) => SetTextField(sender, e, txtBoxFieldEdit, btnDelete);
-                btnDelete.Click += (sender, e) => DeleteTextField(sender, e, sPanelTxtBoxAndBtn);
-
-                sPanelTxtBoxAndBtn.Children.Add(txtBoxFieldEdit);
-                sPanelTxtBoxAndBtn.Children.Add(btnEdit);
-                sPanelTxtBoxAndBtn.Children.Add(btnDelete);
-
-                sPanelFields.Children.Add(sPanelTxtBoxAndBtn);
+                // Adds the ComboBoxItem to the array.
+                rgReportTypeItems[i] = cbiModelItem;
             }
+
+            cmbEntity.ItemsSource = rgReportTypeItems;
+
 
         }
 
@@ -142,7 +144,6 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="txtBox">The TextBox that needs to be edited</param>
         private void SetTextField(object sender, RoutedEventArgs e, TextBox txtBox, Button btnDelete)
         {
-
             Button btnEditText = (Button)sender;       // Sender should be converted to a button.
 
             if (txtBox.IsEnabled)
@@ -279,6 +280,55 @@ namespace DirectorsPortalWPF.SettingsUI
             sPanelFields.Children.Add(sPanelTxtBoxAndBtn);
 
             btnAddField.Content = "Add Field";
+        }
+
+        private void BtnImportExcel_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Add import to excel logic here
+        }
+
+        /// <summary>
+        /// After selecting a table from the 'Entity' combo box, a list of all fields will appear in that
+        /// selected table. Users will have the ability to edit/delete the field names in the selected table.
+        /// </summary>
+        /// <param name="sender">The Selected Table from the Combo Box</param>
+        /// <param name="e">The SelectionChange event</param>
+        private void CmbEntity_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Gets the selected report type name from the combo box.
+            ComboBoxItem cbiSelectedReportTypeItem = (ComboBoxItem)cmbEntity.SelectedItem;
+            // Extracts the model information from the ComboBoxItem.
+            GUdtSelectedReportType = (ClsMetadataHelper.ClsModelInfo)cbiSelectedReportTypeItem.Tag;
+            // Clear the fields populated from the last table selection.
+            sPanelFields.Children.Clear();
+
+            if (GUdtSelectedReportType != null)
+            {
+                int intNumberOfFields = GUdtSelectedReportType.UdtTableMetaData.IntNumberOfFields;
+
+                for (int i = 0; i < intNumberOfFields; i++)
+                {
+                    ClsMetadataHelper.ClsTableField udtField = GUdtSelectedReportType.UdtTableMetaData.GetField(i);
+
+                    StackPanel sPanelTxtBoxAndBtn = CreateStackPanel(Orientation.Horizontal);
+
+                    Button btnEdit = CreateButton("Edit");
+                    Button btnDelete = CreateButton("Delete");
+                    btnDelete.Visibility = Visibility.Hidden;
+
+                    TextBox txtBoxFieldEdit = CreateTextBox(false);
+                    txtBoxFieldEdit.Text = $"{udtField.StrHumanReadableName}";
+
+                    btnEdit.Click += (next_sender, next_e) => SetTextField(next_sender, next_e, txtBoxFieldEdit, btnDelete);
+                    btnDelete.Click += (next_sender, next_e) => DeleteTextField(next_sender, next_e, sPanelTxtBoxAndBtn);
+
+                    sPanelTxtBoxAndBtn.Children.Add(txtBoxFieldEdit);
+                    sPanelTxtBoxAndBtn.Children.Add(btnEdit);
+                    sPanelTxtBoxAndBtn.Children.Add(btnDelete);
+
+                    sPanelFields.Children.Add(sPanelTxtBoxAndBtn);
+                }
+            }
         }
     }
 }
