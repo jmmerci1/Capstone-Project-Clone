@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using DirectorsPortalWPF.ValidateWebsite;
+using System;
 
 /// <summary>
 /// 
@@ -31,18 +32,27 @@ using DirectorsPortalWPF.ValidateWebsite;
 ///     https://karthikekblog.com/explains-basics-of-nunit-testing-tools-for-beginners/
 ///     
 /// </summary>
+/// <remarks>
+/// 
+///     NOTE:
+///     NUnit only can test on methods or classes that are PUBLIC. Access modifiers still apply as they
+///     usually do, so you wont be able to create unit tests on private methods and classes in an external file like
+///     this one.
+/// 
+/// </remarks>
 namespace DirectorsPortal_Unit_Tests
 {
     [TestFixture]
     public class ValidateWebsiteTests
     {
-        
+        string strUserName;
+
         [SetUp]
         public void Setup()
         {
             //This code always runs before tests.
             //Anything that needs to be setup before a test should be done here. (i.e. instantiating objects, assigning variables, etc.)
-            
+            strUserName = Environment.UserName;
         }
 
         [TearDown]
@@ -50,6 +60,7 @@ namespace DirectorsPortal_Unit_Tests
         {
             //This code runs after tests.
             //Use this to perform any actions you need after a test.
+            strUserName = null;
         }
 
         /// <summary>
@@ -60,13 +71,13 @@ namespace DirectorsPortal_Unit_Tests
         public void GetTemplateLocation_RetrieveTheHTMLTemplateFilePath()
         {
             //Arrange
-            HtmlPreviewGenerator c = new HtmlPreviewGenerator();
+            HtmlPreviewGenerator HtmlPreviewFilePath = new HtmlPreviewGenerator();
 
             //Act
-            string filePath = c.GetTemplateLocation();
+            string filePath = HtmlPreviewFilePath.GetTemplateLocation();
 
             //Assert
-            Assert.AreEqual("C:\\Users\\nzwe45\\source\\repos\\DirectorPortal\\DirectorsPortal_Unit_Tests" +
+            Assert.AreEqual($"C:\\Users\\{strUserName}\\source\\repos\\DirectorPortal\\DirectorsPortal_Unit_Tests" +
                 "\\bin\\Resources\\MembershipTemplate.html", filePath);
         }
 
