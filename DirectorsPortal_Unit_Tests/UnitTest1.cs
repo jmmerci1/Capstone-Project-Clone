@@ -27,7 +27,7 @@ using System;
 ///     Microsoft Documentation on NUnit:
 ///     https://docs.microsoft.com/en-us/dotnet/core/testing/unit-testing-with-nunit
 ///     
-///     More Help:
+///     More Help (Good lookup for what you can check with Assert):
 ///     https://karthikekblog.com/explains-basics-of-nunit-testing-tools-for-beginners/
 ///     
 /// </summary>
@@ -78,6 +78,7 @@ namespace DirectorsPortal_Unit_Tests
             //Assert
             Assert.AreEqual($"C:\\Users\\{GStrUserName}\\source\\repos\\DirectorPortal\\DirectorsPortal_Unit_Tests" +
                 "\\bin\\Resources\\MembershipTemplate.html", strFilePath);
+            Assert.That(strFilePath, Does.EndWith("\\Resources\\MembershipTemplate.html"));
         }
     }
 }
