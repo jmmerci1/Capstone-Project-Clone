@@ -27,13 +27,13 @@ namespace DirectorPortalDatabase.Models
         /// Updates the text file storing the category list
         /// Adds a new item sent to this method
         /// </summary>
-        public static void UpdateCategoryList(string NewCategory)
+        public static void UpdateCategoryList(string strNewCategory)
         {
             //Replace filename
             string strFilepath = "Buisness_Categories.txt";
             using (StreamWriter swFileOutput = File.AppendText(strFilepath))
             {
-                swFileOutput.WriteLine(NewCategory);
+                swFileOutput.WriteLine(strNewCategory);
             }
         }
         /// <summary>
