@@ -30,10 +30,10 @@ namespace DirectorPortalDatabase.Models
         public static void UpdateCategoryList(string NewCategory)
         {
             //Replace filename
-            string filepath = "Buisness_Categories.txt";
-            using (StreamWriter fileOutput = File.AppendText(filepath))
+            string strFilepath = "Buisness_Categories.txt";
+            using (StreamWriter swFileOutput = File.AppendText(strFilepath))
             {
-                fileOutput.WriteLine(NewCategory);
+                swFileOutput.WriteLine(NewCategory);
             }
         }
         /// <summary>
@@ -42,22 +42,22 @@ namespace DirectorPortalDatabase.Models
         public static void ImportFile()
         {
             //Replace filename
-            string filepath = "Buisness_Categories.txt";
-            using (StreamReader fileInput = File.OpenText(filepath))
+            string strFilepath = "Buisness_Categories.txt";
+            using (StreamReader srFileInput = File.OpenText(strFilepath))
             {
-                string importCategory = "";
-                using (var context = new DatabaseContext())
+                string strImportCategory = "";
+                using (var dbContext = new DatabaseContext())
                 {
-                    while ((importCategory = fileInput.ReadLine()) != null)
+                    while ((strImportCategory = srFileInput.ReadLine()) != null)
                     {
-                        Categories c = new Categories()
+                        Categories category = new Categories()
                         {
-                            GStrCategory = importCategory
+                            GStrCategory = strImportCategory
                         };
-                        context.Categories.Add(c);
+                        context.Categories.Add(category);
                         
                     }
-                    context.SaveChanges();
+                    dbContext.SaveChanges();
                 }
             }
         }
