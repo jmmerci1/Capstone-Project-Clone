@@ -43,7 +43,8 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
         }
         /// <summary>
         /// Pulls the group name, list of members, and  notes
-        /// of the selected group.
+        /// of the selected group. Then displays them in the txtNotes,
+        /// txtGroupsNames, and txtGroupMembers text boxes.
         /// </summary>
         /// 
         /// <remarks>

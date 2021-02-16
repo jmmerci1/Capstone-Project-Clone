@@ -20,10 +20,10 @@ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition/>
-            <RowDefinition Height="auto" MinHeight="48"/>
+            <RowDefinition Height="auto" MinHeight="65"/>
+            <RowDefinition Height="auto" MinHeight="100"/>
+            <RowDefinition Height="auto" MinHeight="65"/>
+            <RowDefinition Height="auto" MinHeight="50"/>
         </Grid.RowDefinitions>
         <Grid.Background>
             <SolidColorBrush Color="#FFF1F2F7" />
@@ -43,12 +43,12 @@ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         </Grid>
 
         <Label Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Content="Group Name:" Margin="0,10,0,9" Width="102" Height="26" />
-        <TextBox x:Name="txtGroupName" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,10" Width="662" Height="25" />
-        <Label Grid.Row="2" HorizontalAlignment="Right" Content="Group Members:" VerticalAlignment="Center" Margin="0,9,0,10" Width="102" Height="26" />
-        <TextBox x:Name="txtGroupMembers" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,10" Width="662" Height="25" />
+        <TextBox x:Name="txtGroupName" Grid.Row="1" Grid.Column="1"  Margin="20,20,20,20"/>
+        <Label Grid.Row="2" HorizontalAlignment="Right" Content="Group Members:" VerticalAlignment="Center" Margin="0,95,0,108" Width="102" Height="26" />
+        <TextBox x:Name="txtGroupMembers" Grid.Row="2" Grid.Column="1" Margin="20,20,20,20"   TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible"/>
         <Grid Grid.Row="3" Grid.ColumnSpan="2">
             <Label Content="Notes:" Margin="10,0,10,0"/>
-            <TextBox x:Name="txtNotes" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"  Margin="10,29,10,0" />
+            <TextBox x:Name="txtNotes" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"  Margin="10,25,10,0" />
         </Grid>
         <Grid Grid.Column="1" Grid.Row="4">
             <Button x:Name="btnAdd" Click="Add_Group" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Grid.Column="1" Grid.Row="0" Content="Add" Margin="0,18,10,10" Padding="0,0,75,0" Width="76" />
