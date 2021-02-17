@@ -54,7 +54,7 @@ namespace DirectorPortalDatabase.Models
                         {
                             GStrCategory = strImportCategory
                         };
-                        context.Categories.Add(category);
+                        dbContext.Categories.Add(category);
                         
                     }
                     dbContext.SaveChanges();

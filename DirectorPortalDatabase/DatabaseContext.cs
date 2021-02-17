@@ -58,6 +58,13 @@ namespace DirectorPortalDatabase
         public DbSet<Categories> Categories { get; set; }
 
         /// <summary>
+        /// Represents the link between a categories and buisnesses.
+        /// Allows for a business to have multiple category types,
+        /// while categories can be applicable to multiple businesses.
+        /// </summary>
+        public DbSet<CategoryRef> CategoryRef { get; set; }
+
+        /// <summary>
         /// Pulls the connection string from the App.config file,
         /// then manipulates it to remove the %APPDATA% and replace it
         /// with the value of <code>Environment.GetFolderPath(ApplicationData)</code>.

@@ -60,15 +60,23 @@ namespace DirectorPortalDatabase.Models
         /// </summary>
         [Column("extraFields")]
         public string GStrExtraFields { get; set; }
-
+        /// <summary>
+        /// Represents an array of buisness type categories
+        /// </summary>
+        public List<Categories> GCategories
+        {
+            get
+            {
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    return dbContext.CategoryRef.Where(x => x.GIntBusinessId == GIntId).Select(b => b.GCategory).ToList();
+                }
+            }
+        }
         /// <summary>
         /// Represents an array of the yearly data objects
         /// </summary>
         public virtual List<YearlyData> GRGYearlyData { get; set; }
-        /// <summary>
-        /// Represents an array of buisness type categories
-        /// </summary>
-        public virtual List<Categories> GRGCategories { get; set; }
     }
 
     /// <summary>
