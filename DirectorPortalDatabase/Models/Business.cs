@@ -69,7 +69,7 @@ namespace DirectorPortalDatabase.Models
             {
                 using (DatabaseContext dbContext = new DatabaseContext())
                 {
-                    return dbContext.CategoryRef.Where(x => x.GIntBusinessId == GIntId).Select(b => b.GCategory).ToList();
+                    return dbContext.CategoryRef.Where(x => x.GIntBusinessId == GIntId).Select(b => b.GObjCategory).ToList();
                 }
             }
         }

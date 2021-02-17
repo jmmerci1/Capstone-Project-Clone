@@ -31,7 +31,7 @@ namespace DirectorPortalDatabase.Models
         /// <summary>
         /// References a category for a specific business within the database
         /// </summary>
-        public Categories GCategory
+        public Categories GObjCategory
         {
             get
             {
