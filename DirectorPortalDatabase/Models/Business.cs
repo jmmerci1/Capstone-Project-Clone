@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DirectorPortalDatabase.Models
 {
@@ -17,41 +14,49 @@ namespace DirectorPortalDatabase.Models
         [Key]
         [Column("id")]
         public int GIntId { get; set; }
+
         /// <summary>
         /// The name of the business
         /// </summary>
         [Column("name")]
         public string GStrBusinessName { get; set; }
+
         /// <summary>
         /// The year that the business was established
         /// </summary>
         [Column("established")]
         public int GIntYearEstablished { get; set; }
+
         /// <summary>
         /// The membership level of the business
         /// </summary>
         [Column("level")]
         public MembershipLevel GEnumMembershipLevel { get; set; }
+
         /// <summary>
         /// The id of mailing address of the business
         /// </summary>
         [Column("mailingAddressId")]
         public int GIntMailingAddressId { get; set; }
+
         /// <summary>
         /// The id of physical address of the business
         /// </summary>
         [Column("physicalAddressId")]
         public int GIntPhysicalAddressId { get; set; }
+
         /// <summary>
         /// The business's website address
         /// </summary>
         [Column("website")]
         public string GStrWebsite { get; set; }
+
         /// <summary>
         /// Any additional notes about a business
         /// </summary>
         [Column("notes")]
         public string GStrExtraNotes { get; set; }
+
         /// <summary>
         /// Will be used as a way of adding extra fields
         /// to the database. Designed to use a string encoded
@@ -60,6 +65,7 @@ namespace DirectorPortalDatabase.Models
         /// </summary>
         [Column("extraFields")]
         public string GStrExtraFields { get; set; }
+
         /// <summary>
         /// Represents an array of buisness type categories
         /// </summary>
@@ -73,10 +79,63 @@ namespace DirectorPortalDatabase.Models
                 }
             }
         }
+
         /// <summary>
         /// Represents an array of the yearly data objects
         /// </summary>
-        public virtual List<YearlyData> GRGYearlyData { get; set; }
+        public List<YearlyData> GRGYearlyData
+        {
+            get
+            {
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    return dbContext.BusinessYearlyData.Where(x => x.GIntBusinessId == GIntId).ToList();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gives a reference to the mailing address object from the database
+        /// </summary>
+        public Address GMailingAddress
+        {
+            get
+            {
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    return dbContext.Addresses.FirstOrDefault(x => x.GIntId == GIntMailingAddressId);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gives a reference to the physical address object from the database
+        /// </summary>
+        public Address GPhysicalAddress
+        {
+            get
+            {
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    return dbContext.Addresses.FirstOrDefault(x => x.GIntId == GIntPhysicalAddressId);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gives a reference to the contact people
+        /// </summary>
+        public List<ContactPerson> GRGContactPeople
+        {
+            get
+            {
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    // Select the list of BusinessRep objects and return their contact person property
+                    return dbContext.BusinessReps.Where(x => x.GIntContactPersonId == GIntId).Select(b => b.GContactPerson).ToList();
+                }
+            }
+        }
     }
 
     /// <summary>
