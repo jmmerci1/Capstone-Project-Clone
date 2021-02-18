@@ -42,9 +42,9 @@ namespace DirectorsPortalWPF.TodoUI
         {
             InitializeComponent();
             GdbContext = new DatabaseContext();
-            List<Todo> lstTodos = GdbContext.TodoListItems.Where(e => e.GBlnMarkedAsDone.Equals(false)).ToList();
+            List<Todo> rgTodos = GdbContext.TodoListItems.Where(e => e.GBlnMarkedAsDone.Equals(false)).ToList();
 
-            foreach (Todo tDoCurrentTodo in lstTodos)
+            foreach (Todo tDoCurrentTodo in rgTodos)
             {
 
                 StackPanel sPanelCard = CreateStackPanelCard();
@@ -77,7 +77,7 @@ namespace DirectorsPortalWPF.TodoUI
             }
 
             CheckNoTodo();
-            btnMarkAllDone.Click += (sender, e) => MarkAllAsDone(sender, e, lstTodos);
+            btnMarkAllDone.Click += (sender, e) => MarkAllAsDone(sender, e, rgTodos);
 
         }
 
@@ -134,10 +134,10 @@ namespace DirectorsPortalWPF.TodoUI
         /// </summary>
         /// <param name="sender">Done button from the selected task</param>
         /// <param name="e">The Click event</param>
-        /// <param name="lstTodoAll">All of the todo items in the database</param>
-        private void MarkAllAsDone(object sender, RoutedEventArgs e, List<Todo> lstTodoAll)
+        /// <param name="rgTodoAll">All of the todo items in the database</param>
+        private void MarkAllAsDone(object sender, RoutedEventArgs e, List<Todo> rgTodoAll)
         {
-            foreach (Todo tDoCurrentTodo in lstTodoAll)
+            foreach (Todo tDoCurrentTodo in rgTodoAll)
             {
                 tDoCurrentTodo.GBlnMarkedAsDone = true;
                 sPanelTodoList.Children.Clear();
