@@ -37,7 +37,7 @@ namespace DirectorsPortalWPF.EmailMembersUI
         /// Test list for setting up the UI. This variable should not be used in
         /// the final implmentation.
         /// </summary>
-        List<Group> GroupList = new List<Group>();
+        List<Group> mrgGroupList = new List<Group>();
 
         /// <summary>
         /// Initialize the email page. Automatically gets run
@@ -71,10 +71,10 @@ namespace DirectorsPortalWPF.EmailMembersUI
                 StackPanel vspGroupList = nodGroupList as StackPanel;
 
                 // TODO: GroupList should be retrieved from an API from SDK team or database team. Values added for test purposes
-                GroupList.Add(new Group("Silver",new string[] { "Tom", "John" } , "Test Note"));
-                GroupList.Add(new Group("Gold", new string[] { "Jane", "Bill" }, "Test Note2"));
+                mrgGroupList.Add(new Group("Silver",new string[] { "Tom", "John" } , "Test Note"));
+                mrgGroupList.Add(new Group("Gold", new string[] { "Jane", "Bill" }, "Test Note2"));
 
-                foreach (Group group in GroupList)
+                foreach (Group group in mrgGroupList)
                 {
                     // For every email group found in the database, create a row
                     // in the email groups list with label and an edit button
@@ -84,7 +84,7 @@ namespace DirectorsPortalWPF.EmailMembersUI
                     };
                     Label lblEmailGroupName = new Label()
                     {
-                        Content = group.Name
+                        Content = group.strName
                     };
                     Button btnEmailGroupEditButton = new Button()
                     {
@@ -102,7 +102,7 @@ namespace DirectorsPortalWPF.EmailMembersUI
                         /// </summary>
                         /// <param name="sender">The 'Edit' Button</param>
                         /// <param name="e">The Click Event</param>
-                        emailFrame.Navigate(new EmailMembersEditGroupsUI.EmailMembersEditGroupsPage(group.Name)); 
+                        emailFrame.Navigate(new EmailMembersEditGroupsUI.EmailMembersEditGroupsPage(group.strName)); 
                     };
                     hspEmailGroupRow.Children.Add(btnEmailGroupEditButton);
                     hspEmailGroupRow.Children.Add(lblEmailGroupName);
@@ -125,18 +125,18 @@ namespace DirectorsPortalWPF.EmailMembersUI
 }
 
 /// <summary>
-/// A test class that defines the properties of a Group.
+/// A placeholder test class that defines the properties of a Group.
 /// </summary>
 public class Group
 {
-    public string Name { get; set; }
-    public string[] Members { get; set; }
-    public string Note { get; set; }
+    public string strName { get; set; }
+    public string[] strMembers { get; set; }
+    public string strNote { get; set; }
 
     public Group(string name, string[] members, string note)
     {
-        Name = name;
-        Members = members;
-        Note = note;
+        strName = name;
+        strMembers = members;
+        strNote = note;
     }
 }
