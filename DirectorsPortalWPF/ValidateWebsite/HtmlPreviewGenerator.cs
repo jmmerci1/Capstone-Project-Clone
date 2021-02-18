@@ -54,8 +54,8 @@ namespace DirectorsPortalWPF.ValidateWebsite
 
                 WriteButtons();
                 PrintMembersAZ();
-                PrintMembersCategory();    // To be used for Members By Category
-                PrintMembersAssociate();    // To be used for Associate Members
+                PrintMembersCategory();    
+                PrintMembersAssociate();
                 GWriter.WriteLine("</div>");
 
                 WriteJavaScript();
@@ -68,44 +68,50 @@ namespace DirectorsPortalWPF.ValidateWebsite
         /// </summary>
         private void PrintMembersAZ()
         {
+            List<string> rgAlpha = new List<string>() {
+                "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
+                "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
+            };
+
             // Second table to hold Member details A_Z
             GWriter.WriteLine("<table id=\"Members A-Z\" style=\"font-family: Arial, Arial, Helvetica, sans-serif; margin: auto;\">");
-            GWriter.WriteLine("<tr><td>A-Z</td><tr>");
-
+            GWriter.WriteLine($"<tr><td><strong>All Members from A to Z</strong></td><tr>");
             using (var dbContext = new DatabaseContext())     // Database context will be used to query membership details
             {
-                List<Business> lstAllBusinesses = dbContext.Businesses.ToList();  // List of all businesses in DB
-                lstAllBusinesses = lstAllBusinesses.OrderBy(e => e.GStrBusinessName).ToList();
+                List<Business> rgAllBusinesses = dbContext.Businesses.ToList();  // List of all businesses in DB
 
                 // Iterate through each Member and put them in the table
-                int intNumberOfItems = 3;  // The number of Members per row
-                foreach (Business busCurrentBusiness in lstAllBusinesses)
+                foreach (string strAlpha in rgAlpha)
                 {
-
-                    // Phone numbers, addresses, and email addresses for current business
-                    List<PhoneNumber> lstCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
-                    List<Address> lstCurrentBusAddresses = dbContext.Addresses.Where(e => e.GIntId.Equals(busCurrentBusiness.GIntId)).ToList();
-                    List<Email> lstCurrentBusEmails = dbContext.Emails.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
-
-                    if (intNumberOfItems == 3)             // Create a new row if there are three items to add to the row
-                        GWriter.WriteLine("<tr>");
-
-                    GWriter.WriteLine("<td style=\"padding: 10px 10px 10px 10px; color:#6d6d6d\">");
-                    GWriter.WriteLine($"<strong style=\"color: #a88d2e\">{busCurrentBusiness.GStrBusinessName}</strong>");
-                    GWriter.WriteLine($"<br>{lstCurrentBusAddresses[0].GStrAddress}");
-                    GWriter.WriteLine($"<br>{lstCurrentBusAddresses[0].GStrCity}, {lstCurrentBusAddresses[0].GStrState} {lstCurrentBusAddresses[0].GIntZipCode} ");
-                    GWriter.WriteLine($"<br>{lstCurrentBusPhones[0].GStrPhoneNumber}");
-                    GWriter.WriteLine($"<br>{lstCurrentBusPhones[0].GStrPhoneNumber}");
-                    GWriter.WriteLine($"<br>Map | <a href=\"mailto:{lstCurrentBusEmails[0].GStrEmailAddress} \">Email</a> | <a href=\"{busCurrentBusiness.GStrWebsite}\">Web</a>");
-                    GWriter.WriteLine("</td>");
-
-                    if (intNumberOfItems == 1)             // If this is the last of the three items in the row, then close the row
+                    // Only print the Alphabetic character IF there are businesses that start with that Alphabetic character
+                    List<Business> rgValidBusinessesForAlpha = rgAllBusinesses.FindAll(e => e.GStrBusinessName.ToUpper().StartsWith(strAlpha));
+                    if (rgValidBusinessesForAlpha.Count > 0)
                     {
-                        GWriter.WriteLine("</tr>");
-                        intNumberOfItems = 4;              // 4 minus 3 (from the decremator below) equals 3 items per row
+                        GWriter.WriteLine($"<tr><td>{strAlpha}</td><tr>");
                     }
+                    int intNumberOfItems = 3;  // The number of Members per row
+                    foreach (Business busCurrentBusiness in rgValidBusinessesForAlpha)
+                    {
+                        if (busCurrentBusiness.GStrBusinessName.ToUpper().StartsWith(strAlpha))
+                        {
+                            // Phone numbers, addresses, and email addresses for current business
+                            List<PhoneNumber> rgCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
+                            List<Address> rgCurrentBusAddresses = dbContext.Addresses.Where(e => e.GIntId.Equals(busCurrentBusiness.GIntId)).ToList();
+                            List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
 
-                    intNumberOfItems--;    // Next item in the row
+                            if (intNumberOfItems == 3)             // Create a new row if there are three items to add to the row
+                                GWriter.WriteLine("<tr>");
+
+                            PrintMemberToTemplate(busCurrentBusiness, rgCurrentBusPhones, rgCurrentBusAddresses, rgCurrentBusEmails);
+
+                            if (intNumberOfItems == 1)             // If this is the last of the three items in the row, then close the row
+                            {
+                                GWriter.WriteLine("</tr>");
+                                intNumberOfItems = 4;              // 4 minus 3 (from the decremator below) equals 3 items per row
+                            }
+                        }
+                        intNumberOfItems--;    // Next item in the row
+                    }
                 }
             }
             GWriter.WriteLine("</table>");
@@ -119,42 +125,46 @@ namespace DirectorsPortalWPF.ValidateWebsite
         {
             // Third table to hold Member details by Category
             GWriter.WriteLine("<table id=\"Category\" hidden=\"hidden\" style=\"font-family: Arial, Arial, Helvetica, sans-serif; margin: auto;\">");
-            GWriter.WriteLine("<tr><td>Category (Template)</td><tr>");
+            GWriter.WriteLine("<tr><td><strong>Members by Category</strong></td><tr>");
 
             using (var dbContext = new DatabaseContext())     // Database context will be used to query membership details
             {
-                List<Business> lstAllBusinesses = dbContext.Businesses.ToList<Business>();  // List of all businesses in DB
-                lstAllBusinesses = lstAllBusinesses.OrderBy(e => e.GStrBusinessName).ToList();
+                List<Business> rgAllBusinesses = dbContext.Businesses.ToList();  // List of all businesses in DB
+                List<Categories> rgAllCategories = dbContext.Categories.ToList();
 
-                // Iterate through each Member and put them in the table
-                int intNumberOfItems = 3;  // The number of Members per row
-                foreach (Business busCurrentBusiness in lstAllBusinesses)
+                foreach (Categories cat in rgAllCategories)
                 {
-
-                    // Phone numbers, addresses, and email addresses for current business
-                    List<PhoneNumber> lstCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
-                    List<Address> lstCurrentBusAddresses = dbContext.Addresses.Where(e => e.GIntId.Equals(busCurrentBusiness.GIntId)).ToList();
-                    List<Email> lstCurrentBusEmails = dbContext.Emails.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
-
-                    if (intNumberOfItems == 3)             // Create a new row if there are three items to add to the row
-                        GWriter.WriteLine("<tr>");
-
-                    GWriter.WriteLine("<td style=\"padding: 10px 10px 10px 10px; color:#6d6d6d\">");
-                    GWriter.WriteLine($"<strong style=\"color: #a88d2e\">{busCurrentBusiness.GStrBusinessName}</strong>");
-                    GWriter.WriteLine($"<br>{lstCurrentBusAddresses[0].GStrAddress}");
-                    GWriter.WriteLine($"<br>{lstCurrentBusAddresses[0].GStrCity}, {lstCurrentBusAddresses[0].GStrState} {lstCurrentBusAddresses[0].GIntZipCode} ");
-                    GWriter.WriteLine($"<br>{lstCurrentBusPhones[0].GStrPhoneNumber}");
-                    GWriter.WriteLine($"<br>{lstCurrentBusPhones[0].GStrPhoneNumber}");
-                    GWriter.WriteLine($"<br>Map | <a href=\"mailto:{lstCurrentBusEmails[0].GStrEmailAddress} \">Email</a> | <a href=\"{busCurrentBusiness.GStrWebsite}\">Web</a>");
-                    GWriter.WriteLine("</td>");
-
-                    if (intNumberOfItems == 1)             // If this is the last of the three items in the row, then close the row
+                    // Only print the category IF there are businesses that are in that category.
+                    List<Business> rgValidBusinessesMatchingCategory = rgAllBusinesses.FindAll(e => e.GCategories.First().GStrCategory.Equals(cat.GStrCategory));
+                    if (rgValidBusinessesMatchingCategory.Count > 0) 
                     {
-                        GWriter.WriteLine("</tr>");
-                        intNumberOfItems = 4;              // 4 minus 3 (from the decremator below) equals 3 items per row
+                        GWriter.WriteLine($"<tr><td>{cat.GStrCategory}</td><tr>");
                     }
 
-                    intNumberOfItems--;    // Next item in the row
+                    // Iterate through each Member and put them in the table
+                    int intNumberOfItems = 3;  // The number of Members per row
+                    foreach (Business busCurrentBusiness in rgValidBusinessesMatchingCategory)
+                    {
+                        if (busCurrentBusiness.GCategories[0].GStrCategory.Equals(cat.GStrCategory))
+                        {
+                            // Phone numbers, addresses, and email addresses for current business
+                            List<PhoneNumber> rgCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
+                            List<Address> rgCurrentBusAddresses = dbContext.Addresses.Where(e => e.GIntId.Equals(busCurrentBusiness.GIntId)).ToList();
+                            List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
+
+                            if (intNumberOfItems == 3)             // Create a new row if there are three items to add to the row
+                                GWriter.WriteLine("<tr>");
+
+                            PrintMemberToTemplate(busCurrentBusiness, rgCurrentBusPhones, rgCurrentBusAddresses, rgCurrentBusEmails);
+
+                            if (intNumberOfItems == 1)             // If this is the last of the three items in the row, then close the row
+                            {
+                                GWriter.WriteLine("</tr>");
+                                intNumberOfItems = 4;              // 4 minus 3 (from the decremator below) equals 3 items per row
+                            }
+                        }
+                        intNumberOfItems--;    // Next item in the row
+                    }
                 }
             }
             GWriter.WriteLine("</table>");
@@ -167,34 +177,26 @@ namespace DirectorsPortalWPF.ValidateWebsite
         {
             // Fourth table to hold Member details only for Associate members
             GWriter.WriteLine("<table id=\"Associates\" hidden=\"hidden\" style=\"font-family: Arial, Arial, Helvetica, sans-serif; margin: auto;\">");
-            GWriter.WriteLine("<tr><td>Associates (Template)</td><tr>");
+            GWriter.WriteLine("<tr><td><strong>Associates Members</strong></td><tr>");
 
             using (var dbContext = new DatabaseContext())     // Database context will be used to query membership details
             {
-                List<Business> lstAllBusinesses = dbContext.Businesses.ToList<Business>();  // List of all businesses in DB
-                lstAllBusinesses = lstAllBusinesses.OrderBy(e => e.GStrBusinessName).ToList();
+                List<Business> rgAllBusinesses = dbContext.Businesses.Where(e => (int)e.GEnumMembershipLevel == 2).ToList();  // List of all associate businesses in DB
+                rgAllBusinesses = rgAllBusinesses.OrderBy(e => e.GStrBusinessName).ToList();
 
                 // Iterate through each Member and put them in the table
                 int intNumberOfItems = 3;  // The number of Members per row
-                foreach (Business busCurrentBusiness in lstAllBusinesses)
+                foreach (Business busCurrentBusiness in rgAllBusinesses)
                 {
-
                     // Phone numbers, addresses, and email addresses for current business
-                    List<PhoneNumber> lstCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
-                    List<Address> lstCurrentBusAddresses = dbContext.Addresses.Where(e => e.GIntId.Equals(busCurrentBusiness.GIntId)).ToList();
-                    List<Email> lstCurrentBusEmails = dbContext.Emails.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
+                    List<PhoneNumber> rgCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
+                    List<Address> rgCurrentBusAddresses = dbContext.Addresses.Where(e => e.GIntId.Equals(busCurrentBusiness.GIntId)).ToList();
+                    List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
 
                     if (intNumberOfItems == 3)             // Create a new row if there are three items to add to the row
                         GWriter.WriteLine("<tr>");
 
-                    GWriter.WriteLine("<td style=\"padding: 10px 10px 10px 10px; color:#6d6d6d\">");
-                    GWriter.WriteLine($"<strong style=\"color: #a88d2e\">{busCurrentBusiness.GStrBusinessName}</strong>");
-                    GWriter.WriteLine($"<br>{lstCurrentBusAddresses[0].GStrAddress}");
-                    GWriter.WriteLine($"<br>{lstCurrentBusAddresses[0].GStrCity}, {lstCurrentBusAddresses[0].GStrState} {lstCurrentBusAddresses[0].GIntZipCode} ");
-                    GWriter.WriteLine($"<br>{lstCurrentBusPhones[0].GStrPhoneNumber}");
-                    GWriter.WriteLine($"<br>{lstCurrentBusPhones[0].GStrPhoneNumber}");
-                    GWriter.WriteLine($"<br>Map | <a href=\"mailto:{lstCurrentBusEmails[0].GStrEmailAddress} \">Email</a> | <a href=\"{busCurrentBusiness.GStrWebsite}\">Web</a>");
-                    GWriter.WriteLine("</td>");
+                    PrintMemberToTemplate(busCurrentBusiness, rgCurrentBusPhones, rgCurrentBusAddresses, rgCurrentBusEmails);
 
                     if (intNumberOfItems == 1)             // If this is the last of the three items in the row, then close the row
                     {
@@ -320,6 +322,25 @@ namespace DirectorsPortalWPF.ValidateWebsite
             GWriter.WriteLine("</tr>");
 
             GWriter.WriteLine("</table>");
+        }
+
+        /// <summary>
+        /// Prints a member and all of the member's details onto the HTML template.
+        /// </summary>
+        /// <param name="busCurrentBusiness">The current business to be printed onto the template.</param>
+        /// <param name="rgCurrentBusPhones">All phone numbers associated with the current business</param>
+        /// <param name="rgCurrentBusAddresses">All addresses associated with the current business</param>
+        /// <param name="rgCurrentBusEmails">All email addresses associated with the current business</param>
+        private void PrintMemberToTemplate(Business busCurrentBusiness, List<PhoneNumber> rgCurrentBusPhones, List<Address> rgCurrentBusAddresses, List<Email> rgCurrentBusEmails)
+        {
+            GWriter.WriteLine("<td style=\"padding: 10px 10px 10px 10px; color:#6d6d6d\">");
+            GWriter.WriteLine($"<strong style=\"color: #a88d2e\">{busCurrentBusiness.GStrBusinessName}</strong>");
+            GWriter.WriteLine($"<br>{rgCurrentBusAddresses[0].GStrAddress}");
+            GWriter.WriteLine($"<br>{rgCurrentBusAddresses[0].GStrCity}, {rgCurrentBusAddresses[0].GStrState} {rgCurrentBusAddresses[0].GIntZipCode} ");
+            GWriter.WriteLine($"<br>{rgCurrentBusPhones[0].GStrPhoneNumber}");
+            GWriter.WriteLine($"<br>{rgCurrentBusPhones[0].GStrPhoneNumber}");
+            GWriter.WriteLine($"<br>Map | <a href=\"mailto:{rgCurrentBusEmails[0].GStrEmailAddress} \">Email</a> | <a href=\"{busCurrentBusiness.GStrWebsite}\">Web</a>");
+            GWriter.WriteLine("</td>");
         }
 
         /// <summary>
