@@ -13,6 +13,21 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+/// <summary>
+/// File Name: SendEmailPage.xaml.cs
+/// 
+/// Part of Project: DirectorsPortal
+/// 
+/// Original Author: Josh Bacon
+/// 
+/// Date Created: 1/25/2021
+/// 
+/// File Purpose:
+///     This file has all of the logic for handling the email page.
+///     This page allows the director to send emails to all of the
+///     different groups without leaving the portal to use a service
+///     like ConstantContact. 
+/// </summary>
 namespace DirectorsPortalWPF.EmailMembersSendEmailUI
 {
     /// <summary>
@@ -29,15 +44,9 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
         /// Will pull the email list, subject, and body, then send it to the
         /// email service to be sent to the appropriate people.
         /// </summary>
-        /// 
-        /// <remarks>
-        /// Original Author: Josh Bacon
-        /// Date Created: 1/27/2021
-        /// </remarks>
-        /// 
         /// <param name="sender">The Send button object that has called the function.</param>
         /// <param name="e">The button press event</param>
-        private void Send_Email(object sender, RoutedEventArgs e)
+        private void SendEmail(object sender, RoutedEventArgs e)
         {
             // TODO: Still needs to be implemented
             // Need API to call from the SDK team

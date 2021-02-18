@@ -32,7 +32,7 @@ using System.Windows.Shapes;
 namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
 {
     /// <summary>
-    /// Interaction logic for EmailPage.xaml
+    /// Interaction logic for EmailMembersEditGroupsUI.xaml
     /// </summary>
     public partial class EmailMembersEditGroupsPage : Page
     {
@@ -46,11 +46,6 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
         /// of the selected group. Then displays them in the txtNotes,
         /// txtGroupsNames, and txtGroupMembers text boxes.
         /// </summary>
-        /// 
-        /// <remarks>
-        /// Original Author: Daniel Heyse
-        /// Date Created: 2/11/2021
-        /// </remarks>
         public void LoadGroupData(String strGroup)
         {
             txtGroupName.Text = strGroup;
@@ -62,15 +57,9 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
         /// Will save changes made to an existing Group.
         /// Then return user to the SendEmailPage
         /// </summary>
-        /// 
-        /// <remarks>
-        /// Original Author: Daniel Heyse
-        /// Date Created: 2/11/2021
-        /// </remarks>
-        /// 
         /// <param name="sender">The Save button object that has called the function.</param>
         /// <param name="e">The button press event</param>
-        private void Save_Group(object sender, RoutedEventArgs e)
+        private void SaveGroup(object sender, RoutedEventArgs e)
         {
             // TODO: Still needs to be implemented
             this.NavigationService.Navigate(new EmailMembersSendEmailUI.EmailMembersSendEmailPage());
@@ -80,12 +69,6 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
         /// Gets called on the click of the "Cancel" button on the edit page.
         /// Will return the user to the SendEmailPage
         /// </summary>
-        /// 
-        /// <remarks>
-        /// Original Author: Daniel Heyse
-        /// Date Created: 2/11/2021
-        /// </remarks>
-        /// 
         /// <param name="sender">The Cancel button object that has called the function.</param>
         /// <param name="e">The button press event</param>
         private void Cancel(object sender, RoutedEventArgs e)

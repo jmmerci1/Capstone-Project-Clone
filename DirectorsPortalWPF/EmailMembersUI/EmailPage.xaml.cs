@@ -20,13 +20,11 @@ using System.Windows.Shapes;
 /// 
 /// Original Author: Josh Bacon
 /// 
-/// Date Created: 1/25/2021
+/// Date Created: 1/27/2021
 /// 
 /// File Purpose:
-///     This file has all of the logic for handling the email page.
-///     This page allows the director to send emails to all of the
-///     different groups without leaving the portal to use a service
-///     like ConstantContact. 
+///     This file defines the EmailPage object which contains the AddGroups, EditGroups, and SendEmail windows. 
+///     Also contains the logic for displaying existing Email Groups. 
 /// </summary>
 namespace DirectorsPortalWPF.EmailMembersUI
 {
@@ -47,10 +45,6 @@ namespace DirectorsPortalWPF.EmailMembersUI
         /// <see cref="EmailPage.LoadEmailGroups()"/> function
         /// to load in a list of the email groups to the UI.
         /// </summary>
-        /// <remarks>
-        /// Original Author: Josh Bacon
-        /// Date Created: 1/27/2021
-        /// </remarks>
 
         public EmailPage()
         {
@@ -66,10 +60,6 @@ namespace DirectorsPortalWPF.EmailMembersUI
         /// of the emails so that if a new group is added, it does
         /// not have to be hard coded.
         /// </summary>
-        /// <remarks>
-        /// Original Author: Josh Bacon
-        /// Date Created: 1/27/2021
-        /// </remarks>
         public void LoadEmailGroups()
         {
             // Pull the email list element from the page
@@ -114,7 +104,7 @@ namespace DirectorsPortalWPF.EmailMembersUI
                         /// <param name="e">The Click Event</param>
                         emailFrame.Navigate(new EmailMembersEditGroupsUI.EmailMembersEditGroupsPage(group.Name)); 
                     };
-                        hspEmailGroupRow.Children.Add(btnEmailGroupEditButton);
+                    hspEmailGroupRow.Children.Add(btnEmailGroupEditButton);
                     hspEmailGroupRow.Children.Add(lblEmailGroupName);
                     vspGroupList.Children.Add(hspEmailGroupRow);
                 }

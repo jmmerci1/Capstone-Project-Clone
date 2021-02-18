@@ -48,10 +48,6 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
         /// of the emails so that if a new group is added, it does
         /// not have to be hard coded.
         /// </summary>
-        /// <remarks>
-        /// Original Author: Josh Bacon
-        /// Date Created: 1/27/2021
-        /// </remarks>
         public void LoadEmailGroups()
         {
             // Pull the email list element from the page
@@ -99,15 +95,9 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
         /// txtGroupName, txtGroupMembers, and txtNotes fields.
         /// Then will router user to the SendEmailPage
         /// </summary>
-        /// 
-        /// <remarks>
-        /// Original Author: Daniel Heyse
-        /// Date Created: 2/11/2021
-        /// </remarks>
-        /// 
         /// <param name="sender">The Add button object that has called the function.</param>
         /// <param name="e">The button press event</param>
-        private void Add_Group(object sender, RoutedEventArgs e)
+        private void AddGroup(object sender, RoutedEventArgs e)
         {
             // TODO: Still needs to be implemented
             this.NavigationService.Navigate(new EmailMembersSendEmailUI.EmailMembersSendEmailPage());
@@ -117,12 +107,6 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
         /// Gets called on the click of the "Cancel" button on the edit page.
         /// Will return the user to the SendEmailPage
         /// </summary>
-        /// 
-        /// <remarks>
-        /// Original Author: Daniel Heyse
-        /// Date Created: 2/11/2021
-        /// </remarks>
-        /// 
         /// <param name="sender">The Cancel button object that has called the function.</param>
         /// <param name="e">The button press event</param>
         private void Cancel(object sender, RoutedEventArgs e)
