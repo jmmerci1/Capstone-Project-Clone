@@ -1,4 +1,5 @@
-﻿using DirectorsPortalWPF.EmailMembersUI;
+﻿using DirectorPortalDatabase;
+using DirectorsPortalWPF.EmailMembersUI;
 using DirectorsPortalWPF.GenerateReportsUI;
 using DirectorsPortalWPF.HelpUI;
 using DirectorsPortalWPF.MemberInfoUI;
@@ -37,6 +38,9 @@ namespace DirectorsPortalWPF
         {
             InitializeComponent();
             btnMember.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD8D8D8"));       // Appears selected
+                                                                                                                    // Create the database if it doesn't exist
+            DatabaseContext dbContextIntialStartup = new DatabaseContext();
+            dbContextIntialStartup.Database.EnsureCreated();                     // Ensures the database is created upon application startup. If the database is not created, then the context will create the database.
         }
 
 

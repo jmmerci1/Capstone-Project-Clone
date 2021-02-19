@@ -159,6 +159,10 @@
     <Compile Include="Migrations\20210203175503_InitialDatabase.designer.cs">
       <DependentUpon>20210203175503_InitialDatabase.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20210218002558_NewReportTemplates.cs" />
+    <Compile Include="Migrations\20210218002558_NewReportTemplates.designer.cs">
+      <DependentUpon>20210218002558_NewReportTemplates.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\DatabaseContextModelSnapshot.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Business.cs" />
@@ -166,6 +170,8 @@
     <Compile Include="Models\ContactPerson.cs" />
     <Compile Include="Models\Email.cs" />
     <Compile Include="Models\PhoneNumber.cs" />
+    <Compile Include="Models\ReportField.cs" />
+    <Compile Include="Models\ReportTemplate.cs" />
     <Compile Include="Models\Todo.cs" />
     <Compile Include="Models\YearlyData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
