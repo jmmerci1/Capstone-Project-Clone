@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,19 +14,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 /// <summary>
-/// File Name: SendEmailPage.xaml.cs
-/// 
-/// Part of Project: DirectorsPortal
-/// 
-/// Original Author: Josh Bacon
-/// 
-/// Date Created: 1/25/2021
-/// 
-/// File Purpose:
-///     This file has all of the logic for handling the email page.
-///     This page allows the director to send emails to all of the
-///     different groups without leaving the portal to use a service
-///     like ConstantContact. 
+/// This file has all of the logic for handling the email page.
+/// This page allows the director to send emails to all of the
+/// different groups without leaving the portal to use a service
+/// like ConstantContact. 
 /// </summary>
 namespace DirectorsPortalWPF.EmailMembersSendEmailUI
 {

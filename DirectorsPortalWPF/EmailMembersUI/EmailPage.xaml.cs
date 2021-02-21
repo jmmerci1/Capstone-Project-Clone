@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,17 +14,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 /// <summary>
-/// File Name: EmailPage.xaml.cs
-/// 
-/// Part of Project: DirectorsPortal
-/// 
-/// Original Author: Josh Bacon
-/// 
-/// Date Created: 1/27/2021
-/// 
-/// File Purpose:
-///     This file defines the EmailPage object which contains the AddGroups, EditGroups, and SendEmail windows. 
-///     Also contains the logic for displaying existing Email Groups. 
+/// This file defines the EmailPage object which contains the AddGroups, EditGroups, and SendEmail windows. 
+/// Also contains the logic for displaying existing Email Groups. 
 /// </summary>
 namespace DirectorsPortalWPF.EmailMembersUI
 {

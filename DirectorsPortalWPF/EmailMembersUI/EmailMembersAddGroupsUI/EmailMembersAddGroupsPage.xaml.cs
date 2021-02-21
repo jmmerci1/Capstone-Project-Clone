@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,19 +14,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 /// <summary>
-/// File Name: EmailMemebersAddGroupsPage.xaml.cs
-/// 
-/// Part of Project: DirectorsPortal
-/// 
-/// Original Author: Daniel Heyse
-/// 
-/// Date Created: 2/11/2021
-/// 
-/// File Purpose:
-///     This file has all of the logic for adding new Email Groups
-///     This page allows the director to add new
-///     email groups without leaving the portal to use a service
-///     like ConstantContact. 
+/// This file has all of the logic for adding new Email Groups
+/// This page allows the director to add new
+/// email groups without leaving the portal to use a service
+/// like ConstantContact. 
 /// </summary>
 namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
 {
