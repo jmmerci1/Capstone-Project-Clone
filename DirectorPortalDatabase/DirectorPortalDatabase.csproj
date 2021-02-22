@@ -163,6 +163,10 @@
     <Compile Include="Migrations\20210217020326_CategoryMigrate.designer.cs">
       <DependentUpon>20210217020326_CategoryMigrate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20210217190856_CategoryRef.cs" />
+    <Compile Include="Migrations\20210217190856_CategoryRef.designer.cs">
+      <DependentUpon>20210217190856_CategoryRef.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\DatabaseContextModelSnapshot.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Business.cs" />
