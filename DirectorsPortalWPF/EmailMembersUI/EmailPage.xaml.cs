@@ -62,7 +62,7 @@ namespace DirectorsPortalWPF.EmailMembersUI
                 StackPanel vspGroupList = nodGroupList as StackPanel;
 
                 // TODO: GroupList should be retrieved from an API from SDK team or database team. Values added for test purposes
-                mrgGroupList.Add(new Group("Silver",new string[] { "Tom", "John" } , "Test Note"));
+                mrgGroupList.Add(new Group("Silver", new string[] { "Tom", "John" }, "Test Note"));
                 mrgGroupList.Add(new Group("Gold", new string[] { "Jane", "Bill" }, "Test Note2"));
 
                 foreach (Group group in mrgGroupList)
@@ -82,18 +82,18 @@ namespace DirectorsPortalWPF.EmailMembersUI
                         Content = "Edit",
                         HorizontalAlignment = HorizontalAlignment.Right,
                         Template = (ControlTemplate)Application.Current.Resources["smallButton"],
-                        Padding = new Thickness(0,0,35,0),
+                        Padding = new Thickness(0, 0, 35, 0),
                         Height = 15,
                     };
 
-                    btnEmailGroupEditButton.Click += (s, e) => 
+                    btnEmailGroupEditButton.Click += (s, e) =>
                     {
                         /// <summary>
                         /// Navigates to the EditGroups screen and passes the corresponding group name
                         /// </summary>
                         /// <param name="sender">The 'Edit' Button</param>
                         /// <param name="e">The Click Event</param>
-                        emailFrame.Navigate(new EmailMembersEditGroupsUI.EmailMembersEditGroupsPage(group.strName)); 
+                        emailFrame.Navigate(new EmailMembersEditGroupsUI.EmailMembersEditGroupsPage(group.strName));
                     };
                     hspEmailGroupRow.Children.Add(btnEmailGroupEditButton);
                     hspEmailGroupRow.Children.Add(lblEmailGroupName);

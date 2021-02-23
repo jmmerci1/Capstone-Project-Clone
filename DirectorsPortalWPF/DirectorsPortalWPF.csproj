@@ -170,6 +170,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ConstantContactUI\ConstantContactPage.xaml.cs">
+      <DependentUpon>ConstantContactPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="EmailMembersUI\EmailMembersAddGroupsUI\EmailMembersAddGroupsPage.xaml.cs">
       <DependentUpon>EmailMembersAddGroupsPage.xaml</DependentUpon>
     </Compile>
@@ -204,6 +207,10 @@
     <Compile Include="ValidateWebsite\WebsitePreviewPage.xaml.cs">
       <DependentUpon>WebsitePreviewPage.xaml</DependentUpon>
     </Compile>
+    <Page Include="ConstantContactUI\ConstantContactPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="EmailMembersUI\EmailMembersAddGroupsUI\EmailMembersAddGroupsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

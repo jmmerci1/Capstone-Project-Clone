@@ -9,12 +9,6 @@ using System.Threading.Tasks;
 
 /// <summary>
 /// 
-/// File Name: HTMLPreviewGenerator.cs
-/// 
-/// Part of Project: DirectorsPortal
-/// 
-/// Original Author: Benjamin J. Dore
-/// 
 /// File Purpose:
 ///     This file is designed to dynamically write an HTML document.
 ///     Data from the database is loaded into the HTML document to populate currrent Members to
@@ -135,7 +129,10 @@ namespace DirectorsPortalWPF.ValidateWebsite
                 foreach (Categories cat in rgAllCategories)
                 {
                     // Only print the category IF there are businesses that are in that category.
-                    List<Business> rgValidBusinessesMatchingCategory = rgAllBusinesses.FindAll(e => e.GCategories.First().GStrCategory.Equals(cat.GStrCategory));
+                    List<Business> rgValidBusinessesMatchingCategory = rgAllBusinesses
+                        .Where(e => e.GCategories.Count() > 0)
+                        .Where(e => e.GCategories.FirstOrDefault().GStrCategory.Equals(cat.GStrCategory)).ToList();
+
                     if (rgValidBusinessesMatchingCategory.Count > 0) 
                     {
                         GWriter.WriteLine($"<tr><td>{cat.GStrCategory}</td><tr>");

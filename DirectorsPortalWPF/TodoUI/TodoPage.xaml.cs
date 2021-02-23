@@ -8,13 +8,6 @@ using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
 
 /// <summary>
-/// 
-/// File Name: TodoPage.xaml.cs
-/// 
-/// Part of Project: DirectorsPortal
-/// 
-/// Original Author: Benjamin J. Dore
-/// 
 /// File Purpose:
 ///     This file defines the logic for the 'Todo' screen in the Directors Portal application. The
 ///     To do page displays a list of outstanding tasks that need to be completed by the end user. These
