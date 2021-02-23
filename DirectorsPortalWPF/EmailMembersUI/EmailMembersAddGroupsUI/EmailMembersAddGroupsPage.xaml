@@ -51,7 +51,7 @@ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
             <TextBox x:Name="txtNotes" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"  Margin="10,25,10,0" />
         </Grid>
         <Grid Grid.Column="1" Grid.Row="4">
-            <Button x:Name="btnAdd" Click="Add_Group" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Grid.Column="1" Grid.Row="0" Content="Add" Margin="0,18,10,10" Padding="0,0,75,0" Width="76" />
+            <Button x:Name="btnAdd" Click="AddGroup" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Grid.Column="1" Grid.Row="0" Content="Add" Margin="0,18,10,10" Padding="0,0,75,0" Width="76" />
             <Button x:Name="btnCancel" Click="Cancel" HorizontalAlignment="Right" Template="{StaticResource smallButtonGrey}" Grid.Column="0" Grid.Row="0" Content="Cancel" Margin="0,18,100,10" Padding="0,0,50,0" Width="76" />
         </Grid>
     </Grid>

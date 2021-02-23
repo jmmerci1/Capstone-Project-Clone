@@ -8,13 +8,6 @@ using System.Windows;
 using System.Windows.Controls;
 
 /// <summary>
-/// 
-/// File Name: SettingsPage.xaml.cs
-/// 
-/// Part of Project: DirectorsPortal
-/// 
-/// Original Author: Benjamin J. Dore
-/// 
 /// File Purpose:
 ///     This file defines the logic for the 'Settings' screen in the Directors Portal application. The 
 ///     'Settings' screen consists of tabs including:

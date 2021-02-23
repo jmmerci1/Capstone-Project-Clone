@@ -53,7 +53,7 @@
             <TextBox x:Name="txtNotes" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"  Margin="10,25,10,0" />
         </Grid>
         <Grid Grid.Column="1" Grid.Row="4">
-            <Button x:Name="btnSave" Click="Save_Group" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Grid.Column="1" Grid.Row="0" Content="Save" Margin="0,18,10,10" Padding="0,0,75,0" Width="76" />
+            <Button x:Name="btnSave" Click="SaveGroup" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Grid.Column="1" Grid.Row="0" Content="Save" Margin="0,18,10,10" Padding="0,0,75,0" Width="76" />
             <Button x:Name="btnCancel" Click="Cancel" HorizontalAlignment="Right" Template="{StaticResource smallButtonGrey}" Grid.Column="0" Grid.Row="0" Content="Cancel" Margin="0,18,100,10" Padding="0,0,50,0" Width="76" />
         </Grid>
     </Grid>

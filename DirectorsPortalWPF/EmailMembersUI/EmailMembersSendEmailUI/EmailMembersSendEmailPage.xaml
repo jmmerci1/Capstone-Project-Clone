@@ -48,6 +48,6 @@
         <Label Grid.Row="2" HorizontalAlignment="Right" Content="Subject:" VerticalAlignment="Center" Margin="50,0,0,0" />
         <TextBox x:Name="txtSubject" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,10,10,10" Width="200" Height="25" />
         <TextBox x:Name="txtBody" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Grid.Row="3" Grid.ColumnSpan="3" Margin="10,0,10,0" />
-        <Button Click="Send_Email" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Grid.Column="2" Grid.Row="4" Content="Send" Margin="5,10,10,10" Padding="0,0,75,0" Height="20" />
+        <Button Click="SendEmail" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Grid.Column="2" Grid.Row="4" Content="Send" Margin="5,10,10,10" Padding="0,0,75,0" Height="20" />
     </Grid>
 </Page>

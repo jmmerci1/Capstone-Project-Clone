@@ -4,13 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 
 /// <summary>
-/// 
-/// File Name: WebsitePreviewPage.xaml.cs
-/// 
-/// Part of Project: DirectorsPortal
-/// 
-/// Original Author: Benjamin J. Dore
-/// 
 /// File Purpose:
 ///     This file is responsible for displaying a preview of the Membership page that will be 
 ///     uploaded to the Chesaning Chamber of Commerce website. Responsibilities of the file include:
