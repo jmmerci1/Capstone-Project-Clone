@@ -301,7 +301,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             GDicHumanReadableTableFields.Add("StrPhoneNumber", "Phone Number");
             GDicHumanReadableTableFields.Add("StrFaxNumber", "Fax Number");
             GDicHumanReadableTableFields.Add("StrEmailAddress", "Email Address");
-            GDicHumanReadableTableFields.Add("StrWebsite", "Webiste");
+            GDicHumanReadableTableFields.Add("StrWebsite", "Website");
             GDicHumanReadableTableFields.Add("StrLevel", "Level");
             GDicHumanReadableTableFields.Add("IntEstablishedYear", "Established");
         }
