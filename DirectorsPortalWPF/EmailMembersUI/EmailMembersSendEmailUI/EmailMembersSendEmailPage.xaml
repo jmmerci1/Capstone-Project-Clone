@@ -13,6 +13,17 @@
             <Style TargetType="{x:Type TextBox}">
                 <Setter Property="Margin" Value="5,5,5,10"></Setter>
             </Style>
+            <Style TargetType="{x:Type Button}" x:Key="formatTextStyle">
+                <Setter Property="FontFamily" Value="Palatino Linotype"></Setter>
+                <Setter Property="Width" Value="30"></Setter>
+                <Setter Property="FontSize" Value ="14"></Setter>
+                <Setter Property="CommandTarget" Value="{Binding ElementName=mainRTB}"></Setter>
+            </Style>
+
+            <Style TargetType="{x:Type Button}" x:Key="formatImageStyle">
+                <Setter Property="Width" Value="30"></Setter>
+                <Setter Property="CommandTarget" Value="{Binding ElementName=mainRTB}"></Setter>
+            </Style>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"/>
@@ -43,11 +54,80 @@
             <Label Content="Email" HorizontalAlignment="Left" Foreground="White" Margin="10,0,15,0" VerticalAlignment="Center" />
         </Grid>
 
-        <Label Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Content="To:" Margin="50,0,0,0" />
-        <TextBox x:Name="txtToField" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,10,10,10" Width="200" Height="25" />
-        <Label Grid.Row="2" HorizontalAlignment="Right" Content="Subject:" VerticalAlignment="Center" Margin="50,0,0,0" />
-        <TextBox x:Name="txtSubject" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,10,10,10" Width="200" Height="25" />
+        <Label Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Content="To:" Margin="10,0,0,0" />
+        <TextBox x:Name="txtToField" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="0,10,10,10" Height="25" />
+        <Label Grid.Row="2" HorizontalAlignment="Right" Content="Subject:" VerticalAlignment="Center" Margin="10,0,0,0" />
+        <TextBox x:Name="txtSubject" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="0,10,10,10" Height="25" />
+        
+        <!--
         <TextBox x:Name="txtBody" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Grid.Row="3" Grid.ColumnSpan="3" Margin="10,0,10,0" />
+        -->
+
+        <DockPanel Name="mainPanel" Grid.Row="3" Grid.ColumnSpan="3" Margin="10,0,10,0"  >
+
+            <!-- This tool bar contains all the editing buttons. -->
+            <ToolBar Name="mainToolBar" Height="30" DockPanel.Dock="Top" Background="{x:Null}" ToolBarTray.IsLocked="True">
+
+                <Button Style="{StaticResource formatImageStyle}" Command="ApplicationCommands.Cut" ToolTip="Cut">
+                    <Image Source="..\..\Resources\Icons\EditCut.png"></Image>
+                </Button>
+                <Button Style="{StaticResource formatImageStyle}" Command="ApplicationCommands.Copy" ToolTip="Copy">
+                    <Image Source="..\..\Resources\Icons\EditCopy.png"></Image>
+                </Button>
+                <Button Style="{StaticResource formatImageStyle}" Command="ApplicationCommands.Paste" ToolTip="Paste">
+                    <Image Source="..\..\Resources\Icons\EditPaste.png"></Image>
+                </Button>
+                <Button Style="{StaticResource formatImageStyle}" Command="ApplicationCommands.Undo" ToolTip="Undo">
+                    <Image Source="..\..\Resources\Icons\EditUndo.png"></Image>
+                </Button>
+                <Button Style="{StaticResource formatImageStyle}" Command="ApplicationCommands.Redo" ToolTip="Redo">
+                    <Image Source="..\..\Resources\Icons\EditRedo.png"></Image>
+                </Button>
+
+                <Button Style="{StaticResource formatTextStyle}" Command="EditingCommands.ToggleBold" ToolTip="Bold">
+                    <TextBlock FontWeight="Bold">B</TextBlock>
+                </Button>
+                <Button Style="{StaticResource formatTextStyle}" Command="EditingCommands.ToggleItalic" ToolTip="Italic">
+                    <TextBlock FontStyle="Italic" FontWeight="Bold">I</TextBlock>
+                </Button>
+                <Button Style="{StaticResource formatTextStyle}" Command="EditingCommands.ToggleUnderline" ToolTip="Underline">
+                    <TextBlock TextDecorations="Underline" FontWeight="Bold">U</TextBlock>
+                </Button>
+                <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.IncreaseFontSize" ToolTip="Grow Font">
+                    <Image Source="..\..\Resources\Icons\CharacterGrowFont.png"></Image>
+                </Button>
+                <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.DecreaseFontSize" ToolTip="Shrink Font">
+                    <Image Source="..\..\Resources\Icons\CharacterShrinkFont.png"></Image>
+                </Button>
+
+                <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.ToggleBullets" ToolTip="Bullets">
+                    <Image Source="..\..\Resources\Icons\ListBullets.png"></Image>
+                </Button>
+                <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.ToggleNumbering" ToolTip="Numbering">
+                    <Image Source="..\..\Resources\Icons\ListNumbering.png"></Image>
+                </Button>
+                <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.AlignLeft" ToolTip="Align Left">
+                    <Image Source="..\..\Resources\Icons\ParagraphLeftJustify.png"></Image>
+                </Button>
+                <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.AlignCenter" ToolTip="Align Center">
+                    <Image Source="..\..\Resources\Icons\ParagraphCenterJustify.png"></Image>
+                </Button>
+                <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.AlignRight" ToolTip="Align Right">
+                    <Image Source="..\..\Resources\Icons\ParagraphRightJustify.png"></Image>
+                </Button>
+                <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.AlignJustify" ToolTip="Align Justify">
+                    <Image Source="..\..\Resources\Icons\ParagraphFullJustify.png"></Image>
+                </Button>
+                <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.IncreaseIndentation" ToolTip="Increase Indent">
+                    <Image Source="..\..\Resources\Icons\ParagraphIncreaseIndentation.png"></Image>
+                </Button>
+                <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.DecreaseIndentation" ToolTip="Decrease Indent">
+                    <Image Source="..\..\Resources\Icons\ParagraphDecreaseIndentation.png"></Image>
+                </Button>
+            </ToolBar>
+            <RichTextBox Name="rtbEmailBody" AcceptsTab="True" SpellCheck.IsEnabled="True"></RichTextBox>
+        </DockPanel>
         <Button Click="SendEmail" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Grid.Column="2" Grid.Row="4" Content="Send" Margin="5,10,10,10" Padding="0,0,75,0" Height="20" />
+        <Button Click="AttachFile_Click" HorizontalAlignment="Left" Template="{StaticResource smallButton}" Grid.Column="0" Grid.Row="4" Content="Attach" Margin="10,10,10,10" Padding="0,0,75,0" Height="20" />
     </Grid>
 </Page>
