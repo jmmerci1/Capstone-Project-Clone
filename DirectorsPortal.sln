@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectorsPortalWPF", "DirectorsPortalWPF\DirectorsPortalWPF.csproj", "{68AAFF21-AD0F-4533-B29C-263C334E7CF2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D2287B2-89F6-4EBC-B604-45F51BC2A3C8} = {0D2287B2-89F6-4EBC-B604-45F51BC2A3C8}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectorPortalDatabase", "DirectorPortalDatabase\DirectorPortalDatabase.csproj", "{8373825A-6945-4C92-843A-A611BFD59EC4}"
 EndProject

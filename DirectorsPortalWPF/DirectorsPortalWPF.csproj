@@ -182,6 +182,7 @@
     <Compile Include="EmailMembersUI\EmailMembersSendEmailUI\EmailMembersSendEmailPage.xaml.cs">
       <DependentUpon>EmailMembersSendEmailPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HtmlFromXamlConverter.cs" />
     <Compile Include="EmailMembersUI\EmailPage.xaml.cs">
       <DependentUpon>EmailPage.xaml</DependentUpon>
     </Compile>
@@ -299,6 +300,21 @@
     <Resource Include="Resources\chamberlogo_1.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\Icons\charactergrowfont.png" />
+    <Resource Include="Resources\Icons\charactershrinkfont.png" />
+    <Resource Include="Resources\Icons\editcopy.png" />
+    <Resource Include="Resources\Icons\editcut.png" />
+    <Resource Include="Resources\Icons\editpaste.png" />
+    <Resource Include="Resources\Icons\editredo.png" />
+    <Resource Include="Resources\Icons\editundo.png" />
+    <Resource Include="Resources\Icons\listbullets.png" />
+    <Resource Include="Resources\Icons\listnumbering.png" />
+    <Resource Include="Resources\Icons\paragraphcenterjustify.png" />
+    <Resource Include="Resources\Icons\paragraphdecreaseindentation.png" />
+    <Resource Include="Resources\Icons\paragraphfulljustify.png" />
+    <Resource Include="Resources\Icons\paragraphincreaseindentation.png" />
+    <Resource Include="Resources\Icons\paragraphleftjustify.png" />
+    <Resource Include="Resources\Icons\paragraphrightjustify.png" />
     <Content Include="Resources\MembershipTemplate.html" />
   </ItemGroup>
   <ItemGroup>
@@ -307,7 +323,7 @@
       <Name>DirectorPortalDatabase</Name>
     </ProjectReference>
     <ProjectReference Include="..\DirectorsPortalGraphApi\DirectorsPortalGraphApi.csproj">
-      <Project>{0D2287B2-89F6-4EBC-B604-45F51BC2A3C8}</Project>
+      <Project>{0d2287b2-89f6-4ebc-b604-45f51bc2a3c8}</Project>
       <Name>DirectorsPortalGraphApi</Name>
     </ProjectReference>
   </ItemGroup>
