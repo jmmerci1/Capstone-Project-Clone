@@ -19,6 +19,8 @@ using System.Windows.Shapes;
 /// </summary>
 namespace DirectorsPortalWPF.EmailMembersUI
 {
+
+
     /// <summary>
     /// Interaction logic for EmailPage.xaml
     /// </summary>
@@ -75,7 +77,7 @@ namespace DirectorsPortalWPF.EmailMembersUI
                     };
                     Label lblEmailGroupName = new Label()
                     {
-                        Content = group.strName
+                        Content = group.gstrName
                     };
                     Button btnEmailGroupEditButton = new Button()
                     {
@@ -93,7 +95,7 @@ namespace DirectorsPortalWPF.EmailMembersUI
                         /// </summary>
                         /// <param name="sender">The 'Edit' Button</param>
                         /// <param name="e">The Click Event</param>
-                        emailFrame.Navigate(new EmailMembersEditGroupsUI.EmailMembersEditGroupsPage(group.strName));
+                        emailFrame.Navigate(new EmailMembersEditGroupsUI.EmailMembersEditGroupsPage(group.gstrName));
                     };
                     hspEmailGroupRow.Children.Add(btnEmailGroupEditButton);
                     hspEmailGroupRow.Children.Add(lblEmailGroupName);
@@ -102,7 +104,7 @@ namespace DirectorsPortalWPF.EmailMembersUI
 
             }
         }
-        /// <summary>
+
         /// Navigates to the AddGroups screen.
         /// </summary>
         /// <param name="sender">The 'Add' Button</param>
@@ -120,14 +122,14 @@ namespace DirectorsPortalWPF.EmailMembersUI
 /// </summary>
 public class Group
 {
-    public string strName { get; set; }
-    public string[] strMembers { get; set; }
-    public string strNote { get; set; }
+    public string gstrName { get; set; }
+    public string[] garrMembers { get; set; }
+    public string gstrNote { get; set; }
 
     public Group(string name, string[] members, string note)
     {
-        strName = name;
-        strMembers = members;
-        strNote = note;
+        gstrName = name;
+        garrMembers = members;
+        gstrNote = note;
     }
 }

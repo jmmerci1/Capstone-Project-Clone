@@ -306,6 +306,10 @@
       <Project>{8373825a-6945-4c92-843a-a611bfd59ec4}</Project>
       <Name>DirectorPortalDatabase</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DirectorsPortalGraphApi\DirectorsPortalGraphApi.csproj">
+      <Project>{0D2287B2-89F6-4EBC-B604-45F51BC2A3C8}</Project>
+      <Name>DirectorsPortalGraphApi</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
