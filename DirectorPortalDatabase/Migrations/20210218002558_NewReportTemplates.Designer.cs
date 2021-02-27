@@ -3,14 +3,16 @@ using System;
 using DirectorPortalDatabase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DirectorPortalDatabase.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20210218002558_NewReportTemplates")]
+    partial class NewReportTemplates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -111,47 +113,6 @@ namespace DirectorPortalDatabase.Migrations
                     b.HasIndex("ContactPersonGIntId");
 
                     b.ToTable("BusinessReps");
-                });
-
-            modelBuilder.Entity("DirectorPortalDatabase.Models.Categories", b =>
-                {
-                    b.Property<int>("GIntId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("BusinessGIntId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("GStrCategory")
-                        .HasColumnName("category")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("GIntId");
-
-                    b.HasIndex("BusinessGIntId");
-
-                    b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("DirectorPortalDatabase.Models.CategoryRef", b =>
-                {
-                    b.Property<int>("GIntId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("GIntBusinessId")
-                        .HasColumnName("businessId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("GIntCategoriesId")
-                        .HasColumnName("categoriesID")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("GIntId");
-
-                    b.ToTable("CategoryRef");
                 });
 
             modelBuilder.Entity("DirectorPortalDatabase.Models.ContactPerson", b =>
@@ -341,13 +302,6 @@ namespace DirectorPortalDatabase.Migrations
                     b.HasOne("DirectorPortalDatabase.Models.ContactPerson", null)
                         .WithMany("GRGRepresentations")
                         .HasForeignKey("ContactPersonGIntId");
-                });
-
-            modelBuilder.Entity("DirectorPortalDatabase.Models.Categories", b =>
-                {
-                    b.HasOne("DirectorPortalDatabase.Models.Business", null)
-                        .WithMany("GCategories")
-                        .HasForeignKey("BusinessGIntId");
                 });
 
             modelBuilder.Entity("DirectorPortalDatabase.Models.Email", b =>
