@@ -53,6 +53,13 @@ namespace DirectorPortalDatabase
         /// </summary>
         public DbSet<Todo> TodoListItems { get; set; }
         /// <summary>
+        /// These are saved templates that can generate reports.
+        /// </summary>
+        public DbSet<ReportTemplate> ReportTemplates { get; set; }
+        /// <summary>
+        /// These are the fields that are contained within report templates. 
+        /// </summary>
+        public DbSet<ReportField> ReportFields { get; set; }
         /// Stores the various buissness type categories
         /// </summary>
         public DbSet<Categories> Categories { get; set; }
