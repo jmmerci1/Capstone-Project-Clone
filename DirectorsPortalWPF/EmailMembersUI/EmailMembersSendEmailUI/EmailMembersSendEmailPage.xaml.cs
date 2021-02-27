@@ -1,3 +1,4 @@
+using DirectorsPortal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,13 +35,42 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
         /// Gets called on the click of the "Send" button on the email page.
         /// Will pull the email list, subject, and body, then send it to the
         /// email service to be sent to the appropriate people.
+        /// email list delimited by ;, send array of recipients body and subject to API 
+        /// when send is pressed the user wil login with microsoft pop up authenticator
+        /// then the emial will be sent from the user
         /// </summary>
         /// <param name="sender">The Send button object that has called the function.</param>
         /// <param name="e">The button press event</param>
-        private void SendEmail(object sender, RoutedEventArgs e)
+        private async void SendEmail(object sender, RoutedEventArgs e)
         {
-            // TODO: Still needs to be implemented
-            // Need API to call from the SDK team
+            String strSubject = txtSubject.Text;
+            String strRecipient = txtToField.Text;
+            String[] arrRecipient = strRecipient.Split(';');
+
+            String strContent = txtBody.Text;
+
+            await GraphApiClient.SendMail(strSubject, arrRecipient, strContent);
+        }
+        /// <summary>
+        /// empty method for use later 
+        /// will take folder name or ID and return email objects that can be printed
+        /// </summary>
+        private async void GetFolders()
+        {
+            String strFolderName = "";
+
+            await GraphApiClient.GetFolder(strFolderName);
+        }
+
+        /// <summary>
+        /// empty method for user later
+        /// will take folder emial ID and pull back a single email object which can be printed 
+        /// </summary>
+        private async void GetEmail()
+        {
+            String strID = "";
+
+            await GraphApiClient.GetEmail(strID);
         }
     }
 }
