@@ -34,6 +34,9 @@ namespace DirectorsPortalConstantContact
 
         private string mstrTokenHeader => $"Bearer {this.gobjCCAuth.AccessToken}";
 
+
+        // add properties for dictionaries
+
         /// <summary>
         /// Talks to ConstantContactOAuth.cs to retrieve a valid access token for our requests
         /// 
