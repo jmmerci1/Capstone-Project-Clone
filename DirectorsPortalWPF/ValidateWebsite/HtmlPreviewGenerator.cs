@@ -35,24 +35,30 @@ namespace DirectorsPortalWPF.ValidateWebsite
         /// </summary>
         public void GeneratePreview()
         {
-
-            // Using the StreamWriter to Write to the MembershipTemplate.html file (under the resources folder)
-            using (GWriter = new StreamWriter(GetTemplateLocation(),false))
+            try
             {
-                // Featured businesses header
-                GWriter.WriteLine("<h3 style=\"text-align: center; font-family: sans-serif; color:#448eb8; font-weight: bold;" +
-                    " font-size: 1cm\">Featured Businesses</h3>");
+                // Using the StreamWriter to Write to the MembershipTemplate.html file (under the resources folder)
+                using (GWriter = new StreamWriter(GetTemplateLocation(), false))
+                {
+                    // Featured businesses header
+                    GWriter.WriteLine("<h3 style=\"text-align: center; font-family: sans-serif; color:#448eb8; font-weight: bold;" +
+                        " font-size: 1cm\">Featured Businesses</h3>");
 
-                // Div to align content within margins
-                GWriter.WriteLine("<div style=\"margin-left: 10%; margin-right:10% \">");
+                    // Div to align content within margins
+                    GWriter.WriteLine("<div style=\"margin-left: 10%; margin-right:10% \">");
 
-                WriteButtons();
-                PrintMembersAZ();
-                PrintMembersCategory();    
-                PrintMembersAssociate();
-                GWriter.WriteLine("</div>");
+                    WriteButtons();
+                    PrintMembersAZ();
+                    PrintMembersCategory();
+                    PrintMembersAssociate();
+                    GWriter.WriteLine("</div>");
 
-                WriteJavaScript();
+                    WriteJavaScript();
+                }
+            }
+            catch (IOException)
+            {
+                throw new IOException("Refresh failure! Please try refreshing again.");
             }
 
         }
