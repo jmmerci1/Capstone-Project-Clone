@@ -189,6 +189,9 @@
     <Compile Include="GenerateReportsUI\GenerateReportsPage.xaml.cs">
       <DependentUpon>GenerateReportsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HelpUI\HelpScreenWindow.xaml.cs">
+      <DependentUpon>HelpScreenWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="HelpUI\HelpScreenPage.xaml.cs">
       <DependentUpon>HelpScreenPage.xaml</DependentUpon>
     </Compile>
@@ -231,6 +234,10 @@
     <Page Include="GenerateReportsUI\GenerateReportsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="HelpUI\HelpScreenWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="HelpUI\HelpScreenPage.xaml">
       <SubType>Designer</SubType>

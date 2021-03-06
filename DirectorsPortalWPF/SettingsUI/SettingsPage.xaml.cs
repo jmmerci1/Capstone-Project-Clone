@@ -154,6 +154,18 @@ namespace DirectorsPortalWPF.SettingsUI
             }
 
         }
+        /// <summary>
+        /// Opens a pop-up window that displays the current frames help information. 
+        /// </summary>
+        /// <param name="sender">Help button</param>
+        /// <param name="e">The Click event</param>
+        public void HelpButtonHandler(object sender, EventArgs e)
+        {
+            HelpUI.HelpScreenWindow helpWindow = new HelpUI.HelpScreenWindow();
+            helpWindow.Show();
+            helpWindow.tabs.SelectedIndex = 6;
+
+        }
 
         /// <summary>
         /// Creates a new Text Box for the 'Edit Fields' tab on the Settings screen.
