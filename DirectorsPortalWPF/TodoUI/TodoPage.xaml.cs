@@ -178,5 +178,17 @@ namespace DirectorsPortalWPF.TodoUI
             };
             return btnNewButton;
         }
+        /// <summary>
+        /// Opens a pop-up window that displays the current frames help information. 
+        /// </summary>
+        /// <param name="sender">Help button</param>
+        /// <param name="e">The Click event</param>
+        public void HelpButtonHandler(object sender, EventArgs e)
+        {
+            HelpUI.HelpScreenWindow helpWindow = new HelpUI.HelpScreenWindow();
+            helpWindow.Show();
+            helpWindow.tabs.SelectedIndex = 5;
+
+        }
     }
 }

@@ -10,30 +10,33 @@
 
     <ScrollViewer>
         <StackPanel Background="White">
-            <TextBlock Text="Generate Reports" Foreground="Black"  Padding="48,15,0,15" FontSize="20" FontWeight="Bold"/>
+            <Grid >
+                <TextBlock Text="Generate Reports" Foreground="Black"  Grid.Column ="0"  FontSize="20" FontWeight="Bold" Margin="48,15,15,15"/>
+                <Button x:Name="btnHelp" Click="HelpButtonHandler" Template="{StaticResource largeButton}" Width="20" Margin="0,10,49,10" Content="?" HorizontalAlignment="Right" />
+            </Grid>
             <TabControl TabStripPlacement="Top" Background="#FFF1F2F7" BorderThickness="1" Margin="50,0,50,0">
                 <TabItem Name="tbiGenerateReports" Header="Generate Report" IsSelected="True" Background="Gray">
                     <Grid Margin="10,10,10,10">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"></RowDefinition>
-                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid Grid.Row="0" Margin="0,15,0,0">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"></RowDefinition>
-                                <RowDefinition Height="auto"></RowDefinition>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="100"></ColumnDefinition>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="Report Type" Grid.Row="0" Grid.Column="0" Margin="25,0,0,0" VerticalAlignment="Center"></TextBlock>
+                            <TextBlock Text="Report Type" Grid.Row="0" Grid.Column="0" Margin="25,0,0,0" VerticalAlignment="Center"/>
                             <StackPanel Grid.Row="0" Grid.Column="1" Width="300" HorizontalAlignment="Left">
-                                <ComboBox Name="cboReportType"
-                                          ItemsSource="{Binding Path=GUdtyReportTypes}"
+                                <ComboBox x:Name="cboReportType"
+                                          ItemsSource="{Binding GUdtyReportTypes}"
                                           SelectionChanged="ReportTypeSelectedHandler">
                                     <!--<ComboBoxItem IsSelected="True">Member</ComboBoxItem>-->
                                 </ComboBox>
@@ -41,17 +44,17 @@
                         </Grid>
                         <Grid Grid.Row="1" Margin="25,10,0,0">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"></RowDefinition>
-                                <RowDefinition Height="auto"></RowDefinition>
-                                <RowDefinition Height="auto"></RowDefinition>
-                                <RowDefinition Height="auto"></RowDefinition>
-                                <RowDefinition Height="*"></RowDefinition>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="Report Fields" Grid.Row="0"></TextBlock>
-                            <ListBox Name="lstReportFields" SelectionMode="Multiple" Grid.Row="1" Width="400" Height="210" HorizontalAlignment="Left">
+                            <TextBlock Text="Report Fields" Grid.Row="0"/>
+                            <ListBox x:Name="lstReportFields" SelectionMode="Multiple" Grid.Row="1" Width="400" Height="210" HorizontalAlignment="Left">
                                 <!--<ListBoxItem>Business Name</ListBoxItem>
                                 <ListBoxItem>Mailing Address</ListBoxItem>
                                 <ListBoxItem>Location Address</ListBoxItem>
@@ -66,7 +69,7 @@
                             <Button Name="btnCreateReport" Click="GenerateReportButtonHandler" Template="{StaticResource largeButton}" Grid.Row="2" Margin="0,15,0,15" Width="100"  HorizontalAlignment="Left">Create Report</Button>
                             <Button Name="btnSaveReportType" Click="SaveReportTypeButtonHandler" Template="{StaticResource largeButton}" Grid.Row="2" Margin="120,15,0,15" HorizontalAlignment="Left" Width="100">Save Report Type</Button>
                             <Border BorderThickness="1" Grid.Row="3"/>
-                            <Grid Grid.Row="4" Name="grdReportContent"></Grid>
+                            <Grid Grid.Row="4" x:Name="grdReportContent"/>
                             <!--<DataGrid x:Name="dgdMemberData" Grid.Row="3" FrozenColumnCount="10" Visibility="Hidden"/>-->
                         </Grid>
                     </Grid>
@@ -82,15 +85,15 @@
                     </Grid>
                     <!--<Grid Margin="10,10,10,10">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"></RowDefinition>
-                            <RowDefinition Height="auto"></RowDefinition>
-                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200"></ColumnDefinition>
-                            <ColumnDefinition Width="100"></ColumnDefinition>
-                            <ColumnDefinition Width="100"></ColumnDefinition>
-                            <ColumnDefinition Width="100"></ColumnDefinition>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="100"/>
                         </Grid.ColumnDefinitions>
                         --><!--Row 0--><!--
                         <TextBlock Text="Members at a Glance" Grid.Row="0" Grid.Column="0" Margin="0,10,0,0"></TextBlock>
@@ -113,10 +116,12 @@
         </StackPanel>
     </ScrollViewer>
     <!--<Grid Margin="50,50,50,50">
-        --><!--<Grid.Background>
+        -->
+    <!--<Grid.Background>
             <SolidColorBrush Color="#FFF1F2F7" />
         </Grid.Background>-->
 
-        <!--<TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,55,0,0" TextWrapping="Wrap" Text="Generate Reports Page" VerticalAlignment="Top" FontSize="72" RenderTransformOrigin="0.446,0.474"/>--><!--
+    <!--<TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,55,0,0" TextWrapping="Wrap" Text="Generate Reports Page" VerticalAlignment="Top" FontSize="72" RenderTransformOrigin="0.446,0.474"/>-->
+    <!--
     </Grid>-->
 </Page>

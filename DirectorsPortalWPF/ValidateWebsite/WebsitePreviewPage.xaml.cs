@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
@@ -67,6 +67,18 @@ namespace DirectorsPortalWPF.ValidateWebsite
             {
                 MessageBox.Show(ex.Message, "Warning!", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
+        }
+
+        /// <summary>
+        /// Opens a pop-up window that displays the current frames help information. 
+        /// </summary>
+        /// <param name="sender">Help button</param>
+        /// <param name="e">The Click event</param>
+        public void HelpButtonHandler(object sender, EventArgs e)
+        {
+            HelpUI.HelpScreenWindow window = new HelpUI.HelpScreenWindow();
+            window.Show();
+            window.tabs.SelectedIndex = 4;
         }
 
         /// <summary>
