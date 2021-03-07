@@ -24,7 +24,7 @@ namespace DirectorsPortalConstantContact
         {
             this.email_address = new GETEmailAddress() 
             { 
-                address = strEmailAddress 
+                address = strEmailAddress
             };
             this.first_name = strFirstName;
             this.last_name = strLastName;
@@ -102,52 +102,67 @@ namespace DirectorsPortalConstantContact
                 job_title = this.job_title,
                 company_name = this.company_name,
                 create_source = "Account",
-                birthday_month = this.birthday_month,
-                birthday_day = this.birthday_day,
                 anniversary = this.anniversary,
             };
+
+            objTempContact.birthday_month = this.birthday_month != 0 ? this.birthday_month : new Nullable<int>();
+
+            objTempContact.birthday_day = this.birthday_day != 0 ? this.birthday_day : new Nullable<int>();
 
             objTempContact.email_address = new POSTEmailAddress();
             objTempContact.email_address.address = this.email_address.address;
             objTempContact.email_address.permission_to_send = this.email_address.permission_to_send;
 
-            objTempContact.custom_fields = new List<GETContactCustomField>();
-            foreach (GETContactCustomField tempField in this.custom_fields)
+            if (this.custom_fields != null && this.custom_fields.Count > 0)
             {
-                objTempContact.custom_fields.Add(tempField);
-            }
-
-            objTempContact.phone_numbers = new List<POSTPhoneNumber>();
-            foreach (GETPhoneNumber tempPhone in this.phone_numbers)
-            {
-                POSTPhoneNumber tempNewPhone = new POSTPhoneNumber()
+                objTempContact.custom_fields = new List<GETContactCustomField>();
+                foreach (GETContactCustomField tempField in this.custom_fields)
                 {
-                    phone_number = tempPhone.phone_number,
-                    kind = tempPhone.kind
-                };
-                objTempContact.phone_numbers.Add(tempNewPhone);
+                    objTempContact.custom_fields.Add(tempField);
+                }
             }
 
-            objTempContact.street_addresses = new List<POSTStreetAddress>();
-            foreach (GETStreetAddress tempAddress in this.street_addresses)
+            if (this.phone_numbers != null && this.phone_numbers.Count > 0)
             {
-                POSTStreetAddress tempNewAddress = new POSTStreetAddress()
+                objTempContact.phone_numbers = new List<POSTPhoneNumber>();
+                foreach (GETPhoneNumber tempPhone in this.phone_numbers)
                 {
-                    kind = tempAddress.kind,
-                    street = tempAddress.street,
-                    city = tempAddress.city,
-                    state = tempAddress.state,
-                    postal_code = tempAddress.postal_code,
-                    country = tempAddress.country
-                };
-                objTempContact.street_addresses.Add(tempNewAddress);
+                    POSTPhoneNumber tempNewPhone = new POSTPhoneNumber()
+                    {
+                        phone_number = tempPhone.phone_number,
+                        kind = tempPhone.kind
+                    };
+                    objTempContact.phone_numbers.Add(tempNewPhone);
+                }
             }
-
-            objTempContact.list_memberships = new List<string>();
-            foreach (string strListId in this.list_memberships)
+            
+            if (this.street_addresses != null && this.street_addresses.Count > 0)
             {
-                objTempContact.list_memberships.Add(strListId);
+                objTempContact.street_addresses = new List<POSTStreetAddress>();
+                foreach (GETStreetAddress tempAddress in this.street_addresses)
+                {
+                    POSTStreetAddress tempNewAddress = new POSTStreetAddress()
+                    {
+                        kind = tempAddress.kind,
+                        street = tempAddress.street,
+                        city = tempAddress.city,
+                        state = tempAddress.state,
+                        postal_code = tempAddress.postal_code,
+                        country = tempAddress.country
+                    };
+                    objTempContact.street_addresses.Add(tempNewAddress);
+                }
             }
+            
+            if (this.list_memberships != null && this.list_memberships.Count > 0)
+            {
+                objTempContact.list_memberships = new List<string>();
+                foreach (string strListId in this.list_memberships)
+                {
+                    objTempContact.list_memberships.Add(strListId);
+                }
+            }
+            
 
             
 

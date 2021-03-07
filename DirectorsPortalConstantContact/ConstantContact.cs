@@ -296,6 +296,7 @@ namespace DirectorsPortalConstantContact
             var data = new StringContent(strJson, Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = client.PostAsync(this.gstrBaseURL+strUrl, data).Result;
+            Console.WriteLine(response.StatusCode);
 
         }
 
@@ -443,6 +444,18 @@ namespace DirectorsPortalConstantContact
                 NullValueHandling = NullValueHandling.Ignore
             });
             this.PUTJson(strJson, strUrl);
+        }
+
+        public void Create(Contact objContact)
+        {
+            this.gobjCCAuth.ValidateAuthentication();
+            POSTContact objTempContact = objContact.Create();
+            string strJson = JsonConvert.SerializeObject(objTempContact, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                
+            });
+            this.PostJson(strJson, "contacts");
         }
 
         /// <summary>
