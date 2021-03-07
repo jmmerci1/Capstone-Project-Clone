@@ -20,8 +20,11 @@ namespace DirectorsPortalConstantContact
         /// Constant Contact. Additionally this maintains the request limit.
         /// </summary>
         private int intLimitReq = 0;
+        readonly private string gstrBaseURL = "https://api.cc.email/v3/";
         //May need to be instantiated elsewhere
         private List<Request> lstRequests = new List<Request>();
+        private ConstantContactOAuth gobjCCAuth = new ConstantContactOAuth();
+        private string mstrTokenHeader => $"Bearer {this.gobjCCAuth.AccessToken}";
 
         /// <summary>
         /// Counts the requests being sent to ensure the waiting period between multiple 
@@ -84,24 +87,48 @@ namespace DirectorsPortalConstantContact
 
         //TODO
 
-        public void GetRequest(Request objGetRequest)
+        public async void GetRequest(Request objGetRequest)
         {
             CountRequests();
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", this.mstrTokenHeader);
+
+            HttpResponseMessage response = client.GetAsync(this.gstrBaseURL + objGetRequest.strURL).Result;
+            objGetRequest.strResponse = await response.Content.ReadAsStringAsync();
         }
 
-        public void PostRequest(Request objPostRequest)
+        public async void PostRequest(Request objPostRequest)
         {
             CountRequests();
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", this.mstrTokenHeader);
+
+            var data = new StringContent(objPostRequest.strJSON, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = client.PostAsync(this.gstrBaseURL + objPostRequest.strURL, data).Result;
+            objPostRequest.strResponse = await response.Content.ReadAsStringAsync();
         }
 
-        public void PullRequest(Request objPullRequest)
+        public async void PullRequest(Request objPullRequest)
         {
             CountRequests();
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", this.mstrTokenHeader);
+
+            var data = new StringContent(objPullRequest.strJSON, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = client.PullAsync(this.gstrBaseURL + objPullRequest.strURL, data).Result;
+            objPullRequest.strResponse = await response.Content.ReadAsStringAsync();
         }
 
-        public void DeleteRequest(Request objDelRequest)
+        public async void DeleteRequest(Request objDelRequest)
         {
             CountRequests();
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", this.mstrTokenHeader);
+
+            HttpResponseMessage response = client.DeleteAsync(this.gstrBaseURL + objDelRequest.strURL).Result;
+            objDelRequest.strResponse = await response.Content.ReadAsStringAsync();
         }
 
     }
