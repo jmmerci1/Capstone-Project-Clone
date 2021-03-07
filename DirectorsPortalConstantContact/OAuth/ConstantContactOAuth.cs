@@ -274,9 +274,7 @@ namespace DirectorsPortalConstantContact
         {
             string strUrl = $"https://idfed.constantcontact.com/as/token.oauth2?refresh_token={this.MstrRefreshToken}&grant_type=refresh_token";
             //attempt to refresh current token
-            Console.WriteLine(strUrl);
             string strResponse = this.ReadOAuthContents(strUrl);
-            Console.WriteLine(strResponse);
             Dictionary<string, string> JsonResponce = JsonConvert.DeserializeObject<Dictionary<string, string>>(strResponse);
             this.mstrAccessToken = JsonResponce["access_token"];
             this.mstrRefreshToken = JsonResponce["refresh_token"];
@@ -310,7 +308,6 @@ namespace DirectorsPortalConstantContact
             }
 
             string strContects = File.ReadAllText(strFname);
-            Console.WriteLine(strContects);
 
             try
             {

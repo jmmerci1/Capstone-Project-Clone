@@ -97,7 +97,6 @@ namespace DirectorsPortalConstantContact
                 
                 try
                 {
-                    Console.WriteLine(this.gdctContacts.Count());
                     strLink = (string)objJson["_links"]["next"]["href"];
                     strLink = strLink.Substring(4, strLink.Length - 4);
                 }
@@ -120,7 +119,6 @@ namespace DirectorsPortalConstantContact
         {
             //fix for while True
             string strJson = this.ReadJsonFromUrl(this.gstrContactListUrl);
-
 
 
             Dictionary<string, ContactList> dctTempContactLists = new Dictionary<string, ContactList>();
@@ -298,7 +296,6 @@ namespace DirectorsPortalConstantContact
             var data = new StringContent(strJson, Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = client.PostAsync(this.gstrBaseURL+strUrl, data).Result;
-            Console.WriteLine(response.StatusCode);
 
         }
 
