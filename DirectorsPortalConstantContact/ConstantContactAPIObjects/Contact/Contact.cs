@@ -17,16 +17,22 @@ namespace DirectorsPortalConstantContact
 
         public List<ContactList> glstContactLists = new List<ContactList>();
         public List<GETCustomField> glstCustomFields = new List<GETCustomField>();
+        //https://www.c-sharpcorner.com/article/encryption-and-decryption-using-a-symmetric-key-in-c-sharp/
 
 
-        public Contact()
+        public Contact(string strEmailAddress = null, string strFirstName = null, string strLastName = null)
         {
+            this.email_address = new GETEmailAddress() 
+            { 
+                address = strEmailAddress 
+            };
+            this.first_name = strFirstName;
+            this.last_name = strLastName;
+            this.custom_fields = new List<GETContactCustomField>();
+            this.phone_numbers = new List<GETPhoneNumber>();
+            this.street_addresses = new List<GETStreetAddress>();
+            this.list_memberships = new List<string>();
 
-        }
-
-        public Contact(string strEmailAddress)
-        {
-            this.email_address.address = strEmailAddress;
         }
 
 
@@ -78,6 +84,74 @@ namespace DirectorsPortalConstantContact
 
             return objUpdateContact;
 
+        }
+
+        public POSTContact Create()
+        {
+            if (string.IsNullOrEmpty(this.first_name) && string.IsNullOrEmpty(this.last_name) && string.IsNullOrEmpty(this.email_address.address))
+            {
+                Console.WriteLine("Contact missing fields");
+                throw new Exception();
+
+            }
+
+            POSTContact objTempContact = new POSTContact()
+            {
+                first_name = this.first_name,
+                last_name = this.last_name,
+                job_title = this.job_title,
+                company_name = this.company_name,
+                create_source = "Account",
+                birthday_month = this.birthday_month,
+                birthday_day = this.birthday_day,
+                anniversary = this.anniversary,
+            };
+
+            objTempContact.email_address = new POSTEmailAddress();
+            objTempContact.email_address.address = this.email_address.address;
+            objTempContact.email_address.permission_to_send = this.email_address.permission_to_send;
+
+            objTempContact.custom_fields = new List<GETContactCustomField>();
+            foreach (GETContactCustomField tempField in this.custom_fields)
+            {
+                objTempContact.custom_fields.Add(tempField);
+            }
+
+            objTempContact.phone_numbers = new List<POSTPhoneNumber>();
+            foreach (GETPhoneNumber tempPhone in this.phone_numbers)
+            {
+                POSTPhoneNumber tempNewPhone = new POSTPhoneNumber()
+                {
+                    phone_number = tempPhone.phone_number,
+                    kind = tempPhone.kind
+                };
+                objTempContact.phone_numbers.Add(tempNewPhone);
+            }
+
+            objTempContact.street_addresses = new List<POSTStreetAddress>();
+            foreach (GETStreetAddress tempAddress in this.street_addresses)
+            {
+                POSTStreetAddress tempNewAddress = new POSTStreetAddress()
+                {
+                    kind = tempAddress.kind,
+                    street = tempAddress.street,
+                    city = tempAddress.city,
+                    state = tempAddress.state,
+                    postal_code = tempAddress.postal_code,
+                    country = tempAddress.country
+                };
+                objTempContact.street_addresses.Add(tempNewAddress);
+            }
+
+            objTempContact.list_memberships = new List<string>();
+            foreach (string strListId in this.list_memberships)
+            {
+                objTempContact.list_memberships.Add(strListId);
+            }
+
+            
+
+            return objTempContact;
         }
 
 

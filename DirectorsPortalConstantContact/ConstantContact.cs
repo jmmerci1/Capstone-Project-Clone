@@ -25,43 +25,38 @@ namespace DirectorsPortalConstantContact
         readonly private string gstrContactCustomFieldUrl = "contact_custom_fields?limit=100";
         readonly private string gstrEmailCampaignUrl = "emails?limit=500";
 
+        //these will become private
         public Dictionary<string, Contact> gdctContacts = new Dictionary<string, Contact>();
         public Dictionary<string, ContactList> gdctContactLists = new Dictionary<string, ContactList>();
         public Dictionary<string, CustomField> gdctCustomFields = new Dictionary<string, CustomField>();
         public Dictionary<string, EmailCampaign> gdctEmailCampaigns = new Dictionary<string, EmailCampaign>();
 
-        private ConstantContactOAuth gobjCCAuth = new ConstantContactOAuth();
+        private ConstantContactOAuth gobjCCAuth = new ConstantContactOAuth()
+        {
+            MstrLocalRoute = "http://localhost:40000/",
+            mstrAppAPIKey = "08d80131-0c76-4829-83fc-be50e14bf0b4",
+            mstrAppAPISecret = "HvdbdEaUYXhVYQcUV2XEXg"
+        };
 
-        private string mstrTokenHeader => $"Bearer {this.gobjCCAuth.AccessToken}";
+        private string mstrTokenHeader => $"Bearer {this.gobjCCAuth.MstrAccessToken}";
 
 
         // add properties for dictionaries
 
-        /// <summary>
-        /// Talks to ConstantContactOAuth.cs to retrieve a valid access token for our requests
-        /// 
-        /// [TODO] I assume that we will want to store these 3 strings in a config file somewhere as they can change
-        /// </summary>
-        public void Authenticate()
-        {
-            //set preliminary data
-            this.gobjCCAuth.LocalRoute = "http://localhost:42069/";
-            this.gobjCCAuth.mstrAppAPIKey = "08d80131-0c76-4829-83fc-be50e14bf0b4";
-            this.gobjCCAuth.mstrAppAPISecret = "HvdbdEaUYXhVYQcUV2XEXg";
+        public Dictionary<string, Contact>.ValueCollection Contacts => this.gdctContacts.Values;
+        public Dictionary<string, ContactList>.ValueCollection ContactLists => this.gdctContactLists.Values;
+        public Dictionary<string, CustomField>.ValueCollection CustomFields => this.gdctCustomFields.Values;
+        public Dictionary<string, EmailCampaign>.ValueCollection EmailCampaigns => this.gdctEmailCampaigns.Values;
 
-            //initiate the Oauth process
-            gobjCCAuth.GetAccessToken();
-            this.RefreshData();
-        }
 
         /// <summary>
         /// One function to run all of the update functions. 
-        /// 
-        /// [TODO] Right now this is only writen to be run once, as it does not clear out the lists when adding. 
-        ///         so if this was run twice, there would be duplicates. this will be fixed. 
+        ///
         /// </summary>
         public void RefreshData()
         {
+
+            this.gobjCCAuth.ValidateAuthentication();
             //get all info
             this.UpdateContacts();
             System.Threading.Thread.Sleep(500);
@@ -85,6 +80,8 @@ namespace DirectorsPortalConstantContact
         {
             string strLink = this.gstrContactsUrl;
 
+            Dictionary<string, Contact> dctTempContacts = new Dictionary<string, Contact>();
+
             while (true) {
                 string strJson = this.ReadJsonFromUrl(strLink);
 
@@ -95,7 +92,7 @@ namespace DirectorsPortalConstantContact
 
                 foreach (Contact contact in lstDecodedJson)
                 {
-                    this.gdctContacts.Add(contact.contact_id, contact);
+                    dctTempContacts.Add(contact.contact_id, contact);
                 }
                 
                 try
@@ -106,6 +103,8 @@ namespace DirectorsPortalConstantContact
                 }
                 catch (System.NullReferenceException)
                 {
+                    //do i need to manage the gc here?
+                    this.gdctContacts = dctTempContacts;
                     return;
                 }
                 
@@ -119,7 +118,12 @@ namespace DirectorsPortalConstantContact
         /// </summary>
         private void UpdateContactLists()
         {
+            //fix for while True
             string strJson = this.ReadJsonFromUrl(this.gstrContactListUrl);
+
+
+
+            Dictionary<string, ContactList> dctTempContactLists = new Dictionary<string, ContactList>();
 
             //Console.WriteLine(strJson);
 
@@ -127,8 +131,11 @@ namespace DirectorsPortalConstantContact
 
             foreach (ContactList lstContactList in dctDecodedJson["lists"])
             {
-                this.gdctContactLists.Add(lstContactList.list_id, lstContactList);
+                dctTempContactLists.Add(lstContactList.list_id, lstContactList);
             }
+
+            this.gdctContactLists = dctTempContactLists;
+            return;
         }
 
         /// <summary>
@@ -139,14 +146,17 @@ namespace DirectorsPortalConstantContact
         {
             string strJson = this.ReadJsonFromUrl(this.gstrContactCustomFieldUrl);
 
-            Console.WriteLine(strJson);
+            Dictionary<string, CustomField> dctTempCustomFields = new Dictionary<string, CustomField>();
 
             Dictionary<string, List<CustomField>> dctDecodedJson = JsonConvert.DeserializeObject<Dictionary<string, List<CustomField>>>(strJson);
 
             foreach (CustomField lstFieldList in dctDecodedJson["custom_fields"])
             {
-                this.gdctCustomFields.Add(lstFieldList.custom_field_id, lstFieldList);
+                dctTempCustomFields.Add(lstFieldList.custom_field_id, lstFieldList);
             }
+
+            this.gdctCustomFields = dctTempCustomFields;
+            return;
         }
 
         /// <summary>
@@ -157,7 +167,7 @@ namespace DirectorsPortalConstantContact
         {
             string strLink = this.gstrEmailCampaignUrl;
             //this should make a temp dict and use that instead of just erasing the data first. 
-            this.gdctEmailCampaigns = new Dictionary<string, EmailCampaign>();
+            Dictionary<string, EmailCampaign> dctTempEmailCampaigns = new Dictionary<string, EmailCampaign>();
             while (true)
             {
                 //json response for all campaigns
@@ -173,19 +183,19 @@ namespace DirectorsPortalConstantContact
                 {
                     if (lstEmailCampaign.current_status != "Removed")
                     {
-                        this.gdctEmailCampaigns.Add(lstEmailCampaign.campaign_id, lstEmailCampaign);
+                        dctTempEmailCampaigns.Add(lstEmailCampaign.campaign_id, lstEmailCampaign);
                     }
                 }
 
                 //Trabis is dumb
                 try
                 {
-                    
                     strLink = (string)objJson["_links"]["next"]["href"];
                     strLink = strLink.Substring(4, strLink.Length - 4);
                 }
                 catch (System.NullReferenceException)
                 {
+                    this.gdctEmailCampaigns = dctTempEmailCampaigns;
                     return;
                 }
             }
@@ -332,7 +342,7 @@ namespace DirectorsPortalConstantContact
                 {
                     objContact.Value.glstContactLists.Add(this.gdctContactLists[strListId]);
                     //also add contact to the list's members list
-                    this.gdctContactLists[strListId].GlstMembers.Add(objContact.Value);
+                    this.gdctContactLists[strListId].glstMembers.Add(objContact.Value);
                 }
             }
         }

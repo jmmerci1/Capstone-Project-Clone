@@ -13,7 +13,7 @@ namespace DirectorsPortalConstantContact
     /// </summary>
     public class ContactList : GETContactList
     {
-        public List<Contact> GlstMembers = new List<Contact>();
+        public List<Contact> glstMembers = new List<Contact>();
 
         public PUTContactList Update()
         {

@@ -41,7 +41,7 @@ namespace DirectorsPortalConstantContact
         public int birthday_month { get; set; }
         public int birthday_day { get; set; }
         public string anniversary { get; set; }
-        public List<GETCustomField> custom_fields { get; set; }
+        public List<GETContactCustomField> custom_fields { get; set; }
         public List<POSTPhoneNumber> phone_numbers { get; set; }
         public List<POSTStreetAddress> street_addresses { get; set; }
         public List<string> list_memberships { get; set; }
