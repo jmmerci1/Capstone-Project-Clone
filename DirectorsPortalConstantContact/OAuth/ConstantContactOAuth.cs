@@ -27,6 +27,12 @@ namespace DirectorsPortalConstantContact
         public string mstrAppAPIKey;
         public string mstrAppAPISecret;
 
+        public ConstantContactOAuth()
+        {
+            //sets socket at 1 minute timeout
+            this.mobjLocalListener.TimeoutManager.DrainEntityBody = new TimeSpan(0, 1, 0);
+        }
+
         
         /// <summary>
         /// validate and assign the localroute value
@@ -143,6 +149,7 @@ namespace DirectorsPortalConstantContact
 
             this.mobjLocalListener.Stop();
         }
+
 
         /// <summary>
         /// retrieve the access code before access token retrieval
@@ -316,6 +323,8 @@ namespace DirectorsPortalConstantContact
                 string strAccess = lstParts[0];
                 string strRefresh = lstParts[1];
                 string strTime = lstParts[2];
+
+                this.mstrRefreshToken = strRefresh;
 
                 //check 2 hour delta
                 DateTime objDt = DateTime.Parse(strTime);
