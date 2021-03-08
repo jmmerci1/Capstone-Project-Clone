@@ -93,49 +93,6 @@ namespace DirectorPortalDatabase.Models
                 }
             }
         }
-
-        /// <summary>
-        /// Gives a reference to the mailing address object from the database
-        /// </summary>
-        public Address GMailingAddress
-        {
-            get
-            {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    return dbContext.Addresses.FirstOrDefault(x => x.GIntId == GIntMailingAddressId);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gives a reference to the physical address object from the database
-        /// </summary>
-        public Address GPhysicalAddress
-        {
-            get
-            {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    return dbContext.Addresses.FirstOrDefault(x => x.GIntId == GIntPhysicalAddressId);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gives a reference to the contact people
-        /// </summary>
-        public List<ContactPerson> GRGContactPeople
-        {
-            get
-            {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    // Select the list of BusinessRep objects and return their contact person property
-                    return dbContext.BusinessReps.Where(x => x.GIntContactPersonId == GIntId).Select(b => b.GContactPerson).ToList();
-                }
-            }
-        }
     }
 
     /// <summary>
