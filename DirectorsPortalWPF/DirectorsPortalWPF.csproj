@@ -201,6 +201,9 @@
     <Compile Include="PaymentInfoUI\PaymentsPage.xaml.cs">
       <DependentUpon>PaymentsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SettingsUI\DataConflictPage.xaml.cs">
+      <DependentUpon>DataConflictPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SettingsUI\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
@@ -260,6 +263,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="PaymentInfoUI\PaymentsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SettingsUI\DataConflictPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

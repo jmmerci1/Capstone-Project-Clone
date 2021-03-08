@@ -335,5 +335,19 @@ namespace DirectorsPortalWPF.SettingsUI
                 }
             }
         }
+
+        /// <summary>
+        /// NOT FOR PRODUCTION:
+        /// 
+        /// Allows developers to trigger the Data Import Conflict screen while under
+        /// development.
+        /// 
+        /// </summary>
+        /// <param name="sender">The 'Simulate Import Conflict' button</param>
+        /// <param name="e">The Click Event</param>
+        private void btnSimulateConflict_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new DataConflictPage());
+        }
     }
 }
