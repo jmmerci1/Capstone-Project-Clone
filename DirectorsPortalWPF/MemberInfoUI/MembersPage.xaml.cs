@@ -20,7 +20,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// A dictionary global to the page that relates the list view model properties
         /// to their human readable names.
         /// </summary>
-        Dictionary<string, string> GDicHumanReadableTableFields 
+        public static Dictionary<string, string> GDicHumanReadableTableFields 
             = new Dictionary<string, string>();
 
         /// <summary>
@@ -34,28 +34,15 @@ namespace DirectorsPortalWPF.MemberInfoUI
             /* Repopulate the dictionary to accoutn for any field changes. */
             /* TODO: This is currently just a concept for when we have a better idea on how
              * dynamic tables will function. */
-            PopulateHumanReadableTableFields();
+            GDicHumanReadableTableFields.Clear();
+            GDicHumanReadableTableFields = BusinessTableViewModel.PopulateHumanReadableTableDic();
         }
-        
-        /// <summary>
-        /// Pending Implementation
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+        private void BtnAddMember_Click(object sender, RoutedEventArgs e)
         {
-
+            NavigationService.Navigate(new AddMembersPage());
         }
 
-        /// <summary>
-        /// Pending Implementation
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
         /// <summary>
         /// Opens a pop-up window that displays the current frames help information. 
         /// </summary>
@@ -74,8 +61,19 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void BtnEditBusiness_Click(object sender, RoutedEventArgs e)
-        { 
-        
+        {
+            Button btn = sender as Button;
+            BusinessTableViewModel selectedTableViewModel = btn.DataContext as BusinessTableViewModel;
+
+            Business selectedBusiness = new Business();
+            using (DatabaseContext context = new DatabaseContext()) 
+            {
+                selectedBusiness = context.Businesses
+                    .Where(business => business.GStrBusinessName.Equals(selectedTableViewModel.StrBuisnessName))
+                    .FirstOrDefault();
+            }
+
+            NavigationService.Navigate(new EditMembersPage(selectedBusiness));
         }
 
         /// <summary>
@@ -104,9 +102,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
                     businessTableView.StrLocationAddress = locationAddress?.GStrAddress;
                     businessTableView.StrMailingAddress = malingAddress?.GStrAddress;
-                    businessTableView.StrCity = locationAddress?.GStrCity;
-                    businessTableView.StrState = locationAddress?.GStrState;
-                    businessTableView.IntZipCode = CheckNullableInt(locationAddress?.GIntZipCode);
+                    businessTableView.StrCity = malingAddress?.GStrCity;
+                    businessTableView.StrState = malingAddress?.GStrState;
+                    businessTableView.IntZipCode = CheckNullableInt(malingAddress?.GIntZipCode);
 
                     /* Get the business rep from the database. */
                     /* TODO: Need to figure out a way to display more than one buisiness rep. */
@@ -151,7 +149,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     }
 
                     businessTableView.StrWebsite = business?.GStrWebsite;
-                    businessTableView.StrLevel = GetMebershipLevelString(business.GEnumMembershipLevel);
+                    businessTableView.StrLevel = Business.GetMebershipLevelString(business.GEnumMembershipLevel);
 
                     businessTableView.IntEstablishedYear = CheckNullableInt(business?.GIntYearEstablished);
 
@@ -266,77 +264,5 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 return intCheck;
             }
         }
-
-        /// <summary>
-        /// A method for converting the membership level from the business entity to
-        /// a human readable string.
-        /// </summary>
-        /// <param name="membershipLevel">The membership level from the business entity.</param>
-        /// <returns>The human readable membership string.</returns>
-        private string GetMebershipLevelString (MembershipLevel membershipLevel)
-        {
-            string strLevel = "";
-
-            switch (membershipLevel) 
-            {
-                case MembershipLevel.GOLD:
-                    strLevel = "Gold";
-                    break;
-
-                case MembershipLevel.SILVER:
-                    strLevel = "Silver";
-                    break;
-            }
-
-            return strLevel;
-        }
-
-        /// <summary>
-        /// A method for popualting the human readable names into the
-        /// global dictionary. These fields will be used to relate the names of
-        /// the properties to the their human readable column headers.
-        /// </summary>
-        private void PopulateHumanReadableTableFields () 
-        {
-            /* TODO: This method will need to change as we develope a solution for dynamic
-             * fields. */
-            GDicHumanReadableTableFields.Clear();
-
-            GDicHumanReadableTableFields.Add("StrBuisnessName", "Business Name");
-            GDicHumanReadableTableFields.Add("StrMailingAddress", "Mailing Address");
-            GDicHumanReadableTableFields.Add("StrLocationAddress", "Location Address");
-            GDicHumanReadableTableFields.Add("StrCity", "City");
-            GDicHumanReadableTableFields.Add("StrState", "State");
-            GDicHumanReadableTableFields.Add("IntZipCode", "Zip Code");
-            GDicHumanReadableTableFields.Add("StrContactPerson", "Contact");
-            GDicHumanReadableTableFields.Add("StrPhoneNumber", "Phone Number");
-            GDicHumanReadableTableFields.Add("StrFaxNumber", "Fax Number");
-            GDicHumanReadableTableFields.Add("StrEmailAddress", "Email Address");
-            GDicHumanReadableTableFields.Add("StrWebsite", "Website");
-            GDicHumanReadableTableFields.Add("StrLevel", "Level");
-            GDicHumanReadableTableFields.Add("IntEstablishedYear", "Established");
-        }
-    }
-
-    /// <summary>
-    /// A view model that defines the members table.
-    /// </summary>
-    public class BusinessTableViewModel 
-    {
-        /* TODO: This data model will need to change as we develope a solution for
-         * dynamic fields. */
-        public string StrBuisnessName { get; set; }
-        public string StrMailingAddress { get; set; }
-        public string StrLocationAddress { get; set; }
-        public string StrCity { get; set; }
-        public string StrState { get; set; }
-        public int? IntZipCode { get; set; }
-        public string StrContactPerson { get; set; }
-        public string StrPhoneNumber { get; set; }
-        public string StrFaxNumber { get; set; }
-        public string StrEmailAddress { get; set; }
-        public string StrWebsite { get; set; }
-        public string StrLevel { get; set; }
-        public int? IntEstablishedYear { get; set; }
     }
 }

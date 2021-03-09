@@ -93,6 +93,89 @@ namespace DirectorPortalDatabase.Models
                 }
             }
         }
+
+        /// <summary>
+        /// A method for converting the membership level from the business entity to
+        /// a human readable string.
+        /// </summary>
+        /// <param name="strEnumVal">The membership level from the data model</param>
+        /// <returns>The membership enum value of the entered string.</returns>
+        public static MembershipLevel GetMemberShipEnum(string strEnumVal)
+        {
+            MembershipLevel enumMembershipLevel;
+            strEnumVal = strEnumVal.ToLower();
+
+            switch (strEnumVal)
+            {
+                case "gold":
+                    enumMembershipLevel = MembershipLevel.GOLD;
+                    break;
+
+                case "silver":
+                    enumMembershipLevel = MembershipLevel.SILVER;
+                    break;
+
+                case "associate":
+                    enumMembershipLevel = MembershipLevel.ASSOCIATE;
+                    break;
+
+                case "individual":
+                    enumMembershipLevel = MembershipLevel.INDIVIDUAL;
+                    break;
+
+                case "courtesy":
+                    enumMembershipLevel = MembershipLevel.COURTESY;
+                    break;
+
+                default:
+                    /* Probably shouldn't default to GOLD.
+                     * The database does not currently have an option for this field to be null though.*/
+                    enumMembershipLevel = MembershipLevel.GOLD;
+                    break;
+            }
+
+            return enumMembershipLevel;
+        }
+
+        /// <summary>
+        /// A method for converting the membership level from the business entity to
+        /// a human readable string.
+        /// </summary>
+        /// <param name="membershipLevel">The membership level from the business entity.</param>
+        /// <returns>The human readable membership string.</returns>
+        public static string GetMebershipLevelString(MembershipLevel membershipLevel)
+        {
+            string strLevel = "";
+
+            switch (membershipLevel)
+            {
+                case MembershipLevel.GOLD:
+                    strLevel = "Gold";
+                    break;
+
+                case MembershipLevel.SILVER:
+                    strLevel = "Silver";
+                    break;
+
+                case MembershipLevel.ASSOCIATE:
+                    strLevel = "Associate";
+                    break;
+
+                case MembershipLevel.INDIVIDUAL:
+                    strLevel = "Individual";
+                    break;
+
+                case MembershipLevel.COURTESY:
+                    strLevel = "Courtesy";
+                    break;
+
+                default:
+                    strLevel = "None";
+                    break;
+            }
+
+            return strLevel;
+        }
     }
 
     /// <summary>

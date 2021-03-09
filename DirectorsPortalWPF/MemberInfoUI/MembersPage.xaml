@@ -37,7 +37,7 @@
                     <GroupBox x:Name="grpMemberFilters" Header="Members Filters" Grid.Row="0" Grid.ColumnSpan="2" BorderThickness="0">
                         <TextBox x:Name="txtFilter" AutomationProperties.HelpText="Type to filter the data" Height="25" Width="300" HorizontalAlignment="Left" VerticalContentAlignment="Center" TextChanged="TxtFilter_TextChanged"/>
                     </GroupBox>
-                    <ListView Grid.Row="1" Name="lvMemberInfo" Loaded="LvMemberInfo_Loaded">
+                    <ListView Grid.Row="1" Name="lvMemberInfo" SelectionMode="Single" Loaded="LvMemberInfo_Loaded">
                         <ListView.View>
                             <GridView x:Name="gvMemberInfo">
                                 <!--Columns and rows are dynamically generated-->
@@ -45,7 +45,7 @@
                         </ListView.View>
                     </ListView>
                     <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="2">
-                        <Button x:Name="btnAddMember" Template="{StaticResource smallButton}" Content="Add Member" HorizontalAlignment="Left" Margin="5,5,5,5" Height="20" Padding="0,0,100,0"/>
+                        <Button x:Name="btnAddMember" Click="BtnAddMember_Click" Template="{StaticResource smallButton}" Content="Add Member" HorizontalAlignment="Left" Margin="5,5,5,5" Height="20" Padding="0,0,100,0"/>
                         <Button x:Name="btnEditSelected" Template="{StaticResource smallButton}" Content="Edit Selected" HorizontalAlignment="Left" Margin="5,5,5,5" Height="20" Padding="0,0,100,0"/>
                     </StackPanel>
                 </Grid>
@@ -67,8 +67,6 @@
                         <Button x:Name="btnAcceptAllChanges" Content="Accept All Changes" Template="{StaticResource smallButton}" Margin="5,5,5,5" Height="20" Padding="0,0,120,0" />
                         <Button x:Name="btnRejectAllChanges" Content="Reject All Changes" Template="{StaticResource smallButton}" Margin="5,5,5,5" Height="20" Padding="0,0,120,0" />
                     </StackPanel>
-
-                    <DataGrid SelectionChanged="DataGrid_SelectionChanged" Grid.Row="1" Grid.ColumnSpan="2" Margin="5,5,5,5" FrozenColumnCount="10" />
 
                     <StackPanel Grid.Row="1" Grid.Column="2">
                         <Button x:Name="btnAccept" Content="Accept" Template="{StaticResource smallButton}" Margin="5,5,5,5" Height="20" Padding="0,0,80,0" />
