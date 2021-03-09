@@ -295,7 +295,7 @@ namespace DirectorsPortalConstantContact
            
             string strOutString = $"{this.mstrAccessToken}::::{this.mstrRefreshToken}::::{DateTime.Now.ToString()}";
 
-            //this.obfuscateString();
+            strOutString = this.ObfuscateString(strOutString);
 
             File.WriteAllText(strFname, strOutString, Encoding.UTF8);
             
@@ -314,12 +314,14 @@ namespace DirectorsPortalConstantContact
                 throw new FileNotFoundException();
             }
 
-            string strContects = File.ReadAllText(strFname);
+            string strContents = File.ReadAllText(strFname);
+
+            strContents = this.DeobfuscateString(strContents);
 
             try
             {
                 string[] strDelim = { "::::" , "\n"};
-                string[] lstParts = strContects.Split(strDelim, StringSplitOptions.RemoveEmptyEntries);
+                string[] lstParts = strContents.Split(strDelim, StringSplitOptions.RemoveEmptyEntries);
                 string strAccess = lstParts[0];
                 string strRefresh = lstParts[1];
                 string strTime = lstParts[2];
@@ -348,6 +350,59 @@ namespace DirectorsPortalConstantContact
                 throw new FormatException();
             }
             
+        }
+
+        private string ObfuscateString(string strData)
+        {
+
+            string strB64 = this.Base64Encode(strData);
+            int c = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                Console.WriteLine(c);
+                strB64 = strB64.Substring(strB64.Length - 1) + strB64.Substring(0, strB64.Length - 1);
+                strB64 = this.Base64Encode(strB64);
+                if (strB64.Contains("="))
+                {
+                    i--;
+                }
+                if (c >= 27)
+                {
+                    i += 3;
+                }
+                c++;
+            }
+            //Console.WriteLine(strB64);
+
+            return strB64;
+        }
+
+        private string DeobfuscateString(string strData)
+        {
+            string strClean = strData;
+            int c = 0;
+            while (true)
+            {
+                //Console.WriteLine(c++);
+                c++;
+                strClean = this.Base64Decode(strClean);
+                if (strClean.Contains("::::") || c>= 300)
+                {
+                    break;
+                }
+                else
+                {
+                    strClean = strClean.Substring(1) + strClean.Substring(0, 1);
+                }
+            }
+            //Console.WriteLine(strClean);
+            return strClean;
+        }
+
+        private string Base64Decode(string strData)
+        {
+            byte[] lstBytes = Convert.FromBase64String(strData);
+            return Encoding.UTF8.GetString(lstBytes);
         }
 
     }
