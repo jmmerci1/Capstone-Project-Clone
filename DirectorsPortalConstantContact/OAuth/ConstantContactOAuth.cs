@@ -290,7 +290,7 @@ namespace DirectorsPortalConstantContact
 
         private void CacheTokens()
         {
-            string strFname = Directory.GetCurrentDirectory() + "CCTokenCache.bin";
+            string strFname = "CCTokenCache.bin";
 
            
             string strOutString = $"{this.mstrAccessToken}::::{this.mstrRefreshToken}::::{DateTime.Now.ToString()}";
@@ -306,7 +306,7 @@ namespace DirectorsPortalConstantContact
         /// </summary>
         private bool LoadCacheTokens()
         {
-            string strFname = Directory.GetCurrentDirectory() + "CCTokenCache.bin";
+            string strFname = "CCTokenCache.bin"; //Directory.GetCurrentDirectory() + 
 
             if (!File.Exists(strFname))
             {
