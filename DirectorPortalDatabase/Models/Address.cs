@@ -40,5 +40,36 @@ namespace DirectorPortalDatabase.Models
         /// </summary>
         [Column("zip")]
         public int GIntZipCode { get; set; }
+
+        /// <summary>
+        /// A mehtod for comparing two addresses.
+        /// </summary>
+        /// <param name="obj">The object to compare to this address.</param>
+        /// <returns>A boolean sating if the addresses are equal.</returns>
+        public override bool Equals(object obj)
+        {
+            Address addressToCompare = obj as Address;
+
+            if (GStrAddress.Equals(addressToCompare.GStrAddress) &&
+                GStrCity.Equals(addressToCompare.GStrCity) &&
+                GStrState.Equals(addressToCompare.GStrState) &&
+                GIntZipCode == addressToCompare.GIntZipCode)
+            {
+                return true;
+            }
+            else 
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// A method for generating the hash code of the address.
+        /// </summary>
+        /// <returns>The Addresses has code.</returns>
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }
