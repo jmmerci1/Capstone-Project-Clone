@@ -7,7 +7,7 @@ namespace DirectorsPortalConstantContact
     public class EmailCampaignActivity : GETEmailCampaignActivity
     {
 
-        List<DateTime> Scheduals = new List<DateTime>();
+        public EmailCampaignActivityPreview mobjPreview;
 
         public POSTEmailCampaignActivity NewActivity()
         {
@@ -52,9 +52,5 @@ namespace DirectorsPortalConstantContact
             };
         }
 
-        public void AddSchedule(string strTime)
-        {
-
-        }
     }
 }

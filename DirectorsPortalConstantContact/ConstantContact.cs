@@ -67,7 +67,7 @@ namespace DirectorsPortalConstantContact
             System.Threading.Thread.Sleep(200);
             this.UpdateEmailCampaignActivities();
             System.Threading.Thread.Sleep(200);
-            this.UpdateEmailCampaignActivitySchedules();
+            this.UpdateEmailCampaignActivityPreviews();
 
             //assignments
             this.ContactListAssignment();
@@ -234,7 +234,7 @@ namespace DirectorsPortalConstantContact
             }
         }
 
-        private void UpdateEmailCampaignActivitySchedules()
+        private void UpdateEmailCampaignActivityPreviews()
         {
             foreach(EmailCampaign objCampaign in this.gdctEmailCampaigns.Values)
             {
@@ -244,9 +244,12 @@ namespace DirectorsPortalConstantContact
                     //only promary email will have sched list
                     if (objActivity.role == "primary_email")
                     {
-                        string url = $"emails/activities/{objActivity.campaign_activity_id}/schedules";
-                        string t = this.ReadJsonFromUrl(url);
-                        Console.WriteLine(t);
+                        string strUrl = $"emails/activities/{objActivity.campaign_activity_id}/previews";
+                        string strData = this.ReadJsonFromUrl(strUrl);
+
+                        EmailCampaignActivityPreview objPreview = JsonConvert.DeserializeObject<EmailCampaignActivityPreview>(strData);
+
+                        objActivity.mobjPreview = objPreview;
 
                         //TESTING
                         if (objActivity.contact_list_ids.Count() > 0)
