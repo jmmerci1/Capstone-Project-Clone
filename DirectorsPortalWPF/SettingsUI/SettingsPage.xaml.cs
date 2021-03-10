@@ -1,9 +1,13 @@
-﻿using DirectorPortalDatabase.Utility;
+using DirectorPortalDatabase;
+using DirectorPortalDatabase.Models;
+using ExcelDataReader;
+using DirectorPortalDatabase.Utility;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -287,9 +291,86 @@ namespace DirectorsPortalWPF.SettingsUI
             btnAddField.Content = "Add Field";
         }
 
-        private void BtnImportExcel_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Contains the button click event.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void BtnImportExcel_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Add import to excel logic here
+            //List using class Members to store Member information.
+            List<Members> Members = new List<Members>();
+
+            //String that contains the excel file that the user selects.
+            string FilePath = FindFile();
+
+            //Populated members List.
+            Members = ReadExcelFile(FilePath);
+
+            if (Members.Count > 0)
+            {
+                ImportToDatabase(Members);
+            }                      
+        }
+
+        /// <summary>
+        /// ReadExcelFile method that will read the prior selected excel file. 
+        /// </summary>
+        /// <param name="filePath">String that contains the name and path of the excel sheet that will be read.</param>
+        /// <returns>List that contains Members information from excel sheet.</returns>
+        private List<Members> ReadExcelFile(string filePath)
+        {
+            //Temporary List to build the List that is returned.
+            List<Members> TempMembers = new List<Members>();
+
+            if (filePath != "")
+            {
+                try
+                {
+                    //Stream that is useed to read the excel file.
+                    using (var Stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
+                    {
+
+                        //Reader that is used to hold data read from the excel file.
+                        using (var Reader = ExcelReaderFactory.CreateReader(Stream))
+                        {
+                            do
+                            {
+                                while (Reader.Read())
+                                {
+                                    //Add data that was read from the Excel sheet into a list.
+                                    TempMembers.Add(new Members(Convert.ToString(Reader[0]), Convert.ToString(Reader[1]), Convert.ToString(Reader[2]),
+                                                                Convert.ToString(Reader[3]), Convert.ToString(Reader[4]), Convert.ToString(Reader[5]),
+                                                                Convert.ToString(Reader[6]), Convert.ToString(Reader[7]), Convert.ToString(Reader[8]),
+                                                                Convert.ToString(Reader[9]), Convert.ToString(Reader[10]), Convert.ToString(Reader[11]),
+                                                                Convert.ToString(Reader[12]), Convert.ToString(Reader[13]), Convert.ToString(Reader[14]),
+                                                                Convert.ToString(Reader[15]), Convert.ToString(Reader[17]), Convert.ToString(Reader[19])));
+
+                                }
+                                //Moves to the next sheet.
+                            } while (Reader.NextResult());
+                        }
+                    }
+
+                    if (filePath != "" && TempMembers.Count < 1)
+                    {
+                        MessageBox.Show("No Excel Data to import to Database", "Excel Import Notice",
+                               MessageBoxButton.OK,
+                               MessageBoxImage.Information);
+                    }
+                   
+                }
+                catch (System.IO.IOException)
+                {
+                    // Alert the user! Let them know the Excel file is open and needs to be clsoed
+                    MessageBox.Show("To Import your Excel file, please close the Excel file first", "Excel Import Notice",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+            }
+
+            //Returns the temporary list for further use.
+            return TempMembers;
         }
 
         /// <summary>
@@ -337,6 +418,348 @@ namespace DirectorsPortalWPF.SettingsUI
         }
 
         /// <summary>
+        /// Take in a List of members to sort and import data into the database
+        /// </summary>
+        /// <param name="Data">List of opbject members.</param>
+        private void ImportToDatabase(List<Members> Data)
+        {
+            using (var context = new DatabaseContext())
+            {
+                for (int intCounter = 1; intCounter < Data.Count; intCounter++)
+                {
+                
+                    String strCityData = "";
+                    String strStateData = "";
+                    String strZipData = "";
+                    
+                    int intCheck = 0;
+
+                    String strCityStateZip = Data[intCounter].gstrCityStateZip;
+                    String[] arrSplit = strCityStateZip.Split(' ');         
+
+                    for (int intCount = 0; intCount < arrSplit.Length; intCount++)
+                    { 
+
+                        if (!arrSplit[intCount].Equals("") && intCheck == 0)
+                        {
+
+                            if (arrSplit[intCount].EndsWith("."))
+                            {
+                                strCityData = arrSplit[intCount];
+                              
+                            } else
+                            {
+                                strCityData = strCityData + arrSplit[intCount].TrimEnd(',');
+
+                                intCheck = 1;
+
+                            }
+
+                        } else if (!arrSplit[intCount].Equals("") && intCheck == 1)
+                        {
+                            
+                            strStateData = arrSplit[intCount];
+
+                            intCheck = 2;
+                        }
+                        else if (!arrSplit[intCount].Equals("") && intCheck == 2)
+                        {
+                            strZipData = arrSplit[intCount];
+                        }
+                    }
+                 
+                    String strLevelData = Data[intCounter].gstrLevel;
+                    String strAdditionalNote = "";
+              
+                    try
+                    {
+                        Address objMailingAddress = new Address()
+                        {
+                            GStrAddress = Data[intCounter].gstrMailingAddress,
+                            GStrCity = strCityData,
+                            GStrState = strStateData,                      
+                        };                    
+
+                        Address objLocationAddress = new Address()
+                        {
+                            GStrAddress = Data[intCounter].gstrLocationAddress,
+                            GStrCity = strCityData,
+                            GStrState = strStateData,
+                        };
+
+                        if (strZipData.Length > 5)
+                        {
+                            String[] arrZipSplit = strZipData.Split('-');
+
+                            objMailingAddress.GIntZipCode = Int32.Parse(arrZipSplit[0]);
+                            objLocationAddress.GIntZipCode = Int32.Parse(arrZipSplit[0]);
+                            objMailingAddress.GStrZipExtCode = strZipData;
+                            objLocationAddress.GStrZipExtCode = strZipData;
+                        }
+                        else
+                        {
+                            objMailingAddress.GIntZipCode = Int32.Parse(strZipData);
+                            objLocationAddress.GIntZipCode = Int32.Parse(strZipData);
+                            objMailingAddress.GStrZipExtCode = strZipData;
+                            objLocationAddress.GStrZipExtCode = strZipData;
+                        };
+
+                        String strLocationAddress = Data[intCounter].gstrLocationAddress;
+                        String[] arrLocationSplit = strLocationAddress.Split(',');
+                        String[] arrLocationSplitSlash = strLocationAddress.Split('/');
+                        String[] arrLocationSplitAnd = strLocationAddress.Split('&');
+                        
+                        if (arrLocationSplit.Length == 3)
+                        {
+                            String[] arrStateZip = arrLocationSplit[2].Split(' ');
+
+                            strLocationAddress = arrLocationSplit[1] + arrLocationSplit[2];
+                            objLocationAddress.GStrAddress = arrLocationSplit[0];
+                            objLocationAddress.GStrCity = arrLocationSplit[1];
+                            objLocationAddress.GStrState = arrStateZip[1];
+                            objLocationAddress.GIntZipCode = Int32.Parse(arrStateZip[2]);
+                            objLocationAddress.GStrZipExtCode = strZipData;
+
+                        } else if (arrLocationSplitSlash.Length > 1)
+                        {
+                            objLocationAddress.GStrAddress = arrLocationSplit[0];
+                            strAdditionalNote = " - Additional Location Addresses : ";
+
+                            for (int intCount = 1; intCount < arrLocationSplitSlash.Length; intCount++)
+                            {
+                                strAdditionalNote = strAdditionalNote + "  " + arrLocationSplitSlash[intCount] + " " + strCityStateZip;
+                            }
+                        }
+
+                        arrLocationSplit = strLocationAddress.Split('&');                        
+
+                        if (arrLocationSplit.Length > 1)
+                        {
+                            objLocationAddress.GStrAddress = arrLocationSplit[0];
+
+                            strAdditionalNote = " - Additional Location Addresses : ";
+
+                            for (int intCount = 1; intCount < arrLocationSplit.Length; intCount++)
+                            {
+                                arrLocationSplitSlash = arrLocationSplit[intCount].Split(',');
+
+                                if (arrLocationSplitSlash.Length > 1)
+                                {
+                                    strAdditionalNote = strAdditionalNote + "  " + arrLocationSplit[intCount];
+
+                                }
+                                else
+                                {
+                                    strAdditionalNote = strAdditionalNote + "  " + arrLocationSplit[intCount] + " " + strCityStateZip;
+                                }
+
+                            }
+                        }
+
+                        context.Addresses.Add(objMailingAddress);
+                        context.Addresses.Add(objLocationAddress);
+                        context.SaveChanges();
+
+                        Business objBusiness = new Business()
+                        {
+                            GStrBusinessName = Data[intCounter].gstrBusinessName,
+                            GIntYearEstablished = Int32.Parse(Data[intCounter].gstrEstablished),
+                            GStrWebsite = Data[intCounter].gstrWebsiteAddress,
+                            GStrExtraNotes = Data[intCounter].gstrNotes + " " + strAdditionalNote,
+                            GIntMailingAddressId = objMailingAddress.GIntId,
+                            GIntPhysicalAddressId = objLocationAddress.GIntId
+
+                        };
+
+                        if (strLevelData.Equals("Gold"))
+                        {
+                            objBusiness.GEnumMembershipLevel = MembershipLevel.GOLD;
+                        }
+                        else if (strLevelData.Equals("Silver"))
+                        {
+                            objBusiness.GEnumMembershipLevel = MembershipLevel.SILVER;
+                        }
+                        else if (strLevelData.Equals("Associate"))
+                        {
+                            objBusiness.GEnumMembershipLevel = MembershipLevel.ASSOCIATE;
+                        }
+                        else if (strLevelData.Equals("Individual"))
+                        {
+                            objBusiness.GEnumMembershipLevel = MembershipLevel.INDIVIDUAL;
+                        }
+                        else if (strLevelData.Equals("Courtesy"))
+                        {
+                            objBusiness.GEnumMembershipLevel = MembershipLevel.COURTESY;
+                        }
+
+                        context.Businesses.Add(objBusiness);
+                        context.SaveChanges();
+
+                        ContactPerson objContactPerson = new ContactPerson()
+                        {
+                            GStrName = Data[intCounter].gstrContactPerson
+                        };
+
+
+                        arrLocationSplit = Data[intCounter].gstrContactPerson.Split('&');
+                        arrLocationSplitSlash = Data[intCounter].gstrContactPerson.Split('/');
+                        arrLocationSplitAnd = Data[intCounter].gstrPhoneNumber.Split('/');
+
+                        if (arrLocationSplit.Length > 1)
+                        {
+                            for (int intCount = 0; intCount < arrLocationSplit.Length; intCount++)
+                            {
+                                objContactPerson = new ContactPerson()
+                                {
+                                    GStrName = arrLocationSplit[intCount]
+                                };
+
+                                context.ContactPeople.Add(objContactPerson);
+                                context.SaveChanges();
+
+                                PhoneNumber objPhoneNumber = new PhoneNumber()
+                                {
+                                    GIntContactPersonId = objContactPerson.GIntId,
+                                    GStrPhoneNumber = Data[intCounter].gstrPhoneNumber,
+                                    GEnumPhoneType = PhoneType.Office
+                                };
+
+                                context.PhoneNumbers.Add(objPhoneNumber);
+                                context.SaveChanges();
+                            }
+                        }
+                        else if (arrLocationSplitSlash.Length > 1 && arrLocationSplitAnd.Length > 1)
+                        {
+                            for (int intCount = 0; intCount < arrLocationSplitSlash.Length; intCount++)
+                            {
+                                objContactPerson = new ContactPerson()
+                                {
+                                    GStrName = arrLocationSplitSlash[intCount]
+                                };
+
+                                context.ContactPeople.Add(objContactPerson);
+                                context.SaveChanges();
+
+                                PhoneNumber objPhoneNumber = new PhoneNumber()
+                                {
+                                    GIntContactPersonId = objContactPerson.GIntId,
+                                    GStrPhoneNumber = arrLocationSplitAnd[intCount],
+                                    GEnumPhoneType = PhoneType.Office
+                                };
+
+                                context.PhoneNumbers.Add(objPhoneNumber);
+                                context.SaveChanges();
+                            }
+                        }
+                        else
+                        {
+                            context.ContactPeople.Add(objContactPerson);
+                            context.SaveChanges();
+
+                            PhoneNumber objPhoneNumber = new PhoneNumber()
+                            {
+                                GIntContactPersonId = objContactPerson.GIntId,
+                                GStrPhoneNumber = Data[intCounter].gstrPhoneNumber,
+                                GEnumPhoneType = PhoneType.Office
+                            };
+
+                            context.PhoneNumbers.Add(objPhoneNumber);
+                            context.SaveChanges();
+                        }
+
+                        BusinessRep objBusinessRep = new BusinessRep()
+                        {
+                            GIntBusinessId = objBusiness.GIntId,
+                            GIntContactPersonId = objContactPerson.GIntId
+                        };
+
+                        context.BusinessReps.Add(objBusinessRep);
+                        context.SaveChanges();
+
+                        Email objEmail = new Email()
+                        {
+                            GIntContactPersonId = objContactPerson.GIntId,
+                            GStrEmailAddress = Data[intCounter].gstrEmailAddress
+                        };
+
+                        context.Emails.Add(objEmail);
+                        context.SaveChanges();
+                     
+                        PhoneNumber objFaxNumber = new PhoneNumber()
+                        {
+                            GIntContactPersonId = objContactPerson.GIntId,
+                            GStrPhoneNumber = Data[intCounter].gstrFaxNumber,
+                            GEnumPhoneType = PhoneType.Fax
+                        };
+
+                        context.PhoneNumbers.Add(objFaxNumber);
+                        context.SaveChanges();
+
+                        //YearlyData GObjYearlyData = new YearlyData
+                        //{
+                        //    GIntBusinessId = GObjBusiness.GIntId,
+                        //    GDblDuesPaid = Double.Parse(Data[GIntCounter].getDuesPaid()),
+                        //    GDblTicketsReturned = Double.Parse(Data[GIntCounter].getRaffleTicketReturnedPaid()),
+                        //    GDblCredit = Double.Parse(Data[GIntCounter].getCredit()),
+                        //    GIntBallotNumber = Int32.Parse(Data[GIntCounter].getBallot()),
+
+                        //};
+                     
+                        //context.BusinessYearlyData.Add(GObjYearlyData);
+                        //context.SaveChanges();                    
+                    }
+                    catch (System.FormatException)
+                    {
+                   
+                    }                  
+                }
+            }
+
+            MessageBox.Show("Excel Data finished Importing to Database", "Excel Import Notice",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+
+            /// <summary>
+            /// FindFile method that allows the user to select the file they would like to be read into the application.
+            /// </summary>
+            /// <returns>String that contains the file path.</returns>
+            private string FindFile()
+            {
+                string FileName = "";
+                string FileExtension = "";
+
+                OpenFileDialog FileDialog = new OpenFileDialog();
+       
+                FileDialog.Title = "Excel File Dialog";
+                FileDialog.InitialDirectory = @"c:\";
+                FileDialog.Filter = "Excel Files|*.xls;*.xlsx;";
+                FileDialog.FilterIndex = 2;
+                FileDialog.RestoreDirectory = true;
+                FileDialog.ShowDialog();
+
+
+                FileExtension = Path.GetExtension(FileDialog.FileName);
+
+                if (FileExtension.CompareTo(".xls") == 0 || FileExtension.CompareTo(".xlsx") == 0)
+                {
+                    FileName = FileDialog.FileName;
+
+                }
+                else if(FileExtension.Equals(""))
+                {
+                
+                } else
+                {
+                    //Messagebox that prompts user to select the correct file type.
+                    MessageBox.Show("Please Select an valid Excel file.", "Excel Import Notice",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                }    
+
+            return FileName;
+            }
+
         /// NOT FOR PRODUCTION:
         /// 
         /// Allows developers to trigger the Data Import Conflict screen while under
@@ -349,5 +772,59 @@ namespace DirectorsPortalWPF.SettingsUI
         {
             NavigationService.Navigate(new DataConflictPage());
         }
+
+    }
+}
+
+
+/// <summary>
+/// Class Members that contains the data fields for members.
+/// </summary>
+class Members
+{
+    public string gstrEstablished { get; }
+    public string gstrLevel { get; }
+    public string gstrBusinessName { get; }
+    public string gstrMailingAddress { get; }
+    public string gstrLocationAddress { get; }
+    public string gstrCityStateZip { get; }
+    public string gstrContactPerson { get; }
+    public string gstrPhoneNumber { get; }
+    public string gstrFaxNumber { get; }
+    public string gstrEmailAddress { get; }
+    public string gstrWebsiteAddress { get; }
+    public string gstrDuesPaid { get; }
+    public string gstrRaffleTicketReturnedPaid { get; }
+    public string gstrCredit { get; }
+    public string gstrTerms { get; }
+    public string gstrNotes { get; }
+    public string gstrFreeWebAd { get; }
+    public string gstrBallot { get; }
+
+public Members() { }
+
+    public Members(string strEstablished, string strLevel, string strBusinessName, string strMailingAddress,
+                   string strLocationAddress, string strCityStateZip, string strContactPerson, string strPhoneNumber,
+                   string strFaxNumber, string strEmailAddress, string strWebsiteAddress, string strDuesPaid, string strRaffleTicketReturnedPaid,
+                   string strCredit, string strTerms, string strNotes, string strFreeWebAd, string strBallot)
+    {
+        this.gstrEstablished = strEstablished;
+        this.gstrLevel = strLevel;
+        this.gstrBusinessName = strBusinessName;
+        this.gstrMailingAddress = strMailingAddress;
+        this.gstrLocationAddress = strLocationAddress;
+        this.gstrCityStateZip = strCityStateZip;
+        this.gstrContactPerson = strContactPerson;
+        this.gstrPhoneNumber = strPhoneNumber;
+        this.gstrFaxNumber = strFaxNumber;
+        this.gstrEmailAddress = strEmailAddress;
+        this.gstrWebsiteAddress = strWebsiteAddress;
+        this.gstrDuesPaid = strDuesPaid;
+        this.gstrRaffleTicketReturnedPaid = strRaffleTicketReturnedPaid;
+        this.gstrCredit = strCredit;
+        this.gstrTerms = strTerms;
+        this.gstrNotes = strNotes;
+        this.gstrFreeWebAd = strFreeWebAd;
+        this.gstrBallot = strBallot;
     }
 }
