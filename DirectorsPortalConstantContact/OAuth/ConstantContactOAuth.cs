@@ -7,6 +7,7 @@ using System.Net;
 using System.IO;
 using Newtonsoft.Json;
 using System.Globalization;
+using System.Net.Http;
 
 namespace DirectorsPortalConstantContact
 {
@@ -165,6 +166,7 @@ namespace DirectorsPortalConstantContact
             //Console.Write(OAuthUrl);
             string strHttpResponse = ReadOAuthContents(strOAuthUrl);
             this.ParseTokenFromHTTP(strHttpResponse);
+
         }
 
         /// <summary>
@@ -272,6 +274,10 @@ namespace DirectorsPortalConstantContact
                 Console.WriteLine("Current Token not valid, Authing");
                 //on fail proceed with auth process
                 this.GetAccessToken();
+
+            }
+            finally
+            {
                 this.CacheTokens();
             }
 
@@ -279,10 +285,18 @@ namespace DirectorsPortalConstantContact
 
         private void RefreshAccessToken()
         {
-            string strUrl = $"https://idfed.constantcontact.com/as/token.oauth2?refresh_token={this.MstrRefreshToken}&grant_type=refresh_token";
+            string strUrl = $"https://idfed.constantcontact.com/as/token.oauth2?refresh_token={this.mstrRefreshToken}&grant_type=refresh_token";
+
             //attempt to refresh current token
-            string strResponse = this.ReadOAuthContents(strUrl);
-            Dictionary<string, string> JsonResponce = JsonConvert.DeserializeObject<Dictionary<string, string>>(strResponse);
+            HttpClient client = new HttpClient();
+            string strBasicAuth = $"{this.mstrAppAPIKey}:{this.mstrAppAPISecret}";
+            client.DefaultRequestHeaders.Add("Authorization", $"Basic {this.Base64Encode(strBasicAuth)}");
+
+
+            HttpResponseMessage objResponse = client.PostAsync(strUrl, null).Result;
+
+
+            Dictionary<string, string> JsonResponce = JsonConvert.DeserializeObject<Dictionary<string, string>>(objResponse.ToString());
             this.mstrAccessToken = JsonResponce["access_token"];
             this.mstrRefreshToken = JsonResponce["refresh_token"];
 
@@ -359,7 +373,7 @@ namespace DirectorsPortalConstantContact
             int c = 0;
             for (int i = 0; i < 3; i++)
             {
-                Console.WriteLine(c);
+                //Console.WriteLine(c);
                 strB64 = strB64.Substring(strB64.Length - 1) + strB64.Substring(0, strB64.Length - 1);
                 strB64 = this.Base64Encode(strB64);
                 if (strB64.Contains("="))

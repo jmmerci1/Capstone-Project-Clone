@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 using System.Net.Http;
 using System.IO;
 using System.Net.Http.Headers;
-
+using System.Globalization;
 
 namespace DirectorsPortalConstantContact
 {
@@ -59,17 +59,22 @@ namespace DirectorsPortalConstantContact
             this.gobjCCAuth.ValidateAuthentication();
             //get all info
             this.UpdateContacts();
-            System.Threading.Thread.Sleep(500);
+            System.Threading.Thread.Sleep(300);
             this.UpdateContactLists();
             this.UpdateContactCustomFields();
-            System.Threading.Thread.Sleep(500);
+            System.Threading.Thread.Sleep(300);
             this.UpdateEmailCampaigns();
             System.Threading.Thread.Sleep(200);
             this.UpdateEmailCampaignActivities();
+            System.Threading.Thread.Sleep(200);
+            this.UpdateEmailCampaignActivitySchedules();
 
             //assignments
             this.ContactListAssignment();
             this.CustomFieldAssignment();
+
+            
+
         }
 
         /// <summary>
@@ -226,6 +231,33 @@ namespace DirectorsPortalConstantContact
                 }
                 System.Threading.Thread.Sleep(250);
 
+            }
+        }
+
+        private void UpdateEmailCampaignActivitySchedules()
+        {
+            foreach(EmailCampaign objCampaign in this.gdctEmailCampaigns.Values)
+            {
+                foreach(EmailCampaignActivity objActivity in objCampaign.Activities)
+                {
+                    //get scheduals for the activity
+                    //only promary email will have sched list
+                    if (objActivity.role == "primary_email")
+                    {
+                        string url = $"emails/activities/{objActivity.campaign_activity_id}/schedules";
+                        string t = this.ReadJsonFromUrl(url);
+                        Console.WriteLine(t);
+
+                        //TESTING
+                        if (objActivity.contact_list_ids.Count() > 0)
+                        {
+                            DateTime objTime = DateTime.Now.AddMinutes(2);
+                            //this.SendActivity(objActivity, objTime);
+                        }
+                            
+                    }
+                    
+                }
             }
         }
 
@@ -503,6 +535,32 @@ namespace DirectorsPortalConstantContact
 
             }
 
+        }
+    
+        public void SendActivity(EmailCampaignActivity objActivity, DateTime objTime)
+        {
+            print(objActivity.contact_list_ids[0]);
+            if (objActivity.contact_list_ids.Count()>0)
+            {
+                string strUrl = $"emails/activities/{objActivity.campaign_activity_id}/schedules";
+                string strdate = objTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture);
+
+                string strData = $"{{\"scheduled_date\": \"0\"}}";
+
+                this.PostJson(strData, strUrl);
+                Console.WriteLine("send activity");
+            }
+            else
+            {
+                throw new FormatException();
+            }
+            
+
+        }
+
+        public void print(string s)
+        {
+            Console.WriteLine(s);
         }
     }
 }

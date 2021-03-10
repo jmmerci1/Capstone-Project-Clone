@@ -6,7 +6,10 @@ namespace DirectorsPortalConstantContact
 {
     public class EmailCampaignActivity : GETEmailCampaignActivity
     {
-        public POSTEmailCampaignActivity objNewActivity()
+
+        List<DateTime> Scheduals = new List<DateTime>();
+
+        public POSTEmailCampaignActivity NewActivity()
         {
             POSTEmailCampaignActivity objTempActivity = new POSTEmailCampaignActivity()
             {
@@ -47,6 +50,11 @@ namespace DirectorsPortalConstantContact
                 document_properties = this.document_properties
 
             };
+        }
+
+        public void AddSchedule(string strTime)
+        {
+
         }
     }
 }
