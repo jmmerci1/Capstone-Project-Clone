@@ -3,14 +3,16 @@ using System;
 using DirectorPortalDatabase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DirectorPortalDatabase.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20210227174051_updatebusinesstable")]
+    partial class updatebusinesstable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,14 +25,6 @@ namespace DirectorPortalDatabase.Migrations
                         .HasColumnName("id")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("GIntZipCode")
-                        .HasColumnName("zip")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("GIntZipExtCode")
-                        .HasColumnName("zipExt")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("GStrAddress")
                         .HasColumnName("address")
                         .HasColumnType("TEXT");
@@ -41,6 +35,10 @@ namespace DirectorPortalDatabase.Migrations
 
                     b.Property<string>("GStrState")
                         .HasColumnName("state")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("GStrZipCode")
+                        .HasColumnName("zip")
                         .HasColumnType("TEXT");
 
                     b.HasKey("GIntId");

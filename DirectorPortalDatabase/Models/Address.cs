@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -40,6 +40,11 @@ namespace DirectorPortalDatabase.Models
         /// </summary>
         [Column("zip")]
         public int GIntZipCode { get; set; }
+        /// <summary>
+        /// The zip extended code of the address
+        /// </summary>
+        [Column("zipExt")]
+        public string GStrZipExtCode { get; set; }
 
         /// <summary>
         /// A mehtod for comparing two addresses.
