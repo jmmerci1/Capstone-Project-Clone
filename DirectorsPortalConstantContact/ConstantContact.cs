@@ -30,6 +30,7 @@ namespace DirectorsPortalConstantContact
         public Dictionary<string, ContactList> gdctContactLists = new Dictionary<string, ContactList>();
         public Dictionary<string, CustomField> gdctCustomFields = new Dictionary<string, CustomField>();
         public Dictionary<string, EmailCampaign> gdctEmailCampaigns = new Dictionary<string, EmailCampaign>();
+        public List<EmailCampaignActivityPreview> glstEmailCampaignActivityPreviews = new List<EmailCampaignActivityPreview>();
 
         private ConstantContactOAuth gobjCCAuth = new ConstantContactOAuth()
         {
@@ -250,6 +251,7 @@ namespace DirectorsPortalConstantContact
                         EmailCampaignActivityPreview objPreview = JsonConvert.DeserializeObject<EmailCampaignActivityPreview>(strData);
 
                         objActivity.mobjPreview = objPreview;
+                        this.glstEmailCampaignActivityPreviews.Add(objPreview);
 
                         //TESTING
                         if (objActivity.contact_list_ids.Count() > 0)

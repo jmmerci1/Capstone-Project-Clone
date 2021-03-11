@@ -296,9 +296,16 @@ namespace DirectorsPortalConstantContact
             HttpResponseMessage objResponse = client.PostAsync(strUrl, null).Result;
 
 
-            Dictionary<string, string> JsonResponce = JsonConvert.DeserializeObject<Dictionary<string, string>>(objResponse.ToString());
-            this.mstrAccessToken = JsonResponce["access_token"];
-            this.mstrRefreshToken = JsonResponce["refresh_token"];
+            try
+            {
+                Dictionary<string, string> JsonResponce = JsonConvert.DeserializeObject<Dictionary<string, string>>(objResponse.Content.ReadAsStringAsync().Result);
+                this.mstrAccessToken = JsonResponce["access_token"];
+                this.mstrRefreshToken = JsonResponce["refresh_token"];
+            } catch (Exception ex) when (ex is Newtonsoft.Json.JsonReaderException || ex is System.Collections.Generic.KeyNotFoundException)
+            {
+                throw new FormatException();
+            }
+            
 
         }
 
@@ -320,6 +327,7 @@ namespace DirectorsPortalConstantContact
         /// </summary>
         private bool LoadCacheTokens()
         {
+
             string strFname = "CCTokenCache.bin"; //Directory.GetCurrentDirectory() + 
 
             if (!File.Exists(strFname))
@@ -341,6 +349,7 @@ namespace DirectorsPortalConstantContact
                 string strTime = lstParts[2];
 
                 this.mstrRefreshToken = strRefresh;
+                return false;
 
                 //check 2 hour delta
                 DateTime objDt = DateTime.Parse(strTime);
