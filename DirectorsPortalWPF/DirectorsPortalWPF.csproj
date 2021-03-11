@@ -173,6 +173,15 @@
     <Compile Include="ConstantContactUI\ConstantContactPage.xaml.cs">
       <DependentUpon>ConstantContactPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ContactInput.xaml.cs">
+      <DependentUpon>ContactInput.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ContactNumberInput.xaml.cs">
+      <DependentUpon>ContactNumberInput.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EmailInput.xaml.cs">
+      <DependentUpon>EmailInput.xaml</DependentUpon>
+    </Compile>
     <Compile Include="EmailMembersUI\EmailMembersAddGroupsUI\EmailMembersAddGroupsPage.xaml.cs">
       <DependentUpon>EmailMembersAddGroupsPage.xaml</DependentUpon>
     </Compile>
@@ -223,6 +232,18 @@
       <DependentUpon>WebsitePreviewPage.xaml</DependentUpon>
     </Compile>
     <Page Include="ConstantContactUI\ConstantContactPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ContactInput.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ContactNumberInput.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\EmailInput.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
