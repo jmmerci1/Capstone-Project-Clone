@@ -318,6 +318,8 @@ namespace DirectorsPortalConstantContact
 
             strOutString = this.ObfuscateString(strOutString);
 
+            //string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "CCTokenCache.bin";
+
             File.WriteAllText(strFname, strOutString, Encoding.UTF8);
             
         }

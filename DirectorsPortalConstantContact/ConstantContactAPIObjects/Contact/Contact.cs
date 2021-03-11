@@ -17,6 +17,21 @@ namespace DirectorsPortalConstantContact
 
         public List<ContactList> glstContactLists = new List<ContactList>();
         public List<GETCustomField> glstCustomFields = new List<GETCustomField>();
+
+        public Dictionary<string, List<EmailCampaignActivity>> gdctTracking = new Dictionary<string, List<EmailCampaignActivity>>() 
+            {
+                {"em_sends", new List<EmailCampaignActivity>()},
+                {"em_opens", new List<EmailCampaignActivity>()},
+                {"em_clicks", new List<EmailCampaignActivity>()},
+                {"em_bounces", new List<EmailCampaignActivity>()},
+                {"em_optouts", new List<EmailCampaignActivity>()},
+                {"em_forwards", new List<EmailCampaignActivity>()}
+            };
+
+        public int included_activities_count;
+        public double open_rate;
+        public double click_rate;
+
         //https://www.c-sharpcorner.com/article/encryption-and-decryption-using-a-symmetric-key-in-c-sharp/
 
 

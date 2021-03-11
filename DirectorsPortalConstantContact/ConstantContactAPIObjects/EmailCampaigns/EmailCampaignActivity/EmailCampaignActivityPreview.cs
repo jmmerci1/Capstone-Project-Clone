@@ -6,6 +6,9 @@ namespace DirectorsPortalConstantContact
 {
     public class EmailCampaignActivityPreview
     {
+
+        public EmailCampaignActivity activity;
+
         public string campaign_activity_id { get; set; }
         public string from_email { get; set; }
         public string from_name { get; set; }

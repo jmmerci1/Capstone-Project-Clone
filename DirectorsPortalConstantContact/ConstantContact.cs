@@ -30,6 +30,7 @@ namespace DirectorsPortalConstantContact
         public Dictionary<string, ContactList> gdctContactLists = new Dictionary<string, ContactList>();
         public Dictionary<string, CustomField> gdctCustomFields = new Dictionary<string, CustomField>();
         public Dictionary<string, EmailCampaign> gdctEmailCampaigns = new Dictionary<string, EmailCampaign>();
+        public Dictionary<string, EmailCampaignActivity> gdctEmailCampaignActivities = new Dictionary<string, EmailCampaignActivity>();
         public List<EmailCampaignActivityPreview> glstEmailCampaignActivityPreviews = new List<EmailCampaignActivityPreview>();
 
         private ConstantContactOAuth gobjCCAuth = new ConstantContactOAuth()
@@ -69,6 +70,9 @@ namespace DirectorsPortalConstantContact
             this.UpdateEmailCampaignActivities();
             System.Threading.Thread.Sleep(200);
             this.UpdateEmailCampaignActivityPreviews();
+
+            this.UpdateContactTrackingReporting();
+            this.UpdateContactOpenRate();
 
             //assignments
             this.ContactListAssignment();
@@ -211,7 +215,9 @@ namespace DirectorsPortalConstantContact
         private void UpdateEmailCampaignActivities()
         {
             //loop through all of the campaigns to get their id, then request all of that campaigns activities
-            foreach(EmailCampaign objCampaign in this.gdctEmailCampaigns.Values)
+
+            gdctEmailCampaignActivities = new Dictionary<string, EmailCampaignActivity>();
+            foreach (EmailCampaign objCampaign in this.gdctEmailCampaigns.Values)
             {
                 string strUrl = $"emails/{objCampaign.campaign_id}";
 
@@ -224,11 +230,14 @@ namespace DirectorsPortalConstantContact
                 foreach(ActivityList objTempActivity in lstDecodedJson)
                 {
 
-                    string strActivityUrl = $"emails/activities/{objTempActivity.campaign_activity_id}?include=permalink_url";
+                    string strActivityUrl = $"emails/activities/{objTempActivity.campaign_activity_id}";//?include=permalink_url";
                     string strActivityJson = this.ReadJsonFromUrl(strActivityUrl);
                     EmailCampaignActivity objActivity = JsonConvert.DeserializeObject<EmailCampaignActivity>(strActivityJson);
                     objCampaign.Activities.Add(objActivity);
-                    
+                    gdctEmailCampaignActivities.Add(objActivity.campaign_activity_id, objActivity);
+
+
+
                 }
                 System.Threading.Thread.Sleep(250);
 
@@ -250,6 +259,8 @@ namespace DirectorsPortalConstantContact
 
                         EmailCampaignActivityPreview objPreview = JsonConvert.DeserializeObject<EmailCampaignActivityPreview>(strData);
 
+                        objPreview.activity = objActivity;
+
                         objActivity.mobjPreview = objPreview;
                         this.glstEmailCampaignActivityPreviews.Add(objPreview);
 
@@ -265,6 +276,51 @@ namespace DirectorsPortalConstantContact
                 }
             }
         }
+
+        private void UpdateContactTrackingReporting()
+        {
+            //foreach (Contact objContact in this.Contacts)
+            //{
+            Contact objContact = this.FindContactByEmail("edwalk@svsu.edu");
+            string strUrl = $"reports/contact_reports/{objContact.contact_id}/activity_details?tracking_activities_list=em_sends,em_opens,em_clicks,em_bounces,em_optouts,em_forwards";
+            string strResponce = this.ReadJsonFromUrl(strUrl);
+
+            JObject objJson = JObject.Parse(strResponce);
+            string strTracking = objJson.GetValue("tracking_activities").ToString();
+
+            List<Dictionary<string, string>> lstTrackingEvents = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(strTracking);
+
+            foreach (Dictionary<string, string> dctEvent in lstTrackingEvents)
+            {
+                objContact.gdctTracking[dctEvent["tracking_activity_type"]].Add(this.gdctEmailCampaignActivities[dctEvent["campaign_activity_id"]]);
+            }
+            Console.WriteLine(lstTrackingEvents.ToString());
+            //}
+
+        }
+
+        private void UpdateContactOpenRate()
+        {
+            //foreach (Contact objContact in this.Contacts)
+            //{
+            Contact objContact = this.FindContactByEmail("edwalk@svsu.edu");
+            string strStart = DateTime.Now.AddYears(-5).AddDays(1).ToString("yyyy-MM-ddTHH:mm:ss.ffZ", CultureInfo.InvariantCulture);
+            string strEnd = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.ffZ", CultureInfo.InvariantCulture);
+            string strUrl = $"reports/contact_reports/{objContact.contact_id}/open_and_click_rates?start={strStart}&end={strEnd}"; 
+            string strResponce = this.ReadJsonFromUrl(strUrl);
+
+
+            Dictionary<string, string> dctRating = JsonConvert.DeserializeObject<Dictionary<string, string>>(strResponce);
+
+            objContact.open_rate = Convert.ToDouble(dctRating["average_open_rate"]);
+            objContact.click_rate = Convert.ToDouble(dctRating["average_click_rate"]);
+            objContact.included_activities_count = Convert.ToInt32(dctRating["included_activities_count"]);
+
+            Console.WriteLine(dctRating.ToString());
+
+            //}
+        }
+
 
         /// <summary>
         /// Used to make a web request and retrieve the JSON from the given URL
@@ -466,6 +522,7 @@ namespace DirectorsPortalConstantContact
             });
             this.PUTJson(strJson, strUrl);
         }
+
 
         /// <summary>
         /// Given a Contact List, update it on constant contact
