@@ -41,6 +41,9 @@
     <ApplicationIcon>hnet.com-image.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ExcelDataReader, Version=3.6.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelDataReader.3.6.0\lib\net45\ExcelDataReader.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.1\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
@@ -115,8 +118,8 @@
     <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.19\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Prism, Version=8.0.0.1909, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59, processorArchitecture=MSIL">
       <HintPath>..\packages\Prism.Core.8.0.0.1909\lib\net47\Prism.dll</HintPath>
@@ -152,6 +155,7 @@
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.7.1\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
     </Reference>
@@ -189,15 +193,39 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ConstantContactUI\ConstantContactPage.xaml.cs">
+      <DependentUpon>ConstantContactPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EmailMembersUI\EmailMembersAddGroupsUI\EmailMembersAddGroupsPage.xaml.cs">
+      <DependentUpon>EmailMembersAddGroupsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EmailMembersUI\EmailMembersEditGroupsUI\EmailMembersEditGroupsPage.xaml.cs">
+      <DependentUpon>EmailMembersEditGroupsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EmailMembersUI\EmailMembersSendEmailUI\EmailMembersSendEmailPage.xaml.cs">
+      <DependentUpon>EmailMembersSendEmailPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="HtmlFromXamlConverter.cs" />
     <Compile Include="EmailMembersUI\EmailPage.xaml.cs">
       <DependentUpon>EmailPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="GenerateReportsUI\GenerateReportsPage.xaml.cs">
       <DependentUpon>GenerateReportsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HelpUI\HelpScreenWindow.xaml.cs">
+      <DependentUpon>HelpScreenWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="HelpUI\HelpScreenPage.xaml.cs">
       <DependentUpon>HelpScreenPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MemberInfoUI\EditMembersPage.xaml.cs">
+      <DependentUpon>EditMembersPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MemberInfoUI\MemberInfoViewModels\BusinessTableViewModel.cs" />
+    <Compile Include="MemberInfoUI\AddMembersPage.xaml.cs">
+      <DependentUpon>AddMembersPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MemberInfoUI\MemberInfoViewModels\BussinessDataModel.cs" />
     <Compile Include="MemberInfoUI\MembersPage.xaml.cs">
       <DependentUpon>MembersPage.xaml</DependentUpon>
     </Compile>
@@ -205,6 +233,9 @@
       <DependentUpon>PaymentsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="SettingsUI\BackupUtility.cs" />
+    <Compile Include="SettingsUI\DataConflictPage.xaml.cs">
+      <DependentUpon>DataConflictPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SettingsUI\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
@@ -215,6 +246,22 @@
     <Compile Include="ValidateWebsite\WebsitePreviewPage.xaml.cs">
       <DependentUpon>WebsitePreviewPage.xaml</DependentUpon>
     </Compile>
+    <Page Include="ConstantContactUI\ConstantContactPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EmailMembersUI\EmailMembersAddGroupsUI\EmailMembersAddGroupsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EmailMembersUI\EmailMembersEditGroupsUI\EmailMembersEditGroupsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EmailMembersUI\EmailMembersSendEmailUI\EmailMembersSendEmailPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="EmailMembersUI\EmailPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -222,6 +269,10 @@
     <Page Include="GenerateReportsUI\GenerateReportsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="HelpUI\HelpScreenWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="HelpUI\HelpScreenPage.xaml">
       <SubType>Designer</SubType>
@@ -239,11 +290,23 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="MemberInfoUI\AddMembersPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MemberInfoUI\EditMembersPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MemberInfoUI\MembersPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="PaymentInfoUI\PaymentsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SettingsUI\DataConflictPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -291,12 +354,35 @@
     <Resource Include="Resources\chamberlogo_1.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\Icons\charactergrowfont.png" />
+    <Resource Include="Resources\Icons\charactershrinkfont.png" />
+    <Resource Include="Resources\Icons\editcopy.png" />
+    <Resource Include="Resources\Icons\editcut.png" />
+    <Resource Include="Resources\Icons\editpaste.png" />
+    <Resource Include="Resources\Icons\editredo.png" />
+    <Resource Include="Resources\Icons\editundo.png" />
+    <Resource Include="Resources\Icons\listbullets.png" />
+    <Resource Include="Resources\Icons\listnumbering.png" />
+    <Resource Include="Resources\Icons\paragraphcenterjustify.png" />
+    <Resource Include="Resources\Icons\paragraphdecreaseindentation.png" />
+    <Resource Include="Resources\Icons\paragraphfulljustify.png" />
+    <Resource Include="Resources\Icons\paragraphincreaseindentation.png" />
+    <Resource Include="Resources\Icons\paragraphleftjustify.png" />
+    <Resource Include="Resources\Icons\paragraphrightjustify.png" />
     <Content Include="Resources\MembershipTemplate.html" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DirectorPortalDatabase\DirectorPortalDatabase.csproj">
       <Project>{8373825a-6945-4c92-843a-a611bfd59ec4}</Project>
       <Name>DirectorPortalDatabase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DirectorsPortalConstantContact\DirectorsPortalConstantContact.csproj">
+      <Project>{e01d9901-4dea-4e9a-8f4b-9fba33430d9b}</Project>
+      <Name>DirectorsPortalConstantContact</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DirectorsPortalGraphApi\DirectorsPortalGraphApi.csproj">
+      <Project>{0d2287b2-89f6-4ebc-b604-45f51bc2a3c8}</Project>
+      <Name>DirectorsPortalGraphApi</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

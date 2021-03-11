@@ -27,6 +27,10 @@ namespace DirectorPortalDatabase.Migrations
                         .HasColumnName("zip")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("GIntZipExtCode")
+                        .HasColumnName("zipExt")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("GStrAddress")
                         .HasColumnName("address")
                         .HasColumnType("TEXT");
@@ -113,6 +117,47 @@ namespace DirectorPortalDatabase.Migrations
                     b.ToTable("BusinessReps");
                 });
 
+            modelBuilder.Entity("DirectorPortalDatabase.Models.Categories", b =>
+                {
+                    b.Property<int>("GIntId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("BusinessGIntId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("GStrCategory")
+                        .HasColumnName("category")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("GIntId");
+
+                    b.HasIndex("BusinessGIntId");
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("DirectorPortalDatabase.Models.CategoryRef", b =>
+                {
+                    b.Property<int>("GIntId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("GIntBusinessId")
+                        .HasColumnName("businessId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("GIntCategoriesId")
+                        .HasColumnName("categoriesID")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("GIntId");
+
+                    b.ToTable("CategoryRef");
+                });
+
             modelBuilder.Entity("DirectorPortalDatabase.Models.ContactPerson", b =>
                 {
                     b.Property<int>("GIntId")
@@ -180,6 +225,46 @@ namespace DirectorPortalDatabase.Migrations
                     b.HasKey("GIntId");
 
                     b.ToTable("PhoneNumbers");
+                });
+
+            modelBuilder.Entity("DirectorPortalDatabase.Models.ReportField", b =>
+                {
+                    b.Property<int>("GIntId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("GIntReportTemplateId")
+                        .HasColumnName("reportTemplateId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("GStrModelPropertyName")
+                        .HasColumnName("propertyName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("GIntId");
+
+                    b.ToTable("ReportFields");
+                });
+
+            modelBuilder.Entity("DirectorPortalDatabase.Models.ReportTemplate", b =>
+                {
+                    b.Property<int>("GIntId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("GStrModelName")
+                        .HasColumnName("modelName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("GStrReportTemplateName")
+                        .HasColumnName("reportTemplateName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("GIntId");
+
+                    b.ToTable("ReportTemplates");
                 });
 
             modelBuilder.Entity("DirectorPortalDatabase.Models.Todo", b =>
@@ -260,6 +345,13 @@ namespace DirectorPortalDatabase.Migrations
                     b.HasOne("DirectorPortalDatabase.Models.ContactPerson", null)
                         .WithMany("GRGRepresentations")
                         .HasForeignKey("ContactPersonGIntId");
+                });
+
+            modelBuilder.Entity("DirectorPortalDatabase.Models.Categories", b =>
+                {
+                    b.HasOne("DirectorPortalDatabase.Models.Business", null)
+                        .WithMany("GCategories")
+                        .HasForeignKey("BusinessGIntId");
                 });
 
             modelBuilder.Entity("DirectorPortalDatabase.Models.Email", b =>

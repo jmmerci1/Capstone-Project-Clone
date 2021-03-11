@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DirectorPortalDatabase.Models
 {
@@ -22,14 +20,5 @@ namespace DirectorPortalDatabase.Models
         /// </summary>
         [Column("name")]
         public string GStrName { get; set; }
-
-        /// <summary>
-        /// The list of businesses that are represented by the person
-        /// </summary>
-        public virtual List<BusinessRep> GRGRepresentations { get; set; }
-        /// <summary>
-        /// The list of emails that a person has
-        /// </summary>
-        public virtual List<Email> GRGEmails { get; set; }
     }
 }

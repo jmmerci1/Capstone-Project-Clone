@@ -97,14 +97,14 @@
     <Reference Include="Microsoft.Extensions.Primitives, Version=3.1.11.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Primitives.3.1.11\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="SQLitePCLRaw.batteries_v2, Version=2.0.2.669, Culture=neutral, PublicKeyToken=8226ea5df37bcae9, processorArchitecture=MSIL">
       <HintPath>..\packages\SQLitePCLRaw.bundle_e_sqlite3.2.0.2\lib\net461\SQLitePCLRaw.batteries_v2.dll</HintPath>
     </Reference>
-    <Reference Include="SQLitePCLRaw.core, Version=2.0.4.976, Culture=neutral, PublicKeyToken=1488e028ca7ab535, processorArchitecture=MSIL">
-      <HintPath>..\packages\SQLitePCLRaw.core.2.0.4\lib\netstandard2.0\SQLitePCLRaw.core.dll</HintPath>
+    <Reference Include="SQLitePCLRaw.core, Version=2.0.2.669, Culture=neutral, PublicKeyToken=1488e028ca7ab535, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.core.2.0.2\lib\netstandard2.0\SQLitePCLRaw.core.dll</HintPath>
     </Reference>
     <Reference Include="SQLitePCLRaw.nativelibrary, Version=2.0.2.669, Culture=neutral, PublicKeyToken=502ed628492ab262, processorArchitecture=MSIL">
       <HintPath>..\packages\SQLitePCLRaw.bundle_e_sqlite3.2.0.2\lib\net461\SQLitePCLRaw.nativelibrary.dll</HintPath>
@@ -159,13 +159,34 @@
     <Compile Include="Migrations\20210203175503_InitialDatabase.designer.cs">
       <DependentUpon>20210203175503_InitialDatabase.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20210304224453_zipExt.cs" />
+    <Compile Include="Migrations\20210304224453_zipExt.designer.cs">
+
+      <DependentUpon>20210304224453_zipExt.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20210218002558_NewReportTemplates.cs" />
+    <Compile Include="Migrations\20210218002558_NewReportTemplates.designer.cs">
+      <DependentUpon>20210218002558_NewReportTemplates.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20210217020326_CategoryMigrate.cs" />
+    <Compile Include="Migrations\20210217020326_CategoryMigrate.designer.cs">
+      <DependentUpon>20210217020326_CategoryMigrate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20210217190856_CategoryRef.cs" />
+    <Compile Include="Migrations\20210217190856_CategoryRef.designer.cs">
+      <DependentUpon>20210217190856_CategoryRef.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\DatabaseContextModelSnapshot.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Business.cs" />
     <Compile Include="Models\BusinessRep.cs" />
+    <Compile Include="Models\Categories.cs" />
+    <Compile Include="Models\CategoryRef.cs" />
     <Compile Include="Models\ContactPerson.cs" />
     <Compile Include="Models\Email.cs" />
     <Compile Include="Models\PhoneNumber.cs" />
+    <Compile Include="Models\ReportField.cs" />
+    <Compile Include="Models\ReportTemplate.cs" />
     <Compile Include="Models\Todo.cs" />
     <Compile Include="Models\YearlyData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -177,12 +198,12 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.2\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets" Condition="Exists('..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.2\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.2\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.2\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.EntityFrameworkCore.Design.3.1.11\build\net461\Microsoft.EntityFrameworkCore.Design.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.EntityFrameworkCore.Design.3.1.11\build\net461\Microsoft.EntityFrameworkCore.Design.props'))" />
+    <Error Condition="!Exists('..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.2\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.2\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets'))" />
   </Target>
+  <Import Project="..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.2\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets" Condition="Exists('..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.2\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets')" />
 </Project>

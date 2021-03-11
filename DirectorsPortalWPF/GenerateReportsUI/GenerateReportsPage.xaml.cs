@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Windows.Controls;
+using ExcelDataReader;
 using System.Collections.Generic;
+using System.IO;
+using Microsoft.Win32;
+using System.Windows;
+using DirectorPortalDatabase;
+using DirectorPortalDatabase.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Controls;
-using DirectorPortalDatabase.Models;
 using Microsoft.EntityFrameworkCore;
 using DirectorPortalDatabase.Utility;
 
@@ -16,7 +21,9 @@ namespace DirectorsPortalWPF.GenerateReportsUI
     {
 
         private ClsMetadataHelper.ClsModelInfo GUdtSelectedReportType { get; set; }
+        private ComboBoxItem[] GRGReportTypeItems { get; set; }
         private List<string[]> GRGCurrentReport { get; set; }
+        private List<ReportTemplate> GRGReportTemplates { get; set; }
 
         public void ReportTypeSelectedHandler(object sender, EventArgs e)
         {
@@ -96,6 +103,81 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
         }
 
+        private void RenderReportTemplateList()
+        {
+            // Clears any existing grid content on the second page.
+            grdReportTemplateList.Children.Clear();
+            grdReportTemplateList.RowDefinitions.Clear();
+            //grdReportTemplateList.ColumnDefinitions.Clear();
+
+            int intRowCount = GRGReportTemplates.Count;
+
+            for (int i = 0; i < intRowCount; i++)
+            {
+                // Defines a new row for this report template.
+                grdReportTemplateList.RowDefinitions.Add(new RowDefinition());
+
+                // Creates a text block to display the name of the template.
+                TextBlock txtTemplateName = new TextBlock();
+                txtTemplateName.Text = GRGReportTemplates[i].GStrReportTemplateName;
+                txtTemplateName.SetValue(Grid.RowProperty, i);
+                txtTemplateName.SetValue(Grid.ColumnProperty, 0);
+                grdReportTemplateList.Children.Add(txtTemplateName);
+
+                // Creates a button to view the report.
+                Button btnViewReport = new Button();
+                btnViewReport.Content = "View Report";
+                btnViewReport.Tag = GRGReportTemplates[i];
+                btnViewReport.Click += ViewReportButtonHandler;
+                btnViewReport.SetValue(Grid.RowProperty, i);
+                btnViewReport.SetValue(Grid.ColumnProperty, 1);
+                grdReportTemplateList.Children.Add(btnViewReport);
+
+                // Creates a button to export the report to Excel.
+                Button btnExportToExcel = new Button();
+                btnExportToExcel.Content = "Export to Excel";
+                btnExportToExcel.Tag = GRGReportTemplates[i];
+                btnExportToExcel.Click += ExportToExcelButtonHandler;
+                btnExportToExcel.SetValue(Grid.RowProperty, i);
+                btnExportToExcel.SetValue(Grid.ColumnProperty, 2);
+                grdReportTemplateList.Children.Add(btnExportToExcel);
+
+                // Creates a button to delete the report template.
+                Button btnDeleteReport = new Button();
+                btnDeleteReport.Content = "Delete Report";
+                btnDeleteReport.Tag = GRGReportTemplates[i];
+                btnDeleteReport.Click += DeleteReportButtonHandler;
+                btnDeleteReport.SetValue(Grid.RowProperty, i);
+                btnDeleteReport.SetValue(Grid.ColumnProperty, 3);
+                grdReportTemplateList.Children.Add(btnDeleteReport);
+            }
+        }
+
+        private void GetReportTemplateList()
+        {
+            using (DirectorPortalDatabase.DatabaseContext context = new DirectorPortalDatabase.DatabaseContext())
+            {
+                GRGReportTemplates = context.ReportTemplates.ToList();
+            }
+            RenderReportTemplateList();
+        }
+
+        /// <summary>
+        /// Queries the database for all ReportField records belonging to the specified ReportTemplate.
+        /// </summary>
+        /// <param name="udtTemplate"></param>
+        private List<ReportField> GetReportTemplateFields(ReportTemplate udtTemplate)
+        {
+            List<ReportField> rgReportFields;
+
+            using (DirectorPortalDatabase.DatabaseContext context = new DirectorPortalDatabase.DatabaseContext())
+            {
+                rgReportFields = context.ReportFields.Where(x => x.GIntReportTemplateId == udtTemplate.GIntId).ToList();
+            }
+
+            return rgReportFields;
+        }
+
         public void GenerateReportButtonHandler(object sender, EventArgs e)
         {
             if (GUdtSelectedReportType != null)
@@ -139,13 +221,166 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
             }
         }
+        /// <summary>
+        /// Opens a pop-up window that displays the current frames help information. 
+        /// </summary>
+        /// <param name="sender">Help button</param>
+        /// <param name="e">The Click event</param>
+        public void HelpButtonHandler(object sender, EventArgs e)
+        {
+            HelpUI.HelpScreenWindow helpWindow = new HelpUI.HelpScreenWindow();
+            helpWindow.Show();
+            helpWindow.tabs.SelectedIndex = 3;
+
+        }
+
+        public void SaveReportTypeButtonHandler(object sender, EventArgs e)
+        {
+            if (GUdtSelectedReportType != null)
+            {
+                // Creates a model instance to represent the report template.
+                ReportTemplate udtTemplate = new ReportTemplate
+                {
+                    GStrModelName = GUdtSelectedReportType.TypeModelType.Name,
+                    GStrReportTemplateName = $"Template {DateTime.Now.Ticks}"
+                };
+
+                using (DirectorPortalDatabase.DatabaseContext context = new DirectorPortalDatabase.DatabaseContext())
+                {
+                    // Inserts the template record into the database.
+                    context.ReportTemplates.Add(udtTemplate);
+                    context.SaveChanges();
+
+                    // Creates a model instance for each field in the template.
+                    List<ClsMetadataHelper.ClsTableField> rgSelectedFields = GetSelectedFields();
+                    foreach (ClsMetadataHelper.ClsTableField udtField in rgSelectedFields)
+                    {
+                        ReportField udtReportField = new ReportField
+                        {
+                            // This ID links to the template record.
+                            GIntReportTemplateId = udtTemplate.GIntId,
+                            GStrModelPropertyName = udtField.StrPropertyName
+                        };
+
+                        context.ReportFields.Add(udtReportField);
+                    }
+                    context.SaveChanges();
+                }
+
+                // Gets the updated report template list.
+                GetReportTemplateList();
+            }
+        }
+
+        public void ViewReportButtonHandler(object sender, EventArgs e)
+        {
+            // Gets the report template instance from the button.
+            Button btnSender = (Button)sender;
+            ReportTemplate udtReportTemplate = (ReportTemplate)btnSender.Tag;
+
+            GUdtSelectedReportType = null;
+
+            // Searches for the combo box item with a matching table model.
+            for (int i = 0; i < GRGReportTypeItems.Length; i++)
+            {
+                ComboBoxItem cbiReportTypeItem = GRGReportTypeItems[i];
+
+                // Gets the model information from the ComboBoxItem.
+                ClsMetadataHelper.ClsModelInfo udtModelInfo = (ClsMetadataHelper.ClsModelInfo)cbiReportTypeItem.Tag;
+
+                // Checks for matching model names.
+                if (udtModelInfo.TypeModelType.Name == udtReportTemplate.GStrModelName)
+                {
+                    // Sets this ComboBoxItem as active.
+                    cbiReportTypeItem.IsSelected = true;
+                    cboReportType.SelectedIndex = i;
+                    cboReportType.SelectedItem = cbiReportTypeItem;
+
+                    // Manually calls the ComboBox event handler to fill the ListBox with the appropriate fields.
+                    ReportTypeSelectedHandler(null, null);
+
+                    // Gets the fields belonging to the selected report template.
+                    List<ReportField> rgReportTemplateFields = GetReportTemplateFields(udtReportTemplate);
+
+                    // Iterates over the fields in the ListBox.
+                    foreach (ListBoxItem lbiFieldItem in lstReportFields.Items)
+                    {
+                        // Iterates over the fields in the report template.
+                        foreach (ReportField udtReportTemplateField in rgReportTemplateFields)
+                        {
+
+                            ClsMetadataHelper.ClsTableField udtTableField 
+                                = (ClsMetadataHelper.ClsTableField)lbiFieldItem.Tag;
+
+                            // Checks for a match.
+                            if (udtReportTemplateField.GStrModelPropertyName == udtTableField.StrPropertyName)
+                            {
+                                // Selects the ListBoxItem.
+                                lbiFieldItem.IsSelected = true;
+                                lstReportFields.SelectedItems.Add(lbiFieldItem);
+                                break;
+                            }
+                        }
+                    }
+
+                    // Manually calls the event handler to generate the report.
+                    GenerateReportButtonHandler(null, null);
+
+                    tbiGenerateReports.IsSelected = true;
+
+                    break;
+                }
+            }
+
+            //for (int i = 0; i < ClsMetadataHelper.IntNumberOfModels; i++)
+            //{
+            //    Type typeModelType = ClsMetadataHelper.GetModelTypeByIndex(i);
+                
+            //    if (typeModelType.Name == udtReportTemplate.GStrModelName)
+            //    {
+            //        GUdtSelectedReportType = ClsMetadataHelper.GetModelInfo(typeModelType);
+            //        break;
+            //    }
+            //}
+            
+            //if (GUdtSelectedReportType != null)
+            //{
+            //    cboReportType.SelectedItem = cboReportType.Items
+            //}
+        }
+
+        public void ExportToExcelButtonHandler(object sender, EventArgs e)
+        {
+
+        }
+
+        public void DeleteReportButtonHandler(object sender, EventArgs e)
+        {
+            // Gets the report template from the button.
+            Button btnSender = (Button)sender;
+            ReportTemplate udtReportTemplate = (ReportTemplate)btnSender.Tag;
+
+            using (DirectorPortalDatabase.DatabaseContext context = new DirectorPortalDatabase.DatabaseContext())
+            {
+                // Deletes all ReportFields belonging to the specified ReportType.
+                ReportField[] rgReportFields = context.ReportFields.Where(x => x.GIntReportTemplateId == udtReportTemplate.GIntId).ToArray();
+                context.RemoveRange(rgReportFields);
+
+                // Deletes the ReportTemplate itself.
+                context.Remove(udtReportTemplate);
+                context.SaveChanges();
+            }
+
+            // Updates the local report template list to account for the deletion that occurred.
+            GetReportTemplateList();
+        }
 
         public GenerateReportsPage()
         {
             InitializeComponent();
 
             GRGCurrentReport = new List<string[]>();
-            ComboBoxItem[] rgReportTypeItems = new ComboBoxItem[ClsMetadataHelper.IntNumberOfModels];
+            GRGReportTypeItems = new ComboBoxItem[ClsMetadataHelper.IntNumberOfModels];
             
             for (int i = 0; i < ClsMetadataHelper.IntNumberOfModels; i++)
             {
@@ -159,12 +394,17 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 cbiModelItem.Tag = udtModelInfo;
 
                 // Adds the ComboBoxItem to the array.
-                rgReportTypeItems[i] = cbiModelItem;
+                GRGReportTypeItems[i] = cbiModelItem;
             }
 
-            cboReportType.ItemsSource = rgReportTypeItems;
+            cboReportType.ItemsSource = GRGReportTypeItems;
+
+            GetReportTemplateList();
         }
 
 
     }
 }
+
+
+

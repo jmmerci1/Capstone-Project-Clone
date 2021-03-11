@@ -1,0 +1,91 @@
+﻿<Window x:Class="DirectorsPortalWPF.HelpUI.HelpScreenWindow"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:DirectorsPortalWPF.HelpUI"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="HelpScreenPage">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="White" Margin="0,0,-14,-220">
+        <StackPanel>
+            <TextBlock Text="Help" Foreground="Black"  Padding="49,15,0,15" FontSize="20" FontWeight="Bold"/>
+            <TabControl Name="tabs" TabStripPlacement="Top" Background="#FFF1F2F7" BorderThickness="1"  Margin="50,0,50,0">
+                <TabItem Header="Member Info" IsSelected="True" Background="Gray" >
+                    <StackPanel HorizontalAlignment="Left" Grid.RowSpan="3" VerticalAlignment="Top">
+                        <TextBlock TextWrapping="Wrap" Text="The Member Info page is used to display each member's stored information and any pending member changes available." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" />
+                        <Label Content="Adding Members" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" Text="Members can be added to the records by clicking the Add Member button at the bottom of the table. This will show a blank form to fill out the details for the member. The new member is confirmed by clicking the Add Member button on the form once the desired fields are filled out." HorizontalAlignment="Left" Margin="10"/>
+                        <Label Content="Editing Members" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Span><Run Text="Each member can be edited by clicking the Edit button at the end of the row. This will show a form similar to the Add Member form that is filled with the desired member's information. The member's information is saved by clicking the Add Member button."/></Span></TextBlock>
+                        <Label Content="Filtering Members" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Span><Run Text="Members can be filtered by using the filter text box at the top of the page. This will display all members that match the current filter."/></Span></TextBlock>
+                        <Label Content="Member Changes" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Span FontSize="14.6666666666667" FontFamily="Calibri"><Run Text="The Member Changes tab displays all pending changes along with notes from the member on why the change is necessary. Each change can be accepted or rejected individually by clicking the corresponding button at the end of the row. Additionally, all changes can be accepted at once by clicking the Accept All Changes button or rejected by clicking the Reject All Changes button."/></Span></TextBlock>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Payment Info" IsSelected="True" Background="Gray" Height="22" VerticalAlignment="Bottom" >
+                    <StackPanel HorizontalAlignment="Left" Grid.RowSpan="3" VerticalAlignment="Top">
+                        <TextBlock TextWrapping="Wrap" Text="The Payment Info page displays the payment history for all Chamber members." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" />
+                        <Label Content="Viewing Payment Information" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Span><Run Text="Clicking on each member will show a full history of their previous payments. Payment details are also displayed by selecting the desired payment."/></Span></TextBlock>
+                        <Label Content="Adding New Payments" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Span><Run Text="From the member's payment history screen, a new payment can also be added by clicking the Add Payment button. The Add Payment window displays a new payment form that can be edited to reflect the payment's information. The payment is stored by clicking the Add Payment button."/></Span></TextBlock>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Email Members" IsSelected="True" Background="Gray" Height="22" VerticalAlignment="Bottom" Margin="-2,0" >
+                    <StackPanel HorizontalAlignment="Left" Grid.RowSpan="3" VerticalAlignment="Top">
+                        <TextBlock TextWrapping="Wrap" Text="The Email Members page is used to manage email groups as well as send mass emails to groups or individuals." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" />
+                        <Label Content="Adding Email Groups" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Span FontSize="14.6666666666667" FontFamily="Calibri"><Run Text="To add a new email group, click the + button at the top of the Email Groups window. This will display a form to select group members and title the group, as well as store any notes about the email group. This group is saved by clicking the Add button."/></Span></TextBlock>
+                        <Label Content="Editing Email Groups" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Span FontSize="14.6666666666667" FontFamily="Calibri"><Run Text="Email groups can be edited by clicking the Edit button following the group's title. This will display a form similar to the New Group form filled with the information about the selected group. From here, any group information can be edited and is saved by clicking the Save button."/></Span></TextBlock>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Generate Reports" IsSelected="True" Background="Gray" Height="22" VerticalAlignment="Bottom" Margin="-2,0" >
+                    <StackPanel HorizontalAlignment="Left" Grid.RowSpan="3" VerticalAlignment="Top">
+                        <TextBlock TextWrapping="Wrap" Text="The Generate Reports page is used to generate various reports about the data stored within the program." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" />
+                        <Label Content="Generating Reports" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Span FontSize="14.6666666666667" FontFamily="Calibri"><Run Text="Reports are generated within the Generate Reports tab by selecting a report type and the desired fields to include in the report, then clicking the Create Report button. From there, the report is displayed and can be either cleared, exported to Excel, or saved for future use."/></Span></TextBlock>
+                        <Label Content="Viewing Saved Reports" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Span FontSize="14.6666666666667" FontFamily="Calibri"><Run Text="On the Saved Reports tab, previously saved reports are displayed and can be either viewed, exported to Excel, or deleted by pressing the corresponding button."/></Span></TextBlock>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Validate Website" IsSelected="True" Background="Gray" Height="22" VerticalAlignment="Bottom" Margin="-2,0" >
+                    <StackPanel HorizontalAlignment="Left" Grid.RowSpan="3" VerticalAlignment="Top">
+                        <TextBlock TextWrapping="Wrap" Text="The Validate Website page is used to view mock-ups of webpages that need to be updated within the website." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" />
+                        <Label Content="Updating Webpages" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" Text="Webpages with the most up to date information are displayed on the Validate Webpage page to be viewed. They can be either reloaded to attempt to update information or can be copied to the clipboard. From there, the text stored in the clipboard can be pasted into the Weebly website to display the generated webpage." HorizontalAlignment="Left" Margin="10"/>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="TODOs" IsSelected="True" Background="Gray" Height="22" VerticalAlignment="Bottom" Margin="-2,0" >
+                    <StackPanel HorizontalAlignment="Left" Grid.RowSpan="3" VerticalAlignment="Top">
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" ><Span FontSize="14.6666666666667" FontFamily="Calibri"><Run Text="The TODOs page is used to show the current tasks that need to be completed, which can consist of changes to the website, member change requests, or other applicable tasks."/></Span></TextBlock>
+                        <Label Content="Completing Tasks" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Span FontSize="14.6666666666667" FontFamily="Calibri"><Run Text="Each task can be marked as done individually by pressing the Done button at the end of the row, or all tasks can be marked as done by clicking the Mark All As Done button."/></Span></TextBlock>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Settings" IsSelected="True" Background="Gray" Height="22" VerticalAlignment="Bottom" Margin="-2,0" >
+                    <StackPanel HorizontalAlignment="Left" Grid.RowSpan="3" VerticalAlignment="Top">
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" ><Span FontSize="14.6666666666667" FontFamily="Calibri"><Run Text="The Settings page displays necessary settings that can be altered."/></Span></TextBlock>
+                        <Label Content="The Backup &amp; Restore Tab" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Span FontSize="14.6666666666667" FontFamily="Calibri"><Run Text="The Backup &amp; Restore tab is used to manage backup and restore settings."/></Span></TextBlock>
+                        <Label Content="Creating Backups" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Run FontSize="14.6666666666667" FontFamily="Calibri" Text="The backup file location can be altered from the Backup &amp; Restore tab by clicking the Browse… button and navigating to the desired backup location. Backups are then created by clicking the Create Backup Now button."/></TextBlock>
+                        <Label Content="Backup Notifications" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Run FontSize="14.6666666666667" FontFamily="Calibri" Text="Backup notification settings can be managed from the Backup &amp; Restore tab by selecting a frequency from the drop down and a time. Backup notifications will be displayed on the TODOs screen."/></TextBlock>
+                        <Label Content="Restoring Backups" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Run FontSize="14.6666666666667" FontFamily="Calibri" Text="Previous backups can be restored by selecting the Restore From Backup button and selecting the desired backup."/></TextBlock>
+                        <Label Content="The Edit Fields Tab" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Span FontSize="14.6666666666667" FontFamily="Calibri"><Run Text="The Edit Fields tab allows member information fields to be altered or added."/></Span></TextBlock>
+                        <Label Content="Creating New Fields" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10"><Span FontSize="14.6666666666667" FontFamily="Calibri"><Run Text="Fields can be created by clicking the Add Field button at the end of the list. This will display the necessary information to store a new field, and the field is saved by clicking the Add Field button."/></Span></TextBlock>
+                        <Label Content="Editing Fields" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10" Text="Fields can be edited by clicking the Edit button at the end of the corresponding row."/>
+                    </StackPanel>
+                </TabItem>
+            </TabControl>
+        </StackPanel>
+    </ScrollViewer>
+</Window>

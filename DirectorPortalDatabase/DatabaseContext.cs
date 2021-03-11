@@ -52,6 +52,24 @@ namespace DirectorPortalDatabase
         /// Stores a list of todo items.
         /// </summary>
         public DbSet<Todo> TodoListItems { get; set; }
+        /// <summary>
+        /// These are saved templates that can generate reports.
+        /// </summary>
+        public DbSet<ReportTemplate> ReportTemplates { get; set; }
+        /// <summary>
+        /// These are the fields that are contained within report templates. 
+        /// </summary>
+        public DbSet<ReportField> ReportFields { get; set; }
+        /// Stores the various buissness type categories
+        /// </summary>
+        public DbSet<Categories> Categories { get; set; }
+
+        /// <summary>
+        /// Represents the link between a categories and buisnesses.
+        /// Allows for a business to have multiple category types,
+        /// while categories can be applicable to multiple businesses.
+        /// </summary>
+        public DbSet<CategoryRef> CategoryRef { get; set; }
 
         /// <summary>
         /// Pulls the connection string from the App.config file,

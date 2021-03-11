@@ -83,7 +83,7 @@ namespace DirectorPortalDatabase.Utility
                 foreach (PropertyInfo recordProperty in rgProperties)
                 {
                     // Checks if this is a property that we care about.
-                    if (recordProperty.PropertyType.IsPrimitive || recordProperty.PropertyType == typeof(string))
+                    if (recordProperty.PropertyType.IsPrimitive || recordProperty.PropertyType == typeof(string) || recordProperty.PropertyType.IsEnum)
                     {
                         rgFields.Add(new ClsTableField(recordProperty));
                     }

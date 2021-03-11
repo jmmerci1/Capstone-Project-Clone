@@ -1,4 +1,6 @@
-﻿using DirectorsPortalWPF.EmailMembersUI;
+﻿using DirectorPortalDatabase;
+using DirectorsPortalWPF.ConstantContactUI;
+using DirectorsPortalWPF.EmailMembersUI;
 using DirectorsPortalWPF.GenerateReportsUI;
 using DirectorsPortalWPF.HelpUI;
 using DirectorsPortalWPF.MemberInfoUI;
@@ -10,13 +12,6 @@ using System.Windows;
 using System.Windows.Media;
 
 /// <summary>
-/// 
-/// File Name: MainWindow.xaml.cs
-/// 
-/// Part of Project: DirectorsPortal
-/// 
-/// Original Author: Benjamin J. Dore
-/// 
 /// File Purpose:
 ///     This file defines the Main Window object that will contain all the screens used across the Director's Portal Application. 
 ///     The CCOC heading and sidebar are defined here along with a WPF Frame to contain each screen (WPF Page).
@@ -37,6 +32,9 @@ namespace DirectorsPortalWPF
         {
             InitializeComponent();
             btnMember.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD8D8D8"));       // Appears selected
+                                                                                                                    // Create the database if it doesn't exist
+            DatabaseContext dbContextIntialStartup = new DatabaseContext();
+            dbContextIntialStartup.Database.EnsureCreated();                     // Ensures the database is created upon application startup. If the database is not created, then the context will create the database.
         }
 
 
@@ -52,6 +50,7 @@ namespace DirectorsPortalWPF
 
             btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+            btnConstantContact.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnGenReport.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnMember.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));       
             btnPayment.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD8D8D8"));      // Appears selected
@@ -71,7 +70,8 @@ namespace DirectorsPortalWPF
             mainFrame.Navigate(new MembersPage());
 
             btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
-            btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));        
+            btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+            btnConstantContact.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnGenReport.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnMember.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD8D8D8"));       // Appears selected
             btnPayment.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
@@ -92,6 +92,7 @@ namespace DirectorsPortalWPF
 
             btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD8D8D8"));        // Appears selected
+            btnConstantContact.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnGenReport.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnMember.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnPayment.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
@@ -113,6 +114,7 @@ namespace DirectorsPortalWPF
 
             btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+            btnConstantContact.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnGenReport.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnMember.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnPayment.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
@@ -134,6 +136,7 @@ namespace DirectorsPortalWPF
 
             btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+            btnConstantContact.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnGenReport.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnMember.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnPayment.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
@@ -154,6 +157,7 @@ namespace DirectorsPortalWPF
 
             btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD8D8D8"));     // Appears selected
             btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+            btnConstantContact.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnGenReport.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnMember.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnPayment.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
@@ -174,6 +178,7 @@ namespace DirectorsPortalWPF
 
             btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));     
             btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+            btnConstantContact.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnGenReport.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD8D8D8"));    // Appears selected
             btnMember.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnPayment.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
@@ -194,12 +199,28 @@ namespace DirectorsPortalWPF
 
             btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+            btnConstantContact.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnGenReport.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnMember.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnPayment.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnTodo.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnValWeb.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnHelp.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD8D8D8"));         // Appears selected
+        }
+
+        private void ConstantContactPage_Navigate(object sender, RoutedEventArgs e)
+        {
+            mainFrame.Navigate(new ConstantContactPage());
+
+            btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+            btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+            btnConstantContact.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD8D8D8"));  // Appears selected
+            btnGenReport.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+            btnMember.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+            btnPayment.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+            btnTodo.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+            btnValWeb.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
+            btnHelp.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));         
         }
     }
 }

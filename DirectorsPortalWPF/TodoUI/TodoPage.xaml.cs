@@ -1,16 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using DirectorPortalDatabase;
+using DirectorPortalDatabase.Models;
 
 /// <summary>
-/// 
-/// File Name: TodoPage.xaml.cs
-/// 
-/// Part of Project: DirectorsPortal
-/// 
-/// Original Author: Benjamin J. Dore
-/// 
 /// File Purpose:
 ///     This file defines the logic for the 'Todo' screen in the Directors Portal application. The
 ///     To do page displays a list of outstanding tasks that need to be completed by the end user. These
@@ -28,46 +25,30 @@ namespace DirectorsPortalWPF.TodoUI
     /// </summary>
     public partial class TodoPage : Page
     {
+
+        private readonly DatabaseContext GdbContext;
+
         /// <summary>
         /// Initialize the Page and contents within the Page
         /// </summary>
         public TodoPage()
         {
             InitializeComponent();
+            GdbContext = new DatabaseContext();
+            List<Todo> rgTodos = GdbContext.TodoListItems.Where(e => e.GBlnMarkedAsDone.Equals(false)).ToList();
 
-            btnDone1.Click += (sender, e) => MarkAsDone(sender, e, card1);  // Template code, should not be used in production
-            btnDone2.Click += (sender, e) => MarkAsDone(sender, e, card2);  // Template code, should not be used in production
-
-            btnMarkAllDone.Click += (sender, e) =>
-            {
-                sPanelTodoList.Children.Clear();
-
-                if (sPanelTodoList.Children.Count == 0)
-                {
-                    sPanelTodoList.Children.Add(ShowNoTodo());      // If there is no Todo items, notify the end user.
-                }
-            };
-
-            for (int i = 0; i < 4; i++)
+            foreach (Todo tDoCurrentTodo in rgTodos)
             {
 
                 StackPanel sPanelCard = CreateStackPanelCard();
                 StackPanel sPanelCardContent = new StackPanel();
-
                 Button btnDone = CreateButton("Done");
 
-                btnDone.Click += (sender, e) => MarkAsDone(sender, e, sPanelCard);
+                btnDone.Click += (sender, e) => MarkAsDone(sender, e, sPanelCard, tDoCurrentTodo);
 
-                //
-                // Logic could be included here to populate the Todo list with items from DB. For
-                // now it's just template code. 
-                //
-                // TODO: Modify the init code in the TodoPage.cs file to pull new Todos from DB,
-                // remove the template code one DB functionality implemented.
-                //
                 TextBlock txtBoxCardContent = new TextBlock
                 {
-                    Text = $"A pending task {i + 3}",
+                    Text = $"{tDoCurrentTodo.GStrTitle} - {tDoCurrentTodo.GStrDescription}",
                     Margin = new Thickness(5, 5, 5, 0)
                 };
 
@@ -87,54 +68,80 @@ namespace DirectorsPortalWPF.TodoUI
                 sPanelTodoList.Children.Add(sPanelCard);
                 lblNumberOfTodo.Content = $"{sPanelTodoList.Children.Count} Number of TODO";
             }
+
+            CheckNoTodo();
+            btnMarkAllDone.Click += (sender, e) => MarkAllAsDone(sender, e, rgTodos);
+
         }
 
         /// <summary>
-        /// Intended to show a Todo item that simply states there is no items in the Todo list  
+        /// Intended to show a Todo item that simply states there is no items in the Todo list only
+        /// if there are no todo waiting for action in the database.
         /// </summary>
         /// <returns>Returns a StackPanel containing the contents to show a Todo item indicating there are no Todo items</returns>
-        private StackPanel ShowNoTodo()
+        private void CheckNoTodo()
         {
-            StackPanel sPanelCard = CreateStackPanelCard();
-            StackPanel sPanelCardContent = new StackPanel();
-
-            TextBlock txtBoxCardContent = new TextBlock
+            if (sPanelTodoList.Children.Count == 0)
             {
-                Text = "TODO is empty",
-                Margin = new Thickness(10, 10, 10, 10)
-            };
+                StackPanel sPanelCard = CreateStackPanelCard();
+                StackPanel sPanelCardContent = new StackPanel();
 
-            sPanelCardContent.Children.Add(txtBoxCardContent);
-            sPanelCard.Children.Add(sPanelCardContent);
-            lblNumberOfTodo.Content = "0 Number of TODO";
+                TextBlock txtBoxCardContent = new TextBlock
+                {
+                    Text = "TODO is empty",
+                    Margin = new Thickness(10, 10, 10, 10)
+                };
 
-            return sPanelCard;
+                sPanelCardContent.Children.Add(txtBoxCardContent);
+                sPanelCard.Children.Add(sPanelCardContent);
+                lblNumberOfTodo.Content = "0 Number of TODO";
 
+                sPanelTodoList.Children.Add(sPanelCard);
+            }
         }
 
         /// <summary>
         /// Invokes when a Todo item's 'Done' button is clicked. Essentially marks an item as done.
-        /// For the moment this function simply removes the card from the Todo list but can be modified to work
-        /// with a DB.
-        /// 
-        /// TODO: Modify the MarkAsDone method in Todo to use DB
         /// </summary>
         /// <param name="sender">Done button from the selected task</param>
         /// <param name="e">The Click event</param>
         /// <param name="sPanelCard">The Stack Panel card for the Todo item</param>
-        private void MarkAsDone(object sender, RoutedEventArgs e, StackPanel sPanelCard)
+        private void MarkAsDone(object sender, RoutedEventArgs e, StackPanel sPanelCard, Todo tDoCurrentTodo)
         {
+
+            tDoCurrentTodo.GBlnMarkedAsDone = true;
+            GdbContext.SaveChanges();
+
             sPanelTodoList.Children.Remove(sPanelCard);
             sPanelCard.Children.Clear();
 
             lblNumberOfTodo.Content = $"{sPanelTodoList.Children.Count} Number of TODO";
 
-            if (sPanelTodoList.Children.Count == 0)
-            {
-                sPanelTodoList.Children.Add(ShowNoTodo());      // If there is no Todo items, notify the end user.
-            }
+            CheckNoTodo();      // If there is no Todo items, notify the end user.
 
             GC.Collect();           // Initiate garbage collection so rogue stack panel children isn't floating around in heap.
+        }
+
+        /// <summary>
+        /// Invokes when the'Mark All As Done' button is clicked. Essentially marks all item as done.
+        /// </summary>
+        /// <param name="sender">Done button from the selected task</param>
+        /// <param name="e">The Click event</param>
+        /// <param name="rgTodoAll">All of the todo items in the database</param>
+        private void MarkAllAsDone(object sender, RoutedEventArgs e, List<Todo> rgTodoAll)
+        {
+            foreach (Todo tDoCurrentTodo in rgTodoAll)
+            {
+                tDoCurrentTodo.GBlnMarkedAsDone = true;
+                sPanelTodoList.Children.Clear();
+                   
+            }
+
+            CheckNoTodo();          // If there is no Todo items, notify the end user.
+
+            GdbContext.SaveChanges();
+            GC.Collect();
+
         }
 
         /// <summary>
@@ -170,6 +177,18 @@ namespace DirectorsPortalWPF.TodoUI
                 Template = (ControlTemplate)Application.Current.Resources["xtraSmallButtonGrey"],
             };
             return btnNewButton;
+        }
+        /// <summary>
+        /// Opens a pop-up window that displays the current frames help information. 
+        /// </summary>
+        /// <param name="sender">Help button</param>
+        /// <param name="e">The Click event</param>
+        public void HelpButtonHandler(object sender, EventArgs e)
+        {
+            HelpUI.HelpScreenWindow helpWindow = new HelpUI.HelpScreenWindow();
+            helpWindow.Show();
+            helpWindow.tabs.SelectedIndex = 5;
+
         }
     }
 }
