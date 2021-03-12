@@ -57,28 +57,40 @@ namespace DirectorsPortalConstantContact
         /// </summary>
         public void RefreshData()
         {
-
             this.gobjCCAuth.ValidateAuthentication();
             //get all info
+            //print("Updating Contacts");
             this.UpdateContacts();
             System.Threading.Thread.Sleep(300);
+            //print("Updating ContactLists");
             this.UpdateContactLists();
+            //print("Updating Fields");
             this.UpdateContactCustomFields();
             System.Threading.Thread.Sleep(300);
+            //print("Updating Campaigns");
             this.UpdateEmailCampaigns();
             System.Threading.Thread.Sleep(200);
+            //print("Updating activities");
             this.UpdateEmailCampaignActivities();
             System.Threading.Thread.Sleep(200);
+            //print("Updating previews");
             this.UpdateEmailCampaignActivityPreviews();
 
+            //print("Updating Reporting");
             this.UpdateContactTrackingReporting();
+            //print("Updating open rate");
             this.UpdateContactOpenRate();
 
             //assignments
+            //print("Updating assignments");
             this.ContactListAssignment();
             this.CustomFieldAssignment();
 
-            
+
+            //print("saving");
+            this.save();
+
+
 
         }
 
@@ -279,46 +291,52 @@ namespace DirectorsPortalConstantContact
 
         private void UpdateContactTrackingReporting()
         {
-            //foreach (Contact objContact in this.Contacts)
-            //{
-            Contact objContact = this.FindContactByEmail("edwalk@svsu.edu");
-            string strUrl = $"reports/contact_reports/{objContact.contact_id}/activity_details?tracking_activities_list=em_sends,em_opens,em_clicks,em_bounces,em_optouts,em_forwards";
-            string strResponce = this.ReadJsonFromUrl(strUrl);
-
-            JObject objJson = JObject.Parse(strResponce);
-            string strTracking = objJson.GetValue("tracking_activities").ToString();
-
-            List<Dictionary<string, string>> lstTrackingEvents = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(strTracking);
-
-            foreach (Dictionary<string, string> dctEvent in lstTrackingEvents)
+            //current data set does not meet the finctionality of this function yet
+            return;
+            foreach (Contact objContact in this.Contacts)
             {
-                objContact.gdctTracking[dctEvent["tracking_activity_type"]].Add(this.gdctEmailCampaignActivities[dctEvent["campaign_activity_id"]]);
+            //Contact objContact = this.FindContactByEmail("edwalk@svsu.edu");
+                string strUrl = $"reports/contact_reports/{objContact.contact_id}/activity_details?tracking_activities_list=em_sends,em_opens,em_clicks,em_bounces,em_optouts,em_forwards";
+                string strResponce = this.ReadJsonFromUrl(strUrl);
+
+                JObject objJson = JObject.Parse(strResponce);
+                string strTracking = objJson.GetValue("tracking_activities").ToString();
+
+                List<Dictionary<string, string>> lstTrackingEvents = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(strTracking);
+
+                foreach (Dictionary<string, string> dctEvent in lstTrackingEvents)
+                {
+                    objContact.gdctTracking[dctEvent["tracking_activity_type"]].Add(this.gdctEmailCampaignActivities[dctEvent["campaign_activity_id"]]);
+                }
+                //Console.WriteLine(lstTrackingEvents.ToString());
+                System.Threading.Thread.Sleep(250);
             }
-            Console.WriteLine(lstTrackingEvents.ToString());
-            //}
 
         }
 
         private void UpdateContactOpenRate()
         {
-            //foreach (Contact objContact in this.Contacts)
-            //{
-            Contact objContact = this.FindContactByEmail("edwalk@svsu.edu");
-            string strStart = DateTime.Now.AddYears(-5).AddDays(1).ToString("yyyy-MM-ddTHH:mm:ss.ffZ", CultureInfo.InvariantCulture);
-            string strEnd = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.ffZ", CultureInfo.InvariantCulture);
-            string strUrl = $"reports/contact_reports/{objContact.contact_id}/open_and_click_rates?start={strStart}&end={strEnd}"; 
-            string strResponce = this.ReadJsonFromUrl(strUrl);
+            //current data set does not meet the finctionality of this function yet
+            return;
+            foreach (Contact objContact in this.Contacts)
+            {
+                //Contact objContact = this.FindContactByEmail("edwalk@svsu.edu");
+                string strStart = DateTime.Now.AddYears(-5).AddDays(1).ToString("yyyy-MM-ddTHH:mm:ss.ffZ", CultureInfo.InvariantCulture);
+                string strEnd = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.ffZ", CultureInfo.InvariantCulture);
+                string strUrl = $"reports/contact_reports/{objContact.contact_id}/open_and_click_rates?start={strStart}&end={strEnd}"; 
+                string strResponce = this.ReadJsonFromUrl(strUrl);
 
 
-            Dictionary<string, string> dctRating = JsonConvert.DeserializeObject<Dictionary<string, string>>(strResponce);
+                Dictionary<string, string> dctRating = JsonConvert.DeserializeObject<Dictionary<string, string>>(strResponce);
 
-            objContact.open_rate = Convert.ToDouble(dctRating["average_open_rate"]);
-            objContact.click_rate = Convert.ToDouble(dctRating["average_click_rate"]);
-            objContact.included_activities_count = Convert.ToInt32(dctRating["included_activities_count"]);
+                objContact.open_rate = Convert.ToDouble(dctRating["average_open_rate"]);
+                objContact.click_rate = Convert.ToDouble(dctRating["average_click_rate"]);
+                objContact.included_activities_count = Convert.ToInt32(dctRating["included_activities_count"]);
 
-            Console.WriteLine(dctRating.ToString());
+                //Console.WriteLine(dctRating.ToString());
+                System.Threading.Thread.Sleep(250);
 
-            //}
+            }
         }
 
 
@@ -618,6 +636,71 @@ namespace DirectorsPortalConstantContact
             }
             
 
+        }
+
+        private void save()
+        {
+            string strContacts = JsonConvert.SerializeObject(this.gdctContacts, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
+
+            string strContactLists = JsonConvert.SerializeObject(this.gdctContactLists, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
+
+            string strCustomFields = JsonConvert.SerializeObject(this.gdctCustomFields, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
+
+            string strCampaigns = JsonConvert.SerializeObject(this.gdctEmailCampaigns, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
+
+            string strActivities = JsonConvert.SerializeObject(this.gdctEmailCampaignActivities, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
+
+            string strActivityPreviews = JsonConvert.SerializeObject(this.glstEmailCampaignActivityPreviews, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
+
+            string fname = "CCSaveData.JSON";
+
+            Dictionary<string, string> dctData = new Dictionary<string, string>()
+            {
+                { "contacts",strContacts },
+                { "contactlists",strContactLists },
+                { "customfields",strCustomFields },
+                { "campaigns",strCampaigns },
+                { "activities",strActivities },
+                { "activitypreviews",strActivityPreviews }
+            };
+
+            string strData = JsonConvert.SerializeObject(dctData);
+
+            File.WriteAllText(fname, strData, Encoding.UTF8);
+
+        }
+
+        private void load()
+        {
+            string strData = File.ReadAllText("CCSaveData.JSON", Encoding.UTF8);
+
+            Dictionary<string, string> dctData = JsonConvert.DeserializeObject<Dictionary<string, string>>(strData);
+
+            this.gdctContacts = JsonConvert.DeserializeObject<Dictionary<string, Contact>>(dctData["contacts"]);
+            this.gdctContactLists = JsonConvert.DeserializeObject<Dictionary<string, ContactList>>(dctData["contactlists"]);
+            this.gdctCustomFields = JsonConvert.DeserializeObject<Dictionary<string, CustomField>>(dctData["customfields"]);
+            this.gdctEmailCampaigns = JsonConvert.DeserializeObject<Dictionary<string, EmailCampaign>>(dctData["campaigns"]);
+            this.gdctEmailCampaignActivities = JsonConvert.DeserializeObject<Dictionary<string, EmailCampaignActivity>>(dctData["activities"]);
+            this.glstEmailCampaignActivityPreviews = JsonConvert.DeserializeObject<List<EmailCampaignActivityPreview>>(dctData["activitypreviews"]);
+            print("load done");
         }
 
         public void print(string s)

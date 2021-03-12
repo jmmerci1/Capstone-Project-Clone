@@ -15,9 +15,12 @@ namespace DirectorsPortalConstantContact
     {
         ///this will also have a toPUT and toPOST to return the object that be serialized for the coresponding request
 
+        [Newtonsoft.Json.JsonIgnore]
         public List<ContactList> glstContactLists = new List<ContactList>();
+        [Newtonsoft.Json.JsonIgnore]
         public List<GETCustomField> glstCustomFields = new List<GETCustomField>();
 
+        [Newtonsoft.Json.JsonIgnore]
         public Dictionary<string, List<EmailCampaignActivity>> gdctTracking = new Dictionary<string, List<EmailCampaignActivity>>() 
             {
                 {"em_sends", new List<EmailCampaignActivity>()},
@@ -35,6 +38,19 @@ namespace DirectorsPortalConstantContact
         //https://www.c-sharpcorner.com/article/encryption-and-decryption-using-a-symmetric-key-in-c-sharp/
 
 
+        public Contact()
+        {
+            this.email_address = new GETEmailAddress()
+            {
+                address = null
+            };
+            this.first_name = null;
+            this.last_name = null;
+            this.custom_fields = new List<GETContactCustomField>();
+            this.phone_numbers = new List<GETPhoneNumber>();
+            this.street_addresses = new List<GETStreetAddress>();
+            this.list_memberships = new List<string>();
+        }
         public Contact(string strEmailAddress = null, string strFirstName = null, string strLastName = null)
         {
             this.email_address = new GETEmailAddress() 
@@ -49,6 +65,7 @@ namespace DirectorsPortalConstantContact
             this.list_memberships = new List<string>();
 
         }
+
 
 
         public PUTContact Update()

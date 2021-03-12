@@ -6,7 +6,7 @@ namespace DirectorsPortalConstantContact
 {
     public class EmailCampaign : GETEmailCampaign
     {
-
+        [Newtonsoft.Json.JsonIgnore]
         public List<EmailCampaignActivity> Activities = new List<EmailCampaignActivity>();
 
 
