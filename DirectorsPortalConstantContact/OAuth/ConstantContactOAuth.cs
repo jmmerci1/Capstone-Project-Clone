@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Net;
 using System.IO;
 using Newtonsoft.Json;
-using System.Globalization;
 using System.Net.Http;
+using System.Reflection;
 
 namespace DirectorsPortalConstantContact
 {
@@ -27,6 +25,7 @@ namespace DirectorsPortalConstantContact
         readonly private string mstrOAuthUrlPart2 = "&grant_type=authorization_code&redirect_uri=";
         public string mstrAppAPIKey;
         public string mstrAppAPISecret;
+        DateTime mobjLastUse;
 
         public ConstantContactOAuth()
         {
@@ -256,6 +255,9 @@ namespace DirectorsPortalConstantContact
             return Convert.ToBase64String(bytValueArray);
         }
 
+        /// <summary>
+        /// Function to
+        /// </summary>
         public void ValidateAuthentication()
         {
             try
@@ -278,6 +280,7 @@ namespace DirectorsPortalConstantContact
             }
             finally
             {
+                this.mobjLastUse = DateTime.Now;
                 this.CacheTokens();
             }
 
@@ -311,14 +314,14 @@ namespace DirectorsPortalConstantContact
 
         private void CacheTokens()
         {
-            string strFname = "CCTokenCache.bin";
 
            
-            string strOutString = $"{this.mstrAccessToken}::::{this.mstrRefreshToken}::::{DateTime.Now.ToString()}";
+            string strOutString = $"{this.mstrAccessToken}::::{this.mstrRefreshToken}::::{this.mobjLastUse.ToString()}";
 
             strOutString = this.ObfuscateString(strOutString);
 
-            //string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "CCTokenCache.bin";
+            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\DirectorsPortalWPF\\CCTokenCache.bin";
+            
 
             File.WriteAllText(strFname, strOutString, Encoding.UTF8);
             
@@ -330,7 +333,7 @@ namespace DirectorsPortalConstantContact
         private bool LoadCacheTokens()
         {
 
-            string strFname = "CCTokenCache.bin"; //Directory.GetCurrentDirectory() + 
+            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\DirectorsPortalWPF\\CCTokenCache.bin";
 
             if (!File.Exists(strFname))
             {

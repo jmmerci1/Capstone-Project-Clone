@@ -8,6 +8,11 @@ namespace DirectorsPortalConstantContact
     {
         [Newtonsoft.Json.JsonIgnore]
         public EmailCampaignActivityPreview mobjPreview;
+        [Newtonsoft.Json.JsonIgnore]
+        public EmailCampaign gobjCampaign;
+
+        public string strCampaignName => gobjCampaign.name;
+
 
         public POSTEmailCampaignActivity NewActivity()
         {

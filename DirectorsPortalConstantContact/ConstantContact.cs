@@ -31,7 +31,6 @@ namespace DirectorsPortalConstantContact
         public Dictionary<string, CustomField> gdctCustomFields = new Dictionary<string, CustomField>();
         public Dictionary<string, EmailCampaign> gdctEmailCampaigns = new Dictionary<string, EmailCampaign>();
         public Dictionary<string, EmailCampaignActivity> gdctEmailCampaignActivities = new Dictionary<string, EmailCampaignActivity>();
-        public List<EmailCampaignActivityPreview> glstEmailCampaignActivityPreviews = new List<EmailCampaignActivityPreview>();
 
         private ConstantContactOAuth gobjCCAuth = new ConstantContactOAuth()
         {
@@ -50,6 +49,8 @@ namespace DirectorsPortalConstantContact
         public Dictionary<string, CustomField>.ValueCollection CustomFields => this.gdctCustomFields.Values;
         public Dictionary<string, EmailCampaign>.ValueCollection EmailCampaigns => this.gdctEmailCampaigns.Values;
 
+        public List<EmailCampaignActivityPreview> glstEmailCampaignActivityPreviews = new List<EmailCampaignActivityPreview>();
+
 
         /// <summary>
         /// One function to run all of the update functions. 
@@ -57,6 +58,9 @@ namespace DirectorsPortalConstantContact
         /// </summary>
         public void RefreshData()
         {
+            //this.load();
+            //return;
+
             this.gobjCCAuth.ValidateAuthentication();
             //get all info
             //print("Updating Contacts");
@@ -245,6 +249,7 @@ namespace DirectorsPortalConstantContact
                     string strActivityUrl = $"emails/activities/{objTempActivity.campaign_activity_id}";//?include=permalink_url";
                     string strActivityJson = this.ReadJsonFromUrl(strActivityUrl);
                     EmailCampaignActivity objActivity = JsonConvert.DeserializeObject<EmailCampaignActivity>(strActivityJson);
+                    objActivity.gobjCampaign = objCampaign;
                     objCampaign.Activities.Add(objActivity);
                     gdctEmailCampaignActivities.Add(objActivity.campaign_activity_id, objActivity);
 
@@ -617,13 +622,13 @@ namespace DirectorsPortalConstantContact
 
         }
     
-        public void SendActivity(EmailCampaignActivity objActivity, DateTime objTime)
+        public void SendActivity(EmailCampaignActivity objActivity)
         {
             print(objActivity.contact_list_ids[0]);
             if (objActivity.contact_list_ids.Count()>0)
             {
                 string strUrl = $"emails/activities/{objActivity.campaign_activity_id}/schedules";
-                string strdate = objTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture);
+                //string strdate = objTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture);
 
                 string strData = $"{{\"scheduled_date\": \"0\"}}";
 
