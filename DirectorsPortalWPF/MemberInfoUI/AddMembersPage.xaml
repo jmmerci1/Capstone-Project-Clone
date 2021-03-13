@@ -53,90 +53,99 @@
 
                     <StackPanel Grid.Column="0" Orientation="Vertical">
                         <!--Business Info-->
-                        <TextBlock TextDecorations="Underline" FontWeight="Bold">
-                            Business Info:
-                        </TextBlock>
+                        <StackPanel x:Name="SpBusinessInfo" Orientation="Vertical">
+                            <TextBlock TextDecorations="Underline" FontWeight="Bold">
+                                Business Info:
+                            </TextBlock>
 
-                        <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
-                            <Label Width="100">Name:</Label>
-                            <TextBox Width="400"/>
-                        </StackPanel>
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">Name:</Label>
+                                <TextBox x:Name="txtBusinessName" Width="400"/>
+                            </StackPanel>
 
-                        <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
-                            <Label Width="100">Year Established:</Label>
-                            <TextBox Width="400"/>
-                        </StackPanel>
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">Year Established:</Label>
+                                <TextBox x:Name="txtYearEst" Width="400"/>
+                            </StackPanel>
 
-                        <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
-                            <Label Width="100">Website:</Label>
-                            <TextBox Width="400"/>
-                        </StackPanel>
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">Website:</Label>
+                                <TextBox x:Name="txtWebsite" Width="400"/>
+                            </StackPanel>
 
-                        <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
-                            <Label Width="100">Level:</Label>
-                            <ComboBox Width="200">
-                                <ComboBoxItem Content="Gold"></ComboBoxItem>
-                                <ComboBoxItem Content="Silver"></ComboBoxItem>
-                                <ComboBoxItem Content="Associate"></ComboBoxItem>
-                                <ComboBoxItem Content="Individual"></ComboBoxItem>
-                                <ComboBoxItem Content="Courtesy"></ComboBoxItem>
-                            </ComboBox>
+                            <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
+                                <Label Width="100">Level:</Label>
+                                <ComboBox x:Name="cboMemberLevel" Width="200">
+                                    <ComboBoxItem Content="Gold"></ComboBoxItem>
+                                    <ComboBoxItem Content="Silver"></ComboBoxItem>
+                                    <ComboBoxItem Content="Associate"></ComboBoxItem>
+                                    <ComboBoxItem Content="Individual"></ComboBoxItem>
+                                    <ComboBoxItem Content="Courtesy"></ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
                         </StackPanel>
 
                         <!--Mailing Address-->
-                        <TextBlock TextDecorations="Underline" FontWeight="Bold">
-                            Mailing Address:
-                        </TextBlock>
+                        <StackPanel x:Name="SpMailingAddress" Orientation="Vertical">
+                            <TextBlock TextDecorations="Underline" FontWeight="Bold">
+                                Mailing Address:
+                            </TextBlock>
 
-                        <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
-                            <Label Width="100">Address:</Label>
-                            <TextBox Width="400"/>
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">Address:</Label>
+                                <TextBox x:Name="txtMailAddr" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">City:</Label>
+                                <TextBox x:Name="txtMailCity" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">State:</Label>
+                                <TextBox x:Name="txtMailState" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
+                                <Label Width="100">Zip Code:</Label>
+                                <TextBox x:Name="txtMailZip" Width="400"/>
+                            </StackPanel>
                         </StackPanel>
-
-                        <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
-                            <Label Width="100">City:</Label>
-                            <TextBox Width="400"/>
-                        </StackPanel>
-
-                        <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
-                            <Label Width="100">State:</Label>
-                            <TextBox Width="400"/>
-                        </StackPanel>
-
-                        <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
-                            <Label Width="100">Zip Code:</Label>
-                            <TextBox Width="400"/>
-                        </StackPanel>
-
+                        
                         <!--Location Address-->
                         <TextBlock TextDecorations="Underline" FontWeight="Bold">
                             Location Address:
                         </TextBlock>
 
-                        <CheckBox Margin="0,5,0,5">Same as mailing</CheckBox>
+                        <!--The checkbox needs to stay outslide the Sp so it isn't disabled.-->
+                        <CheckBox x:Name="ChkLocationSameAsMailing" Checked="ChkLocationSameAsMailing_Checked" 
+                            Unchecked="ChkLocationSameAsMailing_Unchecked" Margin="0,5,0,5">Same as mailing</CheckBox>
 
-                        <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
-                            <Label Width="100">Address:</Label>
-                            <TextBox Width="400"/>
+                        <StackPanel x:Name="SpLocationAddress" Orientation="Vertical">
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">Address:</Label>
+                                <TextBox x:Name="txtLocationAddr" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">City:</Label>
+                                <TextBox x:Name="txtLocationCity" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">State:</Label>
+                                <TextBox x:Name="txtLocationState" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,6" Orientation="Horizontal">
+                                <Label Width="100">Zip Code:</Label>
+                                <TextBox x:Name="txtLocationZip" Width="400"/>
+                            </StackPanel>
                         </StackPanel>
 
-                        <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
-                            <Label Width="100">City:</Label>
-                            <TextBox Width="400"/>
-                        </StackPanel>
-
-                        <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
-                            <Label Width="100">State:</Label>
-                            <TextBox Width="400"/>
-                        </StackPanel>
-
-                        <StackPanel Margin="0,0,0,6" Orientation="Horizontal">
-                            <Label Width="100">Zip Code:</Label>
-                            <TextBox Width="400"/>
-                        </StackPanel>
-
+                        <!--Contact People-->
                         <StackPanel x:Name="SpContacts" Margin="0,0,0,3" Orientation="Vertical">
-                            <uc:ContactInput GStrTitle="Contact 1" />
+                            <uc:ContactInput x:Name="CiContact1" GStrTitle="Contact 1" />
                         </StackPanel>
 
                         <StackPanel Margin="5,0,0,3" Orientation="Horizontal">

@@ -12,7 +12,7 @@
 
         <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
             <Label Width="100">Name:</Label>
-            <TextBox Width="400"/>
+            <TextBox x:Name="TxtName" Width="400"/>
         </StackPanel>
 
         <StackPanel x:Name="SpContactEmails" Orientation="Vertical">

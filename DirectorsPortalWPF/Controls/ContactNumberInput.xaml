@@ -9,8 +9,8 @@
 
     <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
         <Label Width="100" Content="{Binding GStrInputName}"/>
-        <TextBox Width="400"/>
-        <ComboBox Width="80" Margin="5,0,0,0">
+        <TextBox x:Name="TxtContactNumber" Width="400"/>
+        <ComboBox x:Name="CboNumberType" Width="80" Margin="5,0,0,0">
             <ComboBoxItem Content="Mobile"></ComboBoxItem>
             <ComboBoxItem Content="Office"></ComboBoxItem>
             <ComboBoxItem Content="Fax"></ComboBoxItem>
