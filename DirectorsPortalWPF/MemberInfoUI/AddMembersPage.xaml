@@ -144,8 +144,11 @@
                         </StackPanel>
 
                         <!--Contact People-->
+                        <TextBlock TextDecorations="Underline" FontWeight="Bold">
+                            Contacts:
+                        </TextBlock>
+
                         <StackPanel x:Name="SpContacts" Margin="0,0,0,3" Orientation="Vertical">
-                            <uc:ContactInput x:Name="CiContact1" GStrTitle="Contact 1" />
                         </StackPanel>
 
                         <StackPanel Margin="5,0,0,3" Orientation="Horizontal">

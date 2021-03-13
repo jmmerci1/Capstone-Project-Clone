@@ -25,7 +25,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
     public partial class AddMembersPage : Page
     {
         Dictionary<string, string> GDicHumanReadableDataFields = new Dictionary<string, string>();
-        private int IntContactCount = 1;
+        private int IntContactCount = 0;
 
         /// <summary>
         /// A method for generating the add members UI.
@@ -155,7 +155,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             businessFromForm.GIntMailingAddressId = mailingAddressFromFrom.GIntId;
                             businessFromForm.GIntPhysicalAddressId = mailingAddressFromFrom.GIntId;
                         }
-                        else if (ChkLocationSameAsMailing.IsChecked == true
+                        else if (ChkLocationSameAsMailing.IsChecked == false
                             && !mailingAddressFromFrom.GStrAddress.Equals("")
                             && !locationAddressFromForm.GStrAddress.Equals(""))
                         {

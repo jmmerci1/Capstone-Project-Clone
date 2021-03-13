@@ -6,33 +6,45 @@
              xmlns:local="clr-namespace:DirectorsPortalWPF.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    
+
     <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-        <TextBlock TextDecorations="Underline" FontWeight="Bold" Text="{Binding GStrTitle}" />
+        <GroupBox>
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="0,0,10,0" FontWeight="Bold" Text="{Binding GStrTitle}" />
 
-        <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
-            <Label Width="100">Name:</Label>
-            <TextBox x:Name="TxtName" Width="400"/>
-        </StackPanel>
+                    <Button Padding="5,0,5,0" x:Name="BtnRemoveContact" Click="BtnRemoveContact_Click" Content="X">
+                        <Button.ToolTip>
+                            <ToolTip>Remove Contact</ToolTip>
+                        </Button.ToolTip>
+                    </Button>
+                </StackPanel>
+            </GroupBox.Header>
 
-        <StackPanel x:Name="SpContactEmails" Orientation="Vertical">
-            <local:EmailInput GVisRemovable="Hidden" GStrInputName="Email:" />
-        </StackPanel>
+            <StackPanel Orientation="Vertical">
+                <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                    <Label Width="100">Name:</Label>
+                    <TextBox x:Name="TxtName" Width="400"/>
+                </StackPanel>
 
-        <StackPanel Margin="5,0,0,3" Orientation="Horizontal">
-            <Button x:Name="BtnAddEmail" Click="BtnAddEmail_Click" Content="Add Email"/>
-        </StackPanel>
+                <GroupBox Header="Emails:">
+                    <StackPanel x:Name="SpContactEmails" Orientation="Vertical">
+                    </StackPanel>
+                </GroupBox>
 
-        <StackPanel x:Name="SpContactNumbers" Orientation="Vertical">
-            <local:ContactNumberInput GVisRemovable="Hidden" GStrInputName="Number:" />
-        </StackPanel>
+                <StackPanel Margin="5,0,0,3" Orientation="Horizontal">
+                    <Button x:Name="BtnAddEmail" Click="BtnAddEmail_Click" Content="Add Email"/>
+                </StackPanel>
 
-        <StackPanel Margin="5,0,0,3" Orientation="Horizontal">
-            <Button x:Name="BtnAddNumber" Click="BtnAddNumber_Click" Content="Add Number"/>
-        </StackPanel>
+                <GroupBox Header="Numbers:">
+                    <StackPanel x:Name="SpContactNumbers" Orientation="Vertical">
+                    </StackPanel>
+                </GroupBox>
 
-        <StackPanel Margin="5,0,0,3" Orientation="Horizontal">
-            <Button x:Name="BtnRemoveContact" Click="BtnRemoveContact_Click" Content="Remove"/>
-        </StackPanel>
+                <StackPanel Margin="5,0,0,3" Orientation="Horizontal">
+                    <Button x:Name="BtnAddNumber" Click="BtnAddNumber_Click" Content="Add Number"/>
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>
     </StackPanel>
 </UserControl>

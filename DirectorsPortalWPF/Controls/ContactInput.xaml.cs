@@ -22,8 +22,8 @@ namespace DirectorsPortalWPF.Controls
     {
         public string GStrTitle { get; set; }
 
-        private int IntEmailCount = 1;
-        private int IntNumberCount = 1;
+        private int IntEmailCount = 0;
+        private int IntNumberCount = 0;
 
         public ContactInput()
         {
