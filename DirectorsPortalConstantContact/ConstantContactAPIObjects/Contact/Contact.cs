@@ -201,14 +201,5 @@ namespace DirectorsPortalConstantContact
             return objTempContact;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public void delete()
-
-        {
-
-        }
-
     }
 }
