@@ -666,6 +666,20 @@ namespace DirectorsPortalConstantContact
             this.PUTJson(strJson, $"/emails/activities/{objActivity.campaign_activity_id}");
 
         }
+        public void RemoveListFromActivity(ContactList objList, EmailCampaignActivity objActivity)
+        {
+            objActivity.contact_list_ids.Remove(objList.list_id);
+            PUTEmailCampaignActivity objTemp = objActivity.Update();
+
+            string strJson = JsonConvert.SerializeObject(objTemp, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+
+            });
+
+            this.PUTJson(strJson, $"/emails/activities/{objActivity.campaign_activity_id}");
+
+        }
 
         /// <summary>
         /// temp code for adding a campaign. need to work with Ben Dore on this stuff as it realies heavily on the UI. 
