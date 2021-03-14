@@ -47,12 +47,116 @@
             <ScrollViewer Grid.Column="0" Grid.Row="1" CanContentScroll="True" HorizontalScrollBarVisibility="Auto" Margin="1,1,1,1">
                 <Grid x:Name="grdForm" Margin="10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Vertical">
+                        <!--Business Info-->
+                        <StackPanel x:Name="SpBusinessInfo" Orientation="Vertical">
+                            <TextBlock TextDecorations="Underline" FontWeight="Bold">
+                                Business Info:
+                            </TextBlock>
+
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">Name:</Label>
+                                <TextBox x:Name="txtBusinessName" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">Year Established:</Label>
+                                <TextBox x:Name="txtYearEst" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">Website:</Label>
+                                <TextBox x:Name="txtWebsite" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
+                                <Label Width="100">Level:</Label>
+                                <ComboBox x:Name="cboMemberLevel" Width="200">
+                                    <ComboBoxItem Content="Gold"></ComboBoxItem>
+                                    <ComboBoxItem Content="Silver"></ComboBoxItem>
+                                    <ComboBoxItem Content="Associate"></ComboBoxItem>
+                                    <ComboBoxItem Content="Individual"></ComboBoxItem>
+                                    <ComboBoxItem Content="Courtesy"></ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!--Mailing Address-->
+                        <StackPanel x:Name="SpMailingAddress" Orientation="Vertical">
+                            <TextBlock TextDecorations="Underline" FontWeight="Bold">
+                                Mailing Address:
+                            </TextBlock>
+
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">Address:</Label>
+                                <TextBox x:Name="txtMailAddr" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">City:</Label>
+                                <TextBox x:Name="txtMailCity" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">State:</Label>
+                                <TextBox x:Name="txtMailState" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
+                                <Label Width="100">Zip Code:</Label>
+                                <TextBox x:Name="txtMailZip" Width="400"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!--Location Address-->
+                        <TextBlock TextDecorations="Underline" FontWeight="Bold">
+                            Location Address:
+                        </TextBlock>
+
+                        <!--The checkbox needs to stay outslide the Sp so it isn't disabled.-->
+                        <CheckBox x:Name="ChkLocationSameAsMailing" Checked="ChkLocationSameAsMailing_Checked" 
+                            Unchecked="ChkLocationSameAsMailing_Unchecked" Margin="0,5,0,5">Same as mailing</CheckBox>
+
+                        <StackPanel x:Name="SpLocationAddress" Orientation="Vertical">
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">Address:</Label>
+                                <TextBox x:Name="txtLocationAddr" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">City:</Label>
+                                <TextBox x:Name="txtLocationCity" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">State:</Label>
+                                <TextBox x:Name="txtLocationState" Width="400"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,6" Orientation="Horizontal">
+                                <Label Width="100">Zip Code:</Label>
+                                <TextBox x:Name="txtLocationZip" Width="400"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!--Contact People-->
+                        <TextBlock TextDecorations="Underline" FontWeight="Bold">
+                            Contacts:
+                        </TextBlock>
+
+                        <StackPanel x:Name="SpContacts" Margin="0,0,0,3" Orientation="Vertical">
+                        </StackPanel>
+
+                        <StackPanel Margin="5,0,0,3" Orientation="Horizontal">
+                            <Button x:Name="BtnAddContact" Click="BtnAddContact_Click" Content="Add Contact"/>
+                        </StackPanel>
+                    </StackPanel>
                 </Grid>
             </ScrollViewer>
-            
+
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2" Margin="0,0,20,5">
                 <Button x:Name="btnCancel" Click="BtnCancel_Click" Content="Cancel" 
                     Template="{StaticResource smallButton}" Margin="5,5,5,5" Height="20" Padding="0,0,80,0" />

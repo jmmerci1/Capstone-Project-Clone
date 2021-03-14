@@ -69,8 +69,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             using (DatabaseContext context = new DatabaseContext()) 
             {
                 selectedBusiness = context.Businesses
-                    .Where(business => business.GStrBusinessName.Equals(selectedTableViewModel.StrBuisnessName))
-                    .FirstOrDefault();
+                    .FirstOrDefault(business => business.GStrBusinessName.Equals(selectedTableViewModel.StrBuisnessName));
             }
 
             NavigationService.Navigate(new EditMembersPage(selectedBusiness));

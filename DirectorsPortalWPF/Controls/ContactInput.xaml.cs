@@ -21,9 +21,8 @@ namespace DirectorsPortalWPF.Controls
     public partial class ContactInput : UserControl
     {
         public string GStrTitle { get; set; }
-
-        private int IntEmailCount = 0;
-        private int IntNumberCount = 0;
+        public int GntEmailCount { get; set; } = 0;
+        public int GIntNumberCount { get; set; } = 0;
 
         public ContactInput()
         {
@@ -33,11 +32,11 @@ namespace DirectorsPortalWPF.Controls
         }
         private void BtnAddEmail_Click(object sender, RoutedEventArgs e)
         {
-            IntEmailCount++;
+            GntEmailCount++;
 
             EmailInput EiEmail = new EmailInput
             {
-                GStrInputName = "Email " + IntEmailCount + ":",
+                GStrInputName = "Email " + GntEmailCount + ":",
                 GVisRemovable = Visibility.Visible
             };
 
@@ -46,11 +45,11 @@ namespace DirectorsPortalWPF.Controls
 
         private void BtnAddNumber_Click(object sender, RoutedEventArgs e)
         {
-            IntNumberCount++;
+            GIntNumberCount++;
 
             ContactNumberInput CniNumber = new ContactNumberInput
             {
-                GStrInputName = "Number " + IntNumberCount + ":",
+                GStrInputName = "Number " + GIntNumberCount + ":",
                 GVisRemovable = Visibility.Visible
             };
 
