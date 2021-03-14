@@ -260,6 +260,13 @@ namespace DirectorsPortalConstantContact
                     objCampaign.Activities.Add(objActivity);
                     gdctEmailCampaignActivities.Add(objActivity.campaign_activity_id, objActivity);
 
+                    //addcontact lists to activity for reference
+                    foreach (string strId in objActivity.contact_list_ids)
+                    {
+                        objActivity.glstContactLists.Add(this.gdctContactLists[strId]);
+                    }
+
+
 
 
                 }

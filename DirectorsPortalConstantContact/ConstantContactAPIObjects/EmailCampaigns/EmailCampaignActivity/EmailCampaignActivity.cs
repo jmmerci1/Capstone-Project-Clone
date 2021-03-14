@@ -10,8 +10,13 @@ namespace DirectorsPortalConstantContact
         public EmailCampaignActivityPreview mobjPreview;
         [Newtonsoft.Json.JsonIgnore]
         public EmailCampaign gobjCampaign;
-
+        [Newtonsoft.Json.JsonIgnore]
         public string strCampaignName => gobjCampaign.name;
+
+        [Newtonsoft.Json.JsonIgnore]
+        public List<ContactList> glstContactLists = new List<ContactList>();
+
+
 
 
         public POSTEmailCampaignActivity NewActivity()
