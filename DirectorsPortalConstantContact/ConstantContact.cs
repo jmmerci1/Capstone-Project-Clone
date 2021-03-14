@@ -62,40 +62,47 @@ namespace DirectorsPortalConstantContact
             //return;
 
             this.gobjCCAuth.ValidateAuthentication();
-            //print("Updating Contacts");
+            print("Updating Contacts");
             this.UpdateContacts();
             System.Threading.Thread.Sleep(300);
-            //print("Updating ContactLists");
+            print("Updating ContactLists");
             this.UpdateContactLists();
-            //print("Updating Fields");
+            print("Updating Fields");
             this.UpdateContactCustomFields();
             System.Threading.Thread.Sleep(300);
-            //print("Updating Campaigns");
+            print("Updating Campaigns");
             this.UpdateEmailCampaigns();
             System.Threading.Thread.Sleep(200);
-            //print("Updating activities");
+            print("Updating activities");
             this.UpdateEmailCampaignActivities();
             System.Threading.Thread.Sleep(200);
-            //print("Updating previews");
+            print("Updating previews");
             this.UpdateEmailCampaignActivityPreviews();
 
-            //print("Updating Reporting");
+            print("Updating Reporting");
             this.UpdateContactTrackingReporting();
-            //print("Updating open rate");
+            print("Updating open rate");
             this.UpdateContactOpenRate();
 
             //assignments
-            //print("Updating assignments");
+            print("Updating assignments");
             this.ContactListAssignment();
             this.CustomFieldAssignment();
 
 
-            //print("saving");
+            print("saving");
             this.save();
 
             // GAVIN
-            AddContactToContactList(this.FindListByName("gavinTempList"), this.FindContactByEmail("gemalisk@svsu.edu"));
-            AddContactToContactList(this.FindListByName("gavinTempList"), this.FindContactByEmail("edwalk@svsu.edu"));
+            //AddContactToContactList(this.FindListByName("gavinTempList"), this.FindContactByEmail("gemalisk@svsu.edu"));
+            //AddContactToContactList(this.FindListByName("gavinTempList"), this.FindContactByEmail("edwalk@svsu.edu"));
+
+            //ContactList tList = this.FindListByName("gavinTempList");
+            //EmailCampaignActivity tActivity = this.FindCampaignActivityByName("Re-opening");
+
+            //this.AddListToActivity(tList, tActivity);
+            //this.SendActivity(tActivity);
+
         }
 
         /// <summary>
@@ -522,6 +529,18 @@ namespace DirectorsPortalConstantContact
             return null;
         }
 
+        public EmailCampaignActivity FindCampaignActivityByName(string strName)
+        {
+            foreach (EmailCampaignActivityPreview objTemp in this.glstEmailCampaignActivityPreviews)
+            {
+                if (objTemp.strCampaignName == strName.Trim())
+                {
+                    return objTemp.activity;
+                }
+            }
+            return null;
+        }
+
         /// <summary>
         /// provided an existing contact in the list, update that contact in Constant Contact
         /// </summary>
@@ -622,8 +641,23 @@ namespace DirectorsPortalConstantContact
                 string strFinalJson = JsonConvert.SerializeObject(objFinal);
 
 
-                this.PostJson(strFinalJson, "/activities/add_list_memberships");
+                this.PostJson(strFinalJson, "activities/add_list_memberships");
             }
+        }
+
+        public void AddListToActivity(ContactList objList, EmailCampaignActivity objActivity)
+        {
+            objActivity.contact_list_ids.Add(objList.list_id);
+            PUTEmailCampaignActivity objTemp = objActivity.Update();
+
+            string strJson = JsonConvert.SerializeObject(objTemp, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+
+            });
+
+            this.PUTJson(strJson, $"/emails/activities/{objActivity.campaign_activity_id}");
+
         }
 
         /// <summary>
@@ -666,7 +700,7 @@ namespace DirectorsPortalConstantContact
                     NullValueHandling = NullValueHandling.Ignore
                 });
 
-                this.PUTJson(strJson, $"/emails/activities/{t.campaign_activity_id}");
+                this.PUTJson(strJson, $"emails/activities/{t.campaign_activity_id}");
             }
         }
     
