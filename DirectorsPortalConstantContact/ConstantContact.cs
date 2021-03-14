@@ -62,7 +62,6 @@ namespace DirectorsPortalConstantContact
             //return;
 
             this.gobjCCAuth.ValidateAuthentication();
-            //get all info
             //print("Updating Contacts");
             this.UpdateContacts();
             System.Threading.Thread.Sleep(300);
@@ -94,8 +93,9 @@ namespace DirectorsPortalConstantContact
             //print("saving");
             this.save();
 
-
-
+            // GAVIN
+            AddContactToContactList(this.FindListByName("gavinTempList"), this.FindContactByEmail("gemalisk@svsu.edu"));
+            AddContactToContactList(this.FindListByName("gavinTempList"), this.FindContactByEmail("edwalk@svsu.edu"));
         }
 
         /// <summary>
@@ -376,10 +376,8 @@ namespace DirectorsPortalConstantContact
                 strHttpResponse += outputData;
                 intCount = objStreamRead.Read(chrBufferArray, 0, 256);
             }
-
             strHttpResponse = strHttpResponse.Replace("\n", "");
             return strHttpResponse;
-
         }
 
         /// <summary>
@@ -391,12 +389,10 @@ namespace DirectorsPortalConstantContact
         {
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("Authorization", this.mstrTokenHeader);
-
             
             var data = new StringContent(strJson, Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = client.PutAsync(this.gstrBaseURL + strUrl, data).Result;
-
         }
 
         /// <summary>
@@ -413,7 +409,6 @@ namespace DirectorsPortalConstantContact
 
             HttpResponseMessage response = client.PostAsync(this.gstrBaseURL+strUrl, data).Result;
             Console.WriteLine(response.StatusCode);
-
         }
 
         /// <summary>
@@ -427,7 +422,6 @@ namespace DirectorsPortalConstantContact
 
             var response = await client.DeleteAsync(this.gstrBaseURL + $"contacts/{contact_id}");
             Console.WriteLine(response.StatusCode);
-
         }
 
         //temp function to add contacts
@@ -492,9 +486,7 @@ namespace DirectorsPortalConstantContact
                     return objContact;
                 }
             }
-
             return null;
-
         }
 
         /// <summary>
@@ -575,6 +567,65 @@ namespace DirectorsPortalConstantContact
             this.PostJson(strJson, "contacts");
         }
 
+        // GAVIN
+        public void Create(ContactList objContactList)
+        {
+            this.gobjCCAuth.ValidateAuthentication();
+            POSTContactList objTempContactList = objContactList.Create();
+            string strJson = JsonConvert.SerializeObject(objTempContactList, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+
+            });
+            this.PostJson(strJson, "contact_lists");
+        }
+
+        private async void DELETEContactList(string contactList_id)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", this.mstrTokenHeader);
+
+            var response = await client.DeleteAsync(this.gstrBaseURL + $"contact_lists/{contactList_id}");
+            Console.WriteLine(response.StatusCode);
+        }
+
+
+        public void AddContactToContactList(ContactList objContactList, Contact objContact)
+        {
+            if (objContact.list_memberships.Count() >= 50)
+            {
+                Console.WriteLine("User is at max list count");
+            }
+            else
+            {
+                this.gobjCCAuth.ValidateAuthentication();
+
+                JArray objContactIds = new JArray(objContact.contact_id);
+                JProperty objContactProp = new JProperty("contact_ids", objContactIds);
+
+                JObject objSource = new JObject(objContactProp);
+
+                JProperty objSourceProp = new JProperty("source", objSource);
+
+
+
+                JArray LstListIDs = new JArray(objContactList.list_id);
+                JProperty objListProp = new JProperty("list_ids", LstListIDs);
+
+
+                JObject objFinal = new JObject();
+                objFinal.Add(objSourceProp);
+                objFinal.Add(objListProp);
+
+
+
+                string strFinalJson = JsonConvert.SerializeObject(objFinal);
+
+
+                this.PostJson(strFinalJson, "/activities/add_list_memberships");
+            }
+        }
+
         /// <summary>
         /// temp code for adding a campaign. need to work with Ben Dore on this stuff as it realies heavily on the UI. 
         /// </summary>
@@ -586,7 +637,6 @@ namespace DirectorsPortalConstantContact
             };
             string html = "<!doctype html>\r\n<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\r\n  <head>\r\n    <title>\r\n    </title>\r\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\r\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\r\n    <style type=\"text/css\">\r\n      #outlook a{padding: 0;}\r\n      \t\t\t.ReadMsgBody{width: 100%;}\r\n      \t\t\t.ExternalClass{width: 100%;}\r\n      \t\t\t.ExternalClass *{line-height: 100%;}\r\n      \t\t\tbody{margin: 0; padding: 0; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;}\r\n      \t\t\ttable, td{border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;}\r\n      \t\t\timg{border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic;}\r\n      \t\t\tp{display: block; margin: 13px 0;}\r\n    </style>\r\n    <!--[if !mso]><!-->\r\n    <style type=\"text/css\">\r\n      @media only screen and (max-width:480px) {\r\n      \t\t\t  \t\t@-ms-viewport {width: 320px;}\r\n      \t\t\t  \t\t@viewport {\twidth: 320px; }\r\n      \t\t\t\t}\r\n    </style>\r\n    <!--<![endif]-->\r\n    <!--[if mso]> \r\n\t\t<xml> \r\n\t\t\t<o:OfficeDocumentSettings> \r\n\t\t\t\t<o:AllowPNG/> \r\n\t\t\t\t<o:PixelsPerInch>96</o:PixelsPerInch> \r\n\t\t\t</o:OfficeDocumentSettings> \r\n\t\t</xml>\r\n\t\t<![endif]-->\r\n    <!--[if lte mso 11]> \r\n\t\t<style type=\"text/css\"> \r\n\t\t\t.outlook-group-fix{width:100% !important;}\r\n\t\t</style>\r\n\t\t<![endif]-->\r\n    <style type=\"text/css\">\r\n      @media only screen and (max-width:480px) {\r\n      \r\n      \t\t\t  table.full-width-mobile { width: 100% !important; }\r\n      \t\t\t\ttd.full-width-mobile { width: auto !important; }\r\n      \r\n      }\r\n      @media only screen and (min-width:480px) {\r\n      .dys-column-per-90 {\r\n      \twidth: 90% !important;\r\n      \tmax-width: 90%;\r\n      }\r\n      }\r\n    </style>\r\n  </head>\r\n  <body>\r\n    <div>\r\n      <table align='center' border='0' cellpadding='0' cellspacing='0' role='presentation' style='background:#f7f7f7;background-color:#f7f7f7;width:100%;'>\r\n        <tbody>\r\n          <tr>\r\n            <td>\r\n              <div style='margin:0px auto;max-width:600px;'>\r\n                <table align='center' border='0' cellpadding='0' cellspacing='0' role='presentation' style='width:100%;'>\r\n                  <tbody>\r\n                    <tr>\r\n                      <td style='direction:ltr;font-size:0px;padding:20px 0;text-align:center;vertical-align:top;'>\r\n                        <!--[if mso | IE]>\r\n<table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"vertical-align:top;width:540px;\">\r\n<![endif]-->\r\n                        <div class='dys-column-per-90 outlook-group-fix' style='direction:ltr;display:inline-block;font-size:13px;text-align:left;vertical-align:top;width:100%;'>\r\n                          <table border='0' cellpadding='0' cellspacing='0' role='presentation' width='100%'>\r\n                            <tbody>\r\n                              <tr>\r\n                                <td style='background-color:#ffffff;border:1px solid #ccc;padding:45px 75px;vertical-align:top;'>\r\n                                  <table border='0' cellpadding='0' cellspacing='0' role='presentation' style='' width='100%'>\r\n                                    <tr>\r\n                                      <td align='center' style='font-size:0px;padding:10px 25px;word-break:break-word;'>\r\n                                        <table border='0' cellpadding='0' cellspacing='0' role='presentation' style='border-collapse:collapse;border-spacing:0px;'>\r\n                                          <tbody>\r\n                                            <tr>\r\n                                              <td style='width:130px;'>\r\n                                                <img alt='Profile Picture' height='auto' src='https://assets.opensourceemails.com/imgs/oxygen/Ei7o4zRgT561k4rLfzTz_profile_pic.jpg' style='border:1px solid #ccc;border-radius:5px;display:block;font-size:13px;height:auto;outline:none;text-decoration:none;width:100%;' width='130' />\r\n                                              </td>\r\n                                            </tr>\r\n                                          </tbody>\r\n                                        </table>\r\n                                      </td>\r\n                                    </tr>\r\n                                    <tr>\r\n                                      <td align='center' style='font-size:0px;padding:10px 25px;word-break:break-word;'>\r\n                                        <div style='color:#777777;font-family:Oxygen, Helvetica neue, sans-serif;font-size:14px;line-height:21px;text-align:center;'>\r\n                                          <a href='#' style='display:block; color: #ff6f6f; font-weight: bold; text-decoration: none;'>\r\n                                            @First Name\r\n                                          </a>\r\n                                          <span>\r\n                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam sed nulla nibh. Ut hendrerit pellentesque justo, semper accumsan nisl venenatis ut.\r\n                                          </span>\r\n                                        </div>\r\n                                      </td>\r\n                                    </tr>\r\n                                    <tr>\r\n                                      <td align='center' style='font-size:0px;padding:10px 25px;word-break:break-word;' vertical-align='middle'>\r\n                                        <table border='0' cellpadding='0' cellspacing='0' role='presentation' style='border-collapse:separate;line-height:100%;'>\r\n                                          <tr>\r\n                                            <td align='center' bgcolor='#ff6f6f' role='presentation' style='background-color:#ff6f6f;border:none;border-radius:5px;cursor:auto;padding:10px 25px;' valign='middle'>\r\n                                              <a href='# Button URL' style='background:#ff6f6f;color:#ffffff;font-family:Oxygen, Helvetica neue, sans-serif;font-size:14px;font-weight:400;line-height:21px;margin:0;text-decoration:none;text-transform:none;' target='_blank'>\r\n                                                Button Text\r\n                                              </a>\r\n                                            </td>\r\n                                          </tr>\r\n                                        </table>\r\n                                      </td>\r\n                                    </tr>\r\n                                  </table>\r\n                                </td>\r\n                              </tr>\r\n                            </tbody>\r\n                          </table>\r\n                        </div>\r\n                        <!--[if mso | IE]>\r\n</td></tr></table>\r\n<![endif]-->\r\n                      </td>\r\n                    </tr>\r\n                  </tbody>\r\n                </table>\r\n              </div>\r\n            </td>\r\n          </tr>\r\n        </tbody>\r\n      </table>\r\n    </div>\r\n  </body>\r\n</html>";
             objTemp.AddActivity(strFromEmail: "ewalk@svsu.edu", strFromName: "Directers Portal", strReplayToEmail:"None@None.com", strSubject: "test number 1", strHTMLContent: html);
-
 
             string strJson = JsonConvert.SerializeObject(objTemp.objNewCampaign(), new JsonSerializerSettings
             {
@@ -617,9 +667,7 @@ namespace DirectorsPortalConstantContact
                 });
 
                 this.PUTJson(strJson, $"/emails/activities/{t.campaign_activity_id}");
-
             }
-
         }
     
         public void SendActivity(EmailCampaignActivity objActivity)
@@ -639,8 +687,6 @@ namespace DirectorsPortalConstantContact
             {
                 throw new FormatException();
             }
-            
-
         }
 
         private void save()
@@ -690,7 +736,6 @@ namespace DirectorsPortalConstantContact
             string strData = JsonConvert.SerializeObject(dctData);
 
             File.WriteAllText(fname, strData, Encoding.UTF8);
-
         }
 
         private void load()
