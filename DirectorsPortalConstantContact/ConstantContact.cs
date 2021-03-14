@@ -596,31 +596,27 @@ namespace DirectorsPortalConstantContact
             {
                 this.gobjCCAuth.ValidateAuthentication();
 
-                Dictionary<string, List<string>> objSource = new Dictionary<string, List<string>>();
-                objSource["contact_ids"] = new List<string>(new string[] { objContact.contact_id });
+                JArray objContactIds = new JArray(objContact.contact_id);
+                JProperty objContactProp = new JProperty("contact_ids", objContactIds);
 
-                string strContactJson = JsonConvert.SerializeObject(objSource, new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
+                JObject objSource = new JObject(objContactProp);
 
-                });
+                JProperty objSourceProp = new JProperty("source", objSource);
 
-                List<string> LstListIDs = new List<string>(new string[] { });
-                LstListIDs.Add(objContactList.list_id);
 
-                string strListJson = JsonConvert.SerializeObject(LstListIDs, new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                });
 
-                Dictionary<string, string> objFinal = new Dictionary<string, string>();
-                objFinal["source"] = strContactJson;
-                objFinal["list_ids"] = strListJson;
+                JArray LstListIDs = new JArray(objContactList.list_id);
+                JProperty objListProp = new JProperty("list_ids", LstListIDs);
 
-                string strFinalJson = JsonConvert.SerializeObject(objFinal, new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                });
+
+                JObject objFinal = new JObject();
+                objFinal.Add(objSourceProp);
+                objFinal.Add(objListProp);
+
+
+
+                string strFinalJson = JsonConvert.SerializeObject(objFinal);
+
 
                 this.PostJson(strFinalJson, "/activities/add_list_memberships");
             }
