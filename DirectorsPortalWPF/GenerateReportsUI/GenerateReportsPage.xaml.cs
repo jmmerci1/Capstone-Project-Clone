@@ -155,9 +155,9 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
         private void GetReportTemplateList()
         {
-            using (DirectorPortalDatabase.DatabaseContext context = new DirectorPortalDatabase.DatabaseContext())
+            using (DirectorPortalDatabase.DatabaseContext dbContext = new DirectorPortalDatabase.DatabaseContext())
             {
-                GRGReportTemplates = context.ReportTemplates.ToList();
+                GRGReportTemplates = dbContext.ReportTemplates.ToList();
             }
             RenderReportTemplateList();
         }
@@ -170,9 +170,9 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         {
             List<ReportField> rgReportFields;
 
-            using (DirectorPortalDatabase.DatabaseContext context = new DirectorPortalDatabase.DatabaseContext())
+            using (DirectorPortalDatabase.DatabaseContext dbContext = new DirectorPortalDatabase.DatabaseContext())
             {
-                rgReportFields = context.ReportFields.Where(x => x.GIntReportTemplateId == udtTemplate.GIntId).ToList();
+                rgReportFields = dbContext.ReportFields.Where(x => x.GIntReportTemplateId == udtTemplate.GIntId).ToList();
             }
 
             return rgReportFields;
@@ -192,10 +192,10 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 // The first row consists of the names of all included fields.
                 rgReport.Add(rgFieldNames);
 
-                using (DirectorPortalDatabase.DatabaseContext context = new DirectorPortalDatabase.DatabaseContext())
+                using (DirectorPortalDatabase.DatabaseContext dbContext = new DirectorPortalDatabase.DatabaseContext())
                 {
                     // Queries for all instances of the specified model.
-                    object[] udtModels = GUdtSelectedReportType.GetContextDbSet(context).Cast<object>().ToArray();
+                    object[] udtModels = GUdtSelectedReportType.GetContextDbSet(dbContext).Cast<object>().ToArray();
 
                     foreach (object objRecord in udtModels)
                     {
@@ -238,37 +238,9 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         {
             if (GUdtSelectedReportType != null)
             {
-                // Creates a model instance to represent the report template.
-                ReportTemplate udtTemplate = new ReportTemplate
-                {
-                    GStrModelName = GUdtSelectedReportType.TypeModelType.Name,
-                    GStrReportTemplateName = $"Template {DateTime.Now.Ticks}"
-                };
-
-                using (DirectorPortalDatabase.DatabaseContext context = new DirectorPortalDatabase.DatabaseContext())
-                {
-                    // Inserts the template record into the database.
-                    context.ReportTemplates.Add(udtTemplate);
-                    context.SaveChanges();
-
-                    // Creates a model instance for each field in the template.
-                    List<ClsMetadataHelper.ClsTableField> rgSelectedFields = GetSelectedFields();
-                    foreach (ClsMetadataHelper.ClsTableField udtField in rgSelectedFields)
-                    {
-                        ReportField udtReportField = new ReportField
-                        {
-                            // This ID links to the template record.
-                            GIntReportTemplateId = udtTemplate.GIntId,
-                            GStrModelPropertyName = udtField.StrPropertyName
-                        };
-
-                        context.ReportFields.Add(udtReportField);
-                    }
-                    context.SaveChanges();
-                }
-
-                // Gets the updated report template list.
-                GetReportTemplateList();
+                // Switches to the template name input form.
+                tbcMainControl.Visibility = Visibility.Collapsed;
+                spTemplateInput.Visibility = Visibility.Visible;
             }
         }
 
@@ -332,21 +304,6 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 }
             }
 
-            //for (int i = 0; i < ClsMetadataHelper.IntNumberOfModels; i++)
-            //{
-            //    Type typeModelType = ClsMetadataHelper.GetModelTypeByIndex(i);
-                
-            //    if (typeModelType.Name == udtReportTemplate.GStrModelName)
-            //    {
-            //        GUdtSelectedReportType = ClsMetadataHelper.GetModelInfo(typeModelType);
-            //        break;
-            //    }
-            //}
-            
-            //if (GUdtSelectedReportType != null)
-            //{
-            //    cboReportType.SelectedItem = cboReportType.Items
-            //}
         }
 
         public void ExportToExcelButtonHandler(object sender, EventArgs e)
@@ -360,15 +317,15 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             Button btnSender = (Button)sender;
             ReportTemplate udtReportTemplate = (ReportTemplate)btnSender.Tag;
 
-            using (DirectorPortalDatabase.DatabaseContext context = new DirectorPortalDatabase.DatabaseContext())
+            using (DirectorPortalDatabase.DatabaseContext dbContext = new DirectorPortalDatabase.DatabaseContext())
             {
                 // Deletes all ReportFields belonging to the specified ReportType.
-                ReportField[] rgReportFields = context.ReportFields.Where(x => x.GIntReportTemplateId == udtReportTemplate.GIntId).ToArray();
-                context.RemoveRange(rgReportFields);
+                ReportField[] rgReportFields = dbContext.ReportFields.Where(x => x.GIntReportTemplateId == udtReportTemplate.GIntId).ToArray();
+                dbContext.RemoveRange(rgReportFields);
 
                 // Deletes the ReportTemplate itself.
-                context.Remove(udtReportTemplate);
-                context.SaveChanges();
+                dbContext.Remove(udtReportTemplate);
+                dbContext.SaveChanges();
             }
 
             // Updates the local report template list to account for the deletion that occurred.
@@ -402,7 +359,72 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             GetReportTemplateList();
         }
 
+        /// <summary>
+        /// This method is called after the user enters the name of a new report template and clicks the "Save Template" button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SaveReportTemplateNameButtonHandler(object sender, RoutedEventArgs e)
+        {
+            // Gets the name of the new template from the TextBox.
+            string strNewTemplateName = txtReportTemplateName.Text;
 
+            // Validates the name.
+            if (!string.IsNullOrWhiteSpace(strNewTemplateName))
+            {
+                strNewTemplateName = strNewTemplateName.Trim();
+
+                // Creates a model instance to represent the report template.
+                ReportTemplate udtTemplate = new ReportTemplate
+                {
+                    GStrModelName = GUdtSelectedReportType.TypeModelType.Name,
+                    GStrReportTemplateName = strNewTemplateName
+                };
+
+                using (DirectorPortalDatabase.DatabaseContext dbContext = new DirectorPortalDatabase.DatabaseContext())
+                {
+                    // Inserts the template record into the database.
+                    dbContext.ReportTemplates.Add(udtTemplate);
+                    dbContext.SaveChanges();
+
+                    // Creates a model instance for each field in the template.
+                    List<ClsMetadataHelper.ClsTableField> rgSelectedFields = GetSelectedFields();
+                    foreach (ClsMetadataHelper.ClsTableField udtField in rgSelectedFields)
+                    {
+                        ReportField udtReportField = new ReportField
+                        {
+                            // This ID links to the template record.
+                            GIntReportTemplateId = udtTemplate.GIntId,
+                            GStrModelPropertyName = udtField.StrPropertyName
+                        };
+
+                        dbContext.ReportFields.Add(udtReportField);
+                    }
+                    dbContext.SaveChanges();
+                }
+
+                // Gets the updated report template list.
+                GetReportTemplateList();
+
+                // Switches back to the main form.
+                spTemplateInput.Visibility = Visibility.Collapsed;
+                tbcMainControl.Visibility = Visibility.Visible;
+            }
+        }
+
+        /// <summary>
+        /// This method is called when the user cancels the operation of saving a new report template.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CancelButtonHandler(object sender, RoutedEventArgs e)
+        {
+            // Switches back to the main form.
+            spTemplateInput.Visibility = Visibility.Collapsed;
+            tbcMainControl.Visibility = Visibility.Visible;
+
+            txtReportTemplateName.Text = "";
+        }
     }
 }
 
