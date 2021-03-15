@@ -310,7 +310,56 @@ namespace DirectorsPortalWPF.SettingsUI
             if (Members.Count > 0)
             {
                 ImportToDatabase(Members);
-            }                      
+            }
+
+        }
+
+        /// <summary>
+        /// FindDuplicateDBData method that will find existing business name in the database from the Excel file
+        /// </summary>
+        /// <param name="business"> List of all the members read from the Excel file</param>
+        /// <returns>List that contains duplicate business information from the database.</returns>
+        private List<Business> FindDuplicateDBData(List<Members> business)
+        {
+            List<Business> DuplicateBusinesses = new List<Business>();
+
+            using (var context = new DatabaseContext())
+            {
+                for (int intCounter = 0; intCounter < business.Count; intCounter++)
+                {
+                    List<Business> Business = context.Businesses.Where(strBusinessName => strBusinessName.GStrBusinessName.Equals(business[intCounter].gstrBusinessName)).ToList();
+
+                    if (Business.Count > 0) {         
+                        DuplicateBusinesses.Add(Business[0]);
+                    }
+                }
+            } 
+            return DuplicateBusinesses;
+        }
+
+
+        /// <summary>
+        /// FindDuplicateExcelData method that will find existing business name in the database from the Excel file
+        /// </summary>
+        /// <param name="business"> List of all the members read from the Excel file</param>
+        /// <returns>List that contains duplicate business information from the Excel.</returns>
+        private List<Members> FindDuplicateExcelData(List<Members> business)
+        {
+            List<Members> DuplicateBusinesses = new List<Members>();
+
+            using (var context = new DatabaseContext())
+            {
+                for (int intCounter = 0; intCounter < business.Count; intCounter++)
+                {
+                    List<Business> Business = context.Businesses.Where(strBusinessName => strBusinessName.GStrBusinessName.Equals(business[intCounter].gstrBusinessName)).ToList();
+
+                    if (Business.Count > 0)
+                    {
+                        DuplicateBusinesses.Add(business[intCounter]);
+                    }
+                }
+            }
+            return DuplicateBusinesses;
         }
 
         /// <summary>
