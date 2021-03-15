@@ -35,6 +35,9 @@ namespace DirectorsPortalWPF
                                                                                                                     // Create the database if it doesn't exist
             DatabaseContext dbContextIntialStartup = new DatabaseContext();
             dbContextIntialStartup.Database.EnsureCreated();                     // Ensures the database is created upon application startup. If the database is not created, then the context will create the database.
+
+            BackupUtility backupUtility = new BackupUtility();
+            backupUtility.CheckBackupNotification();
         }
 
 

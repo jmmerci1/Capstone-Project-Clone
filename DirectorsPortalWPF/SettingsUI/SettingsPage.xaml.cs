@@ -35,12 +35,16 @@ namespace DirectorsPortalWPF.SettingsUI
         /// </summary>
         public SettingsPage()
         {
-            InitializeComponent();
+            InitializeComponent(); //initialize the GUI
 
+            //create selections for the combo box that allows the user to choose when they will recieve backup notifications
             cmbNotificationFrequency.ItemsSource = new List<string> { "None", "Daily", "Weekly", "Monthly" };
             cmbNotificationTime.ItemsSource = GenerateDropdownTimeList();
 
             ComboBoxItem[] rgReportTypeItems = new ComboBoxItem[ClsMetadataHelper.IntNumberOfModels];
+            
+            //loads settings
+            LoadSavedSettings();
 
             for (int i = 0; i < ClsMetadataHelper.IntNumberOfModels; i++)
             {
@@ -59,6 +63,45 @@ namespace DirectorsPortalWPF.SettingsUI
 
             cmbEntity.ItemsSource = rgReportTypeItems;
 
+            
+
+        }
+
+        /// <summary>
+        /// Loads in settings that are stored in the c# settings file.
+        /// </summary>
+        private void LoadSavedSettings()
+        {
+            
+            rbtnMonday.IsChecked = true; //set this to true for first time use
+
+            RadioButton radioButton; //used to cast an object iterator to a radiobutton in a for each loop
+
+            //loads simple settings.
+            cmbNotificationFrequency.SelectedIndex = Properties.Settings.Default.SelectedIndexFreq;
+            cmbNotificationTime.SelectedIndex = Properties.Settings.Default.SelectedIndexTime;
+            txtBoxFileBackup.Text = Properties.Settings.Default.BackupLocation;
+
+            //if weekly has been selected check the correct radio button.
+            //settings persist the name of the button that was last selected and 
+            //compares it against all the options until a match is found
+            if (cmbNotificationFrequency.SelectedValue.Equals("Weekly"))
+            {
+                foreach (object dayOfWeek in sPanelRadioButtonForWeekly.Children)
+                {
+                    if (dayOfWeek is RadioButton)
+                    {
+                        radioButton = (RadioButton)dayOfWeek;
+                        if (radioButton.Name == Properties.Settings.Default.DayOfWeek)
+                        {
+                            radioButton.IsChecked = true;
+                        }
+                    }
+                }
+
+            }
+
+            btnSaveNotificationSettings.Visibility = Visibility.Hidden; //dont show save settings button
 
         }
 
@@ -225,18 +268,15 @@ namespace DirectorsPortalWPF.SettingsUI
         }
 
         /// <summary>
-        /// Defines the logic for when the 'Open File' button is clicked. Intended to be used to 
-        /// select a backup filepath for the application.
-        /// 
-        /// TODO: The BtnOpenFile_Click method doesn't list a Filepath properly, pursuit a fix.
+        /// Creates an instance of BackupUtility to select a location to backup to
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void BtnOpenFile_Click(object sender, RoutedEventArgs e)
+        private void btnBrowseBackupLocation_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            if (openFileDialog.ShowDialog() == true)
-                txtBoxFileBackup.Text = File.ReadAllText(openFileDialog.FileName);
+            BackupUtility backupUtility = new BackupUtility();
+            txtBoxFileBackup.Text = backupUtility.ChooseBackupLocation(txtBoxFileBackup.Text); //defaults to the location last backed up to
+
         }
 
         /// <summary>
@@ -292,6 +332,120 @@ namespace DirectorsPortalWPF.SettingsUI
         }
 
         /// <summary>
+        /// Creates an instance of BackupUtility to restore database from a backup
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnRestoreFromBackup_Click(object sender, RoutedEventArgs e)
+        {
+            BackupUtility backupUtility = new BackupUtility();
+            backupUtility.RestoreFromBackup(txtBoxFileBackup.Text); //defaults to the location last backed up to
+        }
+
+        /// <summary>
+        /// Creates an instance of BackupUtility to create a new backup of the database
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnCreateBackupNow_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.BackupLocation = txtBoxFileBackup.Text; //persists the chosen location for backups
+            Properties.Settings.Default.Save();
+
+            BackupUtility backupUtility = new BackupUtility();
+            backupUtility.CreateBackup(txtBoxFileBackup.Text); //default to the persisted location
+        }
+
+        /// <summary>
+        /// Persists all settings pertaining to backup notification frequency both visually for the user and behind the scenes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnSaveNotificationSettings_Click(object sender, RoutedEventArgs e)
+        {
+            
+            RadioButton radioButton; //used to cast an object iterator to a radiobutton in a for each loop
+
+            // If the notification frequency is weekly iterate through all radio buttons in the group and persist the one that is checked.
+            if (cmbNotificationFrequency.SelectedValue.Equals("Weekly"))
+            {
+                foreach (object dayOfWeek in sPanelRadioButtonForWeekly.Children)
+                {
+                    if (dayOfWeek is RadioButton)
+                    {
+                        radioButton = (RadioButton)dayOfWeek;
+
+                        if(radioButton.IsChecked.HasValue && radioButton.IsChecked.Value)
+                        {
+                            Properties.Settings.Default.DayOfWeek = radioButton.Name;
+                            Properties.Settings.Default.Save();
+                        }
+                    }
+                } 
+                    
+            }
+            //If the notification frequency is monthly create the next notification on the first of each month.
+            else if (cmbNotificationFrequency.SelectedValue.Equals("Monthly"))
+            {
+                DateTime dtThisMonth = DateTime.Now; //gets the current date and uses this to find the first day of next month
+                Properties.Settings.Default.DayOfMonth = new DateTime(dtThisMonth.Year, dtThisMonth.Month, 1).AddMonths(1); //Next Month on the 1st
+            }
+
+            //persist simple settings.
+            Properties.Settings.Default.SelectedIndexFreq = cmbNotificationFrequency.SelectedIndex;
+            Properties.Settings.Default.Save();
+
+            Properties.Settings.Default.SelectedIndexTime = cmbNotificationTime.SelectedIndex;
+            Properties.Settings.Default.Save();
+
+            Properties.Settings.Default.TimeOfDay = DateTime.Parse(cmbNotificationTime.Text);
+            Properties.Settings.Default.Save();
+
+            btnSaveNotificationSettings.Visibility = Visibility.Hidden; //make save settings button invisible to the user
+        }
+
+        /// <summary>
+        /// Every time the user changes the notifictaion frequency display the proper controls for that setting
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cmbNotificationFrequency_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Hide the notification time elements if backup frequency is selected to 'None'
+            if (cmbNotificationFrequency.SelectedValue.Equals("None"))
+            {
+                lblNotificationTime.Visibility = Visibility.Collapsed;
+                cmbNotificationTime.Visibility = Visibility.Collapsed;
+            } 
+            else
+            {
+                lblNotificationTime.Visibility = Visibility.Visible;
+                cmbNotificationTime.Visibility = Visibility.Visible;
+            }
+
+            // Unhide the Radio Buttons when choosing Weekly for notification frequency
+            if (cmbNotificationFrequency.SelectedValue.Equals("Weekly"))
+                sPanelRadioButtonForWeekly.Visibility = Visibility.Visible;
+            else
+                sPanelRadioButtonForWeekly.Visibility = Visibility.Collapsed;
+
+            if (cmbNotificationFrequency.SelectedValue.Equals("Monthly"))
+                sPanelMonthly.Visibility = Visibility.Visible;
+            else
+                sPanelMonthly.Visibility = Visibility.Collapsed;
+
+            btnSaveNotificationSettings.Visibility = Visibility.Visible; //show the save settings button if the user wants to change their settings
+        }
+
+        /// <summary>
+        /// if the time of day has been changed, show the save settings button if the user wants to change their settings
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cmbNotificationTime_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            btnSaveNotificationSettings.Visibility = Visibility.Visible;
+        }
         /// Contains the button click event.
         /// </summary>
         /// <param name="sender"></param>
@@ -418,6 +572,15 @@ namespace DirectorsPortalWPF.SettingsUI
         }
 
         /// <summary>
+        /// Save button appears when the week day has been changed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void rbtnWeekDayChanged(object sender, RoutedEventArgs e)
+        {
+            btnSaveNotificationSettings.Visibility = Visibility.Visible;
+        }
+
         /// Take in a List of members to sort and import data into the database
         /// </summary>
         /// <param name="Data">List of opbject members.</param>
