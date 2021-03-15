@@ -37,26 +37,42 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="104" />
+                            <ColumnDefinition Width="171"/>
+                            <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
 
-                        <Label Grid.Row="0" Grid.Column="0" Content="Backup File Location:" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" >
-                            <TextBox Name="txtBoxFileBackup" Width="300" VerticalAlignment="Center" Height="21.5"/>
-                            <Button x:Name="btnOpenFile" Content="Browse..." Template="{StaticResource smallButton}" Margin="10,5,0,5" Padding="0,0,75,0" Height="20" Click="BtnOpenFile_Click" />
+                        <Label Grid.Row="0" Grid.Column="0" Content="Backup File Location:" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,2" Height="26" Width="121" />
+                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Grid.ColumnSpan="3" >
+                            <TextBox IsReadOnly="True" Name="txtBoxFileBackup" Width="300" VerticalAlignment="Center" Height="21.5"/>
+                            <Button x:Name="BrowseBackupLocation" Content="Browse..." Template="{StaticResource smallButton}" Margin="10,5,0,5" Padding="0,0,75,0" Height="20" Click="btnBrowseBackupLocation_Click" />
                         </StackPanel>
-                       
-                        <Label Grid.Row="1" Grid.Column="0" Content="Notification Frequency:" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <ComboBox x:Name="cmbNotificationFrequency" Grid.Row="1" Grid.Column="1" Width="100" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Background="Transparent" Foreground="Black" IsEditable="False" />
 
-                        <Label Grid.Row="2" Grid.Column="0" Content="Notification Time:" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <ComboBox x:Name="cmbNotificationTime" Grid.Row="2" Grid.Column="1" Width="100" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Background="Transparent" Foreground="Black" IsEditable="False" />
+                        <Label Grid.Row="1" Grid.Column="0" Content="Notification Frequency:" HorizontalAlignment="Right" VerticalAlignment="Center" Height="26" Width="133"/>
+                        <ComboBox x:Name="cmbNotificationFrequency" Grid.Row="1" Grid.Column="1" Width="100" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Background="Transparent" Foreground="Black" IsEditable="False" Margin="0,2" Height="22" SelectionChanged="cmbNotificationFrequency_SelectionChanged" />
+                        <StackPanel x:Name="sPanelRadioButtonForWeekly" Grid.Row="2" Grid.ColumnSpan="3" Margin="50,10,0,10" Visibility="Collapsed">
+                            <TextBlock Margin="0,0,0,5">Choose a day when you want your weekly backup to occur.</TextBlock>
+                            <RadioButton GroupName="DayOfWeek" Name="rbtnMonday" Content="Monday" Checked="rbtnWeekDayChanged" />
+                            <RadioButton GroupName="DayOfWeek" Name="rbtnTuesday" Content="Tuesday" Checked="rbtnWeekDayChanged" />
+                            <RadioButton GroupName="DayOfWeek" Name="rbtnWednesday" Content="Wednesday" Checked="rbtnWeekDayChanged"/>
+                            <RadioButton GroupName="DayOfWeek" Name="rbtnThursday" Content="Thursday" Checked="rbtnWeekDayChanged"/>
+                            <RadioButton GroupName="DayOfWeek" Name="rbtnFriday" Content="Friday" Checked="rbtnWeekDayChanged"/>
+                            <RadioButton GroupName="DayOfWeek" Name="rbtnSaturday" Content="Saturday" Checked="rbtnWeekDayChanged" />
+                            <RadioButton GroupName="DayOfWeek" Name="rbtnSunday" Content="Sunday" Checked="rbtnWeekDayChanged" />
+                        </StackPanel>
+                        <StackPanel x:Name="sPanelMonthly" Grid.Row="2" Grid.ColumnSpan="3" Margin="50,10,0,10" Visibility="Collapsed">
+                            <TextBlock >Backup notifications will occur on the 1st of each month</TextBlock>
+                        </StackPanel>
+                        <Label x:Name="lblNotificationTime" Grid.Row="3" Grid.Column="0" Content="Notification Time:" HorizontalAlignment="Right" VerticalAlignment="Center" Height="26" Width="104" Margin="0,14,0,15" Visibility="Collapsed"/>
+                        <ComboBox x:Name="cmbNotificationTime" Grid.Row="3" Grid.Column="1" Width="100" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Background="Transparent" Foreground="Black" IsEditable="False" Margin="0,16,0,17" Height="22" SelectionChanged="cmbNotificationTime_SelectionChanged" Visibility="Collapsed" />
 
-                        <Button x:Name="btnCreateBackupNow" Template="{StaticResource largeButton}" Content="Create Backup Now" Grid.Row="3" Grid.Column="0" Margin="0,10,10,10" />
-                        <Button x:Name="btnRestoreFromBackup" Template="{StaticResource largeButton}" Content="Restore From Backup" Grid.Row="4" Grid.Column="0" Margin="0,10,10,0" />
+                        <Button x:Name="btnCreateBackupNow" Template="{StaticResource largeButton}" Content="Create Backup Now" Grid.Row="4" Grid.Column="0" Margin="0,10,10,10" Click="btnCreateBackupNow_Click" />
+                        <Button x:Name="btnRestoreFromBackup" Template="{StaticResource largeButton}" Content="Restore From Backup" Grid.Row="5" Grid.Column="0" Margin="0,10,10,0" Click="btnRestoreFromBackup_Click" />
+                        <Button x:Name="btnSaveNotificationSettings" Template="{StaticResource largeButton}" Content="Save Notification Settings" Grid.Row="3" Grid.Column="2" Margin="10,10,10,10" Click="btnSaveNotificationSettings_Click" Visibility="Hidden"/>
 
                     </Grid>
                 </TabItem>
