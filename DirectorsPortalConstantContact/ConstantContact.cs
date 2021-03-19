@@ -414,12 +414,14 @@ namespace DirectorsPortalConstantContact
         /// </summary>
         /// <param name="strJson">contact string json</param>
         /// <param name="strUrl">post url</param>
-        private void PostJson(string strJson, string strUrl)
-        {
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Authorization", this.mstrTokenHeader);
+        /// 
+   
+        ///private void PostJson(string strJson, string strUrl)
+        ///{
+        ///    HttpClient client = new HttpClient();
+        ///    client.DefaultRequestHeaders.Add("Authorization", this.mstrTokenHeader);
 
-            var data = new StringContent(strJson, Encoding.UTF8, "application/json");
+        ///    var data = new StringContent(strJson, Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = client.PostAsync(this.gstrBaseURL+strUrl, data).Result;
             Console.WriteLine(response.StatusCode);
@@ -439,17 +441,17 @@ namespace DirectorsPortalConstantContact
         }
 
         //temp function to add contacts
-        public void massPost()
-        {
-            string[] cs = File.ReadAllText("C:\\Users\\evanw\\ownCloud\\School\\471\\test\\make_contacts\\out.txt").Split('|');
-            int i = 1000;
-            foreach(string c in cs)
-            {
-                Console.WriteLine(i--);
-                this.PostJson(c, "contacts");
-                System.Threading.Thread.Sleep(300);
-            }
-        }
+        ///public void massPost()
+        ///{
+        ///    string[] cs = File.ReadAllText("C:\\Users\\evanw\\ownCloud\\School\\471\\test\\make_contacts\\out.txt").Split('|');
+        ///    int i = 1000;
+        ///    foreach(string c in cs)
+        ///    {
+        ///        Console.WriteLine(i--);
+        ///        this.PostJson(c, "contacts");
+        ///        System.Threading.Thread.Sleep(300);
+        ///    }
+        ///}
 
         /// <summary>
         /// Loops though the contacts and contact lists to create in memory refrences for easy access
@@ -698,7 +700,7 @@ namespace DirectorsPortalConstantContact
                 NullValueHandling = NullValueHandling.Ignore
             });
 
-            this.PostJson(strJson, "/emails");
+            ///this.PostJson(strJson, "/emails");
 
             this.UpdateEmailCampaigns();
             this.UpdateEmailCampaignActivities();

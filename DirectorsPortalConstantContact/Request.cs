@@ -23,13 +23,16 @@ namespace DirectorsPortalConstantContact
         /// This is a placeholder flag value to determine the request type
         /// </summary>
         public string strFlag { get; set; }
-
-        public Request()
+        public string strJSON { get; set; }
+        public string strURL { get; set; }
+        public string strResponse { get; set; }
+        public Request(string strFlag, string strJSON, string strURL)
         {
-            
+            this.strFlag = strFlag;
+            this.strJSON = strJSON;
+            this.strURL = strURL;
         }
 
-        //TODO
 
 
     }
