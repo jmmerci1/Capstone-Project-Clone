@@ -32,14 +32,16 @@ namespace DirectorsPortalConstantContact
         public Dictionary<string, EmailCampaign> gdctEmailCampaigns = new Dictionary<string, EmailCampaign>();
         public Dictionary<string, EmailCampaignActivity> gdctEmailCampaignActivities = new Dictionary<string, EmailCampaignActivity>();
 
-        private ConstantContactOAuth gobjCCAuth = new ConstantContactOAuth()
+        private ConstantContactQueue gobjRequestQueue = new ConstantContactQueue();
+
+        /*private ConstantContactOAuth gobjCCAuth = new ConstantContactOAuth()
         {
             MstrLocalRoute = "http://localhost:40000/",
             mstrAppAPIKey = "08d80131-0c76-4829-83fc-be50e14bf0b4",
             mstrAppAPISecret = "HvdbdEaUYXhVYQcUV2XEXg"
-        };
+        };*/
 
-        private string mstrTokenHeader => $"Bearer {this.gobjCCAuth.MstrAccessToken}";
+        private string mstrTokenHeader => $"Bearer ";//{this.gobjCCAuth.MstrAccessToken}";
 
 
         // add properties for dictionaries
@@ -52,6 +54,7 @@ namespace DirectorsPortalConstantContact
         public List<EmailCampaignActivityPreview> glstEmailCampaignActivityPreviews = new List<EmailCampaignActivityPreview>();
 
 
+
         /// <summary>
         /// One function to run all of the update functions. 
         ///
@@ -61,10 +64,10 @@ namespace DirectorsPortalConstantContact
             //this.load();
             //return;
 
-            this.gobjCCAuth.ValidateAuthentication();
+            //this.gobjCCAuth.ValidateAuthentication();
             print("Updating Contacts");
             this.UpdateContacts();
-            System.Threading.Thread.Sleep(300);
+            /*System.Threading.Thread.Sleep(300);
             print("Updating ContactLists");
             this.UpdateContactLists();
             print("Updating Fields");
@@ -102,6 +105,7 @@ namespace DirectorsPortalConstantContact
 
             //this.AddListToActivity(tList, tActivity);
             //this.SendActivity(tActivity);
+            */
 
         }
 
@@ -369,7 +373,20 @@ namespace DirectorsPortalConstantContact
         /// <returns></returns>
         private string ReadJsonFromUrl(string strUrl)
         {
-           
+
+
+            Request objReq = new Request(Request.MstrGET, strUrl);
+
+            gobjRequestQueue.SendRequest(objReq);
+
+            while (!objReq.bolState)
+            {
+                System.Threading.Thread.Sleep(50);
+            }
+            return objReq.strResponse;
+
+
+            /*
             HttpWebRequest objAccessTokenRequest = (HttpWebRequest)WebRequest.Create(this.gstrBaseURL + strUrl);
             objAccessTokenRequest.Headers["Authorization"] = this.mstrTokenHeader;
             objAccessTokenRequest.ContentType = "application/json";
@@ -392,6 +409,7 @@ namespace DirectorsPortalConstantContact
             }
             strHttpResponse = strHttpResponse.Replace("\n", "");
             return strHttpResponse;
+            */
         }
 
         /// <summary>
@@ -416,12 +434,12 @@ namespace DirectorsPortalConstantContact
         /// <param name="strUrl">post url</param>
         /// 
    
-        ///private void PostJson(string strJson, string strUrl)
-        ///{
-        ///    HttpClient client = new HttpClient();
-        ///    client.DefaultRequestHeaders.Add("Authorization", this.mstrTokenHeader);
+        private void PostJson(string strJson, string strUrl)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", this.mstrTokenHeader);
 
-        ///    var data = new StringContent(strJson, Encoding.UTF8, "application/json");
+            var data = new StringContent(strJson, Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = client.PostAsync(this.gstrBaseURL+strUrl, data).Result;
             Console.WriteLine(response.StatusCode);
@@ -585,7 +603,7 @@ namespace DirectorsPortalConstantContact
 
         public void Create(Contact objContact)
         {
-            this.gobjCCAuth.ValidateAuthentication();
+            //this.gobjCCAuth.ValidateAuthentication();
             POSTContact objTempContact = objContact.Create();
             string strJson = JsonConvert.SerializeObject(objTempContact, new JsonSerializerSettings
             {
@@ -598,7 +616,7 @@ namespace DirectorsPortalConstantContact
         // GAVIN
         public void Create(ContactList objContactList)
         {
-            this.gobjCCAuth.ValidateAuthentication();
+            //this.gobjCCAuth.ValidateAuthentication();
             POSTContactList objTempContactList = objContactList.Create();
             string strJson = JsonConvert.SerializeObject(objTempContactList, new JsonSerializerSettings
             {
@@ -626,7 +644,7 @@ namespace DirectorsPortalConstantContact
             }
             else
             {
-                this.gobjCCAuth.ValidateAuthentication();
+                //this.gobjCCAuth.ValidateAuthentication();
 
                 JArray objContactIds = new JArray(objContact.contact_id);
                 JProperty objContactProp = new JProperty("contact_ids", objContactIds);

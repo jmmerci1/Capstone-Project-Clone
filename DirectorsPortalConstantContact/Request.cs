@@ -22,17 +22,29 @@ namespace DirectorsPortalConstantContact
         /// <summary>
         /// This is a placeholder flag value to determine the request type
         /// </summary>
+
+        public readonly static string MstrPUT = "PUT";
+        public readonly static string MstrGET = "GET";
+        public readonly static string MstrPOST = "POST";
+        public readonly static string MstrDELETE = "DELETE";
+
+
         public string strFlag { get; set; }
         public string strJSON { get; set; }
         public string strURL { get; set; }
         public string strResponse { get; set; }
-        public Request(string strFlag, string strJSON, string strURL)
+
+        public bool bolState = false;
+        public DateTime objRequestTime;
+
+        public Task<HttpResponseMessage> objTask;
+
+        public Request(string strFlag, string strURL, string strJSON="")
         {
             this.strFlag = strFlag;
             this.strJSON = strJSON;
             this.strURL = strURL;
         }
-
 
 
     }
