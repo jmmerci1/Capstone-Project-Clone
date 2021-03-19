@@ -606,12 +606,12 @@ namespace DirectorsPortalConstantContact
             this.PostJson(strJson, "contact_lists");
         }
 
-        private async void DELETEContactList(string contactList_id)
+        private async void DELETEContactList(ContactList objList)
         {
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("Authorization", this.mstrTokenHeader);
 
-            var response = await client.DeleteAsync(this.gstrBaseURL + $"contact_lists/{contactList_id}");
+            var response = await client.DeleteAsync(this.gstrBaseURL + $"contact_lists/{objList.list_id}");
             Console.WriteLine(response.StatusCode);
         }
 
