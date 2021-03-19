@@ -1,4 +1,4 @@
-using DirectorPortalDatabase;
+﻿using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
 using ExcelDataReader;
 using DirectorPortalDatabase.Utility;
@@ -555,6 +555,15 @@ namespace DirectorsPortalWPF.SettingsUI
                     Button btnEdit = CreateButton("Edit");
                     Button btnDelete = CreateButton("Delete");
                     btnDelete.Visibility = Visibility.Hidden;
+
+                    if (!udtField.StrHumanReadableName.Equals("Extra Fields"))
+                    {
+                        btnEdit.IsEnabled = false;
+                        btnDelete.IsEnabled = false;
+                        btnEdit.Content = "🔒";
+                        btnEdit.ToolTip = new ToolTip().Content = "This field is required in the database and cannot be modified.";
+                        btnDelete.ToolTip = new ToolTip().Content = "This field is required in the database and cannot be modified.";
+                    }
 
                     TextBox txtBoxFieldEdit = CreateTextBox(false);
                     txtBoxFieldEdit.Text = $"{udtField.StrHumanReadableName}";

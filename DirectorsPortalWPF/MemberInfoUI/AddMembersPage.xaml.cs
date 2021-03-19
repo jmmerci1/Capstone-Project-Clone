@@ -4,6 +4,7 @@ using DirectorsPortalWPF.MemberInfoUI.MemberInfoViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -27,8 +28,11 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
         /// <summary>
         /// A method for generating the add members UI.
+        /// 
+        /// Optional parameter will be used to populate this form with data pulled
+        /// from a PDF
         /// </summary>
-        public AddMembersPage()
+        public AddMembersPage([Optional] Dictionary<string, string> dictPdfImport)
         {
             InitializeComponent();
 
@@ -84,6 +88,11 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 txtFieldEntry.Margin = new Thickness(0, 0, 0, 5);
                 txtFieldEntry.Padding = new Thickness(3);
                 RegisterName(property.Name, txtFieldEntry);
+
+                // TODO
+                if (GDicHumanReadableDataFields.TryGetValue(property.Name,out string strHumanReadable) && dictPdfImport != null && dictPdfImport.TryGetValue(strHumanReadable, out string strPdfValue))
+               //if (dictPdfImport[GDicHumanReadableDataFields[property.Name]] != null)
+                  txtFieldEntry.Text = strPdfValue;
 
                 Grid.SetColumn(txtFieldEntry, 1);
                 Grid.SetRow(txtFieldEntry, intRowCounter);
@@ -277,5 +286,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
             NavigationService.Navigate(new MembersPage());
         }
+
+
     }
 }
