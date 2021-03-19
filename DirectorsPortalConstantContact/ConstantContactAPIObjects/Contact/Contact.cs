@@ -15,19 +15,57 @@ namespace DirectorsPortalConstantContact
     {
         ///this will also have a toPUT and toPOST to return the object that be serialized for the coresponding request
 
+        [Newtonsoft.Json.JsonIgnore]
         public List<ContactList> glstContactLists = new List<ContactList>();
+        [Newtonsoft.Json.JsonIgnore]
         public List<GETCustomField> glstCustomFields = new List<GETCustomField>();
+
+        [Newtonsoft.Json.JsonIgnore]
+        public Dictionary<string, List<EmailCampaignActivity>> gdctTracking = new Dictionary<string, List<EmailCampaignActivity>>() 
+            {
+                {"em_sends", new List<EmailCampaignActivity>()},
+                {"em_opens", new List<EmailCampaignActivity>()},
+                {"em_clicks", new List<EmailCampaignActivity>()},
+                {"em_bounces", new List<EmailCampaignActivity>()},
+                {"em_optouts", new List<EmailCampaignActivity>()},
+                {"em_forwards", new List<EmailCampaignActivity>()}
+            };
+
+        public int included_activities_count;
+        public double open_rate;
+        public double click_rate;
+
+        //https://www.c-sharpcorner.com/article/encryption-and-decryption-using-a-symmetric-key-in-c-sharp/
 
 
         public Contact()
         {
-
+            this.email_address = new GETEmailAddress()
+            {
+                address = null
+            };
+            this.first_name = null;
+            this.last_name = null;
+            this.custom_fields = new List<GETContactCustomField>();
+            this.phone_numbers = new List<GETPhoneNumber>();
+            this.street_addresses = new List<GETStreetAddress>();
+            this.list_memberships = new List<string>();
         }
-
-        public Contact(string strEmailAddress)
+        public Contact(string strEmailAddress = null, string strFirstName = null, string strLastName = null)
         {
-            this.email_address.address = strEmailAddress;
+            this.email_address = new GETEmailAddress() 
+            { 
+                address = strEmailAddress
+            };
+            this.first_name = strFirstName;
+            this.last_name = strLastName;
+            this.custom_fields = new List<GETContactCustomField>();
+            this.phone_numbers = new List<GETPhoneNumber>();
+            this.street_addresses = new List<GETStreetAddress>();
+            this.list_memberships = new List<string>();
+
         }
+
 
 
         public PUTContact Update()
@@ -80,6 +118,88 @@ namespace DirectorsPortalConstantContact
 
         }
 
+        public POSTContact Create()
+        {
+            if (string.IsNullOrEmpty(this.first_name) && string.IsNullOrEmpty(this.last_name) && string.IsNullOrEmpty(this.email_address.address))
+            {
+                Console.WriteLine("Contact missing fields");
+                throw new Exception();
+
+            }
+
+            POSTContact objTempContact = new POSTContact()
+            {
+                first_name = this.first_name,
+                last_name = this.last_name,
+                job_title = this.job_title,
+                company_name = this.company_name,
+                create_source = "Account",
+                anniversary = this.anniversary,
+            };
+
+            objTempContact.birthday_month = this.birthday_month != 0 ? this.birthday_month : new Nullable<int>();
+
+            objTempContact.birthday_day = this.birthday_day != 0 ? this.birthday_day : new Nullable<int>();
+
+            objTempContact.email_address = new POSTEmailAddress();
+            objTempContact.email_address.address = this.email_address.address;
+            objTempContact.email_address.permission_to_send = this.email_address.permission_to_send;
+
+            if (this.custom_fields != null && this.custom_fields.Count > 0)
+            {
+                objTempContact.custom_fields = new List<GETContactCustomField>();
+                foreach (GETContactCustomField tempField in this.custom_fields)
+                {
+                    objTempContact.custom_fields.Add(tempField);
+                }
+            }
+
+            if (this.phone_numbers != null && this.phone_numbers.Count > 0)
+            {
+                objTempContact.phone_numbers = new List<POSTPhoneNumber>();
+                foreach (GETPhoneNumber tempPhone in this.phone_numbers)
+                {
+                    POSTPhoneNumber tempNewPhone = new POSTPhoneNumber()
+                    {
+                        phone_number = tempPhone.phone_number,
+                        kind = tempPhone.kind
+                    };
+                    objTempContact.phone_numbers.Add(tempNewPhone);
+                }
+            }
+            
+            if (this.street_addresses != null && this.street_addresses.Count > 0)
+            {
+                objTempContact.street_addresses = new List<POSTStreetAddress>();
+                foreach (GETStreetAddress tempAddress in this.street_addresses)
+                {
+                    POSTStreetAddress tempNewAddress = new POSTStreetAddress()
+                    {
+                        kind = tempAddress.kind,
+                        street = tempAddress.street,
+                        city = tempAddress.city,
+                        state = tempAddress.state,
+                        postal_code = tempAddress.postal_code,
+                        country = tempAddress.country
+                    };
+                    objTempContact.street_addresses.Add(tempNewAddress);
+                }
+            }
+            
+            if (this.list_memberships != null && this.list_memberships.Count > 0)
+            {
+                objTempContact.list_memberships = new List<string>();
+                foreach (string strListId in this.list_memberships)
+                {
+                    objTempContact.list_memberships.Add(strListId);
+                }
+            }
+            
+
+            
+
+            return objTempContact;
+        }
 
     }
 }

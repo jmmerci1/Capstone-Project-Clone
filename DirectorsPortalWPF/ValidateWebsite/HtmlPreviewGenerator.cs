@@ -94,10 +94,13 @@ namespace DirectorsPortalWPF.ValidateWebsite
                     {
                         if (busCurrentBusiness.GStrBusinessName.ToUpper().StartsWith(strAlpha))
                         {
+                            BusinessRep rgCurrentBusinessRep = dbContext.BusinessReps.Where(e => e.GIntBusinessId.Equals(busCurrentBusiness.GIntId)).First();
+                            ContactPerson rgCurrentContactPerson = dbContext.ContactPeople.Where(e => e.GIntId.Equals(rgCurrentBusinessRep.GIntContactPersonId)).First();
+
                             // Phone numbers, addresses, and email addresses for current business
-                            List<PhoneNumber> rgCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
+                            List<PhoneNumber> rgCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.GIntContactPersonId.Equals(rgCurrentContactPerson.GIntId)).ToList();
                             List<Address> rgCurrentBusAddresses = dbContext.Addresses.Where(e => e.GIntId.Equals(busCurrentBusiness.GIntId)).ToList();
-                            List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
+                            List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.GIntContactPersonId.Equals(rgCurrentContactPerson.GIntId)).ToList();
 
                             if (intNumberOfItems == 3)             // Create a new row if there are three items to add to the row
                                 GWriter.WriteLine("<tr>");
@@ -150,10 +153,13 @@ namespace DirectorsPortalWPF.ValidateWebsite
                     {
                         if (busCurrentBusiness.GCategories[0].GStrCategory.Equals(cat.GStrCategory))
                         {
+                            BusinessRep rgCurrentBusinessRep = dbContext.BusinessReps.Where(e => e.GIntBusinessId.Equals(busCurrentBusiness.GIntId)).First();
+                            ContactPerson rgCurrentContactPerson = dbContext.ContactPeople.Where(e => e.GIntId.Equals(rgCurrentBusinessRep.GIntContactPersonId)).First();
+
                             // Phone numbers, addresses, and email addresses for current business
-                            List<PhoneNumber> rgCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
+                            List<PhoneNumber> rgCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.GIntContactPersonId.Equals(rgCurrentContactPerson.GIntId)).ToList();
                             List<Address> rgCurrentBusAddresses = dbContext.Addresses.Where(e => e.GIntId.Equals(busCurrentBusiness.GIntId)).ToList();
-                            List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
+                            List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.GIntContactPersonId.Equals(rgCurrentContactPerson.GIntId)).ToList();
 
                             if (intNumberOfItems == 3)             // Create a new row if there are three items to add to the row
                                 GWriter.WriteLine("<tr>");
@@ -191,10 +197,13 @@ namespace DirectorsPortalWPF.ValidateWebsite
                 int intNumberOfItems = 3;  // The number of Members per row
                 foreach (Business busCurrentBusiness in rgAllBusinesses)
                 {
+                    BusinessRep rgCurrentBusinessRep = dbContext.BusinessReps.Where(e => e.GIntBusinessId.Equals(busCurrentBusiness.GIntId)).First();
+                    ContactPerson rgCurrentContactPerson = dbContext.ContactPeople.Where(e => e.GIntId.Equals(rgCurrentBusinessRep.GIntContactPersonId)).First();
+
                     // Phone numbers, addresses, and email addresses for current business
-                    List<PhoneNumber> rgCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
+                    List<PhoneNumber> rgCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.GIntContactPersonId.Equals(rgCurrentContactPerson.GIntId)).ToList();
                     List<Address> rgCurrentBusAddresses = dbContext.Addresses.Where(e => e.GIntId.Equals(busCurrentBusiness.GIntId)).ToList();
-                    List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.GIntContactPersonId.Equals(busCurrentBusiness.GIntId)).ToList();
+                    List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.GIntContactPersonId.Equals(rgCurrentContactPerson.GIntId)).ToList();
 
                     if (intNumberOfItems == 3)             // Create a new row if there are three items to add to the row
                         GWriter.WriteLine("<tr>");
@@ -336,13 +345,27 @@ namespace DirectorsPortalWPF.ValidateWebsite
         /// <param name="rgCurrentBusEmails">All email addresses associated with the current business</param>
         private void PrintMemberToTemplate(Business busCurrentBusiness, List<PhoneNumber> rgCurrentBusPhones, List<Address> rgCurrentBusAddresses, List<Email> rgCurrentBusEmails)
         {
+
             GWriter.WriteLine("<td style=\"padding: 10px 10px 10px 10px; color:#6d6d6d\">");
             GWriter.WriteLine($"<strong style=\"color: #a88d2e\">{busCurrentBusiness.GStrBusinessName}</strong>");
-            GWriter.WriteLine($"<br>{rgCurrentBusAddresses[0].GStrAddress}");
-            GWriter.WriteLine($"<br>{rgCurrentBusAddresses[0].GStrCity}, {rgCurrentBusAddresses[0].GStrState} {rgCurrentBusAddresses[0].GIntZipCode} ");
-            GWriter.WriteLine($"<br>{rgCurrentBusPhones[0].GStrPhoneNumber}");
-            GWriter.WriteLine($"<br>{rgCurrentBusPhones[0].GStrPhoneNumber}");
-            GWriter.WriteLine($"<br>Map | <a href=\"mailto:{rgCurrentBusEmails[0].GStrEmailAddress} \">Email</a> | <a href=\"{busCurrentBusiness.GStrWebsite}\">Web</a>");
+
+            if (rgCurrentBusAddresses.Count > 0)
+            {
+                GWriter.WriteLine($"<br>{rgCurrentBusAddresses[0].GStrAddress}");
+                GWriter.WriteLine($"<br>{rgCurrentBusAddresses[0].GStrCity}, {rgCurrentBusAddresses[0].GStrState} {rgCurrentBusAddresses[0].GIntZipCode} ");
+            }
+
+            if (rgCurrentBusPhones.Count > 0)
+            {
+                GWriter.WriteLine($"<br>{rgCurrentBusPhones[0].GStrPhoneNumber}");
+                GWriter.WriteLine($"<br>{rgCurrentBusPhones[0].GStrPhoneNumber}");
+            }
+
+            GWriter.Write($"<br>Map");
+            if (rgCurrentBusEmails.Count > 0)
+                GWriter.Write($" | <a href=\"mailto:{rgCurrentBusEmails[0].GStrEmailAddress} \">Email</a>");
+                    
+            GWriter.WriteLine($" | <a href=\"{busCurrentBusiness.GStrWebsite}\">Web</a>");
             GWriter.WriteLine("</td>");
         }
 

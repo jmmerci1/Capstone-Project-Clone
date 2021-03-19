@@ -161,8 +161,8 @@
                 <Label Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Content="To:" Margin="10,0,0,0" />
                 <TextBox Grid.Row="2" Grid.Column="0" x:Name="txtEmailGroups" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0,10,10" Height="50"  TextWrapping="Wrap"/>
                 <StackPanel Orientation="Vertical" Grid.Row="2" Grid.Column="1">
-                    <Button Click="Send_Email" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Content="Edit" Margin="5,0,10,5" Padding="0,0,75,0" Height="20" />
-                    <Button Click="Send_Email" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Content="Send" Margin="5,5,10,0" Padding="0,0,75,0" Height="20" />
+                    <Button HorizontalAlignment="Right" Template="{StaticResource smallButton}" Content="Edit" Margin="5,0,10,5" Padding="0,0,75,0" Height="20" />
+                    <Button HorizontalAlignment="Right" Click="SendActivity_Click" Template="{StaticResource smallButton}" Content="Send" Margin="5,5,10,0" Padding="0,0,75,0" Height="20" />
                 </StackPanel>
                 <Grid Grid.Row="3" Grid.ColumnSpan="3">
                     <Grid.ColumnDefinitions>

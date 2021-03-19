@@ -1,13 +1,18 @@
 ﻿using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
 using DirectorPortalDatabase.Utility;
+using iTextSharp.text.pdf;
+using Microsoft.Win32;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+
 
 namespace DirectorsPortalWPF.MemberInfoUI
 {
@@ -169,6 +174,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 /* Add a button to edit the business to the end of each row. */
                 var btnFactoryEditBusiness = new FrameworkElementFactory(typeof(Button));
                 btnFactoryEditBusiness.SetValue(ContentProperty, "Edit");
+                btnFactoryEditBusiness.SetValue(TemplateProperty, (ControlTemplate)Application.Current.Resources["smallButton"]);
                 btnFactoryEditBusiness.AddHandler(ButtonBase.ClickEvent, new RoutedEventHandler(BtnEditBusiness_Click));
 
                 DataTemplate dtEdit = new DataTemplate() 
@@ -263,6 +269,125 @@ namespace DirectorsPortalWPF.MemberInfoUI
             {
                 return intCheck;
             }
+        }
+        /// <summary>
+        /// When the user clicks the 'Add New from PDF' button, they will have the ability to select a 
+        /// New Membership Request PDF form that will then be parsed and added to the database automatically.
+        /// This is intended to be a faster option that typing in new member details by hand.
+        /// </summary>
+        /// <param name="sender">The 'Add New from PDF' button</param>
+        /// <param name="e">THe Click Event</param>
+        private void BtnNewMembPdf_Click(object sender, RoutedEventArgs e)
+        {
+            // Get fields from PDF then pass to Add Members Screen.
+            Dictionary<string, string> dictFields = OpenFile();
+            NavigationService.Navigate(new AddMembersPage(dictFields));
+        }
+
+        /// <summary>
+        /// When the user click the 'Update from PDF' button, they will have the ability to select a 
+        /// Update Membership Request PDF form that will be parsed for existing members and their data changes.
+        /// Updated data is updated in the DB.
+        /// </summary>
+        /// <param name="sender">The 'Update from PDF' button</param>
+        /// <param name="e">The Click Event</param>
+        private void BtnModMembPdf_Click(object sender, RoutedEventArgs e)
+        {
+            // Get fields from PDF
+            Dictionary<string, string> dictFields = OpenFile();
+            Business busModified = new Business();
+
+            // Do some logic to find the business being modified.
+            using (DatabaseContext dbContext = new DatabaseContext())
+            {
+                busModified = dbContext.Businesses
+                    .Where(business => business.GStrBusinessName.Equals(dictFields["Business Name"])).FirstOrDefault();
+            }
+
+            NavigationService.Navigate(new EditMembersPage(busModified, dictFields));
+        }
+
+        /// <summary>
+        /// Ability to open a file using the OpenFileDialog. 
+        /// 
+        /// . 
+        /// </summary>
+        private Dictionary<string, string> OpenFile()
+        {
+            //opens file dialog to select pdf
+            OpenFileDialog openFileDialog = new OpenFileDialog()
+            {
+                Filter = "PDF Files|*.pdf"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+                Console.WriteLine(File.ReadAllText(openFileDialog.FileName));
+            //create new reader object
+            PdfReader reader = new PdfReader(openFileDialog.FileName);
+            //variable for form fields in PDF 
+            var objFields = reader.AcroFields.Fields;
+            //array to contain all values from key value pairs read
+            var arrFieldData = new ArrayList();
+            //iterates over key value pairs and add values(data from pdf) to the array
+            foreach (var item in objFields.Keys)
+            {
+                arrFieldData.Add(reader.AcroFields.GetField(item.ToString()));
+                Console.WriteLine(reader.AcroFields.GetField(item.ToString())); 
+            }
+            //array to split city state zip 
+            String[] strCityStateZip = arrFieldData[4].ToString().Split(',');
+            //dictionary to store values to be sent to UI
+            var dicToAdd = new Dictionary<string, string>();
+
+            //dictionary add statements to add pdf data to ui
+            dicToAdd.Add("Business Name", (string)arrFieldData[0]);
+            dicToAdd.Add("Website", (string)arrFieldData[8]);
+            dicToAdd.Add("Level", (string)arrFieldData[13]);
+            dicToAdd.Add("Established", (string)arrFieldData[9]);
+
+            // Mailing Address
+            dicToAdd.Add("Mailing Address", (string)arrFieldData[2]);
+
+            if (strCityStateZip.Length > 0)
+                dicToAdd.Add("City", strCityStateZip[0]);
+            else
+                dicToAdd.Add("City", "");
+
+            if (strCityStateZip.Length > 1)
+                dicToAdd.Add("State", strCityStateZip[1]);
+            else
+                dicToAdd.Add("State", "");
+
+            if (strCityStateZip.Length > 2)
+                dicToAdd.Add("Zip Code", strCityStateZip[2]);
+            else
+                dicToAdd.Add("Zip Code", "");
+
+            // Location Address
+            dicToAdd.Add("Location Address", (string)arrFieldData[3]);
+
+            if (strCityStateZip.Length > 0)
+                dicToAdd.Add("Location City", strCityStateZip[0]);
+            else
+                dicToAdd.Add("Location City", "");
+
+            if (strCityStateZip.Length > 1)
+                dicToAdd.Add("Location State", strCityStateZip[1]);
+            else
+                dicToAdd.Add("Location State", "");
+
+            if (strCityStateZip.Length > 2)
+                dicToAdd.Add("Location Zip Code", strCityStateZip[2]);
+            else
+                dicToAdd.Add("Location Zip Code", "");
+
+            dicToAdd.Add("Contact Name", (string)arrFieldData[1]);
+            dicToAdd.Add("Phone Number", (string)arrFieldData[5]);
+            dicToAdd.Add("Fax Number", (string)arrFieldData[6]);
+            dicToAdd.Add("Email Address", (string)arrFieldData[7]);
+            
+            //dictionary return
+            return dicToAdd;
         }
     }
 }
