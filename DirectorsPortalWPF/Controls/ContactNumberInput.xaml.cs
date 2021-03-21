@@ -20,8 +20,9 @@ namespace DirectorsPortalWPF.Controls
     /// </summary>
     public partial class ContactNumberInput : UserControl
     {
-        public string GStrInputName { get; set; }
-        public Visibility GVisRemovable { get; set; }
+        public string GStrInputName { get; set; } = string.Empty;
+        public int GIntNumberId { get; set; } = -1;
+        public ContactInput GCiContactInputParent { get; set; }
 
         public ContactNumberInput()
         {
@@ -32,6 +33,11 @@ namespace DirectorsPortalWPF.Controls
 
         private void BtnRemoveNumber_Click(object sender, RoutedEventArgs e)
         {
+            if (GIntNumberId != -1 && GCiContactInputParent != null) 
+            {
+                GCiContactInputParent.GIntNumbersToRemove.Add(GIntNumberId);
+            }
+
             Content = null;
         }
     }

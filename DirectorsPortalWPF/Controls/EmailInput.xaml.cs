@@ -20,8 +20,9 @@ namespace DirectorsPortalWPF.Controls
     /// </summary>
     public partial class EmailInput : UserControl
     {
-        public string GStrInputName { get; set; }
-        public Visibility GVisRemovable { get; set; }
+        public string GStrInputName { get; set; } = string.Empty;
+        public int GIntEmailId { get; set; } = -1;
+        public ContactInput GCiContactInputParent { get; set; }
 
         public EmailInput()
         {
@@ -32,6 +33,11 @@ namespace DirectorsPortalWPF.Controls
 
         private void BtnRemoveEmail_Click(object sender, RoutedEventArgs e)
         {
+            if (GIntEmailId != -1 && GCiContactInputParent != null) 
+            {
+                GCiContactInputParent.GIntEmailsToRemove.Add(GIntEmailId);
+            }
+
             Content = null;
         }
     }

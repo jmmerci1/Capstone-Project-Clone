@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DirectorsPortalWPF.MemberInfoUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +21,12 @@ namespace DirectorsPortalWPF.Controls
     /// </summary>
     public partial class ContactInput : UserControl
     {
-        public string GStrTitle { get; set; }
+        public string GStrTitle { get; set; } = string.Empty;
+        public int GIntContactId { get; set; } = -1;
         public int GntEmailCount { get; set; } = 0;
         public int GIntNumberCount { get; set; } = 0;
+        public List<int> GIntEmailsToRemove { get; set; } = new List<int>();
+        public List<int> GIntNumbersToRemove { get; set; } = new List<int>();
 
         public ContactInput()
         {
@@ -30,6 +34,7 @@ namespace DirectorsPortalWPF.Controls
 
             this.DataContext = this;
         }
+
         private void BtnAddEmail_Click(object sender, RoutedEventArgs e)
         {
             GntEmailCount++;
@@ -37,7 +42,6 @@ namespace DirectorsPortalWPF.Controls
             EmailInput EiEmail = new EmailInput
             {
                 GStrInputName = "Email " + GntEmailCount + ":",
-                GVisRemovable = Visibility.Visible
             };
 
             SpContactEmails.Children.Add(EiEmail);
@@ -50,7 +54,6 @@ namespace DirectorsPortalWPF.Controls
             ContactNumberInput CniNumber = new ContactNumberInput
             {
                 GStrInputName = "Number " + GIntNumberCount + ":",
-                GVisRemovable = Visibility.Visible
             };
 
             SpContactNumbers.Children.Add(CniNumber);
@@ -58,6 +61,12 @@ namespace DirectorsPortalWPF.Controls
 
         private void BtnRemoveContact_Click(object sender, RoutedEventArgs e)
         {
+            if (GIntContactId != -1) 
+            {
+                EditMembersPage page = NavigationService.GetNavigationService(this).Content as EditMembersPage;
+                page.GIntContactsToRemove.Add(GIntContactId);
+            }
+
             Content = null;
         }
     }
