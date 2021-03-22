@@ -13,7 +13,17 @@ namespace DirectorsPortalConstantContact
     /// </summary>
     public class ContactList : GETContactList
     {
-        public List<Contact> GlstMembers = new List<Contact>();
+        [Newtonsoft.Json.JsonIgnore]
+        public List<Contact> glstMembers = new List<Contact>();
+
+        public ContactList(string strName=null)
+        {
+            this.name = strName;
+        }
+        public ContactList()
+        {
+            this.name = null;
+        }
 
         public PUTContactList Update()
         {
@@ -24,5 +34,25 @@ namespace DirectorsPortalConstantContact
             };
         }
 
+        public POSTContactList Create()
+        {
+            if (String.IsNullOrEmpty(this.name))
+            {
+                throw new Exception();
+            }
+
+            POSTContactList objTempList = new POSTContactList()
+            {
+                name = this.name,
+                favorite = this.favorite,
+                description = this.description
+            };
+
+
+            return objTempList;
+        }
+
     }
+
+
 }

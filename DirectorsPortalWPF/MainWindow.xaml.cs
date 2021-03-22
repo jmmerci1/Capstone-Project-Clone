@@ -1,6 +1,7 @@
 ﻿using DirectorPortalDatabase;
 using DirectorPortalDatabase.Utility;
 using DirectorPortalDatabase.Models;
+using DirectorsPortalConstantContact;
 using DirectorsPortalWPF.ConstantContactUI;
 using DirectorsPortalWPF.EmailMembersUI;
 using DirectorsPortalWPF.GenerateReportsUI;
@@ -15,6 +16,7 @@ using System.Linq;
 
 using System.Timers;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Collections.Generic;
 
@@ -32,6 +34,9 @@ namespace DirectorsPortalWPF
     /// </summary>
     public partial class MainWindow : Window
     {
+        // The object containing all data for the user of a Constant Contact account. 
+        private ConstantContact gObjConstContact;
+
         /// <summary>
         /// Launches the Window containing the application.
         /// </summary>
@@ -93,6 +98,11 @@ namespace DirectorsPortalWPF
 
             });
 
+            ToolTipService.ShowOnDisabledProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(true));
+            gObjConstContact = new ConstantContact();
+
+            BackupUtility backupUtility = new BackupUtility();
+            backupUtility.CheckBackupNotification();
         }
 
 
@@ -272,7 +282,7 @@ namespace DirectorsPortalWPF
 
         private void ConstantContactPage_Navigate(object sender, RoutedEventArgs e)
         {
-            mainFrame.Navigate(new ConstantContactPage());
+            mainFrame.Navigate(new ConstantContactPage(gObjConstContact));
 
             btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));

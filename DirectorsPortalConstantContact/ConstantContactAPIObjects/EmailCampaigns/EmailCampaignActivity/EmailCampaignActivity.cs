@@ -6,7 +6,20 @@ namespace DirectorsPortalConstantContact
 {
     public class EmailCampaignActivity : GETEmailCampaignActivity
     {
-        public POSTEmailCampaignActivity objNewActivity()
+        [Newtonsoft.Json.JsonIgnore]
+        public EmailCampaignActivityPreview mobjPreview;
+        [Newtonsoft.Json.JsonIgnore]
+        public EmailCampaign gobjCampaign;
+        [Newtonsoft.Json.JsonIgnore]
+        public string strCampaignName => gobjCampaign.name;
+
+        [Newtonsoft.Json.JsonIgnore]
+        public List<ContactList> glstContactLists = new List<ContactList>();
+
+
+
+
+        public POSTEmailCampaignActivity NewActivity()
         {
             POSTEmailCampaignActivity objTempActivity = new POSTEmailCampaignActivity()
             {
@@ -48,5 +61,6 @@ namespace DirectorsPortalConstantContact
 
             };
         }
+
     }
 }

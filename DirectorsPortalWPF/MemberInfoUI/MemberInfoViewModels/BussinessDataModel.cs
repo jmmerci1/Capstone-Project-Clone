@@ -42,9 +42,9 @@ namespace DirectorsPortalWPF.MemberInfoUI.MemberInfoViewModels
             dicHumanReadableData.Add("StrMailState", "State");
             dicHumanReadableData.Add("IntMailZipCode", "Zip Code");
             dicHumanReadableData.Add("StrLocationAddress", "Location Address");
-            dicHumanReadableData.Add("StrLocCity", "City");
-            dicHumanReadableData.Add("StrLocState", "State");
-            dicHumanReadableData.Add("IntLocZipCode", "Zip Code");
+            dicHumanReadableData.Add("StrLocCity", "Location City");
+            dicHumanReadableData.Add("StrLocState", "Location State");
+            dicHumanReadableData.Add("IntLocZipCode", "Location Zip Code");
             dicHumanReadableData.Add("StrContactPerson", "Contact Name");
             dicHumanReadableData.Add("StrPhoneNumber", "Phone Number");
             dicHumanReadableData.Add("StrFaxNumber", "Fax Number");

@@ -4,6 +4,7 @@ using DirectorsPortalWPF.MemberInfoUI.MemberInfoViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -30,7 +31,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// A method for building the Edit members UI.
         /// </summary>
         /// <param name="rowViewModel">A data model representing the business the user wants to edit.</param>
-        public EditMembersPage(Business rowViewModel)
+        public EditMembersPage(Business rowViewModel, [Optional] Dictionary<string, string> dictPdfImport)
         {
             InitializeComponent();
 
@@ -92,11 +93,34 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 string strFieldText = dataModel.GetType().GetProperty(property.Name).GetValue(dataModel)?.ToString();
                 if (property.Name == "StrLevel")
                 {
-                    txtFieldEntry.Text = Business.GetMebershipLevelString((MembershipLevel)int.Parse(strFieldText));
+                    
+                    // Fill with whats from the Modify PDF as priority, otherwise fill from the dataModel.
+                    if (!dictPdfImport[GDicHumanReadableDataFields[property.Name]].Equals(""))
+                    {
+                        txtFieldEntry.Text = dictPdfImport[GDicHumanReadableDataFields[property.Name]];
+                        txtFieldEntry.BorderBrush = Brushes.Green;
+                    }
+                    else
+                    {
+                        txtFieldEntry.Text = Business.GetMebershipLevelString((MembershipLevel)int.Parse(strFieldText));
+                    }
+
                 }
                 else
                 {
-                    txtFieldEntry.Text = strFieldText;
+                    // Fill with whats from the Modify PDF as priority, otherwise fill from the dataModel.
+                    if (!dictPdfImport[GDicHumanReadableDataFields[property.Name]].Equals(""))
+                    {
+                        txtFieldEntry.Text = dictPdfImport[GDicHumanReadableDataFields[property.Name]];
+                        if (!GDicHumanReadableDataFields[property.Name].Equals("Business Name"))
+                            txtFieldEntry.BorderBrush = Brushes.Green;
+                    }
+                    else
+                    {
+                        txtFieldEntry.Text = strFieldText;
+                    }
+
+
                 }
 
                 RegisterName(property.Name, txtFieldEntry);
