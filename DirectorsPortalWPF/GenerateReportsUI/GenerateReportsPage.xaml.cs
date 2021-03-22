@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using DirectorPortalDatabase.Utility;
+using ClosedXML.Excel;
 
 namespace DirectorsPortalWPF.GenerateReportsUI
 {
@@ -25,6 +26,10 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         private List<string[]> GRGCurrentReport { get; set; }
         private List<ReportTemplate> GRGReportTemplates { get; set; }
 
+        private int intKeyForExport = 0;
+
+
+
         public void ReportTypeSelectedHandler(object sender, EventArgs e)
         {
             // Gets the selected report type name from the combo box.
@@ -35,7 +40,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             {
                 int intNumberOfFields = GUdtSelectedReportType.UdtTableMetaData.IntNumberOfFields;
                 ListBoxItem[] rgFieldItems = new ListBoxItem[intNumberOfFields];
-                
+
                 // Iterates over the fields of the selected table.
                 for (int i = 0; i < intNumberOfFields; i++)
                 {
@@ -217,7 +222,14 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 }
 
                 GRGCurrentReport = rgReport;
-                RenderReport();
+
+                //Checks if integer is set to allow the Report to be Rendered.
+                if (intKeyForExport == 0)
+                {
+                    RenderReport();
+                }
+
+
 
             }
         }
@@ -263,6 +275,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 // Checks for matching model names.
                 if (udtModelInfo.TypeModelType.Name == udtReportTemplate.GStrModelName)
                 {
+
                     // Sets this ComboBoxItem as active.
                     cbiReportTypeItem.IsSelected = true;
                     cboReportType.SelectedIndex = i;
@@ -281,7 +294,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                         foreach (ReportField udtReportTemplateField in rgReportTemplateFields)
                         {
 
-                            ClsMetadataHelper.ClsTableField udtTableField 
+                            ClsMetadataHelper.ClsTableField udtTableField
                                 = (ClsMetadataHelper.ClsTableField)lbiFieldItem.Tag;
 
                             // Checks for a match.
@@ -304,10 +317,122 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 }
             }
 
+            //for (int i = 0; i < ClsMetadataHelper.IntNumberOfModels; i++)
+            //{
+            //    Type typeModelType = ClsMetadataHelper.GetModelTypeByIndex(i);
+
+            //    if (typeModelType.Name == udtReportTemplate.GStrModelName)
+            //    {
+            //        GUdtSelectedReportType = ClsMetadataHelper.GetModelInfo(typeModelType);
+            //        break;
+            //    }
+            //}
+
+            //if (GUdtSelectedReportType != null)
+            //{
+            //    cboReportType.SelectedItem = cboReportType.Items
+            //}
         }
 
+        /// <summary>
+        /// Gathers the selected data from the database, then allows the user to select where and what to name the 
+        /// excel file. 
+        /// </summary>
+        /// <param name="sender">The 'Exoirt to Excel' Button</param>
+        /// <param name="e">The Click Event</param>
         public void ExportToExcelButtonHandler(object sender, EventArgs e)
         {
+            //Variables to create an excel workbook.
+            var wbWorkbook = new XLWorkbook();
+            wbWorkbook.AddWorksheet("sheetName");
+            var wsSheet = wbWorkbook.Worksheet("sheetName");
+
+            //String for save file path
+            String strfilepath = " ";
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            // Gets the report template instance from the button.
+            Button btnSender = (Button)sender;
+            ReportTemplate udtReportTemplate = (ReportTemplate)btnSender.Tag;
+
+            GUdtSelectedReportType = null;
+
+            // Searches for the combo box item with a matching table model.
+            for (int i = 0; i < GRGReportTypeItems.Length; i++)
+            {
+                ComboBoxItem cbiReportTypeItem = GRGReportTypeItems[i];
+
+                // Gets the model information from the ComboBoxItem.
+                ClsMetadataHelper.ClsModelInfo udtModelInfo = (ClsMetadataHelper.ClsModelInfo)cbiReportTypeItem.Tag;
+
+                // Checks for matching model names.
+                if (udtModelInfo.TypeModelType.Name == udtReportTemplate.GStrModelName)
+                {
+
+                    // Sets this ComboBoxItem as active.
+                    cbiReportTypeItem.IsSelected = true;
+                    cboReportType.SelectedIndex = i;
+                    cboReportType.SelectedItem = cbiReportTypeItem;
+
+                    // Manually calls the ComboBox event handler to fill the ListBox with the appropriate fields.
+                    ReportTypeSelectedHandler(null, null);
+
+                    // Gets the fields belonging to the selected report template.
+                    List<ReportField> rgReportTemplateFields = GetReportTemplateFields(udtReportTemplate);
+
+                    // Iterates over the fields in the ListBox.
+                    foreach (ListBoxItem lbiFieldItem in lstReportFields.Items)
+                    {
+                        // Iterates over the fields in the report template.
+                        foreach (ReportField udtReportTemplateField in rgReportTemplateFields)
+                        {
+
+                            ClsMetadataHelper.ClsTableField udtTableField
+                                = (ClsMetadataHelper.ClsTableField)lbiFieldItem.Tag;
+
+                            // Checks for a match.
+                            if (udtReportTemplateField.GStrModelPropertyName == udtTableField.StrPropertyName)
+                            {
+                                // Selects the ListBoxItem.
+                                lbiFieldItem.IsSelected = true;
+                                lstReportFields.SelectedItems.Add(lbiFieldItem);
+                                break;
+                            }
+                        }
+                    }
+
+                    //Key to turn off Render report
+                    intKeyForExport = 1;
+
+                    // Manually calls the event handler to generate the report.
+                    GenerateReportButtonHandler(null, null);
+
+
+
+                    break;
+                }
+
+
+            }
+
+            //Loop to insert data into excel file.
+            for (int i = 0; i < GRGCurrentReport.Count; i++)
+            {
+                for (int j = 0; j < GRGCurrentReport[i].Length; j++)
+                {
+                    wsSheet.Cell(i + 1, j + 1).Value = GRGCurrentReport[i].GetValue(j).ToString();
+                }
+            }
+
+            //Open save file dialog for saving data
+            if (saveFileDialog.ShowDialog() == true)
+                strfilepath = saveFileDialog.FileName;
+
+            //Saving the workbook in the selected path
+            wbWorkbook.SaveAs(strfilepath + ".xlsx");
+
+            //Returns key to activate RenderReport Method
+            intKeyForExport = 0;
 
         }
 
@@ -338,7 +463,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
             GRGCurrentReport = new List<string[]>();
             GRGReportTypeItems = new ComboBoxItem[ClsMetadataHelper.IntNumberOfModels];
-            
+
             for (int i = 0; i < ClsMetadataHelper.IntNumberOfModels; i++)
             {
                 // Gets info on the i-th database model.
@@ -423,10 +548,16 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             spTemplateInput.Visibility = Visibility.Collapsed;
             tbcMainControl.Visibility = Visibility.Visible;
 
+
             txtReportTemplateName.Text = "";
         }
     }
+
 }
+
+
+
+
 
 
 
