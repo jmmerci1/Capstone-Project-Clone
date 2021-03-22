@@ -1,4 +1,6 @@
 ﻿using DirectorPortalDatabase;
+using DirectorPortalDatabase.Utility;
+using DirectorPortalDatabase.Models;
 using DirectorsPortalConstantContact;
 using DirectorsPortalWPF.ConstantContactUI;
 using DirectorsPortalWPF.EmailMembersUI;
@@ -9,9 +11,14 @@ using DirectorsPortalWPF.PaymentInfoUI;
 using DirectorsPortalWPF.SettingsUI;
 using DirectorsPortalWPF.TodoUI;
 using DirectorsPortalWPF.ValidateWebsite;
+using System;
+using System.Linq;
+
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Collections.Generic;
 
 /// <summary>
 /// File Purpose:
@@ -33,6 +40,8 @@ namespace DirectorsPortalWPF
         /// <summary>
         /// Launches the Window containing the application.
         /// </summary>
+        private static Timer m_oTimer;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -40,6 +49,54 @@ namespace DirectorsPortalWPF
                                                                                                                     // Create the database if it doesn't exist
             DatabaseContext dbContextIntialStartup = new DatabaseContext();
             dbContextIntialStartup.Database.EnsureCreated();                     // Ensures the database is created upon application startup. If the database is not created, then the context will create the database.
+
+
+            //Timer thread created to check for new todo's 
+            m_oTimer = new System.Timers.Timer(.2 * 1000 * 60); // 10 seconds
+            m_oTimer.Elapsed += NotificationTimer; // Timer callback
+            m_oTimer.Enabled = true; // Start timer
+
+        }
+        private void NotificationTimer(Object source, ElapsedEventArgs e)
+        {
+            //Integer to hold value of how many incomplete todo requests
+            int intNotifications = 0;
+
+            //Ensures that this method is invoked
+            this.Dispatcher.Invoke(() =>
+            {
+
+                //List to hold todo's
+                List<Todo> lstTasks = new List<Todo>();
+
+                //Gets all todo's from TodoListItems
+                using (DatabaseContext Todo = new DatabaseContext())
+                {
+                    //Places data into List
+                    lstTasks = Todo.TodoListItems.ToList();
+                }
+
+                //Loop to check for incomplete todo's
+                foreach (Todo x in lstTasks)
+                {
+                    if (x.GBlnMarkedAsDone.Equals(false))
+                    {
+                        //Increments integer value for every incomplete todo
+                        intNotifications++;
+                    }
+                }
+                
+                //If there are incomplete todo's then this if will fire
+                if (intNotifications != 0)
+                {
+                    //Sets the shape and label visible. Also sets labels value.
+                    lblNotificationTodo.Content = intNotifications;
+                    lblNotificationTodo.Visibility = Visibility.Visible;
+                    shapeNotificationLabel.Visibility = Visibility.Visible;
+                }
+
+
+            });
 
             ToolTipService.ShowOnDisabledProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(true));
             gObjConstContact = new ConstantContact();
@@ -63,7 +120,7 @@ namespace DirectorsPortalWPF
             btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnConstantContact.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnGenReport.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
-            btnMember.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));       
+            btnMember.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnPayment.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD8D8D8"));      // Appears selected
             btnTodo.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnValWeb.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
@@ -145,6 +202,10 @@ namespace DirectorsPortalWPF
         {
             mainFrame.Navigate(new TodoPage());
 
+            //Hides notification when the TodoPage is navigated to.
+            lblNotificationTodo.Visibility = Visibility.Hidden;
+            shapeNotificationLabel.Visibility = Visibility.Hidden;
+
             btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnConstantContact.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
@@ -187,7 +248,7 @@ namespace DirectorsPortalWPF
         {
             mainFrame.Navigate(new GenerateReportsPage());
 
-            btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));     
+            btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnConstantContact.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnGenReport.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD8D8D8"));    // Appears selected
@@ -231,7 +292,7 @@ namespace DirectorsPortalWPF
             btnPayment.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnTodo.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnValWeb.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
-            btnHelp.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));         
+            btnHelp.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
         }
     }
 }
