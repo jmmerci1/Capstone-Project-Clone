@@ -362,15 +362,21 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             //}
         }
 
+        /// <summary>
+        /// Gathers the selected data from the database, then allows the user to select where and what to name the 
+        /// excel file. 
+        /// </summary>
+        /// <param name="sender">The 'Exoirt to Excel' Button</param>
+        /// <param name="e">The Click Event</param>
         public void ExportToExcelButtonHandler(object sender, EventArgs e)
         {
             //Variables to create an excel workbook.
-            var workbook = new XLWorkbook();
-            workbook.AddWorksheet("sheetName");
-            var ws = workbook.Worksheet("sheetName");
+            var wbWorkbook = new XLWorkbook();
+            wbWorkbook.AddWorksheet("sheetName");
+            var wsSheet = wbWorkbook.Worksheet("sheetName");
 
             //String for save file path
-            String filepath = " ";
+            String strfilepath = " ";
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             // Gets the report template instance from the button.
@@ -442,16 +448,16 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             {
                 for (int j = 0; j < GRGCurrentReport[i].Length; j++)
                 {
-                    ws.Cell(i + 1, j + 1).Value = GRGCurrentReport[i].GetValue(j).ToString();
+                    wsSheet.Cell(i + 1, j + 1).Value = GRGCurrentReport[i].GetValue(j).ToString();
                 }
             }
 
             //Open save file dialog for saving data
             if (saveFileDialog.ShowDialog() == true)
-                filepath = saveFileDialog.FileName;
+                strfilepath = saveFileDialog.FileName;
 
             //Saving the workbook in the selected path
-            workbook.SaveAs(filepath + ".xlsx");
+            wbWorkbook.SaveAs(strfilepath + ".xlsx");
 
             //Returns key to activate RenderReport Method
             intKeyForExport = 0;
