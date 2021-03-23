@@ -5,6 +5,7 @@ using DirectorsPortalWPF.MemberInfoUI.MemberInfoViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -36,53 +37,53 @@ namespace DirectorsPortalWPF.MemberInfoUI
         {
             InitializeComponent();
 
-            GIntSelectedBusinessId = selectedBusiness.GIntId;
+            GIntSelectedBusinessId = selectedBusiness.Id;
 
             using (DatabaseContext context = new DatabaseContext()) 
             {
                 try
                 {
                     /* Populate the business info from the selected business. */
-                    txtBusinessName.Text = selectedBusiness.GStrBusinessName;
-                    txtYearEst.Text = selectedBusiness.GIntYearEstablished.ToString();
-                    txtWebsite.Text = selectedBusiness.GStrWebsite;
-                    cboMemberLevel.SelectedIndex = (int)selectedBusiness.GEnumMembershipLevel;
+                    txtBusinessName.Text = selectedBusiness.BusinessName;
+                    txtYearEst.Text = selectedBusiness.YearEstablished.ToString();
+                    txtWebsite.Text = selectedBusiness.Website;
+                    cboMemberLevel.SelectedIndex = (int)selectedBusiness.MembershipLevel;
 
                     /* Populate the addresses for the selected business. */
-                    if (selectedBusiness.GIntMailingAddressId == selectedBusiness.GIntPhysicalAddressId)
+                    if (selectedBusiness.MailingAddressId == selectedBusiness.PhysicalAddressId)
                     {
                         ChkLocationSameAsMailing.IsChecked = true;
 
-                        Address mailingAddress = context.Addresses.Find(selectedBusiness.GIntMailingAddressId);
+                        Address mailingAddress = context.Addresses.Find(selectedBusiness.MailingAddressId);
 
-                        txtMailAddr.Text = mailingAddress?.GStrAddress;
-                        txtMailCity.Text = mailingAddress?.GStrCity;
-                        txtMailState.Text = mailingAddress?.GStrState;
-                        txtMailZip.Text = mailingAddress?.GIntZipCode.ToString();
+                        txtMailAddr.Text = mailingAddress?.StreetAddress;
+                        txtMailCity.Text = mailingAddress?.City;
+                        txtMailState.Text = mailingAddress?.State;
+                        txtMailZip.Text = mailingAddress?.ZipCode.ToString();
                     }
                     else 
                     {
-                        Address mailingAddress = context.Addresses.Find(selectedBusiness.GIntMailingAddressId);
-                        Address locationAddress = context.Addresses.Find(selectedBusiness.GIntPhysicalAddressId);
+                        Address mailingAddress = context.Addresses.Find(selectedBusiness.MailingAddressId);
+                        Address locationAddress = context.Addresses.Find(selectedBusiness.PhysicalAddressId);
 
-                        txtMailAddr.Text = mailingAddress?.GStrAddress;
-                        txtMailCity.Text = mailingAddress?.GStrCity;
-                        txtMailState.Text = mailingAddress?.GStrState;
-                        txtMailZip.Text = mailingAddress?.GIntZipCode.ToString();
+                        txtMailAddr.Text = mailingAddress?.StreetAddress;
+                        txtMailCity.Text = mailingAddress?.City;
+                        txtMailState.Text = mailingAddress?.State;
+                        txtMailZip.Text = mailingAddress?.ZipCode.ToString();
 
-                        txtLocationAddr.Text = locationAddress?.GStrAddress;
-                        txtLocationCity.Text = locationAddress?.GStrCity;
-                        txtLocationState.Text = locationAddress?.GStrState;
-                        txtLocationZip.Text = locationAddress?.GIntZipCode.ToString();
+                        txtLocationAddr.Text = locationAddress?.StreetAddress;
+                        txtLocationCity.Text = locationAddress?.City;
+                        txtLocationState.Text = locationAddress?.State;
+                        txtLocationZip.Text = locationAddress?.ZipCode.ToString();
                     }
 
                     /* Populate the contacts for the selected business. */
-                    List<BusinessRep> businessReps = context.BusinessReps.Where(rep => rep.GIntBusinessId == selectedBusiness.GIntId).ToList();
+                    List<BusinessRep> businessReps = context.BusinessReps.Where(rep => rep.BusinessId == selectedBusiness.Id).ToList();
                     List<ContactPerson> contacts = new List<ContactPerson>();
 
                     foreach (BusinessRep rep in businessReps) 
                     {
-                        ContactPerson contact = context.ContactPeople.Find(rep.GIntContactPersonId);
+                        ContactPerson contact = context.ContactPeople.Find(rep.ContactPersonId);
                         contacts.Add(contact);
                     }
 
@@ -96,12 +97,12 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             ContactInput CiContact = new ContactInput
                             {
                                 GStrTitle = "Contact " + GIntContactCount + ":",
-                                GIntContactId = contact.GIntId
+                                GIntContactId = contact.Id
                             };
-                            CiContact.TxtName.Text = contact.GStrName;
+                            CiContact.TxtName.Text = contact.Name;
 
                             /* Populate the emails for the contact. */
-                            List<Email> emails = context.Emails.Where(email => email.GIntContactPersonId == contact.GIntId).ToList();
+                            List<Email> emails = context.Emails.Where(email => email.ContactPersonId == contact.Id).ToList();
                             if (emails.Count > 0) 
                             {
                                 foreach (Email email in emails) 
@@ -112,16 +113,16 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                     {
                                         GStrInputName = "Email " + CiContact.GntEmailCount + ":",
                                         GCiContactInputParent = CiContact,
-                                        GIntEmailId = email.GIntId
+                                        GIntEmailId = email.Id
                                     };
-                                    eiEmail.TxtEmail.Text = email.GStrEmailAddress;
+                                    eiEmail.TxtEmail.Text = email.EmailAddress;
 
                                     CiContact.SpContactEmails.Children.Add(eiEmail);
                                 }
                             }
 
                             /* populate the numbers for the contact. */
-                            List<PhoneNumber> numbers = context.PhoneNumbers.Where(number => number.GIntContactPersonId == contact.GIntId).ToList();
+                            List<PhoneNumber> numbers = context.PhoneNumbers.Where(number => number.ContactPersonId == contact.Id).ToList();
                             if (numbers.Count > 0)
                             {
                                 foreach (PhoneNumber number in numbers)
@@ -132,9 +133,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                     {
                                         GStrInputName = "Number " + CiContact.GIntNumberCount + ":",
                                         GCiContactInputParent = CiContact,
-                                        GIntNumberId = number.GIntId
+                                        GIntNumberId = number.Id
                                     };
-                                    cniNumber.TxtContactNumber.Text = number.GStrPhoneNumber;
+                                    cniNumber.TxtContactNumber.Text = number.Number;
                                     cniNumber.CboNumberType.SelectedIndex = (int)number.GEnumPhoneType;
 
                                     CiContact.SpContactNumbers.Children.Add(cniNumber);
@@ -177,62 +178,62 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     {
                         /* Update the business info from the form. */
                         Business business = context.Businesses.Find(GIntSelectedBusinessId);
-                        business.GStrBusinessName = txtBusinessName.Text;
+                        business.BusinessName = txtBusinessName.Text;
 
                         int.TryParse(txtYearEst.Text, out int intYearEst);
-                        business.GIntYearEstablished = intYearEst;
+                        business.YearEstablished = intYearEst;
 
-                        business.GStrWebsite = txtWebsite.Text;
-                        business.GEnumMembershipLevel = (MembershipLevel)cboMemberLevel.SelectedIndex;
+                        business.Website = txtWebsite.Text;
+                        business.MembershipLevel = (MembershipLevel)cboMemberLevel.SelectedIndex;
 
                         /* Update the mailing address from the form. */
-                        Address mailingAddress = context.Addresses.Find(business.GIntMailingAddressId);
-                        mailingAddress.GStrAddress = txtMailAddr.Text;
-                        mailingAddress.GStrCity = txtMailCity.Text;
-                        mailingAddress.GStrState = txtMailState.Text;
+                        Address mailingAddress = context.Addresses.Find(business.MailingAddressId);
+                        mailingAddress.StreetAddress = txtMailAddr.Text;
+                        mailingAddress.City = txtMailCity.Text;
+                        mailingAddress.State = txtMailState.Text;
 
                         int.TryParse(txtMailZip.Text, out int intMailZipCode);
-                        mailingAddress.GIntZipCode = intMailZipCode;
+                        mailingAddress.ZipCode = intMailZipCode;
 
                         Address newLocationAddress = new Address();
-                        if (business.GIntMailingAddressId == business.GIntPhysicalAddressId &&
+                        if (business.MailingAddressId == business.PhysicalAddressId &&
                             ChkLocationSameAsMailing.IsChecked == false)
                         {
                             /* The mailing address was the same as the location address, but now we want to add
                              * a new location address. */
-                            newLocationAddress.GStrAddress = txtLocationAddr.Text;
-                            newLocationAddress.GStrCity = txtLocationCity.Text;
-                            newLocationAddress.GStrState = txtLocationState.Text;
+                            newLocationAddress.StreetAddress = txtLocationAddr.Text;
+                            newLocationAddress.City = txtLocationCity.Text;
+                            newLocationAddress.State = txtLocationState.Text;
 
                             int.TryParse(txtLocationZip.Text, out int intLocationZipCode);
-                            newLocationAddress.GIntZipCode = intLocationZipCode;
+                            newLocationAddress.ZipCode = intLocationZipCode;
 
                             context.Addresses.Add(newLocationAddress);
                             context.SaveChanges();
 
-                            business.GIntPhysicalAddressId = newLocationAddress.GIntId;
+                            business.PhysicalAddressId = newLocationAddress.Id;
                         }
-                        else if (business.GIntMailingAddressId != business.GIntPhysicalAddressId &&
+                        else if (business.MailingAddressId != business.PhysicalAddressId &&
                             ChkLocationSameAsMailing.IsChecked == true)
                         {
                             /* The location address was removed, delete it and update the business location ID 
                              * to the mailing ID. */
-                            Address locationAddress = context.Addresses.Find(business.GIntPhysicalAddressId);
+                            Address locationAddress = context.Addresses.Find(business.PhysicalAddressId);
                             context.Addresses.Remove(locationAddress);
 
-                            business.GIntPhysicalAddressId = mailingAddress.GIntId;
+                            business.PhysicalAddressId = mailingAddress.Id;
                         }
-                        else if (business.GIntMailingAddressId != business.GIntPhysicalAddressId &&
+                        else if (business.MailingAddressId != business.PhysicalAddressId &&
                             ChkLocationSameAsMailing.IsChecked == false)
                         {
                             /* Update the location address with the one from the form. */
-                            Address locationAddress = context.Addresses.Find(business.GIntPhysicalAddressId);
-                            locationAddress.GStrAddress = txtLocationAddr.Text;
-                            locationAddress.GStrCity = txtLocationCity.Text;
-                            locationAddress.GStrState = txtLocationState.Text;
+                            Address locationAddress = context.Addresses.Find(business.PhysicalAddressId);
+                            locationAddress.StreetAddress = txtLocationAddr.Text;
+                            locationAddress.City = txtLocationCity.Text;
+                            locationAddress.State = txtLocationState.Text;
 
                             int.TryParse(txtLocationZip.Text, out int intLocationZipCode);
-                            locationAddress.GIntZipCode = intLocationZipCode;
+                            locationAddress.ZipCode = intLocationZipCode;
                         }
 
                         /* Remove all contacts from the list. */

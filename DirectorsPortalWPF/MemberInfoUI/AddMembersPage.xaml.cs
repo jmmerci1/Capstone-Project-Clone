@@ -5,6 +5,7 @@ using DirectorsPortalWPF.MemberInfoUI.MemberInfoViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -29,8 +30,11 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
         /// <summary>
         /// A method for generating the add members UI.
+        /// 
+        /// Optional parameter will be used to populate this form with data pulled
+        /// from a PDF
         /// </summary>
-        public AddMembersPage()
+        public AddMembersPage([Optional] Dictionary<string, string> dictPdfImport)
         {
             InitializeComponent();
 
@@ -57,33 +61,33 @@ namespace DirectorsPortalWPF.MemberInfoUI
         {
             /* Get the business info from the form. */
             Business businessFromForm = new Business();
-            businessFromForm.GStrBusinessName = txtBusinessName.Text;
+            businessFromForm.BusinessName = txtBusinessName.Text;
 
             int.TryParse(txtYearEst.Text, out int intYearEst);
-            businessFromForm.GIntYearEstablished = intYearEst;
+            businessFromForm.YearEstablished = intYearEst;
 
-            businessFromForm.GStrWebsite = txtWebsite.Text;
-            businessFromForm.GEnumMembershipLevel = (MembershipLevel)cboMemberLevel.SelectedIndex;
+            businessFromForm.Website = txtWebsite.Text;
+            businessFromForm.MembershipLevel = (MembershipLevel)cboMemberLevel.SelectedIndex;
 
             /* Get the mailing address from the form. */
             Address mailingAddrFromForm = new Address();
-            mailingAddrFromForm.GStrAddress = txtMailAddr.Text;
-            mailingAddrFromForm.GStrCity = txtMailCity.Text;
-            mailingAddrFromForm.GStrState = txtMailState.Text;
+            mailingAddrFromForm.StreetAddress = txtMailAddr.Text;
+            mailingAddrFromForm.City = txtMailCity.Text;
+            mailingAddrFromForm.State = txtMailState.Text;
 
             int.TryParse(txtMailZip.Text, out int intMailZipCode);
-            mailingAddrFromForm.GIntZipCode = intMailZipCode;
+            mailingAddrFromForm.ZipCode = intMailZipCode;
 
             /* Get the location address from the form. */
             Address locationAddressFromForm = new Address();
             if (ChkLocationSameAsMailing.IsChecked == false) 
             {
-                locationAddressFromForm.GStrAddress = txtLocationAddr.Text;
-                locationAddressFromForm.GStrCity = txtLocationCity.Text;
-                locationAddressFromForm.GStrState = txtLocationState.Text;
+                locationAddressFromForm.StreetAddress = txtLocationAddr.Text;
+                locationAddressFromForm.City = txtLocationCity.Text;
+                locationAddressFromForm.State = txtLocationState.Text;
 
                 int.TryParse(txtLocationZip.Text, out int intLocationZipCode);
-                locationAddressFromForm.GIntZipCode = intLocationZipCode;
+                locationAddressFromForm.ZipCode = intLocationZipCode;
             }
 
             /* Get the contacts from the form. */
@@ -105,7 +109,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             EmailInput emailInput = (uiEmail as EmailInput);
                             Email email = new Email();
 
-                            email.GStrEmailAddress = emailInput.TxtEmail.Text;
+                            email.EmailAddress = emailInput.TxtEmail.Text;
                             contactModel.Emails.Add(email);
                         }
                     }
@@ -118,7 +122,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             ContactNumberInput contactNumberInput = (uiPhoneNumber as ContactNumberInput);
                             PhoneNumber phoneNumber = new PhoneNumber();
 
-                            phoneNumber.GStrPhoneNumber = contactNumberInput.TxtContactNumber.Text;
+                            phoneNumber.Number = contactNumberInput.TxtContactNumber.Text;
                             phoneNumber.GEnumPhoneType = (PhoneType)contactNumberInput.CboNumberType.SelectedIndex;
                             contactModel.PhoneNumbers.Add(phoneNumber);
                         }
@@ -146,36 +150,36 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         /* Verify the address are valid.
                          * For the time being this just means a single street address. */
                         if (ChkLocationSameAsMailing.IsChecked == true 
-                            && !mailingAddressFromFrom.GStrAddress.Equals(""))
+                            && !mailingAddressFromFrom.StreetAddress.Equals(""))
                         {
                             /* Add only the mailing address to the database. */
                             context.Addresses.Add(mailingAddressFromFrom);
                             context.SaveChanges();
 
-                            businessFromForm.GIntMailingAddressId = mailingAddressFromFrom.GIntId;
-                            businessFromForm.GIntPhysicalAddressId = mailingAddressFromFrom.GIntId;
+                            businessFromForm.MailingAddressId = mailingAddressFromFrom.Id;
+                            businessFromForm.PhysicalAddressId = mailingAddressFromFrom.Id;
                         }
                         else if (ChkLocationSameAsMailing.IsChecked == false
-                            && !mailingAddressFromFrom.GStrAddress.Equals("")
-                            && !locationAddressFromForm.GStrAddress.Equals(""))
+                            && !mailingAddressFromFrom.StreetAddress.Equals("")
+                            && !locationAddressFromForm.StreetAddress.Equals(""))
                         {
                             /* Add both addresses to the form. */
                             context.Addresses.Add(mailingAddressFromFrom);
                             context.Addresses.Add(locationAddressFromForm);
                             context.SaveChanges();
 
-                            businessFromForm.GIntMailingAddressId = mailingAddressFromFrom.GIntId;
-                            businessFromForm.GIntPhysicalAddressId = locationAddressFromForm.GIntId;
+                            businessFromForm.MailingAddressId = mailingAddressFromFrom.Id;
+                            businessFromForm.PhysicalAddressId = locationAddressFromForm.Id;
                         }
 
                         /* Verify the business info is valid.
                          * For the time being this means the business has a name. */
-                        if (!businessFromForm.GStrBusinessName.Equals("")) 
+                        if (!businessFromForm.BusinessName.Equals("")) 
                         {
                             /* Check for a valid membership level as null defaults to -1. */
-                            if (businessFromForm.GEnumMembershipLevel < 0) 
+                            if (businessFromForm.MembershipLevel < 0) 
                             {
-                                businessFromForm.GEnumMembershipLevel = MembershipLevel.GOLD;
+                                businessFromForm.MembershipLevel = MembershipLevel.GOLD;
                             }
 
                             context.Businesses.Add(businessFromForm);
@@ -189,14 +193,14 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             if (!contact.Name.Equals("")) 
                             {
                                 ContactPerson newContact = new ContactPerson();
-                                newContact.GStrName = contact.Name;
+                                newContact.Name = contact.Name;
 
                                 context.ContactPeople.Add(newContact);
                                 context.SaveChanges();
 
                                 BusinessRep newBusinessRep = new BusinessRep();
-                                newBusinessRep.GIntBusinessId = businessFromForm.GIntId;
-                                newBusinessRep.GIntContactPersonId = newContact.GIntId;
+                                newBusinessRep.BusinessId = businessFromForm.Id;
+                                newBusinessRep.ContactPersonId = newContact.Id;
 
                                 context.BusinessReps.Add(newBusinessRep);
                                 context.SaveChanges();
@@ -204,9 +208,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                 /* Verify the contacts emails are valid. */
                                 foreach (Email email in contact.Emails) 
                                 {
-                                    if (!email.GStrEmailAddress.Equals("")) 
+                                    if (!email.EmailAddress.Equals("")) 
                                     {
-                                        email.GIntContactPersonId = newContact.GIntId;
+                                        email.ContactPersonId = newContact.Id;
 
                                         context.Emails.Add(email);
                                     }
@@ -216,7 +220,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                 /* Verify the contacts numbers are valid. */
                                 foreach (PhoneNumber phoneNumber in contact.PhoneNumbers) 
                                 {
-                                    if (!phoneNumber.GStrPhoneNumber.Equals("")) 
+                                    if (!phoneNumber.Number.Equals("")) 
                                     {
                                         /* Check for a valid phone type as null defaults to -1. */
                                         if (phoneNumber.GEnumPhoneType < 0) 
@@ -224,7 +228,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                             phoneNumber.GEnumPhoneType = PhoneType.Mobile;
                                         }
 
-                                        phoneNumber.GIntContactPersonId = newContact.GIntId;
+                                        phoneNumber.ContactPersonId = newContact.Id;
 
                                         context.PhoneNumbers.Add(phoneNumber);
                                     }
@@ -277,5 +281,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             Emails = new List<Email>();
             PhoneNumbers = new List<PhoneNumber>();
         }
+
+
     }
 }

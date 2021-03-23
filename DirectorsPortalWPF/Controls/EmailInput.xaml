@@ -11,6 +11,6 @@
         <Label Width="100" Content="{Binding GStrInputName}"/>
         <TextBox x:Name="TxtEmail" Width="400"/>
         <Button x:Name="BtnRemoveEmail" Click="BtnRemoveEmail_Click" 
-                Visibility="{Binding GVisRemovable}" Content="Remove" Margin="5,0,0,0" />
+            Content="Remove" Margin="5,0,0,0" />
     </StackPanel>
 </UserControl>

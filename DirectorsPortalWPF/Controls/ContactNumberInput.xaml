@@ -16,6 +16,6 @@
             <ComboBoxItem Content="Fax"></ComboBoxItem>
         </ComboBox>
         <Button x:Name="BtnRemoveNumber" Click="BtnRemoveNumber_Click" 
-                Visibility="{Binding GVisRemovable}" Content="Remove" Margin="5,0,0,0" />
+            Content="Remove" Margin="5,0,0,0" />
     </StackPanel>
 </UserControl>

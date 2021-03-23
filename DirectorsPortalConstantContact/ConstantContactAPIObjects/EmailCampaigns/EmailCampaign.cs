@@ -6,7 +6,7 @@ namespace DirectorsPortalConstantContact
 {
     public class EmailCampaign : GETEmailCampaign
     {
-
+        [Newtonsoft.Json.JsonIgnore]
         public List<EmailCampaignActivity> Activities = new List<EmailCampaignActivity>();
 
 
@@ -20,7 +20,7 @@ namespace DirectorsPortalConstantContact
 
             foreach (EmailCampaignActivity objCampaignActivity in this.Activities)
             {
-                objTempCampaign.email_campaign_activities.Add(objCampaignActivity.objNewActivity());
+                objTempCampaign.email_campaign_activities.Add(objCampaignActivity.NewActivity());
             }
 
             return objTempCampaign;
