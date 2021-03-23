@@ -95,46 +95,86 @@ namespace DirectorPortalDatabase.Models
         }
 
         /// <summary>
-        /// Gives a reference to the mailing address object from the database
+        /// A method for converting the membership level from the business entity to
+        /// a human readable string.
         /// </summary>
-        public Address GMailingAddress
+        /// <param name="strEnumVal">The membership level from the data model</param>
+        /// <returns>The membership enum value of the entered string.</returns>
+        public static MembershipLevel GetMemberShipEnum(string strEnumVal)
         {
-            get
+            MembershipLevel enumMembershipLevel;
+            strEnumVal = strEnumVal.ToLower();
+
+            switch (strEnumVal)
             {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    return dbContext.Addresses.FirstOrDefault(x => x.GIntId == GIntMailingAddressId);
-                }
+                case "gold":
+                    enumMembershipLevel = MembershipLevel.GOLD;
+                    break;
+
+                case "silver":
+                    enumMembershipLevel = MembershipLevel.SILVER;
+                    break;
+
+                case "associate":
+                    enumMembershipLevel = MembershipLevel.ASSOCIATE;
+                    break;
+
+                case "individual":
+                    enumMembershipLevel = MembershipLevel.INDIVIDUAL;
+                    break;
+
+                case "courtesy":
+                    enumMembershipLevel = MembershipLevel.COURTESY;
+                    break;
+
+                default:
+                    /* Probably shouldn't default to GOLD.
+                     * The database does not currently have an option for this field to be null though.*/
+                    enumMembershipLevel = MembershipLevel.GOLD;
+                    break;
             }
+
+            return enumMembershipLevel;
         }
 
         /// <summary>
-        /// Gives a reference to the physical address object from the database
+        /// A method for converting the membership level from the business entity to
+        /// a human readable string.
         /// </summary>
-        public Address GPhysicalAddress
+        /// <param name="membershipLevel">The membership level from the business entity.</param>
+        /// <returns>The human readable membership string.</returns>
+        public static string GetMebershipLevelString(MembershipLevel membershipLevel)
         {
-            get
-            {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    return dbContext.Addresses.FirstOrDefault(x => x.GIntId == GIntPhysicalAddressId);
-                }
-            }
-        }
+            string strLevel = "";
 
-        /// <summary>
-        /// Gives a reference to the contact people
-        /// </summary>
-        public List<ContactPerson> GRGContactPeople
-        {
-            get
+            switch (membershipLevel)
             {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    // Select the list of BusinessRep objects and return their contact person property
-                    return dbContext.BusinessReps.Where(x => x.GIntContactPersonId == GIntId).Select(b => b.GContactPerson).ToList();
-                }
+                case MembershipLevel.GOLD:
+                    strLevel = "Gold";
+                    break;
+
+                case MembershipLevel.SILVER:
+                    strLevel = "Silver";
+                    break;
+
+                case MembershipLevel.ASSOCIATE:
+                    strLevel = "Associate";
+                    break;
+
+                case MembershipLevel.INDIVIDUAL:
+                    strLevel = "Individual";
+                    break;
+
+                case MembershipLevel.COURTESY:
+                    strLevel = "Courtesy";
+                    break;
+
+                default:
+                    strLevel = "None";
+                    break;
             }
+
+            return strLevel;
         }
     }
 

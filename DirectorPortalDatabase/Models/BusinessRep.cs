@@ -24,31 +24,5 @@ namespace DirectorPortalDatabase.Models
         /// </summary>
         [Column("contactPersonId")]
         public int GIntContactPersonId { get; set; }
-        /// <summary>
-        /// Gives a reference to the business object from the database
-        /// </summary>
-        public Business GBusiness
-        {
-            get
-            {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    return dbContext.Businesses.FirstOrDefault(x => x.GIntId == GIntBusinessId);
-                }
-            }
-        }
-        /// <summary>
-        /// Gives a reference to the contact person object from the database
-        /// </summary>
-        public ContactPerson GContactPerson
-        {
-            get
-            {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    return dbContext.ContactPeople.FirstOrDefault(x => x.GIntId == GIntBusinessId);
-                }
-            }
-        }
     }
 }

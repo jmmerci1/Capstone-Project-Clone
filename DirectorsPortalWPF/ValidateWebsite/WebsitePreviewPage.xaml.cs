@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,7 +22,7 @@ namespace DirectorsPortalWPF.ValidateWebsite
     {
         // Preview Generator for the HTML template, responsible for loading the 
         // HTML template with latest membership data
-        private readonly HtmlPreviewGenerator GHpgPreview;
+        private HtmlPreviewGenerator GHpgPreview;
 
         /// <summary>
         /// Initialization of the Validate Webpage screen. Preview of the HTML content is generated with latest
@@ -30,12 +31,54 @@ namespace DirectorsPortalWPF.ValidateWebsite
         public WebsitePreviewPage()
         {
             InitializeComponent();
+        }
 
-            GHpgPreview = new HtmlPreviewGenerator();
-            GHpgPreview.GeneratePreview();
-
-            // Template code
+        /// <summary>
+        /// Updates the Web Form on the Validate Website screen to the latest HTML content for the 
+        /// Member details. Used by a background worker
+        /// </summary>
+        /// <param name="sender">The background worker</param>
+        /// <param name="e">The arguments for when background worker completes work</param>
+        private void UpdateWebForm(object sender, RunWorkerCompletedEventArgs e)
+        {
             frmValidateWebpage.Source = new Uri(GHpgPreview.GetTemplateLocation());
+            btnRefreshValWeb.Content = "Refresh";
+            btnRefreshValWeb.Width = 60;
+
+            btnViewInWeb.IsEnabled = true;
+            btnCopyContent.IsEnabled = true;
+            btnRefreshValWeb.IsEnabled = true;
+        }
+
+        /// <summary>
+        /// Refreshes the HTML content to the latest details for Chamber Members. Used by the 
+        /// background worker.
+        /// </summary>
+        /// <param name="sender">The background worker</param>
+        /// <param name="e">'DoWork' arguments that are used while the background worker is actively doing work.</param>
+        private void RefreshPreview(Object sender, DoWorkEventArgs e)
+        {
+            try
+            {
+                GHpgPreview = new HtmlPreviewGenerator();
+                GHpgPreview.GeneratePreview();
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show(ex.Message, "Warning!", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        /// <summary>
+        /// Opens a pop-up window that displays the current frames help information. 
+        /// </summary>
+        /// <param name="sender">Help button</param>
+        /// <param name="e">The Click event</param>
+        public void HelpButtonHandler(object sender, EventArgs e)
+        {
+            HelpUI.HelpScreenWindow window = new HelpUI.HelpScreenWindow();
+            window.Show();
+            window.tabs.SelectedIndex = 4;
         }
 
         /// <summary>
@@ -65,19 +108,6 @@ namespace DirectorsPortalWPF.ValidateWebsite
         }
 
         /// <summary>
-        /// When the 'Refresh Preview' button is selected. The HTML preview is refreshed with the latest data
-        /// from the database.
-        /// </summary>
-        /// <param name="sender">The 'Refresh Preview' button</param>
-        /// <param name="e">The Click Event</param>
-        private void BtnRefreshPreview_Click(object sender, RoutedEventArgs e)
-        {
-            GHpgPreview.GeneratePreview();
-            frmValidateWebpage.Source = new Uri(GHpgPreview.GetTemplateLocation());
-            frmValidateWebpage.Refresh();
-        }
-
-        /// <summary>
         /// When the 'Preview in Web Browser' button is selected. The HTML preview will open in the
         /// default browser set by the operating system. This is useful since the Frame built into the app cannot render all
         /// HTML styling and some JavasScript. The Web Browser preview is a true display of content that is viewed.
@@ -99,6 +129,31 @@ namespace DirectorsPortalWPF.ValidateWebsite
             {
                 MessageBox.Show(other.Message);                                 // Any other error...
             }           
+        }
+
+        /// <summary>
+        /// When the 'Refresh' button is selected. The HTML preview is refreshed with the latest data
+        /// from the database.
+        /// </summary>
+        /// <param name="sender">The 'Refresh' button</param>
+        /// <param name="e">The Click Event</param>
+        private void BtnRefreshValWeb_Click(object sender, RoutedEventArgs e)
+        {
+
+            btnRefreshValWeb.Content = "Refreshing...";
+            btnRefreshValWeb.Width = 100;
+
+            btnViewInWeb.IsEnabled = false;
+            btnCopyContent.IsEnabled = false;
+            btnRefreshValWeb.IsEnabled = false;
+
+            BackgroundWorker bWrk = new BackgroundWorker();
+
+            bWrk.DoWork += RefreshPreview;
+            bWrk.RunWorkerCompleted += UpdateWebForm;
+
+            bWrk.RunWorkerAsync();
+
         }
     }
 }

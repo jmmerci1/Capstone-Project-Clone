@@ -477,6 +477,18 @@ namespace DirectorsPortalWPF.PaymentInfoUI
                 spCustomerPayments.Children.Add(expPayment);
             }
         }
+        /// <summary>
+        /// Opens a pop-up window that displays the current frames help information. 
+        /// </summary>
+        /// <param name="sender">Help button</param>
+        /// <param name="e">The Click event</param>
+        private void HelpButtonHandler(object sender, EventArgs e)
+        {
+            HelpUI.HelpScreenWindow helpWindow = new HelpUI.HelpScreenWindow();
+            helpWindow.Show();
+            helpWindow.tabs.SelectedIndex = 1;
+
+        }
     }
 }
 

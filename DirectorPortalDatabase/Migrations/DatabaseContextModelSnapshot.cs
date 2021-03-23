@@ -27,6 +27,10 @@ namespace DirectorPortalDatabase.Migrations
                         .HasColumnName("zip")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("GIntZipExtCode")
+                        .HasColumnName("zipExt")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("GStrAddress")
                         .HasColumnName("address")
                         .HasColumnType("TEXT");
