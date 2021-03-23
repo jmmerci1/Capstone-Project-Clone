@@ -366,7 +366,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 ClsMetadataHelper.ClsModelInfo udtModelInfo = (ClsMetadataHelper.ClsModelInfo)cbiReportTypeItem.Tag;
 
                 // Checks for matching model names.
-                if (udtModelInfo.TypeModelType.Name == udtReportTemplate.GStrModelName)
+                if (udtModelInfo.TypeModelType.Name == udtReportTemplate.ModelName)
                 {
 
                     // Sets this ComboBoxItem as active.
@@ -391,7 +391,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                                 = (ClsMetadataHelper.ClsTableField)lbiFieldItem.Tag;
 
                             // Checks for a match.
-                            if (udtReportTemplateField.GStrModelPropertyName == udtTableField.StrPropertyName)
+                            if (udtReportTemplateField.ModelPropertyName == udtTableField.StrPropertyName)
                             {
                                 // Selects the ListBoxItem.
                                 lbiFieldItem.IsSelected = true;

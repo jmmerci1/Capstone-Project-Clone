@@ -79,7 +79,7 @@ namespace DirectorsPortalWPF
                 //Loop to check for incomplete todo's
                 foreach (Todo x in lstTasks)
                 {
-                    if (x.GBlnMarkedAsDone.Equals(false))
+                    if (x.MarkedAsDone.Equals(false))
                     {
                         //Increments integer value for every incomplete todo
                         intNotifications++;
