@@ -80,7 +80,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
             /* Get the location address from the form. */
             Address locationAddressFromForm = new Address();
-            if (ChkLocationSameAsMailing.IsChecked == false) 
+            if (ChkLocationSameAsMailing.IsChecked == false)
             {
                 locationAddressFromForm.StreetAddress = txtLocationAddr.Text;
                 locationAddressFromForm.City = txtLocationCity.Text;
@@ -88,6 +88,10 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
                 int.TryParse(txtLocationZip.Text, out int intLocationZipCode);
                 locationAddressFromForm.ZipCode = intLocationZipCode;
+            }
+            else 
+            {
+                locationAddressFromForm = mailingAddrFromForm;
             }
 
             /* Get the contacts from the form. */
@@ -149,27 +153,11 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     {
                         /* Verify the address are valid.
                          * For the time being this just means a single street address. */
-                        if (ChkLocationSameAsMailing.IsChecked == true 
-                            && !mailingAddressFromFrom.StreetAddress.Equals(""))
+                        if (!mailingAddressFromFrom.StreetAddress.Equals("")
+                            && !locationAddressFromForm.StreetAddress.Equals("")) 
                         {
-                            /* Add only the mailing address to the database. */
-                            context.Addresses.Add(mailingAddressFromFrom);
-                            context.SaveChanges();
-
-                            businessFromForm.MailingAddressId = mailingAddressFromFrom.Id;
-                            businessFromForm.PhysicalAddressId = mailingAddressFromFrom.Id;
-                        }
-                        else if (ChkLocationSameAsMailing.IsChecked == false
-                            && !mailingAddressFromFrom.StreetAddress.Equals("")
-                            && !locationAddressFromForm.StreetAddress.Equals(""))
-                        {
-                            /* Add both addresses to the form. */
-                            context.Addresses.Add(mailingAddressFromFrom);
-                            context.Addresses.Add(locationAddressFromForm);
-                            context.SaveChanges();
-
-                            businessFromForm.MailingAddressId = mailingAddressFromFrom.Id;
-                            businessFromForm.PhysicalAddressId = locationAddressFromForm.Id;
+                            businessFromForm.MailingAddress = mailingAddressFromFrom;
+                            businessFromForm.PhysicalAddress = locationAddressFromForm;
                         }
 
                         /* Verify the business info is valid.
@@ -181,10 +169,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             {
                                 businessFromForm.MembershipLevel = MembershipLevel.GOLD;
                             }
-
-                            context.Businesses.Add(businessFromForm);
-                            context.SaveChanges();
                         }
+                        businessFromForm.BusinessReps = new List<BusinessRep>();
 
                         /* Verify the business contacts are valid.
                          * For the time being this means the business has a name. */
@@ -192,30 +178,29 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         {
                             if (!contact.Name.Equals("")) 
                             {
-                                ContactPerson newContact = new ContactPerson();
-                                newContact.Name = contact.Name;
+                                ContactPerson newContact = new ContactPerson
+                                {
+                                    Name = contact.Name,
+                                    Emails = new List<Email>(),
+                                    PhoneNumbers = new List<PhoneNumber>()
+                                };
 
-                                context.ContactPeople.Add(newContact);
-                                context.SaveChanges();
+                                BusinessRep newBusinessRep = new BusinessRep
+                                {
+                                    Business = businessFromForm,
+                                    ContactPerson = newContact
+                                };
 
-                                BusinessRep newBusinessRep = new BusinessRep();
-                                newBusinessRep.BusinessId = businessFromForm.Id;
-                                newBusinessRep.ContactPersonId = newContact.Id;
-
-                                context.BusinessReps.Add(newBusinessRep);
-                                context.SaveChanges();
+                                businessFromForm.BusinessReps.Add(newBusinessRep);
 
                                 /* Verify the contacts emails are valid. */
                                 foreach (Email email in contact.Emails) 
                                 {
                                     if (!email.EmailAddress.Equals("")) 
                                     {
-                                        email.ContactPersonId = newContact.Id;
-
-                                        context.Emails.Add(email);
+                                        newContact.Emails.Add(email);
                                     }
                                 }
-                                context.SaveChanges();
 
                                 /* Verify the contacts numbers are valid. */
                                 foreach (PhoneNumber phoneNumber in contact.PhoneNumbers) 
@@ -228,14 +213,14 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                             phoneNumber.GEnumPhoneType = PhoneType.Mobile;
                                         }
 
-                                        phoneNumber.ContactPersonId = newContact.Id;
-
-                                        context.PhoneNumbers.Add(phoneNumber);
+                                        newContact.PhoneNumbers.Add(phoneNumber);
                                     }
                                 }
-                                context.SaveChanges();
                             }
                         }
+
+                        context.Businesses.Add(businessFromForm);
+                        context.SaveChanges();
 
                         transaction.Commit();
                     }
