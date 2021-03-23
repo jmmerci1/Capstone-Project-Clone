@@ -75,6 +75,11 @@ namespace DirectorsPortalWPF.MemberInfoUI
             using (DatabaseContext context = new DatabaseContext()) 
             {
                 selectedBusiness = context.Businesses
+                    .Include(x => x.MailingAddress)
+                    .Include(x => x.PhysicalAddress)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson.Emails)
+                    .ThenInclude(x => x.ContactPerson.PhoneNumbers)
                     .FirstOrDefault(business => business.BusinessName.Equals(selectedTableViewModel.StrBuisnessName));
             }
 
