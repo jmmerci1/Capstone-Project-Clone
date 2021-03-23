@@ -2,6 +2,7 @@
 using DirectorPortalDatabase.Models;
 using DirectorPortalDatabase.Utility;
 using iTextSharp.text.pdf;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using System;
 using System.Collections;
@@ -74,7 +75,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             using (DatabaseContext context = new DatabaseContext()) 
             {
                 selectedBusiness = context.Businesses
-                    .Where(business => business.GStrBusinessName.Equals(selectedTableViewModel.StrBuisnessName))
+                    .Where(business => business.BusinessName.Equals(selectedTableViewModel.StrBuisnessName))
                     .FirstOrDefault();
             }
 
@@ -94,27 +95,32 @@ namespace DirectorsPortalWPF.MemberInfoUI
             {
                 List<BusinessTableViewModel> lstTableViewModel = new List<BusinessTableViewModel>();
 
-                List<Business> lstBusiness = context.Businesses.ToList();
+                List<Business> lstBusiness = context.Businesses
+                    .Include(bus => bus.MailingAddress)
+                    .Include(bus => bus.PhysicalAddress)
+                    .ToList();
                 foreach (Business business in lstBusiness) 
                 {
                     BusinessTableViewModel businessTableView = new BusinessTableViewModel();
 
-                    businessTableView.StrBuisnessName = business.GStrBusinessName;
+                    businessTableView.StrBuisnessName = business.BusinessName;
 
                     /* Get the associated addresses for this business. */
-                    Address locationAddress = context.Addresses.Find(business.GIntPhysicalAddressId);
-                    Address malingAddress = context.Addresses.Find(business.GIntMailingAddressId);
+                    //Address locationAddress = context.Addresses.Find(business.PhysicalAddressId);
+                    //Address malingAddress = context.Addresses.Find(business.MailingAddressId);
+                    Address locationAddress = business.PhysicalAddress;
+                    Address malingAddress = business.MailingAddress;
 
-                    businessTableView.StrLocationAddress = locationAddress?.GStrAddress;
-                    businessTableView.StrMailingAddress = malingAddress?.GStrAddress;
-                    businessTableView.StrCity = malingAddress?.GStrCity;
-                    businessTableView.StrState = malingAddress?.GStrState;
-                    businessTableView.IntZipCode = CheckNullableInt(malingAddress?.GIntZipCode);
+                    businessTableView.StrLocationAddress = locationAddress?.StreetAddress;
+                    businessTableView.StrMailingAddress = malingAddress?.StreetAddress;
+                    businessTableView.StrCity = malingAddress?.City;
+                    businessTableView.StrState = malingAddress?.State;
+                    businessTableView.IntZipCode = CheckNullableInt(malingAddress?.ZipCode);
 
                     /* Get the business rep from the database. */
                     /* TODO: Need to figure out a way to display more than one buisiness rep. */
                     BusinessRep businessRep = context.BusinessReps
-                        .Where(r => r.GIntBusinessId == business.GIntId).FirstOrDefault();
+                        .Where(r => r.BusinessId == business.Id).FirstOrDefault();
 
                     if (businessRep == null)
                     {
@@ -127,36 +133,36 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     }
                     else 
                     {
-                        ContactPerson contactPerson = context.ContactPeople.Find(businessRep.GIntContactPersonId);
+                        ContactPerson contactPerson = context.ContactPeople.Find(businessRep.ContactPersonId);
 
-                        businessTableView.StrContactPerson = contactPerson?.GStrName;
+                        businessTableView.StrContactPerson = contactPerson?.Name;
 
                         /* Get the phone and fax number of the contact person. */
                         List<PhoneNumber> phoneNumbers = context.PhoneNumbers
-                            .Where(pn => pn.GIntContactPersonId == contactPerson.GIntId).ToList();
+                            .Where(pn => pn.ContactPersonId == contactPerson.Id).ToList();
                         foreach (PhoneNumber phoneNumber in phoneNumbers)
                         {
                             if (phoneNumber.GEnumPhoneType == PhoneType.Mobile ||
                                 phoneNumber.GEnumPhoneType == PhoneType.Office)
                             {
-                                businessTableView.StrPhoneNumber = phoneNumber?.GStrPhoneNumber;
+                                businessTableView.StrPhoneNumber = phoneNumber?.Number;
                             }
                             else
                             {
-                                businessTableView.StrFaxNumber = phoneNumber?.GStrPhoneNumber;
+                                businessTableView.StrFaxNumber = phoneNumber?.Number;
                             }
                         }
 
                         /* Get the contacts persons email address. */
                         Email email = context.Emails
-                            .Where(ea => ea.GIntContactPersonId == contactPerson.GIntId).FirstOrDefault();
-                        businessTableView.StrEmailAddress = email?.GStrEmailAddress;
+                            .Where(ea => ea.ContactPersonId == contactPerson.Id).FirstOrDefault();
+                        businessTableView.StrEmailAddress = email?.EmailAddress;
                     }
 
-                    businessTableView.StrWebsite = business?.GStrWebsite;
-                    businessTableView.StrLevel = Business.GetMebershipLevelString(business.GEnumMembershipLevel);
+                    businessTableView.StrWebsite = business?.Website;
+                    businessTableView.StrLevel = Business.GetMebershipLevelString(business.MembershipLevel);
 
-                    businessTableView.IntEstablishedYear = CheckNullableInt(business?.GIntYearEstablished);
+                    businessTableView.IntEstablishedYear = CheckNullableInt(business?.YearEstablished);
 
                     lstTableViewModel.Add(businessTableView);
                 }
@@ -301,7 +307,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             using (DatabaseContext dbContext = new DatabaseContext())
             {
                 busModified = dbContext.Businesses
-                    .Where(business => business.GStrBusinessName.Equals(dictFields["Business Name"])).FirstOrDefault();
+                    .Where(business => business.BusinessName.Equals(dictFields["Business Name"])).FirstOrDefault();
             }
 
             NavigationService.Navigate(new EditMembersPage(busModified, dictFields));

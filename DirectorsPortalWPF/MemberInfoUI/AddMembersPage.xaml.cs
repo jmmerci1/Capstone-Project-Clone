@@ -125,42 +125,42 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 Address newMailingAddress = new Address();
 
                 object txtInputBox = FindName("StrMailingAddress");
-                newMailingAddress.GStrAddress = ((TextBox)txtInputBox).Text;
+                newMailingAddress.StreetAddress = ((TextBox)txtInputBox).Text;
 
                 txtInputBox = FindName("StrMailCity");
-                newMailingAddress.GStrCity = ((TextBox)txtInputBox).Text;
+                newMailingAddress.City = ((TextBox)txtInputBox).Text;
 
                 txtInputBox = FindName("StrMailState");
-                newMailingAddress.GStrState = ((TextBox)txtInputBox).Text;
+                newMailingAddress.State = ((TextBox)txtInputBox).Text;
 
                 txtInputBox = FindName("IntMailZipCode");
                 if (!(((TextBox)txtInputBox).Text.Equals("")))
                 {
-                    newMailingAddress.GIntZipCode = int.Parse(((TextBox)txtInputBox).Text);
+                    newMailingAddress.ZipCode = int.Parse(((TextBox)txtInputBox).Text);
                 }
 
                 /* Create a new location address. */
                 Address newLocationAddress = new Address();
 
                 txtInputBox = FindName("StrLocationAddress");
-                newLocationAddress.GStrAddress = ((TextBox)txtInputBox).Text;
+                newLocationAddress.StreetAddress = ((TextBox)txtInputBox).Text;
 
                 txtInputBox = FindName("StrLocCity");
-                newLocationAddress.GStrCity = ((TextBox)txtInputBox).Text;
+                newLocationAddress.City = ((TextBox)txtInputBox).Text;
 
                 txtInputBox = FindName("StrLocState");
-                newLocationAddress.GStrState = ((TextBox)txtInputBox).Text;
+                newLocationAddress.State = ((TextBox)txtInputBox).Text;
 
                 txtInputBox = FindName("IntLocZipCode");
                 if (!(((TextBox)txtInputBox).Text.Equals(""))) 
                 {
-                    newLocationAddress.GIntZipCode = int.Parse(((TextBox)txtInputBox).Text);
+                    newLocationAddress.ZipCode = int.Parse(((TextBox)txtInputBox).Text);
                 }
 
                 /* Verify that the two new address are not the same. */
                 if (newMailingAddress.Equals(newLocationAddress))
                 {
-                    if (!(newMailingAddress.GStrAddress.Equals(""))) 
+                    if (!(newMailingAddress.StreetAddress.Equals(""))) 
                     {
                         context.Addresses.Add(newMailingAddress);
                         context.SaveChanges();
@@ -168,13 +168,13 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 }
                 else
                 {
-                    if (!(newMailingAddress.GStrAddress.Equals("")))
+                    if (!(newMailingAddress.StreetAddress.Equals("")))
                     {
                         context.Addresses.Add(newMailingAddress);
                         context.SaveChanges();
                     }
 
-                    if (!(newLocationAddress.GStrAddress.Equals("")))
+                    if (!(newLocationAddress.StreetAddress.Equals("")))
                     {
                         context.Addresses.Add(newLocationAddress);
                         context.SaveChanges();
@@ -186,41 +186,41 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 Business newBusiness = new Business();
 
                 txtInputBox = FindName("StrBuisnessName");
-                newBusiness.GStrBusinessName = ((TextBox)txtInputBox).Text;
+                newBusiness.BusinessName = ((TextBox)txtInputBox).Text;
 
                 txtInputBox = FindName("IntEstablishedYear");
                 if (!(((TextBox)txtInputBox).Text.Equals("")))
                 {
-                    newBusiness.GIntYearEstablished = int.Parse(((TextBox)txtInputBox).Text);
+                    newBusiness.YearEstablished = int.Parse(((TextBox)txtInputBox).Text);
                 }
 
                 txtInputBox = FindName("StrLevel");
-                newBusiness.GEnumMembershipLevel = Business.GetMemberShipEnum(((TextBox)txtInputBox).Text);
+                newBusiness.MembershipLevel = Business.GetMemberShipEnum(((TextBox)txtInputBox).Text);
 
                 Address mailingAddress = context.Addresses
-                    .Where(addr => addr.GStrAddress.Equals(newMailingAddress.GStrAddress))
+                    .Where(addr => addr.StreetAddress.Equals(newMailingAddress.StreetAddress))
                     .FirstOrDefault();
 
                 if (mailingAddress != null) 
                 {
-                    newBusiness.GIntMailingAddressId = mailingAddress.GIntId;
+                    newBusiness.MailingAddressId = mailingAddress.Id;
                 }
 
                 Address locationAddress = context.Addresses
-                    .Where(addr => addr.GStrAddress.Equals(newLocationAddress.GStrAddress))
+                    .Where(addr => addr.StreetAddress.Equals(newLocationAddress.StreetAddress))
                     .FirstOrDefault();
 
                 if (locationAddress != null) 
                 {
-                    newBusiness.GIntPhysicalAddressId = locationAddress.GIntId;
+                    newBusiness.PhysicalAddressId = locationAddress.Id;
                 }
 
                 txtInputBox = FindName("StrWebsite");
-                newBusiness.GStrWebsite = ((TextBox)txtInputBox).Text;
+                newBusiness.Website = ((TextBox)txtInputBox).Text;
 
                 context.Businesses.Add(newBusiness);
 
-                if (!(newBusiness.GStrBusinessName.Equals(""))) 
+                if (!(newBusiness.BusinessName.Equals(""))) 
                 {
                     context.SaveChanges();
                 }
@@ -229,11 +229,11 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 ContactPerson newContactPerson = new ContactPerson();
 
                 txtInputBox = FindName("StrContactPerson");
-                newContactPerson.GStrName = ((TextBox)txtInputBox).Text;
+                newContactPerson.Name = ((TextBox)txtInputBox).Text;
 
                 context.ContactPeople.Add(newContactPerson);
 
-                if (!(newContactPerson.GStrName.Equals(""))) 
+                if (!(newContactPerson.Name.Equals(""))) 
                 {
                     context.SaveChanges();
 
@@ -241,12 +241,12 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     /* Create the new Business Rep. */
                     BusinessRep newBusinessRep = new BusinessRep
                     {
-                        GIntBusinessId = context.Businesses
-                            .Where(bus => bus.GStrBusinessName.Equals(newBusiness.GStrBusinessName))
-                            .FirstOrDefault().GIntId,
-                        GIntContactPersonId = context.ContactPeople
-                            .Where(per => per.GStrName.Equals(newContactPerson.GStrName))
-                            .FirstOrDefault().GIntId
+                        BusinessId = context.Businesses
+                            .Where(bus => bus.BusinessName.Equals(newBusiness.BusinessName))
+                            .FirstOrDefault().Id,
+                        ContactPersonId = context.ContactPeople
+                            .Where(per => per.Name.Equals(newContactPerson.Name))
+                            .FirstOrDefault().Id
                     };
 
                     context.BusinessReps.Add(newBusinessRep);
@@ -257,15 +257,15 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     PhoneNumber newPhoneNumber = new PhoneNumber();
 
                     txtInputBox = FindName("StrPhoneNumber");
-                    newPhoneNumber.GStrPhoneNumber = ((TextBox)txtInputBox).Text;
-                    newPhoneNumber.GIntContactPersonId = newBusinessRep.GIntContactPersonId;
+                    newPhoneNumber.Number = ((TextBox)txtInputBox).Text;
+                    newPhoneNumber.ContactPersonId = newBusinessRep.ContactPersonId;
                     newPhoneNumber.GEnumPhoneType = PhoneType.Office;
 
                     PhoneNumber newFaxNumber = new PhoneNumber();
 
                     txtInputBox = FindName("StrFaxNumber");
-                    newFaxNumber.GStrPhoneNumber = ((TextBox)txtInputBox).Text;
-                    newFaxNumber.GIntContactPersonId = newBusinessRep.GIntContactPersonId;
+                    newFaxNumber.Number = ((TextBox)txtInputBox).Text;
+                    newFaxNumber.ContactPersonId = newBusinessRep.ContactPersonId;
                     newFaxNumber.GEnumPhoneType = PhoneType.Fax;
 
                     context.PhoneNumbers.Add(newPhoneNumber);
@@ -276,8 +276,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     Email newEmail = new Email();
 
                     txtInputBox = FindName("StrEmailAddress");
-                    newEmail.GStrEmailAddress = ((TextBox)txtInputBox).Text;
-                    newEmail.GIntContactPersonId = newBusinessRep.GIntContactPersonId;
+                    newEmail.EmailAddress = ((TextBox)txtInputBox).Text;
+                    newEmail.ContactPersonId = newBusinessRep.ContactPersonId;
 
                     context.Emails.Add(newEmail);
                     context.SaveChanges();

@@ -36,7 +36,7 @@ namespace DirectorsPortalWPF.TodoUI
         {
             InitializeComponent();
             GdbContext = new DatabaseContext();
-            List<Todo> rgTodos = GdbContext.TodoListItems.Where(e => e.GBlnMarkedAsDone.Equals(false)).ToList();
+            List<Todo> rgTodos = GdbContext.TodoListItems.Where(e => e.MarkedAsDone.Equals(false)).ToList();
 
             foreach (Todo tDoCurrentTodo in rgTodos)
             {
@@ -49,7 +49,7 @@ namespace DirectorsPortalWPF.TodoUI
 
                 TextBlock txtBoxCardContent = new TextBlock
                 {
-                    Text = $"{tDoCurrentTodo.GStrTitle} - {tDoCurrentTodo.GStrDescription}",
+                    Text = $"{tDoCurrentTodo.Title} - {tDoCurrentTodo.Description}",
                     Margin = new Thickness(5, 5, 5, 0)
                 };
 
@@ -110,7 +110,7 @@ namespace DirectorsPortalWPF.TodoUI
         private void MarkAsDone(object sender, RoutedEventArgs e, StackPanel sPanelCard, Todo tDoCurrentTodo)
         {
 
-            tDoCurrentTodo.GBlnMarkedAsDone = true;
+            tDoCurrentTodo.MarkedAsDone = true;
             GdbContext.SaveChanges();
 
             sPanelTodoList.Children.Remove(sPanelCard);
@@ -133,7 +133,7 @@ namespace DirectorsPortalWPF.TodoUI
         {
             foreach (Todo tDoCurrentTodo in rgTodoAll)
             {
-                tDoCurrentTodo.GBlnMarkedAsDone = true;
+                tDoCurrentTodo.MarkedAsDone = true;
                 sPanelTodoList.Children.Clear();
                    
             }
@@ -184,7 +184,7 @@ namespace DirectorsPortalWPF.TodoUI
 
         private void updateTodo()
         {
-            List<Todo> lstTodos = GdbContext.TodoListItems.Where(e => e.GBlnMarkedAsDone.Equals(false)).ToList();
+            List<Todo> lstTodos = GdbContext.TodoListItems.Where(e => e.MarkedAsDone.Equals(false)).ToList();
             foreach (Todo tDoCurrentTodo in lstTodos)
             {
 
@@ -196,7 +196,7 @@ namespace DirectorsPortalWPF.TodoUI
 
                 TextBlock txtBoxCardContent = new TextBlock
                 {
-                    Text = $"{tDoCurrentTodo.GStrTitle} - {tDoCurrentTodo.GStrDescription}",
+                    Text = $"{tDoCurrentTodo.Title} - {tDoCurrentTodo.Description}",
                     Margin = new Thickness(5, 5, 5, 0)
                 };
 

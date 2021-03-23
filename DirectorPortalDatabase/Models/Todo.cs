@@ -10,22 +10,18 @@ namespace DirectorPortalDatabase.Models
         /// Autoincrements.
         /// </summary>
         [Key]
-        [Column("id")]
-        public int GIntId { get; set; }
+        public int Id { get; set; }
         /// <summary>
         /// The title of the todo item
         /// </summary>
-        [Column("title")]
-        public string GStrTitle { get; set; }
+        public string Title { get; set; }
         /// <summary>
         /// The description of the todo item
         /// </summary>
-        [Column("description")]
-        public string GStrDescription { get; set; }
+        public string Description { get; set; }
         /// <summary>
         /// Whether or not the item is marked as completed
         /// </summary>
-        [Column("complete")]
-        public bool GBlnMarkedAsDone { get; set; }
+        public bool MarkedAsDone { get; set; }
     }
 }

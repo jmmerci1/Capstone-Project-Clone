@@ -119,8 +119,6 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     {
                         txtFieldEntry.Text = strFieldText;
                     }
-
-
                 }
 
                 RegisterName(property.Name, txtFieldEntry);
@@ -152,83 +150,83 @@ namespace DirectorsPortalWPF.MemberInfoUI
         {
             using (DatabaseContext context = new DatabaseContext()) 
             {
-                Business businessToUpdate = context.Businesses.FirstOrDefault(x => x.GIntId == GIntBusinessToEditId);
+                Business businessToUpdate = context.Businesses.FirstOrDefault(x => x.Id == GIntBusinessToEditId);
 
                 /* Update the mailing address. */
-                Address updatedMailingAddress = context.Addresses.FirstOrDefault(x => x.GIntId == businessToUpdate.GIntMailingAddressId);
+                Address updatedMailingAddress = context.Addresses.FirstOrDefault(x => x.Id == businessToUpdate.MailingAddressId);
 
                 object txtInputBox = FindName("StrMailingAddress");
-                updatedMailingAddress.GStrAddress = ((TextBox)txtInputBox).Text;
+                updatedMailingAddress.StreetAddress = ((TextBox)txtInputBox).Text;
 
                 txtInputBox = FindName("StrMailCity");
-                updatedMailingAddress.GStrCity = ((TextBox)txtInputBox).Text;
+                updatedMailingAddress.City = ((TextBox)txtInputBox).Text;
 
                 txtInputBox = FindName("StrMailState");
-                updatedMailingAddress.GStrState = ((TextBox)txtInputBox).Text;
+                updatedMailingAddress.State = ((TextBox)txtInputBox).Text;
 
                 txtInputBox = FindName("IntMailZipCode");
                 if (!(((TextBox)txtInputBox).Text.Equals("")))
                 {
-                    updatedMailingAddress.GIntZipCode = int.Parse(((TextBox)txtInputBox).Text);
+                    updatedMailingAddress.ZipCode = int.Parse(((TextBox)txtInputBox).Text);
                 }
 
                 /* Update the location address */
-                Address updatedLocationAddress = context.Addresses.FirstOrDefault(x => x.GIntId == businessToUpdate.GIntPhysicalAddressId);
+                Address updatedLocationAddress = context.Addresses.FirstOrDefault(x => x.Id == businessToUpdate.PhysicalAddressId);
 
                 txtInputBox = FindName("StrLocationAddress");
-                updatedLocationAddress.GStrAddress = ((TextBox)txtInputBox).Text;
+                updatedLocationAddress.StreetAddress = ((TextBox)txtInputBox).Text;
 
                 txtInputBox = FindName("StrLocCity");
-                updatedLocationAddress.GStrCity = ((TextBox)txtInputBox).Text;
+                updatedLocationAddress.City = ((TextBox)txtInputBox).Text;
 
                 txtInputBox = FindName("StrLocState");
-                updatedLocationAddress.GStrState = ((TextBox)txtInputBox).Text;
+                updatedLocationAddress.State = ((TextBox)txtInputBox).Text;
 
                 txtInputBox = FindName("IntLocZipCode");
                 if (!(((TextBox)txtInputBox).Text.Equals("")))
                 {
-                    updatedLocationAddress.GIntZipCode = int.Parse(((TextBox)txtInputBox).Text);
+                    updatedLocationAddress.ZipCode = int.Parse(((TextBox)txtInputBox).Text);
                 }
 
                 /* Update the business info. */
                 txtInputBox = FindName("StrBuisnessName");
-                businessToUpdate.GStrBusinessName = ((TextBox)txtInputBox).Text;
+                businessToUpdate.BusinessName = ((TextBox)txtInputBox).Text;
 
                 txtInputBox = FindName("IntEstablishedYear");
                 if (!(((TextBox)txtInputBox).Text.Equals("")))
                 {
-                    businessToUpdate.GIntYearEstablished = int.Parse(((TextBox)txtInputBox).Text);
+                    businessToUpdate.YearEstablished = int.Parse(((TextBox)txtInputBox).Text);
                 }
 
                 txtInputBox = FindName("StrLevel");
-                businessToUpdate.GEnumMembershipLevel = Business.GetMemberShipEnum(((TextBox)txtInputBox).Text);
+                businessToUpdate.MembershipLevel = Business.GetMemberShipEnum(((TextBox)txtInputBox).Text);
 
                 txtInputBox = FindName("StrWebsite");
-                businessToUpdate.GStrWebsite = ((TextBox)txtInputBox).Text;
+                businessToUpdate.Website = ((TextBox)txtInputBox).Text;
 
                 /* Update the contact person. */
-                BusinessRep businessRep = context.BusinessReps.FirstOrDefault(x => x.GIntBusinessId == businessToUpdate.GIntId);
-                ContactPerson updatedContactPerson = context.ContactPeople.FirstOrDefault(x => x.GIntId == businessRep.GIntContactPersonId);
+                BusinessRep businessRep = context.BusinessReps.FirstOrDefault(x => x.BusinessId == businessToUpdate.Id);
+                ContactPerson updatedContactPerson = context.ContactPeople.FirstOrDefault(x => x.Id == businessRep.ContactPersonId);
 
                 txtInputBox = FindName("StrContactPerson");
-                updatedContactPerson.GStrName = ((TextBox)txtInputBox).Text;
+                updatedContactPerson.Name = ((TextBox)txtInputBox).Text;
 
                 PhoneNumber updatedPhoneNumber = context.PhoneNumbers
-                    .FirstOrDefault(x => x.GIntContactPersonId == updatedContactPerson.GIntId && x.GEnumPhoneType != PhoneType.Fax);
+                    .FirstOrDefault(x => x.ContactPersonId == updatedContactPerson.Id && x.GEnumPhoneType != PhoneType.Fax);
 
                 txtInputBox = FindName("StrPhoneNumber");
-                updatedPhoneNumber.GStrPhoneNumber = ((TextBox)txtInputBox).Text;
+                updatedPhoneNumber.Number = ((TextBox)txtInputBox).Text;
 
                 PhoneNumber updatedFaxNumber = context.PhoneNumbers
-                    .FirstOrDefault(x => x.GIntContactPersonId == updatedContactPerson.GIntId && x.GEnumPhoneType == PhoneType.Fax);
+                    .FirstOrDefault(x => x.ContactPersonId == updatedContactPerson.Id && x.GEnumPhoneType == PhoneType.Fax);
 
                 txtInputBox = FindName("StrFaxNumber");
-                updatedFaxNumber.GStrPhoneNumber = ((TextBox)txtInputBox).Text;
+                updatedFaxNumber.Number = ((TextBox)txtInputBox).Text;
 
-                Email updatedEmail = context.Emails.FirstOrDefault(x => x.GIntContactPersonId == updatedContactPerson.GIntId);
+                Email updatedEmail = context.Emails.FirstOrDefault(x => x.ContactPersonId == updatedContactPerson.Id);
 
                 txtInputBox = FindName("StrEmailAddress");
-                updatedEmail.GStrEmailAddress = ((TextBox)txtInputBox).Text;
+                updatedEmail.EmailAddress = ((TextBox)txtInputBox).Text;
 
                 context.SaveChanges();
             }
@@ -246,40 +244,40 @@ namespace DirectorsPortalWPF.MemberInfoUI
         {
             using (DatabaseContext context = new DatabaseContext()) 
             {
-                GIntBusinessToEditId = businessToConvert.GIntId;
+                GIntBusinessToEditId = businessToConvert.Id;
 
                 BusinessDataModel dataModel = new BusinessDataModel();
-                dataModel.StrBuisnessName = businessToConvert.GStrBusinessName;
-                dataModel.StrWebsite = businessToConvert.GStrWebsite;
-                dataModel.StrLevel = businessToConvert.GEnumMembershipLevel.ToString("D");
-                dataModel.IntEstablishedYear = businessToConvert.GIntYearEstablished;
+                dataModel.StrBuisnessName = businessToConvert.BusinessName;
+                dataModel.StrWebsite = businessToConvert.Website;
+                dataModel.StrLevel = businessToConvert.MembershipLevel.ToString("D");
+                dataModel.IntEstablishedYear = businessToConvert.YearEstablished;
 
-                Address mailingAddress = context.Addresses.FirstOrDefault(x => x.GIntId == businessToConvert.GIntMailingAddressId);
-                dataModel.StrMailingAddress = mailingAddress.GStrAddress;
-                dataModel.StrMailCity = mailingAddress.GStrCity;
-                dataModel.StrMailState = mailingAddress.GStrState;
-                dataModel.IntMailZipCode = mailingAddress.GIntZipCode;
+                Address mailingAddress = context.Addresses.FirstOrDefault(x => x.Id == businessToConvert.MailingAddressId);
+                dataModel.StrMailingAddress = mailingAddress.StreetAddress;
+                dataModel.StrMailCity = mailingAddress.City;
+                dataModel.StrMailState = mailingAddress.State;
+                dataModel.IntMailZipCode = mailingAddress.ZipCode;
 
-                Address locationAddresss = context.Addresses.FirstOrDefault(x => x.GIntId == businessToConvert.GIntPhysicalAddressId);
-                dataModel.StrLocationAddress = locationAddresss.GStrAddress;
-                dataModel.StrLocCity = locationAddresss.GStrCity;
-                dataModel.StrLocState = locationAddresss.GStrState;
-                dataModel.IntLocZipCode = locationAddresss.GIntZipCode;
+                Address locationAddresss = context.Addresses.FirstOrDefault(x => x.Id == businessToConvert.PhysicalAddressId);
+                dataModel.StrLocationAddress = locationAddresss.StreetAddress;
+                dataModel.StrLocCity = locationAddresss.City;
+                dataModel.StrLocState = locationAddresss.State;
+                dataModel.IntLocZipCode = locationAddresss.ZipCode;
 
-                BusinessRep businessRep = context.BusinessReps.FirstOrDefault(x => x.GIntBusinessId == businessToConvert.GIntId);
-                ContactPerson contactPerson = context.ContactPeople.FirstOrDefault(x => x.GIntId == businessRep.GIntContactPersonId);
-                dataModel.StrContactPerson = contactPerson.GStrName;
+                BusinessRep businessRep = context.BusinessReps.FirstOrDefault(x => x.BusinessId == businessToConvert.Id);
+                ContactPerson contactPerson = context.ContactPeople.FirstOrDefault(x => x.Id == businessRep.ContactPersonId);
+                dataModel.StrContactPerson = contactPerson.Name;
 
                 PhoneNumber phoneNumber = context.PhoneNumbers
-                    .FirstOrDefault(x => x.GIntContactPersonId == contactPerson.GIntId && x.GEnumPhoneType != PhoneType.Fax);
-                dataModel.StrPhoneNumber = phoneNumber.GStrPhoneNumber;
+                    .FirstOrDefault(x => x.ContactPersonId == contactPerson.Id && x.GEnumPhoneType != PhoneType.Fax);
+                dataModel.StrPhoneNumber = phoneNumber.Number;
 
                 PhoneNumber faxNumber = context.PhoneNumbers
-                    .FirstOrDefault(x => x.GIntContactPersonId == contactPerson.GIntId && x.GEnumPhoneType == PhoneType.Fax);
-                dataModel.StrFaxNumber = faxNumber.GStrPhoneNumber;
+                    .FirstOrDefault(x => x.ContactPersonId == contactPerson.Id && x.GEnumPhoneType == PhoneType.Fax);
+                dataModel.StrFaxNumber = faxNumber.Number;
 
-                Email email = context.Emails.FirstOrDefault(x => x.GIntContactPersonId == contactPerson.GIntId);
-                dataModel.StrEmailAddress = email.GStrEmailAddress;
+                Email email = context.Emails.FirstOrDefault(x => x.ContactPersonId == contactPerson.Id);
+                dataModel.StrEmailAddress = email.EmailAddress;
 
                 return dataModel;
             }

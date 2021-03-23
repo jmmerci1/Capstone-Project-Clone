@@ -16,13 +16,11 @@ namespace DirectorPortalDatabase.Models
         /// Autoincrements.
         /// </summary>
         [Key]
-        [Column("id")]
-        public int GIntId { get; set; }
+        public int Id { get; set; }
         /// <summary>
         /// The type category a buisness falls under (Education, Recreation, etc...)
         /// </summary>
-        [Column("category")]
-        public string GStrCategory { get; set; }
+        public string Category { get; set; }
         /// <summary>
         /// Updates the text file storing the category list
         /// Adds a new item sent to this method
@@ -52,7 +50,7 @@ namespace DirectorPortalDatabase.Models
                     {
                         Categories category = new Categories()
                         {
-                            GStrCategory = strImportCategory
+                            Category = strImportCategory
                         };
                         dbContext.Categories.Add(category);
                         
