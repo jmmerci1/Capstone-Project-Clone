@@ -100,8 +100,8 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
             {
                 foreach (Business groupMember in lstGroupMembers.Items)
                 {
-                    Business b = context.Businesses.FirstOrDefault(x => x.GIntId == groupMember.GIntId);
-                    b.GStrBusinessName = "New Business Name";
+                    Business b = context.Businesses.FirstOrDefault(x => x.Id == groupMember.Id);
+                    b.BusinessName = "New Business Name";
                     context.SaveChanges();
                 }
             }
@@ -148,13 +148,13 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
             using (var context = new DatabaseContext())
             {
                 List<Business> queryBusinesses = context.Businesses.Where(
-                    b => b.GStrBusinessName.ToLower().Contains(strSearchTerm.ToLower())
+                    b => b.BusinessName.ToLower().Contains(strSearchTerm.ToLower())
                 ).ToList();
                 foreach (Business business in queryBusinesses)
                 {
                     boolExistsInGroup = false;
                     foreach (Business groupMember in lstGroupMembers.Items)
-                        if (groupMember.GIntId == business.GIntId)
+                        if (groupMember.Id == business.Id)
                         {
                             boolExistsInGroup = true;
                             break;

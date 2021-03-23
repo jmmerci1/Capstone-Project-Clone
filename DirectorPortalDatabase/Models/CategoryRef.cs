@@ -15,31 +15,17 @@ namespace DirectorPortalDatabase.Models
         /// Autoincrements.
         /// </summary>
         [Key]
-        [Column("id")]
-        public int GIntId { get; set; }
+        public int Id { get; set; }
         /// <summary>
         /// The id of the business that the representative
         /// belongs to in the database
         /// </summary>
-        [Column("businessId")]
-        public int GIntBusinessId { get; set; }
+        public int BusinessId { get; set; }
+        public virtual Business Business { get; set; }
         /// <summary>
         /// The category id from the table
         /// </summary>
-        [Column("categoriesID")]
-        public int GIntCategoriesId { get; set; }
-        /// <summary>
-        /// References a category for a specific business within the database
-        /// </summary>
-        public Categories GObjCategory
-        {
-            get
-            {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    return dbContext.Categories.FirstOrDefault(x => x.GIntId == GIntCategoriesId);
-                }
-            }
-        }
+        public int CategoryId { get; set; }
+        public virtual Categories Category { get; set; }
     }
 }

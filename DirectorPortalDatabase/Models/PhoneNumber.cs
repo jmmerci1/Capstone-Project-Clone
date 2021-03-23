@@ -15,27 +15,23 @@ namespace DirectorPortalDatabase.Models
         /// Autoincrements.
         /// </summary>
         [Key]
-        [Column("id")]
-        public int GIntId { get; set; }
+        public int Id { get; set; }
         /// <summary>
         /// The ID of the person the phone number belongs to
         /// </summary>
-        [Column("contactPersonId")]
-        public int GIntContactPersonId { get; set; }
+        public int ContactPersonId { get; set; }
+        public virtual ContactPerson ContactPerson { get; set; }
         /// <summary>
         /// The actual phone number
         /// </summary>
-        [Column("phoneNumber")]
-        public string GStrPhoneNumber { get; set; }
+        public string Number { get; set; }
         /// <summary>
         /// Any notes about the phone number
         /// </summary>
-        [Column("notes")]
-        public string GStrNotes { get; set; }
+        public string Notes { get; set; }
         /// <summary>
         /// The type of phone number
         /// </summary>
-        [Column("type")]
         public PhoneType GEnumPhoneType { get; set; }
     }
 

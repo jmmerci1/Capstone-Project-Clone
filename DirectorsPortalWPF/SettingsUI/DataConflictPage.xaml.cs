@@ -103,23 +103,23 @@ namespace DirectorsPortalWPF.SettingsUI
                 {
                     BusinessTableViewModel objBusinessTableView = new BusinessTableViewModel
                     {
-                        StrBuisnessName = busCurrentBusiness.GStrBusinessName
+                        StrBuisnessName = busCurrentBusiness.BusinessName
                     };
 
                     /* Get the associated addresses for this business. */
-                    Address objLocationAddress = dbContext.Addresses.Find(busCurrentBusiness.GIntPhysicalAddressId);
-                    Address objMalingAddress = dbContext.Addresses.Find(busCurrentBusiness.GIntMailingAddressId);
+                    Address objLocationAddress = dbContext.Addresses.Find(busCurrentBusiness.PhysicalAddress);
+                    Address objMalingAddress = dbContext.Addresses.Find(busCurrentBusiness.MailingAddress);
 
-                    objBusinessTableView.StrLocationAddress = objLocationAddress?.GStrAddress;
-                    objBusinessTableView.StrMailingAddress = objMalingAddress?.GStrAddress;
-                    objBusinessTableView.StrCity = objLocationAddress?.GStrCity;
-                    objBusinessTableView.StrState = objLocationAddress?.GStrState;
-                    objBusinessTableView.IntZipCode = CheckNullableInt(objLocationAddress?.GIntZipCode);
+                    objBusinessTableView.StrLocationAddress = objLocationAddress?.StreetAddress;
+                    objBusinessTableView.StrMailingAddress = objMalingAddress?.StreetAddress;
+                    objBusinessTableView.StrCity = objLocationAddress?.City;
+                    objBusinessTableView.StrState = objLocationAddress?.State;
+                    objBusinessTableView.IntZipCode = CheckNullableInt(objLocationAddress?.ZipCode);
 
                     /* Get the business rep from the database. */
                     /* TODO: Need to figure out a way to display more than one buisiness rep. */
                     BusinessRep objBusinessRep = dbContext.BusinessReps
-                        .Where(r => r.GIntBusinessId == busCurrentBusiness.GIntId).FirstOrDefault();
+                        .Where(r => r.BusinessId == busCurrentBusiness.Id).FirstOrDefault();
 
                     if (objBusinessRep == null)
                     {
@@ -132,37 +132,37 @@ namespace DirectorsPortalWPF.SettingsUI
                     }
                     else
                     {
-                        ContactPerson objContactPerson = dbContext.ContactPeople.Find(objBusinessRep.GIntContactPersonId);
+                        ContactPerson objContactPerson = dbContext.ContactPeople.Find(objBusinessRep.ContactPersonId);
 
-                        objBusinessTableView.StrContactPerson = objContactPerson?.GStrName;
+                        objBusinessTableView.StrContactPerson = objContactPerson?.Name;
 
                         /* Get the phone and fax number of the contact person. */
                         List<PhoneNumber> phoneNumbers = dbContext.PhoneNumbers
-                            .Where(pn => pn.GIntContactPersonId == objContactPerson.GIntId).ToList();
+                            .Where(pn => pn.ContactPersonId == objContactPerson.Id).ToList();
 
                         foreach (PhoneNumber objCurrentPhoneNumber in phoneNumbers)
                         {
                             if (objCurrentPhoneNumber.GEnumPhoneType == PhoneType.Mobile ||
                                 objCurrentPhoneNumber.GEnumPhoneType == PhoneType.Office)
                             {
-                                objBusinessTableView.StrPhoneNumber = objCurrentPhoneNumber?.GStrPhoneNumber;
+                                objBusinessTableView.StrPhoneNumber = objCurrentPhoneNumber?.Number;
                             }
                             else
                             {
-                                objBusinessTableView.StrFaxNumber = objCurrentPhoneNumber?.GStrPhoneNumber;
+                                objBusinessTableView.StrFaxNumber = objCurrentPhoneNumber?.Number;
                             }
                         }
 
                         /* Get the contacts persons email address. */
                         Email objEmail = dbContext.Emails
-                            .Where(ea => ea.GIntContactPersonId == objContactPerson.GIntId).FirstOrDefault();
-                        objBusinessTableView.StrEmailAddress = objEmail?.GStrEmailAddress;
+                            .Where(ea => ea.ContactPersonId == objContactPerson.Id).FirstOrDefault();
+                        objBusinessTableView.StrEmailAddress = objEmail?.EmailAddress;
                     }
 
-                    objBusinessTableView.StrWebsite = busCurrentBusiness?.GStrWebsite;
-                    objBusinessTableView.StrLevel = GetMebershipLevelString(busCurrentBusiness.GEnumMembershipLevel);
+                    objBusinessTableView.StrWebsite = busCurrentBusiness?.Website;
+                    objBusinessTableView.StrLevel = GetMebershipLevelString(busCurrentBusiness.MembershipLevel);
 
-                    objBusinessTableView.IntEstablishedYear = CheckNullableInt(busCurrentBusiness?.GIntYearEstablished);
+                    objBusinessTableView.IntEstablishedYear = CheckNullableInt(busCurrentBusiness?.YearEstablished);
 
                     lstTableViewModel.Add(objBusinessTableView);
                 }
@@ -221,23 +221,23 @@ namespace DirectorsPortalWPF.SettingsUI
                 {
                     BusinessTableViewModel objBusinessTableView = new BusinessTableViewModel
                     {
-                        StrBuisnessName = busCurrentBusiness.GStrBusinessName
+                        StrBuisnessName = busCurrentBusiness.BusinessName
                     };
 
                     /* Get the associated addresses for this business. */
-                    Address objLocationAddress = dbContext.Addresses.Find(busCurrentBusiness.GIntPhysicalAddressId);
-                    Address objMalingAddress = dbContext.Addresses.Find(busCurrentBusiness.GIntMailingAddressId);
+                    Address objLocationAddress = dbContext.Addresses.Find(busCurrentBusiness.PhysicalAddress);
+                    Address objMalingAddress = dbContext.Addresses.Find(busCurrentBusiness.MailingAddress);
 
-                    objBusinessTableView.StrLocationAddress = objLocationAddress?.GStrAddress;
-                    objBusinessTableView.StrMailingAddress = objMalingAddress?.GStrAddress;
-                    objBusinessTableView.StrCity = objLocationAddress?.GStrCity;
-                    objBusinessTableView.StrState = objLocationAddress?.GStrState;
-                    objBusinessTableView.IntZipCode = CheckNullableInt(objLocationAddress?.GIntZipCode);
+                    objBusinessTableView.StrLocationAddress = objLocationAddress?.StreetAddress;
+                    objBusinessTableView.StrMailingAddress = objMalingAddress?.StreetAddress;
+                    objBusinessTableView.StrCity = objLocationAddress?.City;
+                    objBusinessTableView.StrState = objLocationAddress?.State;
+                    objBusinessTableView.IntZipCode = CheckNullableInt(objLocationAddress?.ZipCode);
 
                     /* Get the business rep from the database. */
                     /* TODO: Need to figure out a way to display more than one buisiness rep. */
                     BusinessRep objBusinessRep = dbContext.BusinessReps
-                        .Where(r => r.GIntBusinessId == busCurrentBusiness.GIntId).FirstOrDefault();
+                        .Where(r => r.BusinessId == busCurrentBusiness.Id).FirstOrDefault();
 
                     if (objBusinessRep == null)
                     {
@@ -250,37 +250,37 @@ namespace DirectorsPortalWPF.SettingsUI
                     }
                     else
                     {
-                        ContactPerson objContactPerson = dbContext.ContactPeople.Find(objBusinessRep.GIntContactPersonId);
+                        ContactPerson objContactPerson = dbContext.ContactPeople.Find(objBusinessRep.ContactPersonId);
 
-                        objBusinessTableView.StrContactPerson = objContactPerson?.GStrName;
+                        objBusinessTableView.StrContactPerson = objContactPerson?.Name;
 
                         /* Get the phone and fax number of the contact person. */
                         List<PhoneNumber> objPhoneNumbers = dbContext.PhoneNumbers
-                            .Where(pn => pn.GIntContactPersonId == objContactPerson.GIntId).ToList();
+                            .Where(pn => pn.ContactPersonId == objContactPerson.Id).ToList();
 
                         foreach (PhoneNumber objCurrentPhoneNumber in objPhoneNumbers)
                         {
                             if (objCurrentPhoneNumber.GEnumPhoneType == PhoneType.Mobile ||
                                 objCurrentPhoneNumber.GEnumPhoneType == PhoneType.Office)
                             {
-                                objBusinessTableView.StrPhoneNumber = objCurrentPhoneNumber?.GStrPhoneNumber;
+                                objBusinessTableView.StrPhoneNumber = objCurrentPhoneNumber?.Number;
                             }
                             else
                             {
-                                objBusinessTableView.StrFaxNumber = objCurrentPhoneNumber?.GStrPhoneNumber;
+                                objBusinessTableView.StrFaxNumber = objCurrentPhoneNumber?.Number;
                             }
                         }
 
                         /* Get the contacts persons email address. */
                         Email objEmail = dbContext.Emails
-                            .Where(ea => ea.GIntContactPersonId == objContactPerson.GIntId).FirstOrDefault();
-                        objBusinessTableView.StrEmailAddress = objEmail?.GStrEmailAddress;
+                            .Where(ea => ea.ContactPersonId == objContactPerson.Id).FirstOrDefault();
+                        objBusinessTableView.StrEmailAddress = objEmail?.EmailAddress;
                     }
 
-                    objBusinessTableView.StrWebsite = busCurrentBusiness?.GStrWebsite;
-                    objBusinessTableView.StrLevel = GetMebershipLevelString(busCurrentBusiness.GEnumMembershipLevel);
+                    objBusinessTableView.StrWebsite = busCurrentBusiness?.Website;
+                    objBusinessTableView.StrLevel = GetMebershipLevelString(busCurrentBusiness.MembershipLevel);
 
-                    objBusinessTableView.IntEstablishedYear = CheckNullableInt(busCurrentBusiness?.GIntYearEstablished);
+                    objBusinessTableView.IntEstablishedYear = CheckNullableInt(busCurrentBusiness?.YearEstablished);
 
                     lstTableViewModel.Add(objBusinessTableView);
                 }

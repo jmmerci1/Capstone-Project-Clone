@@ -234,8 +234,8 @@ namespace DirectorsPortalWPF.SettingsUI
                 //crate the notification based on what frequency was chosen by the user
                 tdoNotificationSetting = new Todo
                 {
-                    GStrTitle = strTodoFreqTitle + " Backup",
-                    GStrDescription = "You have not made your " + strTodoFreqTitle.ToLower() + " backup"
+                    Title = strTodoFreqTitle + " Backup",
+                    Description = "You have not made your " + strTodoFreqTitle.ToLower() + " backup"
                 };
 
                 //add TODO to the database.

@@ -124,7 +124,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
                 // Creates a text block to display the name of the template.
                 TextBlock txtTemplateName = new TextBlock();
-                txtTemplateName.Text = GRGReportTemplates[i].GStrReportTemplateName;
+                txtTemplateName.Text = GRGReportTemplates[i].ReportTemplateName;
                 txtTemplateName.SetValue(Grid.RowProperty, i);
                 txtTemplateName.SetValue(Grid.ColumnProperty, 0);
                 grdReportTemplateList.Children.Add(txtTemplateName);
@@ -177,7 +177,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
             using (DirectorPortalDatabase.DatabaseContext dbContext = new DirectorPortalDatabase.DatabaseContext())
             {
-                rgReportFields = dbContext.ReportFields.Where(x => x.GIntReportTemplateId == udtTemplate.GIntId).ToList();
+                rgReportFields = dbContext.ReportFields.Where(x => x.TemplateId == udtTemplate.Id).ToList();
             }
 
             return rgReportFields;
@@ -273,7 +273,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 ClsMetadataHelper.ClsModelInfo udtModelInfo = (ClsMetadataHelper.ClsModelInfo)cbiReportTypeItem.Tag;
 
                 // Checks for matching model names.
-                if (udtModelInfo.TypeModelType.Name == udtReportTemplate.GStrModelName)
+                if (udtModelInfo.TypeModelType.Name == udtReportTemplate.ModelName)
                 {
 
                     // Sets this ComboBoxItem as active.
@@ -298,7 +298,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                                 = (ClsMetadataHelper.ClsTableField)lbiFieldItem.Tag;
 
                             // Checks for a match.
-                            if (udtReportTemplateField.GStrModelPropertyName == udtTableField.StrPropertyName)
+                            if (udtReportTemplateField.ModelPropertyName == udtTableField.StrPropertyName)
                             {
                                 // Selects the ListBoxItem.
                                 lbiFieldItem.IsSelected = true;
@@ -445,7 +445,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             using (DirectorPortalDatabase.DatabaseContext dbContext = new DirectorPortalDatabase.DatabaseContext())
             {
                 // Deletes all ReportFields belonging to the specified ReportType.
-                ReportField[] rgReportFields = dbContext.ReportFields.Where(x => x.GIntReportTemplateId == udtReportTemplate.GIntId).ToArray();
+                ReportField[] rgReportFields = dbContext.ReportFields.Where(x => x.TemplateId == udtReportTemplate.Id).ToArray();
                 dbContext.RemoveRange(rgReportFields);
 
                 // Deletes the ReportTemplate itself.
@@ -502,8 +502,8 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 // Creates a model instance to represent the report template.
                 ReportTemplate udtTemplate = new ReportTemplate
                 {
-                    GStrModelName = GUdtSelectedReportType.TypeModelType.Name,
-                    GStrReportTemplateName = strNewTemplateName
+                    ModelName = GUdtSelectedReportType.TypeModelType.Name,
+                    ReportTemplateName = strNewTemplateName
                 };
 
                 using (DirectorPortalDatabase.DatabaseContext dbContext = new DirectorPortalDatabase.DatabaseContext())
@@ -519,8 +519,8 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                         ReportField udtReportField = new ReportField
                         {
                             // This ID links to the template record.
-                            GIntReportTemplateId = udtTemplate.GIntId,
-                            GStrModelPropertyName = udtField.StrPropertyName
+                            TemplateId = udtTemplate.Id,
+                            ModelPropertyName = udtField.StrPropertyName
                         };
 
                         dbContext.ReportFields.Add(udtReportField);

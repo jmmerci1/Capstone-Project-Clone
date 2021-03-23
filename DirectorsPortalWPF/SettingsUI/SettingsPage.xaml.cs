@@ -647,33 +647,33 @@ namespace DirectorsPortalWPF.SettingsUI
                     {
                         Address objMailingAddress = new Address()
                         {
-                            GStrAddress = Data[intCounter].gstrMailingAddress,
-                            GStrCity = strCityData,
-                            GStrState = strStateData,                      
+                            StreetAddress = Data[intCounter].gstrMailingAddress,
+                            City = strCityData,
+                            State = strStateData,                      
                         };                    
 
                         Address objLocationAddress = new Address()
                         {
-                            GStrAddress = Data[intCounter].gstrLocationAddress,
-                            GStrCity = strCityData,
-                            GStrState = strStateData,
+                            StreetAddress = Data[intCounter].gstrLocationAddress,
+                            City = strCityData,
+                            State = strStateData,
                         };
 
                         if (strZipData.Length > 5)
                         {
                             String[] arrZipSplit = strZipData.Split('-');
 
-                            objMailingAddress.GIntZipCode = Int32.Parse(arrZipSplit[0]);
-                            objLocationAddress.GIntZipCode = Int32.Parse(arrZipSplit[0]);
-                            objMailingAddress.GStrZipExtCode = strZipData;
-                            objLocationAddress.GStrZipExtCode = strZipData;
+                            objMailingAddress.ZipCode = Int32.Parse(arrZipSplit[0]);
+                            objLocationAddress.ZipCode = Int32.Parse(arrZipSplit[0]);
+                            objMailingAddress.ZipCodeExt = strZipData;
+                            objLocationAddress.ZipCodeExt = strZipData;
                         }
                         else
                         {
-                            objMailingAddress.GIntZipCode = Int32.Parse(strZipData);
-                            objLocationAddress.GIntZipCode = Int32.Parse(strZipData);
-                            objMailingAddress.GStrZipExtCode = strZipData;
-                            objLocationAddress.GStrZipExtCode = strZipData;
+                            objMailingAddress.ZipCode = Int32.Parse(strZipData);
+                            objLocationAddress.ZipCode = Int32.Parse(strZipData);
+                            objMailingAddress.ZipCodeExt = strZipData;
+                            objLocationAddress.ZipCodeExt = strZipData;
                         };
 
                         String strLocationAddress = Data[intCounter].gstrLocationAddress;
@@ -686,15 +686,15 @@ namespace DirectorsPortalWPF.SettingsUI
                             String[] arrStateZip = arrLocationSplit[2].Split(' ');
 
                             strLocationAddress = arrLocationSplit[1] + arrLocationSplit[2];
-                            objLocationAddress.GStrAddress = arrLocationSplit[0];
-                            objLocationAddress.GStrCity = arrLocationSplit[1];
-                            objLocationAddress.GStrState = arrStateZip[1];
-                            objLocationAddress.GIntZipCode = Int32.Parse(arrStateZip[2]);
-                            objLocationAddress.GStrZipExtCode = strZipData;
+                            objLocationAddress.StreetAddress = arrLocationSplit[0];
+                            objLocationAddress.City = arrLocationSplit[1];
+                            objLocationAddress.State = arrStateZip[1];
+                            objLocationAddress.ZipCode = Int32.Parse(arrStateZip[2]);
+                            objLocationAddress.ZipCodeExt = strZipData;
 
                         } else if (arrLocationSplitSlash.Length > 1)
                         {
-                            objLocationAddress.GStrAddress = arrLocationSplit[0];
+                            objLocationAddress.StreetAddress = arrLocationSplit[0];
                             strAdditionalNote = " - Additional Location Addresses : ";
 
                             for (int intCount = 1; intCount < arrLocationSplitSlash.Length; intCount++)
@@ -707,7 +707,7 @@ namespace DirectorsPortalWPF.SettingsUI
 
                         if (arrLocationSplit.Length > 1)
                         {
-                            objLocationAddress.GStrAddress = arrLocationSplit[0];
+                            objLocationAddress.StreetAddress = arrLocationSplit[0];
 
                             strAdditionalNote = " - Additional Location Addresses : ";
 
@@ -734,34 +734,34 @@ namespace DirectorsPortalWPF.SettingsUI
 
                         Business objBusiness = new Business()
                         {
-                            GStrBusinessName = Data[intCounter].gstrBusinessName,
-                            GIntYearEstablished = Int32.Parse(Data[intCounter].gstrEstablished),
-                            GStrWebsite = Data[intCounter].gstrWebsiteAddress,
-                            GStrExtraNotes = Data[intCounter].gstrNotes + " " + strAdditionalNote,
-                            GIntMailingAddressId = objMailingAddress.GIntId,
-                            GIntPhysicalAddressId = objLocationAddress.GIntId
+                            BusinessName = Data[intCounter].gstrBusinessName,
+                            YearEstablished = Int32.Parse(Data[intCounter].gstrEstablished),
+                            Website = Data[intCounter].gstrWebsiteAddress,
+                            ExtraNotes = Data[intCounter].gstrNotes + " " + strAdditionalNote,
+                            MailingAddressId = objMailingAddress.Id,
+                            PhysicalAddressId = objLocationAddress.Id
 
                         };
 
                         if (strLevelData.Equals("Gold"))
                         {
-                            objBusiness.GEnumMembershipLevel = MembershipLevel.GOLD;
+                            objBusiness.MembershipLevel = MembershipLevel.GOLD;
                         }
                         else if (strLevelData.Equals("Silver"))
                         {
-                            objBusiness.GEnumMembershipLevel = MembershipLevel.SILVER;
+                            objBusiness.MembershipLevel = MembershipLevel.SILVER;
                         }
                         else if (strLevelData.Equals("Associate"))
                         {
-                            objBusiness.GEnumMembershipLevel = MembershipLevel.ASSOCIATE;
+                            objBusiness.MembershipLevel = MembershipLevel.ASSOCIATE;
                         }
                         else if (strLevelData.Equals("Individual"))
                         {
-                            objBusiness.GEnumMembershipLevel = MembershipLevel.INDIVIDUAL;
+                            objBusiness.MembershipLevel = MembershipLevel.INDIVIDUAL;
                         }
                         else if (strLevelData.Equals("Courtesy"))
                         {
-                            objBusiness.GEnumMembershipLevel = MembershipLevel.COURTESY;
+                            objBusiness.MembershipLevel = MembershipLevel.COURTESY;
                         }
 
                         context.Businesses.Add(objBusiness);
@@ -769,7 +769,7 @@ namespace DirectorsPortalWPF.SettingsUI
 
                         ContactPerson objContactPerson = new ContactPerson()
                         {
-                            GStrName = Data[intCounter].gstrContactPerson
+                            Name = Data[intCounter].gstrContactPerson
                         };
 
 
@@ -783,7 +783,7 @@ namespace DirectorsPortalWPF.SettingsUI
                             {
                                 objContactPerson = new ContactPerson()
                                 {
-                                    GStrName = arrLocationSplit[intCount]
+                                    Name = arrLocationSplit[intCount]
                                 };
 
                                 context.ContactPeople.Add(objContactPerson);
@@ -791,8 +791,8 @@ namespace DirectorsPortalWPF.SettingsUI
 
                                 PhoneNumber objPhoneNumber = new PhoneNumber()
                                 {
-                                    GIntContactPersonId = objContactPerson.GIntId,
-                                    GStrPhoneNumber = Data[intCounter].gstrPhoneNumber,
+                                    ContactPersonId = objContactPerson.Id,
+                                    Number = Data[intCounter].gstrPhoneNumber,
                                     GEnumPhoneType = PhoneType.Office
                                 };
 
@@ -806,7 +806,7 @@ namespace DirectorsPortalWPF.SettingsUI
                             {
                                 objContactPerson = new ContactPerson()
                                 {
-                                    GStrName = arrLocationSplitSlash[intCount]
+                                    Name = arrLocationSplitSlash[intCount]
                                 };
 
                                 context.ContactPeople.Add(objContactPerson);
@@ -814,8 +814,8 @@ namespace DirectorsPortalWPF.SettingsUI
 
                                 PhoneNumber objPhoneNumber = new PhoneNumber()
                                 {
-                                    GIntContactPersonId = objContactPerson.GIntId,
-                                    GStrPhoneNumber = arrLocationSplitAnd[intCount],
+                                    ContactPersonId = objContactPerson.Id,
+                                    Number = arrLocationSplitAnd[intCount],
                                     GEnumPhoneType = PhoneType.Office
                                 };
 
@@ -830,8 +830,8 @@ namespace DirectorsPortalWPF.SettingsUI
 
                             PhoneNumber objPhoneNumber = new PhoneNumber()
                             {
-                                GIntContactPersonId = objContactPerson.GIntId,
-                                GStrPhoneNumber = Data[intCounter].gstrPhoneNumber,
+                                ContactPersonId = objContactPerson.Id,
+                                Number = Data[intCounter].gstrPhoneNumber,
                                 GEnumPhoneType = PhoneType.Office
                             };
 
@@ -841,8 +841,8 @@ namespace DirectorsPortalWPF.SettingsUI
 
                         BusinessRep objBusinessRep = new BusinessRep()
                         {
-                            GIntBusinessId = objBusiness.GIntId,
-                            GIntContactPersonId = objContactPerson.GIntId
+                            BusinessId = objBusiness.Id,
+                            ContactPersonId = objContactPerson.Id
                         };
 
                         context.BusinessReps.Add(objBusinessRep);
@@ -850,8 +850,8 @@ namespace DirectorsPortalWPF.SettingsUI
 
                         Email objEmail = new Email()
                         {
-                            GIntContactPersonId = objContactPerson.GIntId,
-                            GStrEmailAddress = Data[intCounter].gstrEmailAddress
+                            ContactPersonId = objContactPerson.Id,
+                            EmailAddress = Data[intCounter].gstrEmailAddress
                         };
 
                         context.Emails.Add(objEmail);
@@ -859,8 +859,8 @@ namespace DirectorsPortalWPF.SettingsUI
                      
                         PhoneNumber objFaxNumber = new PhoneNumber()
                         {
-                            GIntContactPersonId = objContactPerson.GIntId,
-                            GStrPhoneNumber = Data[intCounter].gstrFaxNumber,
+                            ContactPersonId = objContactPerson.Id,
+                            Number = Data[intCounter].gstrFaxNumber,
                             GEnumPhoneType = PhoneType.Fax
                         };
 
