@@ -1,4 +1,4 @@
-﻿using DirectorPortalDatabase;
+using DirectorPortalDatabase;
 using DirectorPortalDatabase.Utility;
 using DirectorPortalDatabase.Models;
 using DirectorsPortalConstantContact;
@@ -50,6 +50,11 @@ namespace DirectorsPortalWPF
             DatabaseContext dbContextIntialStartup = new DatabaseContext();
             dbContextIntialStartup.Database.EnsureCreated();                     // Ensures the database is created upon application startup. If the database is not created, then the context will create the database.
 
+            ToolTipService.ShowOnDisabledProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(true));
+            gObjConstContact = new ConstantContact();
+
+            BackupUtility backupUtility = new BackupUtility();
+            backupUtility.CheckBackupNotification();
 
             //Timer thread created to check for new todo's 
             m_oTimer = new System.Timers.Timer(.2 * 1000 * 60); // 10 seconds
@@ -98,11 +103,7 @@ namespace DirectorsPortalWPF
 
             });
 
-            ToolTipService.ShowOnDisabledProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(true));
-            gObjConstContact = new ConstantContact();
-
-            BackupUtility backupUtility = new BackupUtility();
-            backupUtility.CheckBackupNotification();
+           
         }
 
 
