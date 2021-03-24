@@ -95,7 +95,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 {
                     
                     // Fill with whats from the Modify PDF as priority, otherwise fill from the dataModel.
-                    if (!dictPdfImport[GDicHumanReadableDataFields[property.Name]].Equals(""))
+                    if ((dictPdfImport != null) && (!dictPdfImport[GDicHumanReadableDataFields[property.Name]].Equals("")))
                     {
                         txtFieldEntry.Text = dictPdfImport[GDicHumanReadableDataFields[property.Name]];
                         txtFieldEntry.BorderBrush = Brushes.Green;
@@ -109,7 +109,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 else
                 {
                     // Fill with whats from the Modify PDF as priority, otherwise fill from the dataModel.
-                    if (!dictPdfImport[GDicHumanReadableDataFields[property.Name]].Equals(""))
+                    if ((dictPdfImport != null) && (!dictPdfImport[GDicHumanReadableDataFields[property.Name]].Equals("")))
                     {
                         txtFieldEntry.Text = dictPdfImport[GDicHumanReadableDataFields[property.Name]];
                         if (!GDicHumanReadableDataFields[property.Name].Equals("Business Name"))
