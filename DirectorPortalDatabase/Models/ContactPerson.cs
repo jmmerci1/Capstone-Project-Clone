@@ -9,7 +9,7 @@ namespace DirectorPortalDatabase.Models
     public class ContactPerson
     {
         /// <summary>
-        /// The Primary Key of the address in the database.
+        /// The Primary Key of the contact person in the database.
         /// Autoincrements.
         /// </summary>
         [Key]

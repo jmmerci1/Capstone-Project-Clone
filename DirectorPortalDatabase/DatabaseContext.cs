@@ -72,6 +72,22 @@ namespace DirectorPortalDatabase
         public DbSet<CategoryRef> CategoryRef { get; set; }
 
         /// <summary>
+        /// Represents an itemized payment posted by a contact of a business,
+        /// on the business's behalf. 
+        /// </summary>
+        public DbSet<Payment> Payments { get; set; }
+
+        /// <summary>
+        /// Represents a line item on a Payment.
+        /// </summary>
+        public DbSet<PaymentItem> PaymentItems { get; set; }
+
+        /// <summary>
+        /// Reprents an item that can be put on a Payment.
+        /// </summary>
+        public DbSet<Item> Items { get; set; }
+
+        /// <summary>
         /// Pulls the connection string from the App.config file,
         /// then manipulates it to remove the %APPDATA% and replace it
         /// with the value of <code>Environment.GetFolderPath(ApplicationData)</code>.

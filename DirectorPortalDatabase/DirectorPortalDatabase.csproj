@@ -158,6 +158,10 @@
     <Compile Include="Migrations\20210320005424_RefactoredDb.designer.cs">
       <DependentUpon>20210320005424_RefactoredDb.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20210324000506_Payments.cs" />
+    <Compile Include="Migrations\20210324000506_Payments.designer.cs">
+      <DependentUpon>20210324000506_Payments.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\DatabaseContextModelSnapshot.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Business.cs" />
@@ -166,6 +170,9 @@
     <Compile Include="Models\CategoryRef.cs" />
     <Compile Include="Models\ContactPerson.cs" />
     <Compile Include="Models\Email.cs" />
+    <Compile Include="Models\Item.cs" />
+    <Compile Include="Models\Payment.cs" />
+    <Compile Include="Models\PaymentItem.cs" />
     <Compile Include="Models\PhoneNumber.cs" />
     <Compile Include="Models\ReportField.cs" />
     <Compile Include="Models\ReportTemplate.cs" />

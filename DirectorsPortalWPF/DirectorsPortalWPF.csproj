@@ -429,6 +429,10 @@
       <Project>{8373825a-6945-4c92-843a-a611bfd59ec4}</Project>
       <Name>DirectorPortalDatabase</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DirectorPortalPayPal\DirectorPortalPayPal.csproj">
+      <Project>{13e83af0-c23b-4a28-8f40-23d3b5872511}</Project>
+      <Name>DirectorPortalPayPal</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DirectorsPortalConstantContact\DirectorsPortalConstantContact.csproj">
       <Project>{e01d9901-4dea-4e9a-8f4b-9fba33430d9b}</Project>
       <Name>DirectorsPortalConstantContact</Name>
