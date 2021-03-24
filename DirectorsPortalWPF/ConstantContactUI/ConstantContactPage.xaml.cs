@@ -42,7 +42,7 @@ namespace DirectorsPortalWPF.ConstantContactUI
             InitializeComponent();
             gObjConstContact = ccHelper;
             //Constant Contact Dev Account
-            //Username: edwalk@svsu.edu
+            //Username: benjamin.j.dore@icloud.com
             //password: ayC&Aybab6sC422
             //
             // yes this is intentional, this is an accoutn we can all use for dev

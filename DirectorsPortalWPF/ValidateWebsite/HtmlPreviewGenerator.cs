@@ -365,7 +365,10 @@ namespace DirectorsPortalWPF.ValidateWebsite
             if (rgCurrentBusEmails.Count > 0)
                 GWriter.Write($" | <a href=\"mailto:{rgCurrentBusEmails[0].EmailAddress} \">Email</a>");
                     
-            GWriter.WriteLine($" | <a href=\"{busCurrentBusiness.Website}\">Web</a>");
+            if (busCurrentBusiness.Website.Contains("http://"))
+                GWriter.WriteLine($" | <a href={busCurrentBusiness.Website}>Web</a>");
+            else
+                GWriter.WriteLine($" | <a href=http://{busCurrentBusiness.Website}>Web</a>");
             GWriter.WriteLine("</td>");
         }
 
