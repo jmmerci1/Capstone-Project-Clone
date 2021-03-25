@@ -310,7 +310,10 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     .Where(business => business.BusinessName.Equals(dictFields["Business Name"])).FirstOrDefault();
             }
 
-            NavigationService.Navigate(new EditMembersPage(busModified, dictFields));
+            if (busModified != null)
+                NavigationService.Navigate(new EditMembersPage(busModified, dictFields));
+            else
+                MessageBox.Show($"{ dictFields["Business Name"] } is not an existing Businss in the Database","Business Not Found");
         }
 
         /// <summary>
