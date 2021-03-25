@@ -1,13 +1,19 @@
 ﻿using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
 using DirectorPortalDatabase.Utility;
+using iTextSharp.text.pdf;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+
 
 namespace DirectorsPortalWPF.MemberInfoUI
 {
@@ -20,7 +26,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// A dictionary global to the page that relates the list view model properties
         /// to their human readable names.
         /// </summary>
-        Dictionary<string, string> GDicHumanReadableTableFields 
+        public static Dictionary<string, string> GDicHumanReadableTableFields 
             = new Dictionary<string, string>();
 
         /// <summary>
@@ -34,37 +40,46 @@ namespace DirectorsPortalWPF.MemberInfoUI
             /* Repopulate the dictionary to accoutn for any field changes. */
             /* TODO: This is currently just a concept for when we have a better idea on how
              * dynamic tables will function. */
-            PopulateHumanReadableTableFields();
+            GDicHumanReadableTableFields.Clear();
+            GDicHumanReadableTableFields = BusinessTableViewModel.PopulateHumanReadableTableDic();
         }
-        
-        /// <summary>
-        /// Pending Implementation
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
 
+        private void BtnAddMember_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new AddMembersPage());
         }
 
         /// <summary>
-        /// Pending Implementation
+        /// Opens a pop-up window that displays the current frames help information. 
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Button_Click(object sender, RoutedEventArgs e)
+        /// <param name="sender">Help button</param>
+        /// <param name="e">The Click event</param>
+        public void HelpButtonHandler(object sender, EventArgs e)
         {
+            HelpUI.HelpScreenWindow helpWindow = new HelpUI.HelpScreenWindow();
+            helpWindow.Show();
+            helpWindow.tabs.SelectedIndex = 0;
 
         }
-
         /// <summary>
         /// Pending Implementation
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void BtnEditBusiness_Click(object sender, RoutedEventArgs e)
-        { 
-        
+        {
+            Button btn = sender as Button;
+            BusinessTableViewModel selectedTableViewModel = btn.DataContext as BusinessTableViewModel;
+
+            Business selectedBusiness = new Business();
+            using (DatabaseContext context = new DatabaseContext()) 
+            {
+                selectedBusiness = context.Businesses
+                    .Where(business => business.BusinessName.Equals(selectedTableViewModel.StrBuisnessName))
+                    .FirstOrDefault();
+            }
+
+            NavigationService.Navigate(new EditMembersPage(selectedBusiness));
         }
 
         /// <summary>
@@ -80,27 +95,32 @@ namespace DirectorsPortalWPF.MemberInfoUI
             {
                 List<BusinessTableViewModel> lstTableViewModel = new List<BusinessTableViewModel>();
 
-                List<Business> lstBusiness = context.Businesses.ToList();
+                List<Business> lstBusiness = context.Businesses
+                    .Include(bus => bus.MailingAddress)
+                    .Include(bus => bus.PhysicalAddress)
+                    .ToList();
                 foreach (Business business in lstBusiness) 
                 {
                     BusinessTableViewModel businessTableView = new BusinessTableViewModel();
 
-                    businessTableView.StrBuisnessName = business.GStrBusinessName;
+                    businessTableView.StrBuisnessName = business.BusinessName;
 
                     /* Get the associated addresses for this business. */
-                    Address locationAddress = context.Addresses.Find(business.GIntPhysicalAddressId);
-                    Address malingAddress = context.Addresses.Find(business.GIntMailingAddressId);
+                    //Address locationAddress = context.Addresses.Find(business.PhysicalAddressId);
+                    //Address malingAddress = context.Addresses.Find(business.MailingAddressId);
+                    Address locationAddress = business.PhysicalAddress;
+                    Address malingAddress = business.MailingAddress;
 
-                    businessTableView.StrLocationAddress = locationAddress?.GStrAddress;
-                    businessTableView.StrMailingAddress = malingAddress?.GStrAddress;
-                    businessTableView.StrCity = locationAddress?.GStrCity;
-                    businessTableView.StrState = locationAddress?.GStrState;
-                    businessTableView.IntZipCode = CheckNullableInt(locationAddress?.GIntZipCode);
+                    businessTableView.StrLocationAddress = locationAddress?.StreetAddress;
+                    businessTableView.StrMailingAddress = malingAddress?.StreetAddress;
+                    businessTableView.StrCity = malingAddress?.City;
+                    businessTableView.StrState = malingAddress?.State;
+                    businessTableView.IntZipCode = CheckNullableInt(malingAddress?.ZipCode);
 
                     /* Get the business rep from the database. */
                     /* TODO: Need to figure out a way to display more than one buisiness rep. */
                     BusinessRep businessRep = context.BusinessReps
-                        .Where(r => r.GIntBusinessId == business.GIntId).FirstOrDefault();
+                        .Where(r => r.BusinessId == business.Id).FirstOrDefault();
 
                     if (businessRep == null)
                     {
@@ -113,36 +133,36 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     }
                     else 
                     {
-                        ContactPerson contactPerson = context.ContactPeople.Find(businessRep.GIntContactPersonId);
+                        ContactPerson contactPerson = context.ContactPeople.Find(businessRep.ContactPersonId);
 
-                        businessTableView.StrContactPerson = contactPerson?.GStrName;
+                        businessTableView.StrContactPerson = contactPerson?.Name;
 
                         /* Get the phone and fax number of the contact person. */
                         List<PhoneNumber> phoneNumbers = context.PhoneNumbers
-                            .Where(pn => pn.GIntContactPersonId == contactPerson.GIntId).ToList();
+                            .Where(pn => pn.ContactPersonId == contactPerson.Id).ToList();
                         foreach (PhoneNumber phoneNumber in phoneNumbers)
                         {
                             if (phoneNumber.GEnumPhoneType == PhoneType.Mobile ||
                                 phoneNumber.GEnumPhoneType == PhoneType.Office)
                             {
-                                businessTableView.StrPhoneNumber = phoneNumber?.GStrPhoneNumber;
+                                businessTableView.StrPhoneNumber = phoneNumber?.Number;
                             }
                             else
                             {
-                                businessTableView.StrFaxNumber = phoneNumber?.GStrPhoneNumber;
+                                businessTableView.StrFaxNumber = phoneNumber?.Number;
                             }
                         }
 
                         /* Get the contacts persons email address. */
                         Email email = context.Emails
-                            .Where(ea => ea.GIntContactPersonId == contactPerson.GIntId).FirstOrDefault();
-                        businessTableView.StrEmailAddress = email?.GStrEmailAddress;
+                            .Where(ea => ea.ContactPersonId == contactPerson.Id).FirstOrDefault();
+                        businessTableView.StrEmailAddress = email?.EmailAddress;
                     }
 
-                    businessTableView.StrWebsite = business?.GStrWebsite;
-                    businessTableView.StrLevel = GetMebershipLevelString(business.GEnumMembershipLevel);
+                    businessTableView.StrWebsite = business?.Website;
+                    businessTableView.StrLevel = Business.GetMebershipLevelString(business.MembershipLevel);
 
-                    businessTableView.IntEstablishedYear = CheckNullableInt(business?.GIntYearEstablished);
+                    businessTableView.IntEstablishedYear = CheckNullableInt(business?.YearEstablished);
 
                     lstTableViewModel.Add(businessTableView);
                 }
@@ -160,6 +180,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 /* Add a button to edit the business to the end of each row. */
                 var btnFactoryEditBusiness = new FrameworkElementFactory(typeof(Button));
                 btnFactoryEditBusiness.SetValue(ContentProperty, "Edit");
+                btnFactoryEditBusiness.SetValue(TemplateProperty, (ControlTemplate)Application.Current.Resources["smallButton"]);
                 btnFactoryEditBusiness.AddHandler(ButtonBase.ClickEvent, new RoutedEventHandler(BtnEditBusiness_Click));
 
                 DataTemplate dtEdit = new DataTemplate() 
@@ -255,77 +276,124 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 return intCheck;
             }
         }
+        /// <summary>
+        /// When the user clicks the 'Add New from PDF' button, they will have the ability to select a 
+        /// New Membership Request PDF form that will then be parsed and added to the database automatically.
+        /// This is intended to be a faster option that typing in new member details by hand.
+        /// </summary>
+        /// <param name="sender">The 'Add New from PDF' button</param>
+        /// <param name="e">THe Click Event</param>
+        private void BtnNewMembPdf_Click(object sender, RoutedEventArgs e)
+        {
+            // Get fields from PDF then pass to Add Members Screen.
+            Dictionary<string, string> dictFields = OpenFile();
+            NavigationService.Navigate(new AddMembersPage(dictFields));
+        }
 
         /// <summary>
-        /// A method for converting the membership level from the business entity to
-        /// a human readable string.
+        /// When the user click the 'Update from PDF' button, they will have the ability to select a 
+        /// Update Membership Request PDF form that will be parsed for existing members and their data changes.
+        /// Updated data is updated in the DB.
         /// </summary>
-        /// <param name="membershipLevel">The membership level from the business entity.</param>
-        /// <returns>The human readable membership string.</returns>
-        private string GetMebershipLevelString (MembershipLevel membershipLevel)
+        /// <param name="sender">The 'Update from PDF' button</param>
+        /// <param name="e">The Click Event</param>
+        private void BtnModMembPdf_Click(object sender, RoutedEventArgs e)
         {
-            string strLevel = "";
+            // Get fields from PDF
+            Dictionary<string, string> dictFields = OpenFile();
+            Business busModified = new Business();
 
-            switch (membershipLevel) 
+            // Do some logic to find the business being modified.
+            using (DatabaseContext dbContext = new DatabaseContext())
             {
-                case MembershipLevel.GOLD:
-                    strLevel = "Gold";
-                    break;
-
-                case MembershipLevel.SILVER:
-                    strLevel = "Silver";
-                    break;
+                busModified = dbContext.Businesses
+                    .Where(business => business.BusinessName.Equals(dictFields["Business Name"])).FirstOrDefault();
             }
 
-            return strLevel;
+            NavigationService.Navigate(new EditMembersPage(busModified, dictFields));
         }
 
         /// <summary>
-        /// A method for popualting the human readable names into the
-        /// global dictionary. These fields will be used to relate the names of
-        /// the properties to the their human readable column headers.
+        /// Ability to open a file using the OpenFileDialog. 
+        /// 
+        /// . 
         /// </summary>
-        private void PopulateHumanReadableTableFields () 
+        private Dictionary<string, string> OpenFile()
         {
-            /* TODO: This method will need to change as we develope a solution for dynamic
-             * fields. */
-            GDicHumanReadableTableFields.Clear();
+            //opens file dialog to select pdf
+            OpenFileDialog openFileDialog = new OpenFileDialog()
+            {
+                Filter = "PDF Files|*.pdf"
+            };
 
-            GDicHumanReadableTableFields.Add("StrBuisnessName", "Business Name");
-            GDicHumanReadableTableFields.Add("StrMailingAddress", "Mailing Address");
-            GDicHumanReadableTableFields.Add("StrLocationAddress", "Location Address");
-            GDicHumanReadableTableFields.Add("StrCity", "City");
-            GDicHumanReadableTableFields.Add("StrState", "State");
-            GDicHumanReadableTableFields.Add("IntZipCode", "Zip Code");
-            GDicHumanReadableTableFields.Add("StrContactPerson", "Contact");
-            GDicHumanReadableTableFields.Add("StrPhoneNumber", "Phone Number");
-            GDicHumanReadableTableFields.Add("StrFaxNumber", "Fax Number");
-            GDicHumanReadableTableFields.Add("StrEmailAddress", "Email Address");
-            GDicHumanReadableTableFields.Add("StrWebsite", "Website");
-            GDicHumanReadableTableFields.Add("StrLevel", "Level");
-            GDicHumanReadableTableFields.Add("IntEstablishedYear", "Established");
+            if (openFileDialog.ShowDialog() == true)
+                Console.WriteLine(File.ReadAllText(openFileDialog.FileName));
+            //create new reader object
+            PdfReader reader = new PdfReader(openFileDialog.FileName);
+            //variable for form fields in PDF 
+            var objFields = reader.AcroFields.Fields;
+            //array to contain all values from key value pairs read
+            var arrFieldData = new ArrayList();
+            //iterates over key value pairs and add values(data from pdf) to the array
+            foreach (var item in objFields.Keys)
+            {
+                arrFieldData.Add(reader.AcroFields.GetField(item.ToString()));
+                Console.WriteLine(reader.AcroFields.GetField(item.ToString())); 
+            }
+            //array to split city state zip 
+            String[] strCityStateZip = arrFieldData[4].ToString().Split(',');
+            //dictionary to store values to be sent to UI
+            var dicToAdd = new Dictionary<string, string>();
+
+            //dictionary add statements to add pdf data to ui
+            dicToAdd.Add("Business Name", (string)arrFieldData[0]);
+            dicToAdd.Add("Website", (string)arrFieldData[8]);
+            dicToAdd.Add("Level", (string)arrFieldData[13]);
+            dicToAdd.Add("Established", (string)arrFieldData[9]);
+
+            // Mailing Address
+            dicToAdd.Add("Mailing Address", (string)arrFieldData[2]);
+
+            if (strCityStateZip.Length > 0)
+                dicToAdd.Add("City", strCityStateZip[0]);
+            else
+                dicToAdd.Add("City", "");
+
+            if (strCityStateZip.Length > 1)
+                dicToAdd.Add("State", strCityStateZip[1]);
+            else
+                dicToAdd.Add("State", "");
+
+            if (strCityStateZip.Length > 2)
+                dicToAdd.Add("Zip Code", strCityStateZip[2]);
+            else
+                dicToAdd.Add("Zip Code", "");
+
+            // Location Address
+            dicToAdd.Add("Location Address", (string)arrFieldData[3]);
+
+            if (strCityStateZip.Length > 0)
+                dicToAdd.Add("Location City", strCityStateZip[0]);
+            else
+                dicToAdd.Add("Location City", "");
+
+            if (strCityStateZip.Length > 1)
+                dicToAdd.Add("Location State", strCityStateZip[1]);
+            else
+                dicToAdd.Add("Location State", "");
+
+            if (strCityStateZip.Length > 2)
+                dicToAdd.Add("Location Zip Code", strCityStateZip[2]);
+            else
+                dicToAdd.Add("Location Zip Code", "");
+
+            dicToAdd.Add("Contact Name", (string)arrFieldData[1]);
+            dicToAdd.Add("Phone Number", (string)arrFieldData[5]);
+            dicToAdd.Add("Fax Number", (string)arrFieldData[6]);
+            dicToAdd.Add("Email Address", (string)arrFieldData[7]);
+            
+            //dictionary return
+            return dicToAdd;
         }
-    }
-
-    /// <summary>
-    /// A view model that defines the members table.
-    /// </summary>
-    public class BusinessTableViewModel 
-    {
-        /* TODO: This data model will need to change as we develope a solution for
-         * dynamic fields. */
-        public string StrBuisnessName { get; set; }
-        public string StrMailingAddress { get; set; }
-        public string StrLocationAddress { get; set; }
-        public string StrCity { get; set; }
-        public string StrState { get; set; }
-        public int? IntZipCode { get; set; }
-        public string StrContactPerson { get; set; }
-        public string StrPhoneNumber { get; set; }
-        public string StrFaxNumber { get; set; }
-        public string StrEmailAddress { get; set; }
-        public string StrWebsite { get; set; }
-        public string StrLevel { get; set; }
-        public int? IntEstablishedYear { get; set; }
     }
 }

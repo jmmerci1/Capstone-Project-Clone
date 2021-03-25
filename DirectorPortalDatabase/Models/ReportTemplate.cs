@@ -11,11 +11,8 @@ namespace DirectorPortalDatabase.Models
     public class ReportTemplate
     {
         [Key]
-        [Column("id")]
-        public int GIntId { get; set; }
-        [Column("reportTemplateName")]
-        public string GStrReportTemplateName { get; set; }
-        [Column("modelName")]
-        public string GStrModelName { get; set; }
+        public int Id { get; set; }
+        public string ReportTemplateName { get; set; }
+        public string ModelName { get; set; }
     }
 }

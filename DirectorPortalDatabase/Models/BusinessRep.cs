@@ -11,44 +11,17 @@ namespace DirectorPortalDatabase.Models
         /// Autoincrements.
         /// </summary>
         [Key]
-        [Column("id")]
-        public int GIntId { get; set; }
+        public int Id { get; set; }
         /// <summary>
         /// The id of the business that the representative
         /// belongs to in the database
         /// </summary>
-        [Column("businessId")]
-        public int GIntBusinessId { get; set; }
+        public int BusinessId { get; set; }
+        public virtual Business Business { get; set; }
         /// <summary>
         /// The representative's id in the table
         /// </summary>
-        [Column("contactPersonId")]
-        public int GIntContactPersonId { get; set; }
-        /// <summary>
-        /// Gives a reference to the business object from the database
-        /// </summary>
-        public Business GBusiness
-        {
-            get
-            {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    return dbContext.Businesses.FirstOrDefault(x => x.GIntId == GIntBusinessId);
-                }
-            }
-        }
-        /// <summary>
-        /// Gives a reference to the contact person object from the database
-        /// </summary>
-        public ContactPerson GContactPerson
-        {
-            get
-            {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    return dbContext.ContactPeople.FirstOrDefault(x => x.GIntId == GIntBusinessId);
-                }
-            }
-        }
+        public int ContactPersonId { get; set; }
+        public virtual ContactPerson ContactPerson { get; set; }
     }
 }

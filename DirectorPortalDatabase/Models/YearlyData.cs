@@ -15,53 +15,45 @@ namespace DirectorPortalDatabase.Models
         /// Autoincrements.
         /// </summary>
         [Key]
-        [Column("id")]
-        public int GIntId { get; set; }
+        public int Id { get; set; }
         /// <summary>
         /// The year that the data represents
         /// </summary>
-        [Column("year")]
-        public int GIntYear { get; set; }
+        public int Year { get; set; }
         /// <summary>
         /// The business that the data represents
         /// </summary>
-        [Column("businessId")]
-        public int GIntBusinessId { get; set; }
+        public int BusinessId { get; set; }
+        public virtual Business Business { get; set; }
         /// <summary>
         /// Shows the amount of dues that have been
         /// paid in a term by the business.
         /// </summary>
-        [Column("duesPaid")]
-        public double GDblDuesPaid { get; set; }
+        public double DuesPaid { get; set; }
         /// <summary>
         /// The amount of money in raffle tickets that
         /// has been returned
         /// </summary>
-        [Column("raffleTicketsReturned")]
-        public double GDblTicketsReturned { get; set; }
+        public double TicketsReturned { get; set; }
         /// <summary>
         /// The amount of credit that a business has
         /// </summary>
-        [Column("credit")]
-        public double GDblCredit { get; set; }
+        public double Credit { get; set; }
         /// <summary>
         /// The term length of the data
         /// </summary>
-        [Column("terms")]
-        public TermLength GEnumTermLength { get; set; }
+        public TermLength TermLength { get; set; }
         /// <summary>
         /// The ballot number that the business gets
         /// </summary>
-        [Column("ballotNum")]
-        public int GIntBallotNumber { get; set; }
+        public int BallotNumber { get; set; }
         /// <summary>
         /// Will be used as a way of adding extra fields
         /// to the database. Designed to use a string encoded
         /// json object with any additional fields that can
         /// be decoded into regular C# objects.
         /// </summary>
-        [Column("extraFields")]
-        public string GStrExtraFields { get; set; }
+        public string ExtraFields { get; set; }
     }
 
     /// <summary>

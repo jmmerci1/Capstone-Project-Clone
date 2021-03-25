@@ -9,51 +9,22 @@ namespace DirectorPortalDatabase.Models
     public class ContactPerson
     {
         /// <summary>
-        /// The Primary Key of the address in the database.
+        /// The Primary Key of the contact person in the database.
         /// Autoincrements.
         /// </summary>
         [Key]
-        [Column("id")]
-        public int GIntId { get; set; }
+        public int Id { get; set; }
         /// <summary>
         /// The name of the contact person
         /// </summary>
-        [Column("name")]
-        public string GStrName { get; set; }
-
+        public string Name { get; set; }
         /// <summary>
-        /// The list of businesses that are represented by the person
+        /// A list of the emails associated with a contact person.
         /// </summary>
-        [Obsolete("This property is obsolete. Use GBusinesses instead.")]
-        public virtual List<BusinessRep> GRGRepresentations { get; set; }
-
+        public virtual List<Email> Emails { get; set; }
         /// <summary>
-        /// Gives a reference to the physical address object from the database
+        /// A list of the phone numbers associated with the contact person.
         /// </summary>
-        public List<Business> GRGBusinesses
-        {
-            get
-            {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    // Select the list of BusinessRep objects and return their business property
-                    return dbContext.BusinessReps.Where(x => x.GIntContactPersonId == GIntId).Select(b => b.GBusiness).ToList();
-                }
-            }
-        }
-        /// <summary>
-        /// The list of emails that a person has
-        /// </summary>
-        public List<Email> GRGEmails
-        {
-            get
-            {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    // Select the list of BusinessRep objects and return their business property
-                    return dbContext.Emails.Where(x => x.GIntContactPersonId == GIntId).ToList();
-                }
-            }
-        }
+        public virtual List<PhoneNumber> PhoneNumbers { get; set; }
     }
 }

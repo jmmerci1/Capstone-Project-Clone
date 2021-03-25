@@ -1,3 +1,5 @@
+using DirectorPortalDatabase;
+using DirectorPortalDatabase.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,10 +90,35 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
         /// </summary>
         /// <param name="sender">The Add button object that has called the function.</param>
         /// <param name="e">The button press event</param>
-        private void AddGroup(object sender, RoutedEventArgs e)
+        private void Add_Group(object sender, RoutedEventArgs e)
         {
             // TODO: Still needs to be implemented
+            string strGroupName = txtGroupName.Text;
+            List<Business> businesses = new List<Business>();
+            string strNotes = txtNotes.Text;
+            using (var context = new DatabaseContext())
+            {
+                foreach (Business groupMember in lstGroupMembers.Items)
+                {
+                    Business b = context.Businesses.FirstOrDefault(x => x.Id == groupMember.Id);
+                    b.BusinessName = "New Business Name";
+                    context.SaveChanges();
+                }
+            }
+
+            // TODO: Link with database once implemented
             this.NavigationService.Navigate(new EmailMembersSendEmailUI.EmailMembersSendEmailPage());
+        }
+
+        /// <summary>
+        /// Gets called on the click of the "Remove Member" button on the edit page.
+        /// Will remove member from listbox
+        /// </summary>
+        /// <param name="sender">The Save button object that has called the function.</param>
+        /// <param name="e">The button press event</param>
+        private void Remove_Member(object sender, RoutedEventArgs e)
+        {
+            lstGroupMembers.Items.Remove(lstGroupMembers.SelectedItem);
         }
 
         /// <summary>
@@ -103,6 +130,66 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
         private void Cancel(object sender, RoutedEventArgs e)
         {
             this.NavigationService.Navigate(new EmailMembersSendEmailUI.EmailMembersSendEmailPage());
+        }
+
+        /// <summary>
+        /// Gets called when user types in Add Member To Group textbox.
+        /// Querys the database for data matching entered text
+        /// </summary>
+        /// <param name="sender">The Add Member to Group textbox object that has called the function.</param>
+        /// <param name="e">The text changed event</param>
+        private void Search_Database(object sender, TextChangedEventArgs e)
+        {
+            lstPopup.Items.Clear();
+            string strSearchTerm = txtAddGroupMembers.Text;
+            Boolean boolExistsInGroup = false;
+
+            popSearch.IsOpen = true;
+            using (var context = new DatabaseContext())
+            {
+                List<Business> queryBusinesses = context.Businesses.Where(
+                    b => b.BusinessName.ToLower().Contains(strSearchTerm.ToLower())
+                ).ToList();
+                foreach (Business business in queryBusinesses)
+                {
+                    boolExistsInGroup = false;
+                    foreach (Business groupMember in lstGroupMembers.Items)
+                        if (groupMember.Id == business.Id)
+                        {
+                            boolExistsInGroup = true;
+                            break;
+                        }
+                    if (!boolExistsInGroup)
+                        lstPopup.Items.Add(business);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets called when user clicks away from Add Member To Group textbox.
+        /// Hides the popup used to display search results
+        /// </summary>
+        /// <param name="sender">The Add Member to Group textbox object that has called the function.</param>
+        /// <param name="e">The lost focus event</param>
+        private void Hide_Search(object sender, RoutedEventArgs e)
+        {
+            popSearch.IsOpen = false;
+        }
+
+        /// <summary>
+        /// Gets called when user selects an item from the popup.
+        /// Displays the item in the group members list box
+        /// </summary>
+        /// <param name="sender">The popup object that has called the function.</param>
+        /// <param name="e">The selection changed event</param>
+        private void Add_Member_To_Group(object sender, SelectionChangedEventArgs e)
+        {
+            if (lstPopup.SelectedIndex >= 0)
+            {
+                lstGroupMembers.Items.Add(lstPopup.SelectedItem);
+                txtAddGroupMembers.Clear();
+                popSearch.IsOpen = false;
+            }
         }
     }
 }

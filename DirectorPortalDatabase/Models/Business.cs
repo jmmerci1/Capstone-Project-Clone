@@ -12,50 +12,46 @@ namespace DirectorPortalDatabase.Models
         /// Autoincrements.
         /// </summary>
         [Key]
-        [Column("id")]
-        public int GIntId { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// The name of the business
         /// </summary>
-        [Column("name")]
-        public string GStrBusinessName { get; set; }
+        public string BusinessName { get; set; }
 
         /// <summary>
         /// The year that the business was established
         /// </summary>
-        [Column("established")]
-        public int GIntYearEstablished { get; set; }
+        public int YearEstablished { get; set; }
 
         /// <summary>
         /// The membership level of the business
         /// </summary>
-        [Column("level")]
-        public MembershipLevel GEnumMembershipLevel { get; set; }
+        public MembershipLevel MembershipLevel { get; set; }
 
         /// <summary>
         /// The id of mailing address of the business
         /// </summary>
-        [Column("mailingAddressId")]
-        public int GIntMailingAddressId { get; set; }
+        public int MailingAddressId { get; set; }
+        
+        public virtual Address MailingAddress { get; set; }
 
         /// <summary>
         /// The id of physical address of the business
         /// </summary>
-        [Column("physicalAddressId")]
-        public int GIntPhysicalAddressId { get; set; }
+        public int PhysicalAddressId { get; set; }
+
+        public virtual Address PhysicalAddress { get; set; }
 
         /// <summary>
         /// The business's website address
         /// </summary>
-        [Column("website")]
-        public string GStrWebsite { get; set; }
+        public string Website { get; set; }
 
         /// <summary>
         /// Any additional notes about a business
         /// </summary>
-        [Column("notes")]
-        public string GStrExtraNotes { get; set; }
+        public string ExtraNotes { get; set; }
 
         /// <summary>
         /// Will be used as a way of adding extra fields
@@ -63,78 +59,104 @@ namespace DirectorPortalDatabase.Models
         /// json object with any additional fields that can
         /// be decoded into regular C# objects.
         /// </summary>
-        [Column("extraFields")]
-        public string GStrExtraFields { get; set; }
+        public string ExtraFields { get; set; }
+
+        /// <summary>
+        /// A list of the business reps for the business.
+        /// </summary>
+        public virtual List<BusinessRep> BusinessReps { get; set; }
 
         /// <summary>
         /// Represents an array of buisness type categories
         /// </summary>
-        public List<Categories> GCategories
-        {
-            get
-            {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    return dbContext.CategoryRef.Where(x => x.GIntBusinessId == GIntId).Select(b => b.GObjCategory).ToList();
-                }
-            }
-        }
+        public virtual List<Categories> Categories { get; set; }
 
         /// <summary>
         /// Represents an array of the yearly data objects
         /// </summary>
-        public List<YearlyData> GRGYearlyData
+        public virtual List<YearlyData> YearlyData { get; set; }
+
+        /// <summary>
+        /// A method for converting the membership level from the business entity to
+        /// a human readable string.
+        /// </summary>
+        /// <param name="strEnumVal">The membership level from the data model</param>
+        /// <returns>The membership enum value of the entered string.</returns>
+        public static MembershipLevel GetMemberShipEnum(string strEnumVal)
         {
-            get
+            MembershipLevel enumMembershipLevel;
+            strEnumVal = strEnumVal.ToLower();
+
+            switch (strEnumVal)
             {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    return dbContext.BusinessYearlyData.Where(x => x.GIntBusinessId == GIntId).ToList();
-                }
+                case "gold":
+                    enumMembershipLevel = MembershipLevel.GOLD;
+                    break;
+
+                case "silver":
+                    enumMembershipLevel = MembershipLevel.SILVER;
+                    break;
+
+                case "associate":
+                    enumMembershipLevel = MembershipLevel.ASSOCIATE;
+                    break;
+
+                case "individual":
+                    enumMembershipLevel = MembershipLevel.INDIVIDUAL;
+                    break;
+
+                case "courtesy":
+                    enumMembershipLevel = MembershipLevel.COURTESY;
+                    break;
+
+                default:
+                    /* Probably shouldn't default to GOLD.
+                     * The database does not currently have an option for this field to be null though.*/
+                    enumMembershipLevel = MembershipLevel.GOLD;
+                    break;
             }
+
+            return enumMembershipLevel;
         }
 
         /// <summary>
-        /// Gives a reference to the mailing address object from the database
+        /// A method for converting the membership level from the business entity to
+        /// a human readable string.
         /// </summary>
-        public Address GMailingAddress
+        /// <param name="membershipLevel">The membership level from the business entity.</param>
+        /// <returns>The human readable membership string.</returns>
+        public static string GetMebershipLevelString(MembershipLevel membershipLevel)
         {
-            get
-            {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    return dbContext.Addresses.FirstOrDefault(x => x.GIntId == GIntMailingAddressId);
-                }
-            }
-        }
+            string strLevel = "";
 
-        /// <summary>
-        /// Gives a reference to the physical address object from the database
-        /// </summary>
-        public Address GPhysicalAddress
-        {
-            get
+            switch (membershipLevel)
             {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    return dbContext.Addresses.FirstOrDefault(x => x.GIntId == GIntPhysicalAddressId);
-                }
-            }
-        }
+                case MembershipLevel.GOLD:
+                    strLevel = "Gold";
+                    break;
 
-        /// <summary>
-        /// Gives a reference to the contact people
-        /// </summary>
-        public List<ContactPerson> GRGContactPeople
-        {
-            get
-            {
-                using (DatabaseContext dbContext = new DatabaseContext())
-                {
-                    // Select the list of BusinessRep objects and return their contact person property
-                    return dbContext.BusinessReps.Where(x => x.GIntContactPersonId == GIntId).Select(b => b.GContactPerson).ToList();
-                }
+                case MembershipLevel.SILVER:
+                    strLevel = "Silver";
+                    break;
+
+                case MembershipLevel.ASSOCIATE:
+                    strLevel = "Associate";
+                    break;
+
+                case MembershipLevel.INDIVIDUAL:
+                    strLevel = "Individual";
+                    break;
+
+                case MembershipLevel.COURTESY:
+                    strLevel = "Courtesy";
+                    break;
+
+                default:
+                    strLevel = "None";
+                    break;
             }
+
+            return strLevel;
         }
     }
 

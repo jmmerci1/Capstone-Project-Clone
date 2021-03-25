@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
+using DirectorsPortalWPF.SettingsUI;
 
 /// <summary>
 /// File Purpose:
@@ -35,7 +36,7 @@ namespace DirectorsPortalWPF.TodoUI
         {
             InitializeComponent();
             GdbContext = new DatabaseContext();
-            List<Todo> rgTodos = GdbContext.TodoListItems.Where(e => e.GBlnMarkedAsDone.Equals(false)).ToList();
+            List<Todo> rgTodos = GdbContext.TodoListItems.Where(e => e.MarkedAsDone.Equals(false)).ToList();
 
             foreach (Todo tDoCurrentTodo in rgTodos)
             {
@@ -48,7 +49,7 @@ namespace DirectorsPortalWPF.TodoUI
 
                 TextBlock txtBoxCardContent = new TextBlock
                 {
-                    Text = $"{tDoCurrentTodo.GStrTitle} - {tDoCurrentTodo.GStrDescription}",
+                    Text = $"{tDoCurrentTodo.Title} - {tDoCurrentTodo.Description}",
                     Margin = new Thickness(5, 5, 5, 0)
                 };
 
@@ -109,14 +110,14 @@ namespace DirectorsPortalWPF.TodoUI
         private void MarkAsDone(object sender, RoutedEventArgs e, StackPanel sPanelCard, Todo tDoCurrentTodo)
         {
 
-            tDoCurrentTodo.GBlnMarkedAsDone = true;
+            tDoCurrentTodo.MarkedAsDone = true;
             GdbContext.SaveChanges();
 
             sPanelTodoList.Children.Remove(sPanelCard);
             sPanelCard.Children.Clear();
 
             lblNumberOfTodo.Content = $"{sPanelTodoList.Children.Count} Number of TODO";
-
+            updateTodo();
             CheckNoTodo();      // If there is no Todo items, notify the end user.
 
             GC.Collect();           // Initiate garbage collection so rogue stack panel children isn't floating around in heap.
@@ -132,7 +133,7 @@ namespace DirectorsPortalWPF.TodoUI
         {
             foreach (Todo tDoCurrentTodo in rgTodoAll)
             {
-                tDoCurrentTodo.GBlnMarkedAsDone = true;
+                tDoCurrentTodo.MarkedAsDone = true;
                 sPanelTodoList.Children.Clear();
                    
             }
@@ -177,6 +178,56 @@ namespace DirectorsPortalWPF.TodoUI
                 Template = (ControlTemplate)Application.Current.Resources["xtraSmallButtonGrey"],
             };
             return btnNewButton;
+        }
+
+
+
+        private void updateTodo()
+        {
+            List<Todo> lstTodos = GdbContext.TodoListItems.Where(e => e.MarkedAsDone.Equals(false)).ToList();
+            foreach (Todo tDoCurrentTodo in lstTodos)
+            {
+
+                StackPanel sPanelCard = CreateStackPanelCard();
+                StackPanel sPanelCardContent = new StackPanel();
+                Button btnDone = CreateButton("Done");
+
+                btnDone.Click += (sender, e) => MarkAsDone(sender, e, sPanelCard, tDoCurrentTodo);
+
+                TextBlock txtBoxCardContent = new TextBlock
+                {
+                    Text = $"{tDoCurrentTodo.Title} - {tDoCurrentTodo.Description}",
+                    Margin = new Thickness(5, 5, 5, 0)
+                };
+
+                TextBlock txtBoxCardClicker = new TextBlock
+                {
+                    Text = "Click to View",
+                    Margin = new Thickness(5, 0, 5, 5),
+                    FontSize = 10
+                };
+
+                sPanelCardContent.Children.Add(txtBoxCardContent);
+                sPanelCardContent.Children.Add(txtBoxCardClicker);
+
+                sPanelCard.Children.Add(btnDone);
+                sPanelCard.Children.Add(sPanelCardContent);
+
+                sPanelTodoList.Children.Add(sPanelCard);
+                lblNumberOfTodo.Content = $"{sPanelTodoList.Children.Count} Number of TODO";
+            }
+        }
+        /// <summary>
+        /// Opens a pop-up window that displays the current frames help information. 
+        /// </summary>
+        /// <param name="sender">Help button</param>
+        /// <param name="e">The Click event</param>
+        public void HelpButtonHandler(object sender, EventArgs e)
+        {
+            HelpUI.HelpScreenWindow helpWindow = new HelpUI.HelpScreenWindow();
+            helpWindow.Show();
+            helpWindow.tabs.SelectedIndex = 5;
+
         }
     }
 }
