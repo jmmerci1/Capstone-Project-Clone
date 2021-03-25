@@ -210,15 +210,105 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             GSelectedBusiness.PhysicalAddress.ZipCode = intLocationZipCode;
                         }
 
-                        /* Remove all contacts from the list. */
-                        foreach (int id in GIntContactsToRemove) 
-                        {
-                            ContactPerson contactPersonToRemove = context.ContactPeople.Find(id);
-
-                            context.Remove(contactPersonToRemove);
-                        }
-
                         /* Update the contacts from the form. */
+                        foreach (UIElement uiContact in SpContacts.Children)
+                        {
+                            if (uiContact is ContactInput)
+                            {
+                                ContactInput ciContact = uiContact as ContactInput;
+                                BusinessRep currentRep = GSelectedBusiness.BusinessReps
+                                    .FirstOrDefault(rep => rep.ContactPersonId == ciContact.GIntContactId);
+
+                                /* Check if the contact was removed. */
+                                if (GIntContactsToRemove.Contains(ciContact.GIntContactId))
+                                {
+                                    foreach (Email email in currentRep.ContactPerson.Emails)
+                                    {
+                                        context.Remove(email);
+                                    }
+
+                                    foreach (PhoneNumber number in currentRep.ContactPerson.PhoneNumbers)
+                                    {
+                                        context.Remove(number);
+                                    }
+
+                                    context.Remove(currentRep.ContactPerson);
+                                    context.Remove(currentRep);
+                                }
+                                else 
+                                {
+                                    /* Check if this is a new or updated contact. */
+                                    if (ciContact.GIntContactId != -1)
+                                    {
+                                        currentRep.ContactPerson.Name = ciContact.TxtName.Text;
+
+                                        /* Get the contact's emails from the form. */
+                                        foreach (UIElement uiEmail in ciContact.SpContactEmails.Children)
+                                        {
+                                            if (uiEmail is EmailInput)
+                                            {
+                                                EmailInput eiEmail = uiEmail as EmailInput;
+                                                Email currentEmail = currentRep.ContactPerson.Emails
+                                                    .FirstOrDefault(email => email.Id == eiEmail.GIntEmailId);
+
+                                                if (ciContact.GIntEmailsToRemove.Contains(eiEmail.GIntEmailId))
+                                                {
+                                                    context.Remove(currentEmail);
+                                                }
+                                                else if (eiEmail.GIntEmailId == -1) 
+                                                {
+                                                    Email newEmail = new Email();
+                                                    newEmail.EmailAddress = eiEmail.TxtEmail.Text;
+
+                                                    context.Emails.Add(newEmail);
+
+                                                    currentRep.ContactPerson.Emails.Add(newEmail);
+                                                }
+                                                else
+                                                {
+                                                    currentEmail.EmailAddress = eiEmail.TxtEmail.Text;
+                                                }
+                                            }
+                                        }
+
+                                        /* Get the contact's numbers from the form. */
+                                        foreach (UIElement uiNumber in ciContact.SpContactNumbers.Children)
+                                        {
+                                            if (uiNumber is ContactNumberInput)
+                                            {
+                                                ContactNumberInput cniNumber = uiNumber as ContactNumberInput;
+                                                PhoneNumber currentNumber = currentRep.ContactPerson.PhoneNumbers
+                                                    .FirstOrDefault(number => number.Id == cniNumber.GIntNumberId);
+
+                                                if (ciContact.GIntNumbersToRemove.Contains(cniNumber.GIntNumberId))
+                                                {
+                                                    context.Remove(currentNumber);
+                                                }
+                                                else if (cniNumber.GIntNumberId == -1) 
+                                                {
+                                                    PhoneNumber newNumber = new PhoneNumber();
+                                                    newNumber.Number = cniNumber.TxtContactNumber.Text;
+                                                    newNumber.GEnumPhoneType = (PhoneType)cniNumber.CboNumberType.SelectedIndex;
+
+                                                    context.PhoneNumbers.Add(newNumber);
+
+                                                    currentRep.ContactPerson.PhoneNumbers.Add(newNumber);
+                                                }
+                                                else
+                                                {
+                                                    currentNumber.Number = cniNumber.TxtContactNumber.Text;
+                                                    currentNumber.GEnumPhoneType = (PhoneType)cniNumber.CboNumberType.SelectedIndex;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else 
+                                    {
+                                    
+                                    }
+                                }
+                            }
+                        }
 
                         context.Update(GSelectedBusiness);
                         context.SaveChanges();
