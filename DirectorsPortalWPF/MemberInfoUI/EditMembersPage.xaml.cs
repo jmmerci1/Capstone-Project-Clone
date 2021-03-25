@@ -304,7 +304,45 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                     }
                                     else 
                                     {
-                                    
+                                        BusinessRep newRep = new BusinessRep();
+                                        ContactPerson newContact = new ContactPerson
+                                        {
+                                            Name = ciContact.TxtName.Text,
+                                            Emails = new List<Email>(),
+                                            PhoneNumbers = new List<PhoneNumber>()
+                                        };
+
+                                        newRep.ContactPerson = newContact;
+
+                                        /* Get the contacts emails from the form. */
+                                        foreach (UIElement uiEmail in ciContact.SpContactEmails.Children)
+                                        {
+                                            if (uiEmail is EmailInput)
+                                            {
+                                                EmailInput emailInput = (uiEmail as EmailInput);
+                                                Email email = new Email();
+
+                                                email.EmailAddress = emailInput.TxtEmail.Text;
+                                                newRep.ContactPerson.Emails.Add(email);
+                                            }
+                                        }
+
+                                        /* Get the contacts phone numbers from the form. */
+                                        foreach (UIElement uiPhoneNumber in ciContact.SpContactNumbers.Children)
+                                        {
+                                            if (uiPhoneNumber is ContactNumberInput)
+                                            {
+                                                ContactNumberInput contactNumberInput = (uiPhoneNumber as ContactNumberInput);
+                                                PhoneNumber phoneNumber = new PhoneNumber();
+
+                                                phoneNumber.Number = contactNumberInput.TxtContactNumber.Text;
+                                                phoneNumber.GEnumPhoneType = (PhoneType)contactNumberInput.CboNumberType.SelectedIndex;
+                                                newRep.ContactPerson.PhoneNumbers.Add(phoneNumber);
+                                            }
+                                        }
+
+                                        context.BusinessReps.Add(newRep);
+                                        GSelectedBusiness.BusinessReps.Add(newRep);
                                     }
                                 }
                             }
