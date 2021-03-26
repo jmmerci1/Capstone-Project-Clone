@@ -37,7 +37,7 @@
                     <GroupBox x:Name="grpMemberFilters" Header="Members Filters" Grid.Row="0" Grid.ColumnSpan="2" BorderThickness="0">
                         <TextBox x:Name="txtFilter" AutomationProperties.HelpText="Type to filter the data" Height="25" Width="300" HorizontalAlignment="Left" VerticalContentAlignment="Center" TextChanged="TxtFilter_TextChanged"/>
                     </GroupBox>
-                    <ListView Grid.Row="1" Name="lvMemberInfo" SelectionMode="Single" Loaded="LvMemberInfo_Loaded">
+                    <ListView Grid.Row="1" Name="lvMemberInfo" SelectionMode="Single" Loaded="LvMemberInfo_Loaded" GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
                         <ListView.View>
                             <GridView x:Name="gvMemberInfo">
                                 <!--Columns and rows are dynamically generated-->
