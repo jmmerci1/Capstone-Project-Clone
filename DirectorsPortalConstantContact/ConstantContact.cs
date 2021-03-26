@@ -606,12 +606,12 @@ namespace DirectorsPortalConstantContact
             this.PostJson(strJson, "contact_lists");
         }
 
-        private async void DELETEContactList(string contactList_id)
+        private async void DELETEContactList(ContactList objList)
         {
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("Authorization", this.mstrTokenHeader);
 
-            var response = await client.DeleteAsync(this.gstrBaseURL + $"contact_lists/{contactList_id}");
+            var response = await client.DeleteAsync(this.gstrBaseURL + $"contact_lists/{objList.list_id}");
             Console.WriteLine(response.StatusCode);
         }
 
@@ -655,6 +655,20 @@ namespace DirectorsPortalConstantContact
         public void AddListToActivity(ContactList objList, EmailCampaignActivity objActivity)
         {
             objActivity.contact_list_ids.Add(objList.list_id);
+            PUTEmailCampaignActivity objTemp = objActivity.Update();
+
+            string strJson = JsonConvert.SerializeObject(objTemp, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+
+            });
+
+            this.PUTJson(strJson, $"/emails/activities/{objActivity.campaign_activity_id}");
+
+        }
+        public void RemoveListFromActivity(ContactList objList, EmailCampaignActivity objActivity)
+        {
+            objActivity.contact_list_ids.Remove(objList.list_id);
             PUTEmailCampaignActivity objTemp = objActivity.Update();
 
             string strJson = JsonConvert.SerializeObject(objTemp, new JsonSerializerSettings
