@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -175,6 +176,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     gvcCol.Header = GDicHumanReadableTableFields[property.Name];
                     gvcCol.DisplayMemberBinding = new Binding(property.Name);
                     gvMemberInfo.Columns.Add(gvcCol);
+                    
                 }
 
                 /* Add a button to edit the business to the end of each row. */
@@ -204,6 +206,62 @@ namespace DirectorsPortalWPF.MemberInfoUI
             }
         }
 
+        GridViewColumnHeader lastHeaderClicked = null;
+        ListSortDirection lastDirection = ListSortDirection.Ascending;
+        //Takes an input string, and direction
+        //Sorts column with name matching the string in the given direction
+        private void Sort(string strSortBy, ListSortDirection direction)
+        {
+            ICollectionView dataView =
+              CollectionViewSource.GetDefaultView(lvMemberInfo.ItemsSource);
+
+            dataView.SortDescriptions.Clear();
+            SortDescription sd = new SortDescription(strSortBy, direction);
+            dataView.SortDescriptions.Add(sd);
+            dataView.Refresh();
+        }
+        /// <summary>
+        /// Calls the sort function when a column header is clicked passing it the column name and direction
+        /// Maintains which column is currently being sorted and in which direction
+        /// </summary>
+        /// <param name="sender">The text box that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
+        private void GridViewColumnHeaderClickedHandler(object sender,
+                                            RoutedEventArgs e)
+        {
+            var headerClicked = e.OriginalSource as GridViewColumnHeader;
+            ListSortDirection direction;
+
+            if (headerClicked != null)
+            {
+                if (headerClicked.Role != GridViewColumnHeaderRole.Padding)
+                {
+                    if (headerClicked != lastHeaderClicked)
+                    {
+                        direction = ListSortDirection.Ascending;
+                    }
+                    else
+                    {
+                        if (lastDirection == ListSortDirection.Ascending)
+                        {
+                            direction = ListSortDirection.Descending;
+                        }
+                        else
+                        {
+                            direction = ListSortDirection.Ascending;
+                        }
+                    }
+
+                    var columnBinding = headerClicked.Column.DisplayMemberBinding as Binding;
+                    var strSortBy = columnBinding?.Path.Path ?? headerClicked.Column.Header as string;
+
+                    Sort(strSortBy, direction);
+
+                    lastHeaderClicked = headerClicked;
+                    lastDirection = direction;
+                }
+            }
+        }
         /// <summary>
         /// A method for detecting when the text in TxtFilter has changed.
         /// </summary>
