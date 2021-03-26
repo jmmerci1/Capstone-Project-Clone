@@ -180,7 +180,7 @@ namespace DirectorsPortalWPF.SettingsUI
                 GridViewColumn gvcEdit = new GridViewColumn
                 {
                     CellTemplate = dtResolve,
-                    Header = "Keep"
+                    Header = "Overwrite"
                 };
 
                 gvExcelConflictRows.Columns.Add(gvcEdit);
