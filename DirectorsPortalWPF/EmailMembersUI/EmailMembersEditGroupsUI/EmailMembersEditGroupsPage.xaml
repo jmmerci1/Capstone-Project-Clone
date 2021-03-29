@@ -8,8 +8,7 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="EmailPage">
 
-
-    <Grid Margin="15,0,0,0" Grid.Column="2" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.Resources>
             <Style TargetType="{x:Type TextBox}">
                 <Setter Property="Margin" Value="5,5,5,10"></Setter>
@@ -18,14 +17,13 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" MinWidth="113"/>
             <ColumnDefinition/>
-
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto" MinHeight="65"/>
             <RowDefinition Height="auto" MinHeight="65"/>
             <RowDefinition Height="auto" MinHeight="65"/>
-            <RowDefinition Height="auto" MinHeight="65"/>
+            <RowDefinition Height="*" MinHeight="65"/>
             <RowDefinition Height="auto" MinHeight="50"/>
         </Grid.RowDefinitions>
         <Grid.Background>
@@ -61,9 +59,11 @@
             <Label Content="Notes:" Margin="10,0,10,0"/>
             <TextBox x:Name="txtNotes" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"  Margin="10,25,10,0" />
         </Grid>
-        <Grid Grid.Column="1" Grid.Row="5">
+        <Grid Grid.ColumnSpan="2" Grid.Row="5">
             <Button x:Name="btnSave" Click="Save_Group" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Grid.Column="1" Grid.Row="0" Content="Save" Margin="0,18,10,10" Padding="0,0,75,0" Width="76" />
             <Button x:Name="btnCancel" Click="Cancel" HorizontalAlignment="Right" Template="{StaticResource smallButtonGrey}" Grid.Column="0" Grid.Row="0" Content="Cancel" Margin="0,18,100,10" Padding="0,0,50,0" Width="76" />
+            <Button x:Name="btnDelete" Click="BtnDelete_Click" HorizontalAlignment="Left" Template="{StaticResource smallButton}" Grid.Column="0" Grid.Row="0" Content="Delete" Margin="10,18,100,10" Padding="10,0,50,0" Width="76" />
+
         </Grid>
         
     </Grid>
