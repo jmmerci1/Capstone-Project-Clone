@@ -18,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml;
+using Path = System.IO.Path;
 
 /// <summary>
 /// This file has all of the logic for handling the email page.
@@ -30,9 +31,13 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
     /// <summary>
     /// Interaction logic for EmailMembersSendEmailPage.xaml
     /// </summary>
+    /// 
+   
     public partial class EmailMembersSendEmailPage : Page
     {
         private string gStrAttachedFilePath;
+        private string gStrFileExtension;
+        private string gStrFileName;
 
         public EmailMembersSendEmailPage()
         {
@@ -58,7 +63,7 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
 
                 String strContent = GetRichTextDocumentHtmlContent();
 
-                await GraphApiClient.SendMail(strSubject, rgRecipient, strContent);
+                await GraphApiClient.SendMail(strSubject, rgRecipient, strContent, gStrAttachedFilePath, gStrFileExtension, gStrFileName);
 
                 txtToField.Clear();
                 txtSubject.Clear();
@@ -121,8 +126,21 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
         /// <param name="e">The Click event</param>
         private void AttachFile_Click(object sender, RoutedEventArgs e)
         {
-            gStrAttachedFilePath = OpenFile();
-            MessageBox.Show(gStrAttachedFilePath);
+
+            OpenFileDialog FileDialog = new OpenFileDialog();
+
+            FileDialog.ShowDialog();
+
+        
+            gStrAttachedFilePath = FileDialog.FileName.ToString();
+
+            gStrFileExtension = Path.GetExtension(FileDialog.FileName);
+
+            gStrFileName = Path.GetFileNameWithoutExtension(FileDialog.FileName);
+
+            MessageBox.Show(gStrAttachedFilePath, "Attached File Name",
+         MessageBoxButton.OK,
+         MessageBoxImage.Information);
 
         }
 

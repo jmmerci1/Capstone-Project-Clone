@@ -45,11 +45,15 @@ namespace DirectorsPortal
         /// Send Mail immediately usign message created in method
         /// </summary>
         /// <returns></returns>
-        public static async Task SendMail(String strSubject, String[] arrRecipient, String strBody)
+        public static async Task SendMail(String strSubject, String[] arrRecipient, String strBody, String strFilePath, String strFileExtension, String strFileName)
         {
             //string send = null;
             //defines message object 
+            byte[] contentBytes = System.IO.File.ReadAllBytes(strFilePath);
+
             List<Recipient> lstRecipients = new List<Recipient>();
+            MessageAttachmentsCollectionPage attachments = new MessageAttachmentsCollectionPage();
+
             for (int i = 0; i <= arrRecipient.Length - 1; i++)
             {
                 lstRecipients.Add(
@@ -62,15 +66,26 @@ namespace DirectorsPortal
                         }
                 );
             }
+            attachments.Add(new FileAttachment
+            {
+                ODataType = "#microsoft.graph.fileAttachment",
+                ContentBytes = contentBytes,
+                ContentId = strFileName,
+                Name = strFileName + strFileExtension
+            });
+
             var objMessage = new Message
             {
                 Subject = strSubject,
                 Body = new ItemBody
+                
                 {
                     ContentType = BodyType.Html,
                     Content = strBody
                 },
-                ToRecipients = lstRecipients
+                ToRecipients = lstRecipients,
+
+                Attachments = attachments
                 //{ 
                 //    new Recipient
                 //    {
