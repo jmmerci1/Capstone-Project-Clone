@@ -48,9 +48,22 @@ namespace DirectorsPortalConstantContact
         public Dictionary<string, ContactList>.ValueCollection ContactLists => this.gdctContactLists.Values;
         public Dictionary<string, CustomField>.ValueCollection CustomFields => this.gdctCustomFields.Values;
         public Dictionary<string, EmailCampaign>.ValueCollection EmailCampaigns => this.gdctEmailCampaigns.Values;
+        public Dictionary<string, EmailCampaignActivity>.ValueCollection EmailCampaignActivities => this.gdctEmailCampaignActivities.Values;
 
         public List<EmailCampaignActivityPreview> glstEmailCampaignActivityPreviews = new List<EmailCampaignActivityPreview>();
 
+
+        public ConstantContact()
+        {
+            try
+            {
+                this.load();
+            }
+            catch (FileNotFoundException)
+            {
+                return;
+            }
+        }
 
         /// <summary>
         /// One function to run all of the update functions. 
@@ -58,8 +71,6 @@ namespace DirectorsPortalConstantContact
         /// </summary>
         public void RefreshData()
         {
-            //this.load();
-            //return;
 
             this.gobjCCAuth.ValidateAuthentication();
             print("Updating Contacts");
@@ -218,7 +229,6 @@ namespace DirectorsPortalConstantContact
                     }
                 }
 
-                //Trabis is dumb
                 try
                 {
                     strLink = (string)objJson["_links"]["next"]["href"];
@@ -249,11 +259,12 @@ namespace DirectorsPortalConstantContact
                 JObject objJson = JObject.Parse(strJson);
                 string strActivities = objJson.GetValue("campaign_activities").ToString();
                 List<ActivityList> lstDecodedJson = JsonConvert.DeserializeObject<List<ActivityList>>(strActivities);
+                objCampaign.campaign_activities = lstDecodedJson;
 
-                foreach(ActivityList objTempActivity in lstDecodedJson)
+                foreach (ActivityList objTempActivity in lstDecodedJson)
                 {
 
-                    string strActivityUrl = $"emails/activities/{objTempActivity.campaign_activity_id}";//?include=permalink_url";
+                    string strActivityUrl = $"emails/activities/{objTempActivity.campaign_activity_id}";
                     string strActivityJson = this.ReadJsonFromUrl(strActivityUrl);
                     EmailCampaignActivity objActivity = JsonConvert.DeserializeObject<EmailCampaignActivity>(strActivityJson);
                     objActivity.gobjCampaign = objCampaign;
@@ -265,8 +276,6 @@ namespace DirectorsPortalConstantContact
                     {
                         objActivity.glstContactLists.Add(this.gdctContactLists[strId]);
                     }
-
-
 
 
                 }
@@ -295,12 +304,6 @@ namespace DirectorsPortalConstantContact
                         objActivity.mobjPreview = objPreview;
                         this.glstEmailCampaignActivityPreviews.Add(objPreview);
 
-                        //TESTING
-                        if (objActivity.contact_list_ids.Count() > 0)
-                        {
-                            DateTime objTime = DateTime.Now.AddMinutes(2);
-                            //this.SendActivity(objActivity, objTime);
-                        }
                             
                     }
                     
@@ -358,7 +361,6 @@ namespace DirectorsPortalConstantContact
             }
         }
 
-
         /// <summary>
         /// Used to make a web request and retrieve the JSON from the given URL
         /// </summary>
@@ -369,29 +371,13 @@ namespace DirectorsPortalConstantContact
         /// <returns></returns>
         private string ReadJsonFromUrl(string strUrl)
         {
-           
-            HttpWebRequest objAccessTokenRequest = (HttpWebRequest)WebRequest.Create(this.gstrBaseURL + strUrl);
-            objAccessTokenRequest.Headers["Authorization"] = this.mstrTokenHeader;
-            objAccessTokenRequest.ContentType = "application/json";
 
-            objAccessTokenRequest.Method = "GET";
-            HttpWebResponse responce = (HttpWebResponse)objAccessTokenRequest.GetResponse();
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", this.mstrTokenHeader);
 
-            Stream objStreamResponse = responce.GetResponseStream();
-            StreamReader objStreamRead = new StreamReader(objStreamResponse);
-            Char[] chrBufferArray = new Char[256];
-            int intCount = objStreamRead.Read(chrBufferArray, 0, 256);
+            HttpResponseMessage objResponse = client.GetAsync(this.gstrBaseURL + strUrl).Result;
 
-            string strHttpResponse = "";
-
-            while (intCount > 0)
-            {
-                String outputData = new String(chrBufferArray, 0, intCount);
-                strHttpResponse += outputData;
-                intCount = objStreamRead.Read(chrBufferArray, 0, 256);
-            }
-            strHttpResponse = strHttpResponse.Replace("\n", "");
-            return strHttpResponse;
+            return objResponse.Content.ReadAsStringAsync().Result;
         }
 
         /// <summary>
@@ -438,19 +424,6 @@ namespace DirectorsPortalConstantContact
             Console.WriteLine(response.StatusCode);
         }
 
-        //temp function to add contacts
-        public void massPost()
-        {
-            string[] cs = File.ReadAllText("C:\\Users\\evanw\\ownCloud\\School\\471\\test\\make_contacts\\out.txt").Split('|');
-            int i = 1000;
-            foreach(string c in cs)
-            {
-                Console.WriteLine(i--);
-                this.PostJson(c, "contacts");
-                System.Threading.Thread.Sleep(300);
-            }
-        }
-
         /// <summary>
         /// Loops though the contacts and contact lists to create in memory refrences for easy access
         /// </summary>
@@ -492,6 +465,43 @@ namespace DirectorsPortalConstantContact
                     
                 }
             }
+        }
+        
+        private void LocalActivityAssignments()
+        {
+            foreach(EmailCampaign objCampaign in this.EmailCampaigns)
+            {
+                foreach(EmailCampaignActivity objActivity in this.EmailCampaignActivities)
+                {
+                    //where objTmp != null select
+                    if (objCampaign.campaign_activities != null)
+                    {
+                        if ((from objTmp in objCampaign.campaign_activities select objTmp.campaign_activity_id).Contains(objActivity.campaign_activity_id))
+                        {
+                            objActivity.gobjCampaign = objCampaign;
+                            objCampaign.Activities.Add(objActivity);
+
+                            //addcontact lists to activity for reference
+                            foreach (string strId in objActivity.contact_list_ids)
+                            {
+                                objActivity.glstContactLists.Add(this.gdctContactLists[strId]);
+                            }
+                        }
+                    }
+                    
+                }
+            }
+        }
+        
+        private void LocalPreviewAssignment()
+        {
+           foreach(EmailCampaignActivityPreview objPreview in this.glstEmailCampaignActivityPreviews)
+           {
+                EmailCampaignActivity objActivity = this.gdctEmailCampaignActivities[objPreview.campaign_activity_id];
+                objPreview.activity = objActivity;
+                objActivity.mobjPreview = objPreview;
+
+           }
         }
         
         /// <summary>
@@ -693,50 +703,6 @@ namespace DirectorsPortalConstantContact
 
         }
 
-        /// <summary>
-        /// temp code for adding a campaign. need to work with Ben Dore on this stuff as it realies heavily on the UI. 
-        /// </summary>
-        public void AddCampaign()
-        {
-            EmailCampaign objTemp = new EmailCampaign()
-            {
-                name = "From Directers Po"
-            };
-            string html = "<!doctype html>\r\n<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\r\n  <head>\r\n    <title>\r\n    </title>\r\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\r\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\r\n    <style type=\"text/css\">\r\n      #outlook a{padding: 0;}\r\n      \t\t\t.ReadMsgBody{width: 100%;}\r\n      \t\t\t.ExternalClass{width: 100%;}\r\n      \t\t\t.ExternalClass *{line-height: 100%;}\r\n      \t\t\tbody{margin: 0; padding: 0; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;}\r\n      \t\t\ttable, td{border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;}\r\n      \t\t\timg{border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic;}\r\n      \t\t\tp{display: block; margin: 13px 0;}\r\n    </style>\r\n    <!--[if !mso]><!-->\r\n    <style type=\"text/css\">\r\n      @media only screen and (max-width:480px) {\r\n      \t\t\t  \t\t@-ms-viewport {width: 320px;}\r\n      \t\t\t  \t\t@viewport {\twidth: 320px; }\r\n      \t\t\t\t}\r\n    </style>\r\n    <!--<![endif]-->\r\n    <!--[if mso]> \r\n\t\t<xml> \r\n\t\t\t<o:OfficeDocumentSettings> \r\n\t\t\t\t<o:AllowPNG/> \r\n\t\t\t\t<o:PixelsPerInch>96</o:PixelsPerInch> \r\n\t\t\t</o:OfficeDocumentSettings> \r\n\t\t</xml>\r\n\t\t<![endif]-->\r\n    <!--[if lte mso 11]> \r\n\t\t<style type=\"text/css\"> \r\n\t\t\t.outlook-group-fix{width:100% !important;}\r\n\t\t</style>\r\n\t\t<![endif]-->\r\n    <style type=\"text/css\">\r\n      @media only screen and (max-width:480px) {\r\n      \r\n      \t\t\t  table.full-width-mobile { width: 100% !important; }\r\n      \t\t\t\ttd.full-width-mobile { width: auto !important; }\r\n      \r\n      }\r\n      @media only screen and (min-width:480px) {\r\n      .dys-column-per-90 {\r\n      \twidth: 90% !important;\r\n      \tmax-width: 90%;\r\n      }\r\n      }\r\n    </style>\r\n  </head>\r\n  <body>\r\n    <div>\r\n      <table align='center' border='0' cellpadding='0' cellspacing='0' role='presentation' style='background:#f7f7f7;background-color:#f7f7f7;width:100%;'>\r\n        <tbody>\r\n          <tr>\r\n            <td>\r\n              <div style='margin:0px auto;max-width:600px;'>\r\n                <table align='center' border='0' cellpadding='0' cellspacing='0' role='presentation' style='width:100%;'>\r\n                  <tbody>\r\n                    <tr>\r\n                      <td style='direction:ltr;font-size:0px;padding:20px 0;text-align:center;vertical-align:top;'>\r\n                        <!--[if mso | IE]>\r\n<table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"vertical-align:top;width:540px;\">\r\n<![endif]-->\r\n                        <div class='dys-column-per-90 outlook-group-fix' style='direction:ltr;display:inline-block;font-size:13px;text-align:left;vertical-align:top;width:100%;'>\r\n                          <table border='0' cellpadding='0' cellspacing='0' role='presentation' width='100%'>\r\n                            <tbody>\r\n                              <tr>\r\n                                <td style='background-color:#ffffff;border:1px solid #ccc;padding:45px 75px;vertical-align:top;'>\r\n                                  <table border='0' cellpadding='0' cellspacing='0' role='presentation' style='' width='100%'>\r\n                                    <tr>\r\n                                      <td align='center' style='font-size:0px;padding:10px 25px;word-break:break-word;'>\r\n                                        <table border='0' cellpadding='0' cellspacing='0' role='presentation' style='border-collapse:collapse;border-spacing:0px;'>\r\n                                          <tbody>\r\n                                            <tr>\r\n                                              <td style='width:130px;'>\r\n                                                <img alt='Profile Picture' height='auto' src='https://assets.opensourceemails.com/imgs/oxygen/Ei7o4zRgT561k4rLfzTz_profile_pic.jpg' style='border:1px solid #ccc;border-radius:5px;display:block;font-size:13px;height:auto;outline:none;text-decoration:none;width:100%;' width='130' />\r\n                                              </td>\r\n                                            </tr>\r\n                                          </tbody>\r\n                                        </table>\r\n                                      </td>\r\n                                    </tr>\r\n                                    <tr>\r\n                                      <td align='center' style='font-size:0px;padding:10px 25px;word-break:break-word;'>\r\n                                        <div style='color:#777777;font-family:Oxygen, Helvetica neue, sans-serif;font-size:14px;line-height:21px;text-align:center;'>\r\n                                          <a href='#' style='display:block; color: #ff6f6f; font-weight: bold; text-decoration: none;'>\r\n                                            @First Name\r\n                                          </a>\r\n                                          <span>\r\n                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam sed nulla nibh. Ut hendrerit pellentesque justo, semper accumsan nisl venenatis ut.\r\n                                          </span>\r\n                                        </div>\r\n                                      </td>\r\n                                    </tr>\r\n                                    <tr>\r\n                                      <td align='center' style='font-size:0px;padding:10px 25px;word-break:break-word;' vertical-align='middle'>\r\n                                        <table border='0' cellpadding='0' cellspacing='0' role='presentation' style='border-collapse:separate;line-height:100%;'>\r\n                                          <tr>\r\n                                            <td align='center' bgcolor='#ff6f6f' role='presentation' style='background-color:#ff6f6f;border:none;border-radius:5px;cursor:auto;padding:10px 25px;' valign='middle'>\r\n                                              <a href='# Button URL' style='background:#ff6f6f;color:#ffffff;font-family:Oxygen, Helvetica neue, sans-serif;font-size:14px;font-weight:400;line-height:21px;margin:0;text-decoration:none;text-transform:none;' target='_blank'>\r\n                                                Button Text\r\n                                              </a>\r\n                                            </td>\r\n                                          </tr>\r\n                                        </table>\r\n                                      </td>\r\n                                    </tr>\r\n                                  </table>\r\n                                </td>\r\n                              </tr>\r\n                            </tbody>\r\n                          </table>\r\n                        </div>\r\n                        <!--[if mso | IE]>\r\n</td></tr></table>\r\n<![endif]-->\r\n                      </td>\r\n                    </tr>\r\n                  </tbody>\r\n                </table>\r\n              </div>\r\n            </td>\r\n          </tr>\r\n        </tbody>\r\n      </table>\r\n    </div>\r\n  </body>\r\n</html>";
-            objTemp.AddActivity(strFromEmail: "ewalk@svsu.edu", strFromName: "Directers Portal", strReplayToEmail:"None@None.com", strSubject: "test number 1", strHTMLContent: html);
-
-            string strJson = JsonConvert.SerializeObject(objTemp.objNewCampaign(), new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore
-            });
-
-            this.PostJson(strJson, "/emails");
-
-            this.UpdateEmailCampaigns();
-            this.UpdateEmailCampaignActivities();
-
-            EmailCampaignActivity t = null;
-            foreach (EmailCampaignActivity objUpdatedActivity in this.FindCampaignByName(objTemp.name).Activities)
-            {
-                if (objUpdatedActivity.role == "primary_email")
-                {
-                    t = objUpdatedActivity;
-                }
-            }
-            if (t != null)
-            {
-                Console.WriteLine("Updating Contact List");
-                t.contact_list_ids.Add(this.FindListByName("Usable List").list_id);
-
-                strJson = JsonConvert.SerializeObject(t.Update(), new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore
-                });
-
-                this.PUTJson(strJson, $"emails/activities/{t.campaign_activity_id}");
-            }
-        }
-    
         public void SendActivity(EmailCampaignActivity objActivity)
         {
             print(objActivity.contact_list_ids[0]);
@@ -788,7 +754,7 @@ namespace DirectorsPortalConstantContact
                 NullValueHandling = NullValueHandling.Ignore
             });
 
-            string fname = "CCSaveData.JSON";
+            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\CCSaveData.JSON";
 
             Dictionary<string, string> dctData = new Dictionary<string, string>()
             {
@@ -802,12 +768,19 @@ namespace DirectorsPortalConstantContact
 
             string strData = JsonConvert.SerializeObject(dctData);
 
-            File.WriteAllText(fname, strData, Encoding.UTF8);
+            strData = this.Obfuscate(strData);
+
+            File.WriteAllText(strFname, strData, Encoding.UTF8);
         }
 
         private void load()
         {
-            string strData = File.ReadAllText("CCSaveData.JSON", Encoding.UTF8);
+
+            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\CCSaveData.JSON";
+
+            string strData = File.ReadAllText(strFname, Encoding.UTF8);
+
+            strData = this.Deobfuscate(strData);
 
             Dictionary<string, string> dctData = JsonConvert.DeserializeObject<Dictionary<string, string>>(strData);
 
@@ -817,8 +790,53 @@ namespace DirectorsPortalConstantContact
             this.gdctEmailCampaigns = JsonConvert.DeserializeObject<Dictionary<string, EmailCampaign>>(dctData["campaigns"]);
             this.gdctEmailCampaignActivities = JsonConvert.DeserializeObject<Dictionary<string, EmailCampaignActivity>>(dctData["activities"]);
             this.glstEmailCampaignActivityPreviews = JsonConvert.DeserializeObject<List<EmailCampaignActivityPreview>>(dctData["activitypreviews"]);
+
+            this.LocalActivityAssignments();
+            this.LocalPreviewAssignment();
             print("load done");
         }
+
+        private string Obfuscate(string strIn)
+        {
+
+            string strWorking = strIn;
+
+            for (int i = 0; i < 7; i++)
+            {
+                char[] charArray = strWorking.ToCharArray();
+                Array.Reverse(charArray);
+                strWorking = new string(charArray);
+
+                UTF8Encoding objUTF8 = new UTF8Encoding();
+                byte[] bytValueArray = objUTF8.GetBytes(strWorking);
+                strWorking = Convert.ToBase64String(bytValueArray);
+
+            }
+            
+
+            return strWorking;
+        }
+
+        private string Deobfuscate(string strIn)
+        {
+            string strWorking = strIn;
+
+            for (int i = 0; i < 7; i++)
+            {
+
+                byte[] lstBytes = Convert.FromBase64String(strWorking);
+                strWorking =  Encoding.UTF8.GetString(lstBytes);
+
+                char[] charArray = strWorking.ToCharArray();
+                Array.Reverse(charArray);
+                strWorking = new string(charArray);
+
+            }
+
+            return strWorking;
+
+        }
+
 
         public void print(string s)
         {
