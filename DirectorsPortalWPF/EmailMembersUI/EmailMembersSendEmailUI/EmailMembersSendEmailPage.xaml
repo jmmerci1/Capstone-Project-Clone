@@ -8,7 +8,7 @@
       d:DesignHeight="373" d:DesignWidth="485"
       Title="EmailMembersSendEmailPage">
 
-    <Grid Margin="15,0,0,0" Grid.Column="2" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.Resources>
             <Style TargetType="{x:Type TextBox}">
                 <Setter Property="Margin" Value="5,5,5,10"></Setter>

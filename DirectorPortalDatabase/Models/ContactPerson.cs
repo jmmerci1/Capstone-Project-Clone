@@ -26,5 +26,6 @@ namespace DirectorPortalDatabase.Models
         /// A list of the phone numbers associated with the contact person.
         /// </summary>
         public virtual List<PhoneNumber> PhoneNumbers { get; set; }
+        public virtual List<BusinessRep> BusinessReps { get; set; }
     }
 }

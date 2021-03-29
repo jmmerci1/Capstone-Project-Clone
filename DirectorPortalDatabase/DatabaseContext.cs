@@ -38,6 +38,14 @@ namespace DirectorPortalDatabase
         /// </summary>
         public DbSet<Email> Emails { get; set; }
         /// <summary>
+        /// A table that stores a group of emails
+        /// </summary>
+        public DbSet<EmailGroup> EmailGroups { get; set; }
+        /// <summary>
+        /// A relational table between Emails and EmailGroups 
+        /// </summary>
+        public DbSet<EmailGroupMember> EmailGroupMembers { get; set; }
+        /// <summary>
         /// A table with phone numbers. Links a phone number to a contact person.
         /// Each phone number has a different type assosciated with it to help
         /// identify it against the others.

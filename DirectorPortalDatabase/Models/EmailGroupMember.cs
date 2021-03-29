@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DirectorPortalDatabase.Models
 {
-    public class Email
+    public class EmailGroupMember
     {
         /// <summary>
         /// The Primary Key of the address in the database.
@@ -17,14 +16,14 @@ namespace DirectorPortalDatabase.Models
         [Key]
         public int Id { get; set; }
         /// <summary>
-        /// The ID of the person the email belongs to
+        /// Forign key from EmailGroup database
         /// </summary>
-        public int ContactPersonId { get; set; }
-        public virtual ContactPerson ContactPerson { get; set; }
+        public int GroupId { get; set; }
+        public virtual EmailGroup Group { get; set; }
         /// <summary>
-        /// The email address
+        /// Forign key from Email database
         /// </summary>
-        public string EmailAddress { get; set; }
-        public virtual List<EmailGroupMember> EmailGroups { get; set; }
+        public int EmailId { get; set; }
+        public virtual Email Email { get; set; }
     }
 }
