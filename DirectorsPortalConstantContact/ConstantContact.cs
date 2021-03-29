@@ -79,10 +79,10 @@ namespace DirectorsPortalConstantContact
             print("Updating previews");
             this.UpdateEmailCampaignActivityPreviews();
 
-            print("Updating Reporting");
-            this.UpdateContactTrackingReporting();
-            print("Updating open rate");
-            this.UpdateContactOpenRate();
+            //print("Updating Reporting");
+            //this.UpdateContactTrackingReporting();
+            //print("Updating open rate");
+            //this.UpdateContactOpenRate();
 
             //assignments
             print("Updating assignments");
@@ -462,9 +462,14 @@ namespace DirectorsPortalConstantContact
                 //loop through all lists that the contact is apart of and add to that contacts glstContactLists
                 foreach (string strListId in objContact.Value.list_memberships)
                 {
-                    objContact.Value.glstContactLists.Add(this.gdctContactLists[strListId]);
+                    
                     //also add contact to the list's members list
-                    this.gdctContactLists[strListId].glstMembers.Add(objContact.Value);
+                    if (!this.gdctContactLists[strListId].glstMembers.Contains(objContact.Value))
+                    {
+                        this.gdctContactLists[strListId].glstMembers.Add(objContact.Value);
+                        objContact.Value.glstContactLists.Add(this.gdctContactLists[strListId]);
+                    }
+                    
                 }
             }
         }
@@ -480,8 +485,11 @@ namespace DirectorsPortalConstantContact
                 //loop through the custom fields that they have and add references
                 foreach (GETContactCustomField objField in objContact.Value.custom_fields)
                 {
-                    objContact.Value.glstCustomFields.Add(this.gdctCustomFields[objField.custom_field_id]);
-                    this.gdctCustomFields[objField.custom_field_id].glstContacts.Add(objContact.Value);
+                    if (!objContact.Value.glstCustomFields.Contains(this.gdctCustomFields[objField.custom_field_id])){
+                        objContact.Value.glstCustomFields.Add(this.gdctCustomFields[objField.custom_field_id]);
+                        this.gdctCustomFields[objField.custom_field_id].glstContacts.Add(objContact.Value);
+                    }
+                    
                 }
             }
         }
@@ -591,6 +599,7 @@ namespace DirectorsPortalConstantContact
                 
             });
             this.PostJson(strJson, "contacts");
+            this.UpdateContacts();
         }
 
         // GAVIN
@@ -604,6 +613,7 @@ namespace DirectorsPortalConstantContact
 
             });
             this.PostJson(strJson, "contact_lists");
+            this.UpdateContactLists();
         }
 
         private async void DELETEContactList(ContactList objList)
@@ -613,6 +623,8 @@ namespace DirectorsPortalConstantContact
 
             var response = await client.DeleteAsync(this.gstrBaseURL + $"contact_lists/{objList.list_id}");
             Console.WriteLine(response.StatusCode);
+            this.UpdateContactLists();
+
         }
 
 
