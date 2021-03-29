@@ -1,5 +1,7 @@
 using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
+using DirectorsPortalWPF.EmailMembersUI;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,15 +25,21 @@ using System.Windows.Shapes;
 /// </summary>
 namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
 {
+    
     /// <summary>
     /// Interaction logic for EmailMembersAddGroupsPage.xaml
     /// </summary>
     public partial class EmailMembersAddGroupsPage : Page
     {
-        public EmailMembersAddGroupsPage()
+        DatabaseContext dbContext = new DatabaseContext();
+        List<EmailGroup> mrgGroupList = new List<EmailGroup>();
+        EmailPage emailPage;
+
+        public EmailMembersAddGroupsPage(EmailPage emailPage)
         {
             InitializeComponent();
             LoadEmailGroups();
+            this.emailPage = emailPage;
         }
         /// <summary>
         /// Pulls the list of email groups. Depending on whether
@@ -51,10 +59,13 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
                 // Cast email list to stack panel so it can be used
                 StackPanel vspGroupList = nodGroupList as StackPanel;
 
-                // TODO: This should be retrieved from an API from SDK team or database team
-                string[] rgstrGroups = { "Gold Members", "Silver Members", "Restaurants" };
+                // TODO: GroupList should be retrieved from an API from SDK team or database team. Values added for test purposes
+                mrgGroupList = dbContext.EmailGroups.ToList();
 
-                foreach (var strGroup in rgstrGroups)
+                //mrgGroupList.Add(new Group("Silver", new string[] { "Tom", "John" }, "Test Note"));
+                //mrgGroupList.Add(new Group("Gold", new string[] { "Jane", "Bill" }, "Test Note2"));
+
+                foreach (EmailGroup group in mrgGroupList)
                 {
                     // For every email group found in the database, create a row
                     // in the email groups list with label and an edit button
@@ -64,7 +75,7 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
                     };
                     Label lblEmailGroupName = new Label()
                     {
-                        Content = strGroup
+                        Content = group.GroupName
                     };
                     Button btnEmailGroupEditButton = new Button()
                     {
@@ -72,7 +83,17 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
                         HorizontalAlignment = HorizontalAlignment.Right,
                         Template = (ControlTemplate)Application.Current.Resources["smallButton"],
                         Padding = new Thickness(0, 0, 35, 0),
-                        Height = 15
+                        Height = 15,
+                    };
+
+                    btnEmailGroupEditButton.Click += (s, e) =>
+                    {
+                        /// <summary>
+                        /// Navigates to the EditGroups screen and passes the corresponding group name
+                        /// </summary>
+                        /// <param name="sender">The 'Edit' Button</param>
+                        /// <param name="e">The Click Event</param>
+                        //emailFrame.Navigate(new EmailMembersEditGroupsUI.EmailMembersEditGroupsPage(group));
                     };
                     hspEmailGroupRow.Children.Add(btnEmailGroupEditButton);
                     hspEmailGroupRow.Children.Add(lblEmailGroupName);
@@ -94,20 +115,39 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
         {
             // TODO: Still needs to be implemented
             string strGroupName = txtGroupName.Text;
-            List<Business> businesses = new List<Business>();
+            //List<Business> businesses = new List<Business>();
             string strNotes = txtNotes.Text;
-            using (var context = new DatabaseContext())
+            int intEmailGroupId;
+
+            EmailGroup emailGroup = new EmailGroup();
+            emailGroup.GroupName = strGroupName;
+            emailGroup.Notes = strNotes;
+            dbContext.Add(emailGroup);
+            dbContext.SaveChanges();
+            List <EmailGroup> eg = dbContext.EmailGroups.Where(x => strGroupName == x.GroupName).ToList();
+
+            intEmailGroupId = eg[0].Id;
             {
                 foreach (Business groupMember in lstGroupMembers.Items)
                 {
-                    Business b = context.Businesses.FirstOrDefault(x => x.Id == groupMember.Id);
-                    b.BusinessName = "New Business Name";
-                    context.SaveChanges();
+                    Business b = dbContext.Businesses.FirstOrDefault(x => x.Id == groupMember.Id);
+                    List <BusinessRep> br = dbContext.BusinessReps.Where(x => b.Id ==  x.Id).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
+                    int intEmailId = br[0].ContactPerson.Emails[0].Id;
+
+                    EmailGroupMember emailGroupMember = new EmailGroupMember();
+                    emailGroupMember.GroupId = intEmailGroupId;
+                    emailGroupMember.EmailId = intEmailId;
+
+                    dbContext.Add(emailGroupMember);
+                    dbContext.SaveChanges();
+
+
                 }
             }
 
+            this.emailPage.LoadEmailGroups();
             // TODO: Link with database once implemented
-            this.NavigationService.Navigate(new EmailMembersSendEmailUI.EmailMembersSendEmailPage());
+            this.NavigationService.GoBack();
         }
 
         /// <summary>
@@ -129,7 +169,7 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
         /// <param name="e">The button press event</param>
         private void Cancel(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new EmailMembersSendEmailUI.EmailMembersSendEmailPage());
+            this.NavigationService.GoBack();
         }
 
         /// <summary>
