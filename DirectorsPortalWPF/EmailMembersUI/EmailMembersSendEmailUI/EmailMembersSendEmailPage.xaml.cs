@@ -67,7 +67,10 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
 
                 String strContent = GetRichTextDocumentHtmlContent();
 
-                await GraphApiClient.SendMail(strSubject, rgRecipient, strContent, gStrAttachedFilePath, gStrFileExtension, gStrFileName);
+                if (gStrAttachedFilePath != null)
+                    await GraphApiClient.SendMail(strSubject, rgRecipient, strContent, gStrAttachedFilePath, gStrFileExtension, gStrFileName);
+                else
+                    await GraphApiClient.SendMail(strSubject, rgRecipient, strContent);
 
                 txtToField.Clear();
                 txtSubject.Clear();
