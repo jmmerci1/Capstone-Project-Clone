@@ -99,6 +99,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     {
                         txtFieldEntry.Text = dictPdfImport[GDicHumanReadableDataFields[property.Name]];
                         txtFieldEntry.BorderBrush = Brushes.Green;
+                        txtFieldEntry.Background = Brushes.Green;
+                        txtFieldEntry.FontWeight = FontWeights.Bold;
+                        txtFieldEntry.Foreground = Brushes.White;
                     }
                     else
                     {
@@ -113,11 +116,18 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     {
                         txtFieldEntry.Text = dictPdfImport[GDicHumanReadableDataFields[property.Name]];
                         if (!GDicHumanReadableDataFields[property.Name].Equals("Business Name"))
+                        {
                             txtFieldEntry.BorderBrush = Brushes.Green;
+                            txtFieldEntry.Background = Brushes.Green;
+                            txtFieldEntry.FontWeight = FontWeights.Bold;
+                            txtFieldEntry.Foreground = Brushes.White;
+                        }
+                           
                     }
                     else
                     {
                         txtFieldEntry.Text = strFieldText;
+
                     }
                 }
 
