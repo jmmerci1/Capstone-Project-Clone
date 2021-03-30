@@ -26,8 +26,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
     /// </summary>
     public partial class AddMembersPage : Page
     {
-        Dictionary<string, string> GDicHumanReadableDataFields = new Dictionary<string, string>();
         private int IntContactCount = 0;
+        private bool GBoolIgnoreWarnings = false;
 
         /// <summary>
         /// A method for generating the add members UI.
@@ -38,9 +38,6 @@ namespace DirectorsPortalWPF.MemberInfoUI
         public AddMembersPage([Optional] Dictionary<string, string> dictPdfImport)
         {
             InitializeComponent();
-
-            GDicHumanReadableDataFields.Clear();
-            GDicHumanReadableDataFields = BusinessDataModel.PopulateHumanReadableDataDic();
         }
 
         /// <summary>
@@ -60,7 +57,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// <param name="e">Event data asscociated with this event.</param>
         private void BtnAddMember_Click(object sender, RoutedEventArgs e)
         {
-            if (!ValidateDataInForm()) 
+            if (!ValidateDataInForm(GBoolIgnoreWarnings)) 
             {
                 /* Return early since the form has invalid data. */
                 return;
@@ -178,9 +175,11 @@ namespace DirectorsPortalWPF.MemberInfoUI
             NavigationService.Navigate(new MembersPage());
         }
 
-        private bool ValidateDataInForm() 
+        private bool ValidateDataInForm(bool boolIgnoreWarnings) 
         {
+            string strWarningMessage = "The following fields are missing data:";
             bool boolAllDataIsValid = true;
+            bool boolShowWarning = false;
 
             /* Verify the business info. 
              * Just make sure then name isn't blank and if there is a est. year make sure that it is
@@ -201,8 +200,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 ResetFormError(txtBusinessName);
             }
 
-            if (!txtYearEst.Text.Equals("") 
-                && !int.TryParse(txtYearEst.Text, out int intYearEst)) 
+            if (!txtYearEst.Text.Equals("")
+                && !int.TryParse(txtYearEst.Text, out int intYearEst))
             {
                 boolAllDataIsValid = false;
 
@@ -216,6 +215,141 @@ namespace DirectorsPortalWPF.MemberInfoUI
             else
             {
                 ResetFormError(txtYearEst);
+            }
+
+            /* Verify the mailing address.
+             * Make sure that none of the fields are blank and zip code is a number. */
+            if (txtMailAddr.Text.Equals(""))
+            {
+                boolShowWarning = true;
+
+                txtMailAddr.BorderBrush = Brushes.Yellow;
+
+                strWarningMessage += "\nMailing Address";
+            }
+            else 
+            {
+                ResetFormError(txtMailAddr);
+            }
+
+            if (txtMailCity.Text.Equals(""))
+            {
+                boolShowWarning = true;
+
+                txtMailCity.BorderBrush = Brushes.Yellow;
+
+                strWarningMessage += "\nMailing City";
+            }
+            else
+            {
+                ResetFormError(txtMailCity);
+            }
+
+            if (txtMailState.Text.Equals(""))
+            {
+                boolShowWarning = true;
+
+                txtMailState.BorderBrush = Brushes.Yellow;
+
+                strWarningMessage += "\nMailing State";
+            }
+            else
+            {
+                ResetFormError(txtMailState);
+            }
+
+            if (!txtMailZip.Text.Equals("")
+                && !int.TryParse(txtMailZip.Text, out int intMailZip))
+            {
+                boolAllDataIsValid = false;
+
+                txtMailZip.BorderBrush = Brushes.Red;
+
+                ToolTip ttMailZip = new ToolTip();
+                ttMailZip.Content = "Zip code must be a number.";
+
+                txtMailZip.ToolTip = ttMailZip;
+            }
+            else if (txtMailZip.Text.Equals(""))
+            {
+                boolShowWarning = true;
+
+                txtMailZip.BorderBrush = Brushes.Yellow;
+
+                strWarningMessage += "\nMailing Zip";
+            }
+            else
+            {
+                ResetFormError(txtMailZip);
+            }
+
+            /* Verify the physical address.
+             * Make sure that none of the fields are blank and zip code is a number. */
+            if (ChkLocationSameAsMailing.IsChecked == false) 
+            {
+                if (txtLocationAddr.Text.Equals(""))
+                {
+                    boolShowWarning = true;
+
+                    txtLocationAddr.BorderBrush = Brushes.Yellow;
+
+                    strWarningMessage += "\nLocation Address";
+                }
+                else
+                {
+                    ResetFormError(txtLocationAddr);
+                }
+
+                if (txtLocationCity.Text.Equals(""))
+                {
+                    boolShowWarning = true;
+
+                    txtLocationCity.BorderBrush = Brushes.Yellow;
+
+                    strWarningMessage += "\nLocation City";
+                }
+                else
+                {
+                    ResetFormError(txtLocationCity);
+                }
+
+                if (txtLocationState.Text.Equals(""))
+                {
+                    boolShowWarning = true;
+
+                    txtLocationState.BorderBrush = Brushes.Yellow;
+
+                    strWarningMessage += "\nLocation State";
+                }
+                else
+                {
+                    ResetFormError(txtLocationState);
+                }
+
+                if (!txtLocationZip.Text.Equals("")
+                    && !int.TryParse(txtLocationZip.Text, out int intLocationZip))
+                {
+                    boolAllDataIsValid = false;
+
+                    txtLocationZip.BorderBrush = Brushes.Red;
+
+                    ToolTip ttLocationZip = new ToolTip();
+                    ttLocationZip.Content = "Zip code must be a number.";
+
+                    txtLocationZip.ToolTip = ttLocationZip;
+                }
+                else if (txtLocationZip.Text.Equals(""))
+                {
+                    boolShowWarning = true;
+
+                    txtLocationZip.BorderBrush = Brushes.Yellow;
+
+                    strWarningMessage += "\nLocation Zip";
+                }
+                else
+                {
+                    ResetFormError(txtLocationZip);
+                }
             }
 
             Regex regexEmail = new Regex(@"\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b");
@@ -262,7 +396,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
                                 emailInput.TxtEmail.ToolTip = ttEmail;
                             }
-                            else 
+                            else
                             {
                                 ResetFormError(emailInput.TxtEmail);
                             }
@@ -297,6 +431,13 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 }
             }
 
+            if (boolShowWarning && !boolIgnoreWarnings) 
+            {
+                /* Warn the user there are blank fields that will not cause errors. */
+                boolAllDataIsValid = false;
+                CreateWarningMessageBox(strWarningMessage);
+            }
+
             return boolAllDataIsValid;
         }
 
@@ -304,6 +445,25 @@ namespace DirectorsPortalWPF.MemberInfoUI
         {
             txtError.BorderBrush = new SolidColorBrush(Color.FromRgb(171, 173, 179));
             txtError.ToolTip = null;
+        }
+
+        private void CreateWarningMessageBox(string strMessage) 
+        {
+            strMessage += "\n\nWould you like to add the data anyways?";
+
+            MessageBoxResult messageBoxResult = MessageBox.Show(strMessage, "Missing Data", MessageBoxButton.YesNo);
+            switch (messageBoxResult) 
+            {
+                case MessageBoxResult.Yes:
+                    /* Add the entered business */
+                    GBoolIgnoreWarnings = true;
+                    BtnAddMember_Click(messageBoxResult, null);
+                    break;
+
+                case MessageBoxResult.No:
+                    /* Do nothing */
+                    break;
+            }
         }
 
         private void BtnAddContact_Click(object sender, RoutedEventArgs e)
