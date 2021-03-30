@@ -56,6 +56,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         txtBusinessName.Text = selectedBusiness.BusinessName;
                         txtYearEst.Text = selectedBusiness.YearEstablished.ToString();
                         txtWebsite.Text = selectedBusiness.Website;
+                        txtNotes.Text = selectedBusiness.ExtraNotes;
                         cboMemberLevel.SelectedIndex = (int)selectedBusiness.MembershipLevel;
 
                         /* Populate the addresses for the selected business. */
@@ -128,6 +129,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                         };
                                         cniNumber.TxtContactNumber.Text = number.Number;
                                         cniNumber.CboNumberType.SelectedIndex = (int)number.GEnumPhoneType;
+                                        cniNumber.txtNumberNotes.Text = number.Notes;
 
                                         CiContact.SpContactNumbers.Children.Add(cniNumber);
                                     }
@@ -139,7 +141,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     }
                     catch (Exception ex)
                     {
-
+                        string newEx = ex.Message;
                     }
                 }
             }
@@ -187,6 +189,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         newBusiness.YearEstablished = intYearEst;
 
                         newBusiness.Website = txtWebsite.Text;
+                        newBusiness.ExtraNotes = txtNotes.Text;
                         newBusiness.MembershipLevel = (MembershipLevel)cboMemberLevel.SelectedIndex;
 
                         /* Get the mailing address from the form. */
@@ -261,6 +264,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
                                         newPhoneNumber.Number = contactNumberInput.TxtContactNumber.Text;
                                         newPhoneNumber.GEnumPhoneType = (PhoneType)contactNumberInput.CboNumberType.SelectedIndex;
+                                        newPhoneNumber.Notes = contactNumberInput.txtNumberNotes.Text;
                                         newContact.PhoneNumbers.Add(newPhoneNumber);
                                     }
                                 }
@@ -300,6 +304,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         GSelectedBusiness.YearEstablished = intYearEst;
 
                         GSelectedBusiness.Website = txtWebsite.Text;
+                        GSelectedBusiness.ExtraNotes = txtNotes.Text;
                         GSelectedBusiness.MembershipLevel = (MembershipLevel)cboMemberLevel.SelectedIndex;
 
                         /* Update the mailing address from the form. */
@@ -386,7 +391,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                             if (uiEmail is EmailInput)
                                             {
                                                 EmailInput eiEmail = uiEmail as EmailInput;
-                                                Email currentEmail = currentRep.ContactPerson.Emails
+                                                Email currentEmail = currentRep.ContactPerson.Emails?
                                                     .FirstOrDefault(email => email.Id == eiEmail.GIntEmailId);
 
                                                 if (ciContact.GIntEmailsToRemove.Contains(eiEmail.GIntEmailId))
@@ -415,7 +420,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                             if (uiNumber is ContactNumberInput)
                                             {
                                                 ContactNumberInput cniNumber = uiNumber as ContactNumberInput;
-                                                PhoneNumber currentNumber = currentRep.ContactPerson.PhoneNumbers
+                                                PhoneNumber currentNumber = currentRep.ContactPerson.PhoneNumbers?
                                                     .FirstOrDefault(number => number.Id == cniNumber.GIntNumberId);
 
                                                 if (ciContact.GIntNumbersToRemove.Contains(cniNumber.GIntNumberId))
@@ -426,6 +431,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                                 {
                                                     PhoneNumber newNumber = new PhoneNumber();
                                                     newNumber.Number = cniNumber.TxtContactNumber.Text;
+                                                    newNumber.Notes = cniNumber.txtNumberNotes.Text;
                                                     newNumber.GEnumPhoneType = (PhoneType)cniNumber.CboNumberType.SelectedIndex;
 
                                                     context.PhoneNumbers.Add(newNumber);
@@ -435,6 +441,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                                 else
                                                 {
                                                     currentNumber.Number = cniNumber.TxtContactNumber.Text;
+                                                    currentNumber.Notes = cniNumber.txtNumberNotes.Text;
                                                     currentNumber.GEnumPhoneType = (PhoneType)cniNumber.CboNumberType.SelectedIndex;
                                                 }
                                             }
@@ -474,6 +481,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                                 PhoneNumber phoneNumber = new PhoneNumber();
 
                                                 phoneNumber.Number = contactNumberInput.TxtContactNumber.Text;
+                                                phoneNumber.Notes = contactNumberInput.txtNumberNotes.Text;
                                                 phoneNumber.GEnumPhoneType = (PhoneType)contactNumberInput.CboNumberType.SelectedIndex;
                                                 newRep.ContactPerson.PhoneNumbers.Add(phoneNumber);
                                             }

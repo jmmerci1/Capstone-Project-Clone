@@ -73,6 +73,12 @@
                                 <TextBox x:Name="txtWebsite" Width="400"/>
                             </StackPanel>
 
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">Notes:</Label>
+                                <TextBox x:Name="txtNotes" TextWrapping="Wrap" AcceptsReturn="True" 
+                                         VerticalScrollBarVisibility="Visible" Width="400" Height="100"/>
+                            </StackPanel>
+
                             <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
                                 <Label Width="100">Level:</Label>
                                 <ComboBox x:Name="cboMemberLevel" Width="200">
@@ -152,7 +158,8 @@
                         </StackPanel>
 
                         <StackPanel Margin="5,0,0,3" Orientation="Horizontal">
-                            <Button x:Name="BtnAddContact" Click="BtnAddContact_Click" Content="Add Contact"/>
+                            <Button x:Name="BtnAddContact" Click="BtnAddContact_Click" Content="Add Contact"
+                                    Template="{StaticResource smallButton}" Padding="0,0,80,0"/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>

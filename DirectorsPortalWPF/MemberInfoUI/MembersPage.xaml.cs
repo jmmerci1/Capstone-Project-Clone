@@ -79,8 +79,11 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     .Include(x => x.MailingAddress)
                     .Include(x => x.PhysicalAddress)
                     .Include(x => x.BusinessReps)
-                    .ThenInclude(x => x.ContactPerson.Emails)
-                    .ThenInclude(x => x.ContactPerson.PhoneNumbers)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.Emails)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.PhoneNumbers)
                     .FirstOrDefault(business => business.BusinessName.Equals(selectedTableViewModel.StrBuisnessName));
             }
 

@@ -11,6 +11,7 @@
         <Label Width="100" Content="{Binding GStrInputName}"/>
         <TextBox x:Name="TxtEmail" Width="400"/>
         <Button x:Name="BtnRemoveEmail" Click="BtnRemoveEmail_Click" 
-            Content="Remove" Margin="5,0,0,0" />
+            Content="Remove" Margin="5,0,0,0" Padding="0,0,60,0" 
+            Template="{StaticResource smallButtonGrey}"/>
     </StackPanel>
 </UserControl>

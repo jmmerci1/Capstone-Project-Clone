@@ -8,12 +8,13 @@
              d:DesignHeight="450" d:DesignWidth="800">
 
     <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-        <GroupBox>
+        <GroupBox BorderBrush="#FFACACAC">
             <GroupBox.Header>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Margin="0,0,10,0" FontWeight="Bold" Text="{Binding GStrTitle}" />
 
-                    <Button Padding="5,0,5,0" x:Name="BtnRemoveContact" Click="BtnRemoveContact_Click" Content="X">
+                    <Button Padding="8,0,8,0" x:Name="BtnRemoveContact" Click="BtnRemoveContact_Click" Content="X"
+                        Template="{StaticResource smallButtonGrey}">
                         <Button.ToolTip>
                             <ToolTip>Remove Contact</ToolTip>
                         </Button.ToolTip>
@@ -27,22 +28,26 @@
                     <TextBox x:Name="TxtName" Width="400"/>
                 </StackPanel>
 
-                <GroupBox Header="Emails:">
+                <GroupBox Header="Emails:" BorderBrush="#FFACACAC">
                     <StackPanel x:Name="SpContactEmails" Orientation="Vertical">
+                        <!--Conatact emails are generated in code.-->
                     </StackPanel>
                 </GroupBox>
 
                 <StackPanel Margin="5,0,0,3" Orientation="Horizontal">
-                    <Button x:Name="BtnAddEmail" Click="BtnAddEmail_Click" Content="Add Email"/>
+                    <Button x:Name="BtnAddEmail" Click="BtnAddEmail_Click" Content="Add Email" 
+                            Template="{StaticResource smallButton}" Padding="0,0,80,0" />
                 </StackPanel>
 
-                <GroupBox Header="Numbers:">
+                <GroupBox Header="Numbers:" BorderBrush="#FFACACAC">
                     <StackPanel x:Name="SpContactNumbers" Orientation="Vertical">
+                        <!--Conatact numbers are generated in code.-->
                     </StackPanel>
                 </GroupBox>
 
                 <StackPanel Margin="5,0,0,3" Orientation="Horizontal">
-                    <Button x:Name="BtnAddNumber" Click="BtnAddNumber_Click" Content="Add Number"/>
+                    <Button x:Name="BtnAddNumber" Click="BtnAddNumber_Click" Content="Add Number" 
+                            Template="{StaticResource smallButton}" Padding="0,0,80,0" />
                 </StackPanel>
             </StackPanel>
         </GroupBox>
