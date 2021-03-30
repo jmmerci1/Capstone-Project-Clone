@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DirectorPortalDatabase.Models;
 using Newtonsoft.Json;
 
 namespace DirectorPortalDatabase.Utility
@@ -74,6 +75,28 @@ namespace DirectorPortalDatabase.Utility
                 return data[field];
             }
             return "";
+        }
+
+        /// <summary>
+        /// Add a new field to the table. Doesn't technically do anything
+        /// to the data currently there, just adds a new entry to the
+        /// <see cref="AdditionalFields"/> table in the schema for UI purposes.
+        /// </summary>
+        /// <param name="context">The database context.</param>
+        /// <param name="field">The name of the field to add.</param>
+        public void AddField(DatabaseContext context, string field)
+        {
+            List<string> currentFields = AvailableFields(context);
+            if(currentFields.Select(x => x.ToLower()).Contains(field.ToLower()))
+            {
+                return;
+            }
+            context.AdditionalFields.Add(new AdditionalFields()
+            {
+                FieldName = field,
+                TableName = GetType().Name
+            });
+            context.SaveChanges();
         }
     }
 }
