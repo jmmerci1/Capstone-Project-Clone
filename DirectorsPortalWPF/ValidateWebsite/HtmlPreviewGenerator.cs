@@ -99,7 +99,7 @@ namespace DirectorsPortalWPF.ValidateWebsite
 
                             // Phone numbers, addresses, and email addresses for current business
                             List<PhoneNumber> rgCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.ContactPersonId.Equals(rgCurrentContactPerson.Id)).ToList();
-                            List<Address> rgCurrentBusAddresses = dbContext.Addresses.Where(e => e.Id.Equals(busCurrentBusiness.Id)).ToList();
+                            List<Address> rgCurrentBusAddresses = dbContext.Addresses.Where(e => e.Id.Equals(busCurrentBusiness.PhysicalAddressId)).ToList();
                             List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.ContactPersonId.Equals(rgCurrentContactPerson.Id)).ToList();
 
                             if (intNumberOfItems == 3)             // Create a new row if there are three items to add to the row
@@ -346,7 +346,7 @@ namespace DirectorsPortalWPF.ValidateWebsite
         private void PrintMemberToTemplate(Business busCurrentBusiness, List<PhoneNumber> rgCurrentBusPhones, List<Address> rgCurrentBusAddresses, List<Email> rgCurrentBusEmails)
         {
 
-            GWriter.WriteLine("<td style=\"padding: 10px 10px 10px 10px; color:#6d6d6d\">");
+            GWriter.WriteLine("<td style=\"padding: 10px 10px 10px 10px; color:#6d6d6d\" width=\"25%\">");
             GWriter.WriteLine($"<strong style=\"color: #a88d2e\">{busCurrentBusiness.BusinessName}</strong>");
 
             if (rgCurrentBusAddresses.Count > 0)
@@ -361,11 +361,17 @@ namespace DirectorsPortalWPF.ValidateWebsite
                 GWriter.WriteLine($"<br>{rgCurrentBusPhones[0].Number}");
             }
 
-            GWriter.Write($"<br>Map");
+            GWriter.Write($"<br>");
+            string strMap = rgCurrentBusAddresses[0].StreetAddress.Replace(". ", "+");
+            strMap = strMap.Replace(" ", "+");
+            GWriter.Write($"<a href=\"https://www.google.com/maps/search/?api=1&query={strMap}%2C+{rgCurrentBusAddresses[0].ZipCode} \" target=\"_blank\">Map</a>");
             if (rgCurrentBusEmails.Count > 0)
                 GWriter.Write($" | <a href=\"mailto:{rgCurrentBusEmails[0].EmailAddress} \">Email</a>");
                     
-            GWriter.WriteLine($" | <a href=\"{busCurrentBusiness.Website}\">Web</a>");
+            if (busCurrentBusiness.Website.Contains("http://"))
+                GWriter.WriteLine($" | <a href=\"{busCurrentBusiness.Website}\" target=\"_blank\">Web</a>");
+            else
+                GWriter.WriteLine($" | <a href=\"http://{busCurrentBusiness.Website}\" target=\"_blank\">Web</a>");
             GWriter.WriteLine("</td>");
         }
 

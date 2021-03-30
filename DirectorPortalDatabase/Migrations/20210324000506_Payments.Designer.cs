@@ -3,14 +3,16 @@ using System;
 using DirectorPortalDatabase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DirectorPortalDatabase.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20210324000506_Payments")]
+    partial class Payments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -173,44 +175,6 @@ namespace DirectorPortalDatabase.Migrations
                     b.HasIndex("ContactPersonId");
 
                     b.ToTable("Emails");
-                });
-
-            modelBuilder.Entity("DirectorPortalDatabase.Models.EmailGroup", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("GroupName")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EmailGroups");
-                });
-
-            modelBuilder.Entity("DirectorPortalDatabase.Models.EmailGroupMember", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("EmailId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("GroupId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmailId");
-
-                    b.HasIndex("GroupId");
-
-                    b.ToTable("EmailGroupMembers");
                 });
 
             modelBuilder.Entity("DirectorPortalDatabase.Models.Item", b =>
@@ -466,21 +430,6 @@ namespace DirectorPortalDatabase.Migrations
                     b.HasOne("DirectorPortalDatabase.Models.ContactPerson", "ContactPerson")
                         .WithMany("Emails")
                         .HasForeignKey("ContactPersonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DirectorPortalDatabase.Models.EmailGroupMember", b =>
-                {
-                    b.HasOne("DirectorPortalDatabase.Models.Email", "Email")
-                        .WithMany("EmailGroups")
-                        .HasForeignKey("EmailId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DirectorPortalDatabase.Models.EmailGroup", "Group")
-                        .WithMany("Emails")
-                        .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

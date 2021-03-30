@@ -467,6 +467,15 @@ namespace DirectorsPortalWPF.SettingsUI
             }                      
         }
 
+        private void BtnImportPayPal_Click(object sender, RoutedEventArgs e)
+        {
+            string filePath = FindPayPalFile();
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                DirectorPortalPayPal.CsvParser.RunImport(filePath);
+            }
+        }
+
         /// <summary>
         /// ReadExcelFile method that will read the prior selected excel file. 
         /// </summary>
@@ -892,45 +901,81 @@ namespace DirectorsPortalWPF.SettingsUI
                 MessageBoxImage.Information);
         }
 
-            /// <summary>
-            /// FindFile method that allows the user to select the file they would like to be read into the application.
-            /// </summary>
-            /// <returns>String that contains the file path.</returns>
-            private string FindFile()
+        /// <summary>
+        /// FindFile method that allows the user to select the file they would like to be read into the application.
+        /// </summary>
+        /// <returns>String that contains the file path.</returns>
+        private string FindFile()
+        {
+            string FileName = "";
+            string FileExtension = "";
+
+            OpenFileDialog FileDialog = new OpenFileDialog();
+
+            FileDialog.Title = "Excel File Dialog";
+            FileDialog.InitialDirectory = @"c:\";
+            FileDialog.Filter = "Excel Files|*.xls;*.xlsx;";
+            FileDialog.FilterIndex = 2;
+            FileDialog.RestoreDirectory = true;
+            FileDialog.ShowDialog();
+
+
+            FileExtension = Path.GetExtension(FileDialog.FileName);
+
+            if (FileExtension.CompareTo(".xls") == 0 || FileExtension.CompareTo(".xlsx") == 0)
             {
-                string FileName = "";
-                string FileExtension = "";
+                FileName = FileDialog.FileName;
 
-                OpenFileDialog FileDialog = new OpenFileDialog();
-       
-                FileDialog.Title = "Excel File Dialog";
-                FileDialog.InitialDirectory = @"c:\";
-                FileDialog.Filter = "Excel Files|*.xls;*.xlsx;";
-                FileDialog.FilterIndex = 2;
-                FileDialog.RestoreDirectory = true;
-                FileDialog.ShowDialog();
+            }
+            else if (FileExtension.Equals(""))
+            {
 
-
-                FileExtension = Path.GetExtension(FileDialog.FileName);
-
-                if (FileExtension.CompareTo(".xls") == 0 || FileExtension.CompareTo(".xlsx") == 0)
-                {
-                    FileName = FileDialog.FileName;
-
-                }
-                else if(FileExtension.Equals(""))
-                {
-                
-                } else
-                {
-                    //Messagebox that prompts user to select the correct file type.
-                    MessageBox.Show("Please Select an valid Excel file.", "Excel Import Notice",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-                }    
+            }
+            else
+            {
+                //Messagebox that prompts user to select the correct file type.
+                MessageBox.Show("Please Select an valid Excel file.", "Excel Import Notice",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            }
 
             return FileName;
+        }
+
+        /// <summary>
+        /// FindPayPalFile method that allows the user to select the file they would like to be read into the application for PayPal transactions.
+        /// </summary>
+        /// <returns>String that contains the file path.</returns>
+        private string FindPayPalFile()
+        {
+            string FileName = "";
+            string FileExtension = "";
+
+            OpenFileDialog FileDialog = new OpenFileDialog();
+
+            FileDialog.Title = "Select PayPal Export File...";
+            FileDialog.InitialDirectory = @"c:\";
+            FileDialog.Filter = "CSV Files|*.csv;";
+            FileDialog.RestoreDirectory = true;
+            FileDialog.ShowDialog();
+
+
+            FileExtension = Path.GetExtension(FileDialog.FileName);
+
+            if (FileExtension == ".csv")
+            {
+                FileName = FileDialog.FileName;
             }
+            else
+            {
+                //Messagebox that prompts user to select the correct file type.
+                MessageBox.Show("Please Select an valid CSV file.", "Import Notice",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            }
+
+            return FileName;
+        }
 
         /// NOT FOR PRODUCTION:
         /// 

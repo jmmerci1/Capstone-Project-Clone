@@ -55,19 +55,10 @@
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <TextBlock Text="Please resolve the duplicated data from your Excel import. Choose to either keep current data in Director's Portal or replace with imported Excel Data"
+                <TextBlock Text="The below businesses from your Excel import already exist in the database. Please choose the businesses below that you would like to overwrite in the database."
                                TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10,10,55,0" VerticalAlignment="Center" Grid.Row="0" Grid.ColumnSpan="2" />
-
-                <TextBlock Text="Director's Portal Database" Grid.Row="1" Grid.Column="0" Margin="10,10,10,0"  />
-                <ListView Grid.Row="2" Name="lvDatabaseConflict" Margin="5,5,5,5" Loaded="LvDatabaseConflict_Loaded">
-                    <ListView.View>
-                        <GridView x:Name="gvDatabaseConflictRows">
-                            <!--Columns and rows are dynamically generated-->
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-                <TextBlock Text="Your Excel Import" Grid.Row="1" Grid.Column="1" Margin="10,10,10,0"  />
-                <ListView Grid.Row="2" Grid.Column="1" Name="lvExcelConflict" Margin="5,5,5,5" Loaded="LvExcelConflict_Loaded">
+                <TextBlock Text="Your Excel Import" Grid.Row="1" Grid.Column="0" Margin="10,10,10,0"  />
+                <ListView Grid.Row="2" Grid.ColumnSpan="2" Name="lvExcelConflict" Margin="5,5,5,5" Loaded="LvExcelConflict_Loaded">
                     <ListView.View>
                         <GridView x:Name="gvExcelConflictRows">
                             <!--Columns and rows are dynamically generated-->

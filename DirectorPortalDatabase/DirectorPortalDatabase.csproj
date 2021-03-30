@@ -141,6 +141,7 @@
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.0.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
       <Private>True</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
@@ -158,14 +159,27 @@
     <Compile Include="Migrations\20210320005424_RefactoredDb.designer.cs">
       <DependentUpon>20210320005424_RefactoredDb.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20210324000506_Payments.cs" />
+    <Compile Include="Migrations\20210324000506_Payments.designer.cs">
+      <DependentUpon>20210324000506_Payments.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20210326235714_EmailGroup.cs" />
+    <Compile Include="Migrations\20210326235714_EmailGroup.designer.cs">
+      <DependentUpon>20210326235714_EmailGroup.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\DatabaseContextModelSnapshot.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Business.cs" />
     <Compile Include="Models\BusinessRep.cs" />
     <Compile Include="Models\Categories.cs" />
     <Compile Include="Models\CategoryRef.cs" />
+    <Compile Include="Models\EmailGroupMember.cs" />
     <Compile Include="Models\ContactPerson.cs" />
     <Compile Include="Models\Email.cs" />
+    <Compile Include="Models\EmailGroup.cs" />
+    <Compile Include="Models\Item.cs" />
+    <Compile Include="Models\Payment.cs" />
+    <Compile Include="Models\PaymentItem.cs" />
     <Compile Include="Models\PhoneNumber.cs" />
     <Compile Include="Models\ReportField.cs" />
     <Compile Include="Models\ReportTemplate.cs" />

@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -179,6 +180,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     gvcCol.Header = GDicHumanReadableTableFields[property.Name];
                     gvcCol.DisplayMemberBinding = new Binding(property.Name);
                     gvMemberInfo.Columns.Add(gvcCol);
+                    
                 }
 
                 /* Add a button to edit the business to the end of each row. */
@@ -208,6 +210,62 @@ namespace DirectorsPortalWPF.MemberInfoUI
             }
         }
 
+        GridViewColumnHeader lastHeaderClicked = null;
+        ListSortDirection lastDirection = ListSortDirection.Ascending;
+        //Takes an input string, and direction
+        //Sorts column with name matching the string in the given direction
+        private void Sort(string strSortBy, ListSortDirection direction)
+        {
+            ICollectionView dataView =
+              CollectionViewSource.GetDefaultView(lvMemberInfo.ItemsSource);
+
+            dataView.SortDescriptions.Clear();
+            SortDescription sd = new SortDescription(strSortBy, direction);
+            dataView.SortDescriptions.Add(sd);
+            dataView.Refresh();
+        }
+        /// <summary>
+        /// Calls the sort function when a column header is clicked passing it the column name and direction
+        /// Maintains which column is currently being sorted and in which direction
+        /// </summary>
+        /// <param name="sender">The text box that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
+        private void GridViewColumnHeaderClickedHandler(object sender,
+                                            RoutedEventArgs e)
+        {
+            var headerClicked = e.OriginalSource as GridViewColumnHeader;
+            ListSortDirection direction;
+
+            if (headerClicked != null)
+            {
+                if (headerClicked.Role != GridViewColumnHeaderRole.Padding)
+                {
+                    if (headerClicked != lastHeaderClicked)
+                    {
+                        direction = ListSortDirection.Ascending;
+                    }
+                    else
+                    {
+                        if (lastDirection == ListSortDirection.Ascending)
+                        {
+                            direction = ListSortDirection.Descending;
+                        }
+                        else
+                        {
+                            direction = ListSortDirection.Ascending;
+                        }
+                    }
+
+                    var columnBinding = headerClicked.Column.DisplayMemberBinding as Binding;
+                    var strSortBy = columnBinding?.Path.Path ?? headerClicked.Column.Header as string;
+
+                    Sort(strSortBy, direction);
+
+                    lastHeaderClicked = headerClicked;
+                    lastDirection = direction;
+                }
+            }
+        }
         /// <summary>
         /// A method for detecting when the text in TxtFilter has changed.
         /// </summary>
@@ -291,7 +349,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
         {
             // Get fields from PDF then pass to Add Members Screen.
             Dictionary<string, string> dictFields = OpenFile();
-            NavigationService.Navigate(new AddMembersPage(dictFields));
+
+            if (dictFields.ContainsKey("Business Name"))
+                NavigationService.Navigate(new AddMembersPage(dictFields));
         }
 
         /// <summary>
@@ -307,14 +367,22 @@ namespace DirectorsPortalWPF.MemberInfoUI
             Dictionary<string, string> dictFields = OpenFile();
             Business busModified = new Business();
 
-            // Do some logic to find the business being modified.
-            using (DatabaseContext dbContext = new DatabaseContext())
+            if (dictFields.ContainsKey("Business Name"))
             {
-                busModified = dbContext.Businesses
-                    .Where(business => business.BusinessName.Equals(dictFields["Business Name"])).FirstOrDefault();
-            }
+                // Do some logic to find the business being modified.
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    busModified = dbContext.Businesses
+                        .Where(business => business.BusinessName.Equals(dictFields["Business Name"])).FirstOrDefault();
+                }
 
-            NavigationService.Navigate(new EditMembersPage(busModified));
+                if (busModified != null)
+                {
+                    NavigationService.Navigate(new EditMembersPage(busModified));
+                }
+                else
+                    MessageBox.Show($"{ dictFields["Business Name"] } is not an existing Businss in the Database", "Business Not Found");
+            }
         }
 
         /// <summary>
@@ -324,6 +392,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// </summary>
         private Dictionary<string, string> OpenFile()
         {
+            //dictionary to store values to be sent to UI
+            var dicToAdd = new Dictionary<string, string>();
+
             //opens file dialog to select pdf
             OpenFileDialog openFileDialog = new OpenFileDialog()
             {
@@ -331,71 +402,72 @@ namespace DirectorsPortalWPF.MemberInfoUI
             };
 
             if (openFileDialog.ShowDialog() == true)
-                Console.WriteLine(File.ReadAllText(openFileDialog.FileName));
-            //create new reader object
-            PdfReader reader = new PdfReader(openFileDialog.FileName);
-            //variable for form fields in PDF 
-            var objFields = reader.AcroFields.Fields;
-            //array to contain all values from key value pairs read
-            var arrFieldData = new ArrayList();
-            //iterates over key value pairs and add values(data from pdf) to the array
-            foreach (var item in objFields.Keys)
             {
-                arrFieldData.Add(reader.AcroFields.GetField(item.ToString()));
-                Console.WriteLine(reader.AcroFields.GetField(item.ToString())); 
+                Console.WriteLine(File.ReadAllText(openFileDialog.FileName));
+
+                //create new reader object
+                PdfReader reader = new PdfReader(openFileDialog.FileName);
+                //variable for form fields in PDF 
+                var objFields = reader.AcroFields.Fields;
+                //array to contain all values from key value pairs read
+                var arrFieldData = new ArrayList();
+                //iterates over key value pairs and add values(data from pdf) to the array
+                foreach (var item in objFields.Keys)
+                {
+                    arrFieldData.Add(reader.AcroFields.GetField(item.ToString()));
+                    Console.WriteLine(reader.AcroFields.GetField(item.ToString()));
+                }
+                //array to split city state zip 
+                String[] strCityStateZip = arrFieldData[4].ToString().Split(',');
+
+
+                //dictionary add statements to add pdf data to ui
+                dicToAdd.Add("Business Name", (string)arrFieldData[0]);
+                dicToAdd.Add("Website", (string)arrFieldData[8]);
+                dicToAdd.Add("Level", (string)arrFieldData[13]);
+                dicToAdd.Add("Established", (string)arrFieldData[9]);
+
+                // Mailing Address
+                dicToAdd.Add("Mailing Address", (string)arrFieldData[2]);
+
+                if (strCityStateZip.Length > 0)
+                    dicToAdd.Add("City", strCityStateZip[0]);
+                else
+                    dicToAdd.Add("City", "");
+
+                if (strCityStateZip.Length > 1)
+                    dicToAdd.Add("State", strCityStateZip[1]);
+                else
+                    dicToAdd.Add("State", "");
+
+                if (strCityStateZip.Length > 2)
+                    dicToAdd.Add("Zip Code", strCityStateZip[2]);
+                else
+                    dicToAdd.Add("Zip Code", "");
+
+                // Location Address
+                dicToAdd.Add("Location Address", (string)arrFieldData[3]);
+
+                if (strCityStateZip.Length > 0)
+                    dicToAdd.Add("Location City", strCityStateZip[0]);
+                else
+                    dicToAdd.Add("Location City", "");
+
+                if (strCityStateZip.Length > 1)
+                    dicToAdd.Add("Location State", strCityStateZip[1]);
+                else
+                    dicToAdd.Add("Location State", "");
+
+                if (strCityStateZip.Length > 2)
+                    dicToAdd.Add("Location Zip Code", strCityStateZip[2]);
+                else
+                    dicToAdd.Add("Location Zip Code", "");
+
+                dicToAdd.Add("Contact Name", (string)arrFieldData[1]);
+                dicToAdd.Add("Phone Number", (string)arrFieldData[5]);
+                dicToAdd.Add("Fax Number", (string)arrFieldData[6]);
+                dicToAdd.Add("Email Address", (string)arrFieldData[7]);
             }
-            //array to split city state zip 
-            String[] strCityStateZip = arrFieldData[4].ToString().Split(',');
-            //dictionary to store values to be sent to UI
-            var dicToAdd = new Dictionary<string, string>();
-
-            //dictionary add statements to add pdf data to ui
-            dicToAdd.Add("Business Name", (string)arrFieldData[0]);
-            dicToAdd.Add("Website", (string)arrFieldData[8]);
-            dicToAdd.Add("Level", (string)arrFieldData[13]);
-            dicToAdd.Add("Established", (string)arrFieldData[9]);
-
-            // Mailing Address
-            dicToAdd.Add("Mailing Address", (string)arrFieldData[2]);
-
-            if (strCityStateZip.Length > 0)
-                dicToAdd.Add("City", strCityStateZip[0]);
-            else
-                dicToAdd.Add("City", "");
-
-            if (strCityStateZip.Length > 1)
-                dicToAdd.Add("State", strCityStateZip[1]);
-            else
-                dicToAdd.Add("State", "");
-
-            if (strCityStateZip.Length > 2)
-                dicToAdd.Add("Zip Code", strCityStateZip[2]);
-            else
-                dicToAdd.Add("Zip Code", "");
-
-            // Location Address
-            dicToAdd.Add("Location Address", (string)arrFieldData[3]);
-
-            if (strCityStateZip.Length > 0)
-                dicToAdd.Add("Location City", strCityStateZip[0]);
-            else
-                dicToAdd.Add("Location City", "");
-
-            if (strCityStateZip.Length > 1)
-                dicToAdd.Add("Location State", strCityStateZip[1]);
-            else
-                dicToAdd.Add("Location State", "");
-
-            if (strCityStateZip.Length > 2)
-                dicToAdd.Add("Location Zip Code", strCityStateZip[2]);
-            else
-                dicToAdd.Add("Location Zip Code", "");
-
-            dicToAdd.Add("Contact Name", (string)arrFieldData[1]);
-            dicToAdd.Add("Phone Number", (string)arrFieldData[5]);
-            dicToAdd.Add("Fax Number", (string)arrFieldData[6]);
-            dicToAdd.Add("Email Address", (string)arrFieldData[7]);
-            
             //dictionary return
             return dicToAdd;
         }
