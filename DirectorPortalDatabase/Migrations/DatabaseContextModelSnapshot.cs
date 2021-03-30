@@ -31,7 +31,7 @@ namespace DirectorPortalDatabase.Migrations
                     b.Property<string>("StreetAddress")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ZipCode")
+                    b.Property<int?>("ZipCode")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ZipCodeExt")
@@ -57,19 +57,19 @@ namespace DirectorPortalDatabase.Migrations
                     b.Property<string>("ExtraNotes")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("MailingAddressId")
+                    b.Property<int?>("MailingAddressId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("MembershipLevel")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("PhysicalAddressId")
+                    b.Property<int?>("PhysicalAddressId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Website")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("YearEstablished")
+                    b.Property<int?>("YearEstablished")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -413,15 +413,11 @@ namespace DirectorPortalDatabase.Migrations
                 {
                     b.HasOne("DirectorPortalDatabase.Models.Address", "MailingAddress")
                         .WithMany()
-                        .HasForeignKey("MailingAddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MailingAddressId");
 
                     b.HasOne("DirectorPortalDatabase.Models.Address", "PhysicalAddress")
                         .WithMany()
-                        .HasForeignKey("PhysicalAddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PhysicalAddressId");
                 });
 
             modelBuilder.Entity("DirectorPortalDatabase.Models.BusinessRep", b =>
@@ -433,7 +429,7 @@ namespace DirectorPortalDatabase.Migrations
                         .IsRequired();
 
                     b.HasOne("DirectorPortalDatabase.Models.ContactPerson", "ContactPerson")
-                        .WithMany()
+                        .WithMany("BusinessReps")
                         .HasForeignKey("ContactPersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

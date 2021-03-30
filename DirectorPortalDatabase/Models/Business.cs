@@ -22,7 +22,7 @@ namespace DirectorPortalDatabase.Models
         /// <summary>
         /// The year that the business was established
         /// </summary>
-        public int YearEstablished { get; set; }
+        public int? YearEstablished { get; set; }
 
         /// <summary>
         /// The membership level of the business
@@ -32,14 +32,14 @@ namespace DirectorPortalDatabase.Models
         /// <summary>
         /// The id of mailing address of the business
         /// </summary>
-        public int MailingAddressId { get; set; }
+        public int? MailingAddressId { get; set; }
         
         public virtual Address MailingAddress { get; set; }
 
         /// <summary>
         /// The id of physical address of the business
         /// </summary>
-        public int PhysicalAddressId { get; set; }
+        public int? PhysicalAddressId { get; set; }
 
         public virtual Address PhysicalAddress { get; set; }
 

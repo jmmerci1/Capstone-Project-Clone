@@ -34,7 +34,7 @@ namespace DirectorPortalDatabase.Models
         /// <summary>
         /// The zip code of the address
         /// </summary>
-        public int ZipCode { get; set; }
+        public int? ZipCode { get; set; }
         /// <summary>
         /// The zip extended code of the address
         /// </summary>
