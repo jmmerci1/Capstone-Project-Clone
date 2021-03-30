@@ -15,7 +15,7 @@ namespace DirectorPortalDatabase.Migrations
                     StreetAddress = table.Column<string>(nullable: true),
                     City = table.Column<string>(nullable: true),
                     State = table.Column<string>(nullable: true),
-                    ZipCode = table.Column<int>(nullable: false),
+                    ZipCode = table.Column<int>(nullable: true),
                     ZipCodeExt = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -72,10 +72,10 @@ namespace DirectorPortalDatabase.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     BusinessName = table.Column<string>(nullable: true),
-                    YearEstablished = table.Column<int>(nullable: false),
+                    YearEstablished = table.Column<int>(nullable: true),
                     MembershipLevel = table.Column<int>(nullable: false),
-                    MailingAddressId = table.Column<int>(nullable: false),
-                    PhysicalAddressId = table.Column<int>(nullable: false),
+                    MailingAddressId = table.Column<int>(nullable: true),
+                    PhysicalAddressId = table.Column<int>(nullable: true),
                     Website = table.Column<string>(nullable: true),
                     ExtraNotes = table.Column<string>(nullable: true),
                     ExtraFields = table.Column<string>(nullable: true)
