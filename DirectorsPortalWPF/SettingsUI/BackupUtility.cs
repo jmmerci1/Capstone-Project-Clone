@@ -39,6 +39,7 @@ namespace DirectorsPortalWPF.SettingsUI
         const int intNOTIFICATION_POLLING_TIME_IN_SECONDS = 15; //timer checks every 15 seconds to see if there a new notificaiton to be made
         DatabaseContext dbContext = new DatabaseContext(); //reference to the db context for updating the database with TODOs
         Todo tdoNotificationSetting; //used for creating new TODOs
+        const string strFilename = "directors_portal.db";
 
         /// <summary>
         /// enum for readability of notification frequency selected by the user
@@ -95,7 +96,7 @@ namespace DirectorsPortalWPF.SettingsUI
             string strBackupFilePath; //holds the path the user selected in the file browser
 
             //creates the destination file path and file name that will replace the current database
-            string strDestFile = Path.Combine(DatabaseContext.GetFolderPath(), "database.db");
+            string strDestFile = Path.Combine(DatabaseContext.GetFolderPath(), strFilename);
 
             //create a file dialog that restricts users to only database files.
             OpenFileDialog openFileDialog = new OpenFileDialog
@@ -150,7 +151,7 @@ namespace DirectorsPortalWPF.SettingsUI
                 strBackupFileName = "DB_Backup " + ToSafeFileName(DateTime.Now.ToString()) + ".db";
 
                 //get the path of the source and the path of the destination
-                strSourcePathAndFile = Path.Combine(strSourcePath, "database.db");
+                strSourcePathAndFile = Path.Combine(strSourcePath, strFilename);
                 strDestPathAndFile = Path.Combine(strTargetPath, strBackupFileName);
 
                 //create the backup, dont overwrite old backups
