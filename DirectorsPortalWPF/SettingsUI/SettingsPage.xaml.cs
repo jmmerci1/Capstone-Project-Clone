@@ -62,9 +62,6 @@ namespace DirectorsPortalWPF.SettingsUI
             }
 
             cmbEntity.ItemsSource = rgReportTypeItems;
-
-            
-
         }
 
         /// <summary>

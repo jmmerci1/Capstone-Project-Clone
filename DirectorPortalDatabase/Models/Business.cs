@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using DirectorPortalDatabase.Utility;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
 namespace DirectorPortalDatabase.Models
 {
-    public class Business
+    public class Business : HasExtraFields
     {
         /// <summary>
         /// The Primary Key of the address in the database.
@@ -52,14 +53,6 @@ namespace DirectorPortalDatabase.Models
         /// Any additional notes about a business
         /// </summary>
         public string ExtraNotes { get; set; }
-
-        /// <summary>
-        /// Will be used as a way of adding extra fields
-        /// to the database. Designed to use a string encoded
-        /// json object with any additional fields that can
-        /// be decoded into regular C# objects.
-        /// </summary>
-        public string ExtraFields { get; set; }
 
         /// <summary>
         /// A list of the business reps for the business.

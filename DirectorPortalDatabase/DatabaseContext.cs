@@ -13,6 +13,10 @@ namespace DirectorPortalDatabase
         }
 
         /// <summary>
+        /// Holds data about extra fields on tables.
+        /// </summary>
+        internal DbSet<AdditionalFields> AdditionalFields { get; set; }
+        /// <summary>
         /// Addresses table. Represents a list of addresses so that each business can
         /// have a mailing address and a physical address
         /// </summary>
