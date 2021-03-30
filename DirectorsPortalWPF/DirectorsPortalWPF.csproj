@@ -283,12 +283,9 @@
     <Compile Include="HelpUI\HelpScreenPage.xaml.cs">
       <DependentUpon>HelpScreenPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MemberInfoUI\EditMembersPage.xaml.cs">
-      <DependentUpon>EditMembersPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="MemberInfoUI\MemberInfoViewModels\BusinessTableViewModel.cs" />
-    <Compile Include="MemberInfoUI\AddMembersPage.xaml.cs">
-      <DependentUpon>AddMembersPage.xaml</DependentUpon>
+    <Compile Include="MemberInfoUI\ModifyMembersPage.xaml.cs">
+      <DependentUpon>ModifyMembersPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="MemberInfoUI\MemberInfoViewModels\BussinessDataModel.cs" />
     <Compile Include="MemberInfoUI\MembersPage.xaml.cs">
@@ -367,11 +364,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="MemberInfoUI\AddMembersPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MemberInfoUI\EditMembersPage.xaml">
+    <Page Include="MemberInfoUI\ModifyMembersPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
