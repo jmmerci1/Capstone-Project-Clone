@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -59,178 +60,250 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// <param name="e">Event data asscociated with this event.</param>
         private void BtnAddMember_Click(object sender, RoutedEventArgs e)
         {
-            /* Get the business info from the form. */
-            Business businessFromForm = new Business();
-            businessFromForm.BusinessName = txtBusinessName.Text;
-
-            int.TryParse(txtYearEst.Text, out int intYearEst);
-            businessFromForm.YearEstablished = intYearEst;
-
-            businessFromForm.Website = txtWebsite.Text;
-            businessFromForm.MembershipLevel = (MembershipLevel)cboMemberLevel.SelectedIndex;
-
-            /* Get the mailing address from the form. */
-            Address mailingAddrFromForm = new Address();
-            mailingAddrFromForm.StreetAddress = txtMailAddr.Text;
-            mailingAddrFromForm.City = txtMailCity.Text;
-            mailingAddrFromForm.State = txtMailState.Text;
-
-            int.TryParse(txtMailZip.Text, out int intMailZipCode);
-            mailingAddrFromForm.ZipCode = intMailZipCode;
-
-            /* Get the location address from the form. */
-            Address locationAddressFromForm = new Address();
-            if (ChkLocationSameAsMailing.IsChecked == false)
+            if (!ValidateDataInForm()) 
             {
-                locationAddressFromForm.StreetAddress = txtLocationAddr.Text;
-                locationAddressFromForm.City = txtLocationCity.Text;
-                locationAddressFromForm.State = txtLocationState.Text;
-
-                int.TryParse(txtLocationZip.Text, out int intLocationZipCode);
-                locationAddressFromForm.ZipCode = intLocationZipCode;
-            }
-            else 
-            {
-                locationAddressFromForm = mailingAddrFromForm;
+                /* Return early since the form has invalid data. */
+                return;
             }
 
-            /* Get the contacts from the form. */
-            List<ContactModel> contactsFromForm = new List<ContactModel>();
-            foreach (UIElement uiContact in SpContacts.Children) 
-            {
-                if (uiContact is ContactInput) 
-                {
-                    ContactInput contactInput = (uiContact as ContactInput);
-                    ContactModel contactModel = new ContactModel();
-
-                    contactModel.Name = contactInput.TxtName.Text;
-
-                    /* Get the contacts emails from the form. */
-                    foreach (UIElement uiEmail in contactInput.SpContactEmails.Children) 
-                    {
-                        if (uiEmail is EmailInput) 
-                        {
-                            EmailInput emailInput = (uiEmail as EmailInput);
-                            Email email = new Email();
-
-                            email.EmailAddress = emailInput.TxtEmail.Text;
-                            contactModel.Emails.Add(email);
-                        }
-                    }
-
-                    /* Get the contacts phone numbers from the form. */
-                    foreach (UIElement uiPhoneNumber in contactInput.SpContactNumbers.Children) 
-                    {
-                        if (uiPhoneNumber is ContactNumberInput) 
-                        {
-                            ContactNumberInput contactNumberInput = (uiPhoneNumber as ContactNumberInput);
-                            PhoneNumber phoneNumber = new PhoneNumber();
-
-                            phoneNumber.Number = contactNumberInput.TxtContactNumber.Text;
-                            phoneNumber.GEnumPhoneType = (PhoneType)contactNumberInput.CboNumberType.SelectedIndex;
-                            contactModel.PhoneNumbers.Add(phoneNumber);
-                        }
-                    }
-
-                    contactsFromForm.Add(contactModel);
-                }
-            }
-
-            /* We have all the data from the enetered contact, now verify it. */
-            VerifyFormData(businessFromForm, mailingAddrFromForm, locationAddressFromForm, contactsFromForm);
-
-            NavigationService.Navigate(new MembersPage());
-        }
-
-        private void VerifyFormData(Business businessFromForm, Address mailingAddressFromFrom,
-            Address locationAddressFromForm, List<ContactModel> contactModelsFromForm) 
-        {
             using (DatabaseContext context = new DatabaseContext()) 
             {
                 using (var transaction = context.Database.BeginTransaction()) 
                 {
                     try
                     {
-                        /* Verify the address are valid.
-                         * For the time being this just means a single street address. */
-                        if (!mailingAddressFromFrom.StreetAddress.Equals("")
-                            && !locationAddressFromForm.StreetAddress.Equals("")) 
+                        /* Get the business info from the form. */
+                        Business newBusiness = new Business();
+                        newBusiness.BusinessName = txtBusinessName.Text;
+
+                        int.TryParse(txtYearEst.Text, out int intYearEst);
+                        newBusiness.YearEstablished = intYearEst;
+
+                        newBusiness.Website = txtWebsite.Text;
+                        newBusiness.MembershipLevel = (MembershipLevel)cboMemberLevel.SelectedIndex;
+
+                        /* Get the mailing address from the form. */
+                        Address newMailingAddress = new Address();
+                        newMailingAddress.StreetAddress = txtMailAddr.Text;
+                        newMailingAddress.City = txtMailCity.Text;
+                        newMailingAddress.State = txtMailState.Text;
+
+                        int.TryParse(txtMailZip.Text, out int intMailZipCode);
+                        newMailingAddress.ZipCode = intMailZipCode;
+
+                        /* Get the location address from the form. */
+                        Address newPhysicalAddress = new Address();
+                        if (ChkLocationSameAsMailing.IsChecked == false)
                         {
-                            businessFromForm.MailingAddress = mailingAddressFromFrom;
-                            businessFromForm.PhysicalAddress = locationAddressFromForm;
+                            newPhysicalAddress.StreetAddress = txtLocationAddr.Text;
+                            newPhysicalAddress.City = txtLocationCity.Text;
+                            newPhysicalAddress.State = txtLocationState.Text;
+
+                            int.TryParse(txtLocationZip.Text, out int intLocationZipCode);
+                            newPhysicalAddress.ZipCode = intLocationZipCode;
+                        }
+                        else
+                        {
+                            newPhysicalAddress = newMailingAddress;
                         }
 
-                        /* Verify the business info is valid.
-                         * For the time being this means the business has a name. */
-                        if (!businessFromForm.BusinessName.Equals("")) 
+                        if (!newMailingAddress.IsEmpty()) 
                         {
-                            /* Check for a valid membership level as null defaults to -1. */
-                            if (businessFromForm.MembershipLevel < 0) 
-                            {
-                                businessFromForm.MembershipLevel = MembershipLevel.GOLD;
-                            }
+                            newBusiness.MailingAddress = newMailingAddress;
                         }
-                        businessFromForm.BusinessReps = new List<BusinessRep>();
-
-                        /* Verify the business contacts are valid.
-                         * For the time being this means the business has a name. */
-                        foreach (ContactModel contact in contactModelsFromForm) 
+                        if (!newPhysicalAddress.IsEmpty()) 
                         {
-                            if (!contact.Name.Equals("")) 
+                            newBusiness.PhysicalAddress = newPhysicalAddress;
+                        }
+
+                        /* Get the contacts from the form. */
+                        newBusiness.BusinessReps = new List<BusinessRep>();
+                        foreach (UIElement uiContact in SpContacts.Children)
+                        {
+                            if (uiContact is ContactInput)
                             {
+                                ContactInput contactInput = (uiContact as ContactInput);
+                                BusinessRep newBusinessRep = new BusinessRep();
                                 ContactPerson newContact = new ContactPerson
                                 {
-                                    Name = contact.Name,
+                                    Name = contactInput.TxtName.Text,
                                     Emails = new List<Email>(),
                                     PhoneNumbers = new List<PhoneNumber>()
                                 };
 
-                                BusinessRep newBusinessRep = new BusinessRep
+                                /* Get the contacts emails from the form. */
+                                foreach (UIElement uiEmail in contactInput.SpContactEmails.Children)
                                 {
-                                    Business = businessFromForm,
-                                    ContactPerson = newContact
-                                };
-
-                                businessFromForm.BusinessReps.Add(newBusinessRep);
-
-                                /* Verify the contacts emails are valid. */
-                                foreach (Email email in contact.Emails) 
-                                {
-                                    if (!email.EmailAddress.Equals("")) 
+                                    if (uiEmail is EmailInput)
                                     {
-                                        newContact.Emails.Add(email);
+                                        EmailInput emailInput = (uiEmail as EmailInput);
+                                        Email newEmail = new Email();
+
+                                        newEmail.EmailAddress = emailInput.TxtEmail.Text;
+                                        newContact.Emails.Add(newEmail);
                                     }
                                 }
 
-                                /* Verify the contacts numbers are valid. */
-                                foreach (PhoneNumber phoneNumber in contact.PhoneNumbers) 
+                                /* Get the contacts phone numbers from the form. */
+                                foreach (UIElement uiPhoneNumber in contactInput.SpContactNumbers.Children)
                                 {
-                                    if (!phoneNumber.Number.Equals("")) 
+                                    if (uiPhoneNumber is ContactNumberInput)
                                     {
-                                        /* Check for a valid phone type as null defaults to -1. */
-                                        if (phoneNumber.GEnumPhoneType < 0) 
-                                        {
-                                            phoneNumber.GEnumPhoneType = PhoneType.Mobile;
-                                        }
+                                        ContactNumberInput contactNumberInput = (uiPhoneNumber as ContactNumberInput);
+                                        PhoneNumber newPhoneNumber = new PhoneNumber();
 
-                                        newContact.PhoneNumbers.Add(phoneNumber);
+                                        newPhoneNumber.Number = contactNumberInput.TxtContactNumber.Text;
+                                        newPhoneNumber.GEnumPhoneType = (PhoneType)contactNumberInput.CboNumberType.SelectedIndex;
+                                        newContact.PhoneNumbers.Add(newPhoneNumber);
                                     }
                                 }
+
+                                newBusinessRep.ContactPerson = newContact;
+                                newBusiness.BusinessReps.Add(newBusinessRep);
                             }
                         }
 
-                        context.Businesses.Add(businessFromForm);
+                        context.Businesses.Add(newBusiness);
                         context.SaveChanges();
 
                         transaction.Commit();
                     }
                     catch (Exception ex) 
                     {
-                        /* Log any exceptions? */
                         transaction.Rollback();
                     }
                 }
             }
+
+            NavigationService.Navigate(new MembersPage());
+        }
+
+        private bool ValidateDataInForm() 
+        {
+            bool boolAllDataIsValid = true;
+
+            /* Verify the business info. 
+             * Just make sure then name isn't blank and if there is a est. year make sure that it is
+             * only numbers. */
+            if (txtBusinessName.Text.Equals(""))
+            {
+                boolAllDataIsValid = false;
+
+                txtBusinessName.BorderBrush = Brushes.Red;
+
+                ToolTip ttBusinessName = new ToolTip();
+                ttBusinessName.Content = "Please enter a business name.";
+
+                txtBusinessName.ToolTip = ttBusinessName;
+            }
+            else 
+            {
+                ResetFormError(txtBusinessName);
+            }
+
+            if (!txtYearEst.Text.Equals("") 
+                && !int.TryParse(txtYearEst.Text, out int intYearEst)) 
+            {
+                boolAllDataIsValid = false;
+
+                txtYearEst.BorderBrush = Brushes.Red;
+
+                ToolTip ttYearEst = new ToolTip();
+                ttYearEst.Content = "Year established must be a number.";
+
+                txtYearEst.ToolTip = ttYearEst;
+            }
+            else
+            {
+                ResetFormError(txtYearEst);
+            }
+
+            Regex regexEmail = new Regex(@"\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b");
+            Regex regexPhoneNumber = new Regex(@"^[2-9]\d{2}-\d{3}-\d{4}$");
+
+            foreach (UIElement uiContact in SpContacts.Children)
+            {
+                if (uiContact is ContactInput)
+                {
+                    ContactInput contactInput = (uiContact as ContactInput);
+
+                    if (contactInput.TxtName.Text.Equals(""))
+                    {
+                        boolAllDataIsValid = false;
+
+                        contactInput.TxtName.BorderBrush = Brushes.Red;
+
+                        ToolTip ttContactName = new ToolTip();
+                        ttContactName.Content = "Contact name cannot be empty.";
+
+                        contactInput.TxtName.ToolTip = ttContactName;
+                    }
+                    else 
+                    {
+                        ResetFormError(contactInput.TxtName);
+                    }
+
+                    /* Get the contacts emails from the form. */
+                    foreach (UIElement uiEmail in contactInput.SpContactEmails.Children)
+                    {
+                        if (uiEmail is EmailInput)
+                        {
+                            EmailInput emailInput = (uiEmail as EmailInput);
+                            string strEmail = emailInput.TxtEmail.Text.ToLower().Trim();
+
+                            if (!regexEmail.IsMatch(strEmail))
+                            {
+                                boolAllDataIsValid = false;
+
+                                emailInput.TxtEmail.BorderBrush = Brushes.Red;
+
+                                ToolTip ttEmail = new ToolTip();
+                                ttEmail.Content = "The entered address is not valid.";
+
+                                emailInput.TxtEmail.ToolTip = ttEmail;
+                            }
+                            else 
+                            {
+                                ResetFormError(emailInput.TxtEmail);
+                            }
+                        }
+                    }
+
+                    /* Get the contacts phone numbers from the form. */
+                    foreach (UIElement uiPhoneNumber in contactInput.SpContactNumbers.Children)
+                    {
+                        if (uiPhoneNumber is ContactNumberInput)
+                        {
+                            ContactNumberInput contactNumberInput = (uiPhoneNumber as ContactNumberInput);
+                            string strNumber = contactNumberInput.TxtContactNumber.Text.Trim();
+
+                            if (!regexPhoneNumber.IsMatch(strNumber))
+                            {
+                                boolAllDataIsValid = false;
+
+                                contactNumberInput.TxtContactNumber.BorderBrush = Brushes.Red;
+
+                                ToolTip ttNumber = new ToolTip();
+                                ttNumber.Content = "The entered phone number was not of the form xxx-xxx-xxxx.";
+
+                                contactNumberInput.TxtContactNumber.ToolTip = ttNumber;
+                            }
+                            else 
+                            {
+                                ResetFormError(contactNumberInput.TxtContactNumber);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return boolAllDataIsValid;
+        }
+
+        private void ResetFormError(TextBox txtError) 
+        {
+            txtError.BorderBrush = new SolidColorBrush(Color.FromRgb(171, 173, 179));
+            txtError.ToolTip = null;
         }
 
         private void BtnAddContact_Click(object sender, RoutedEventArgs e)
@@ -254,19 +327,5 @@ namespace DirectorsPortalWPF.MemberInfoUI
         {
             SpLocationAddress.IsEnabled = true;
         }
-    }
-
-    public class ContactModel {
-        public string Name { get; set; }
-        public List<Email> Emails { get; set; }
-        public List<PhoneNumber> PhoneNumbers { get; set; }
-
-        public ContactModel() 
-        {
-            Emails = new List<Email>();
-            PhoneNumbers = new List<PhoneNumber>();
-        }
-
-
     }
 }

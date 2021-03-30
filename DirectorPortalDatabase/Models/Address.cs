@@ -70,5 +70,17 @@ namespace DirectorPortalDatabase.Models
         {
             return base.GetHashCode();
         }
+
+        /// <summary>
+        /// A method for checking if an address is empty.
+        /// </summary>
+        /// <returns>Returtns true if the address is empty.</returns>
+        public bool IsEmpty()
+        {
+            return (StreetAddress.Equals("")
+                    && City.Equals("")
+                    && StreetAddress.Equals("")
+                    && ZipCode == 0);
+        }
     }
 }
