@@ -63,7 +63,7 @@ namespace DirectorsPortalWPF.Controls
         {
             if (GIntContactId != -1) 
             {
-                EditMembersPage page = NavigationService.GetNavigationService(this).Content as EditMembersPage;
+                ModifyMembersPage page = NavigationService.GetNavigationService(this).Content as ModifyMembersPage;
                 page.GIntContactsToRemove.Add(GIntContactId);
             }
 

@@ -47,7 +47,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
         private void BtnAddMember_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.Navigate(new AddMembersPage());
+            NavigationService.Navigate(new ModifyMembersPage(null, null));
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     .FirstOrDefault(business => business.BusinessName.Equals(selectedTableViewModel.StrBuisnessName));
             }
 
-            NavigationService.Navigate(new EditMembersPage(selectedBusiness));
+            NavigationService.Navigate(new ModifyMembersPage(null, selectedBusiness));
         }
 
         /// <summary>
@@ -351,7 +351,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             Dictionary<string, string> dictFields = OpenFile();
 
             if (dictFields.ContainsKey("Business Name"))
-                NavigationService.Navigate(new AddMembersPage(dictFields));
+                NavigationService.Navigate(new ModifyMembersPage(dictFields, null));
         }
 
         /// <summary>
@@ -378,7 +378,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
                 if (busModified != null)
                 {
-                    NavigationService.Navigate(new EditMembersPage(busModified));
+                    NavigationService.Navigate(new ModifyMembersPage(null, busModified));
                 }
                 else
                     MessageBox.Show($"{ dictFields["Business Name"] } is not an existing Businss in the Database", "Business Not Found");
