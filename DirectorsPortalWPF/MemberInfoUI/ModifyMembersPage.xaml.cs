@@ -53,16 +53,108 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     {
                         /* Populate the business info from the selected business. */
                         txtBusinessName.Text = selectedBusiness.BusinessName;
-                        txtYearEst.Text = selectedBusiness.YearEstablished.ToString();
-                        txtWebsite.Text = selectedBusiness.Website;
+
+                        if (dictPdfImport != null && !dictPdfImport["Established"].Equals(""))
+                        {
+                            txtYearEst.Text = dictPdfImport["Established"];
+                            txtYearEst.Background = Brushes.Green;
+                            txtYearEst.Foreground = Brushes.White;
+                            txtYearEst.FontWeight = FontWeights.Bold;
+                        }
+                        else 
+                            txtYearEst.Text = selectedBusiness.YearEstablished.ToString();
+
+                        if (dictPdfImport != null && !dictPdfImport["Website"].Equals(""))
+                        {
+                            txtWebsite.Text = dictPdfImport["Website"];
+                            txtWebsite.Background = Brushes.Green;
+                            txtWebsite.Foreground = Brushes.White;
+                            txtYearEst.FontWeight = FontWeights.Bold;
+                        }
+                        else
+                            txtWebsite.Text = selectedBusiness.Website;
+
                         txtNotes.Text = selectedBusiness.ExtraNotes;
-                        cboMemberLevel.SelectedIndex = (int)selectedBusiness.MembershipLevel;
+
+                        if (dictPdfImport != null && !dictPdfImport["Level"].Equals(""))
+                        {
+                            switch (dictPdfImport["Level"])
+                            {
+                                case "Gold":
+                                    cboMemberLevel.SelectedIndex = 1;
+                                    cboMemberLevel.Foreground = Brushes.Green;
+                                    cboMemberLevel.FontWeight = FontWeights.Bold;
+                                    break;
+
+                                case "Silver":
+                                    cboMemberLevel.SelectedIndex = 2;
+                                    cboMemberLevel.Foreground = Brushes.Green;
+                                    cboMemberLevel.FontWeight = FontWeights.Bold;
+                                    break;
+
+                                case "Associate":
+                                    cboMemberLevel.SelectedIndex = 3;
+                                    cboMemberLevel.Foreground = Brushes.Green;
+                                    cboMemberLevel.FontWeight = FontWeights.Bold;
+                                    break;
+
+                                case "Indiviual":
+                                    cboMemberLevel.SelectedIndex = 4;
+                                    cboMemberLevel.Foreground = Brushes.Green;
+                                    cboMemberLevel.FontWeight = FontWeights.Bold;
+                                    break;
+
+                                case "Courtesy":
+                                    cboMemberLevel.SelectedIndex = 5;
+                                    cboMemberLevel.Foreground = Brushes.Green;
+                                    cboMemberLevel.FontWeight = FontWeights.Bold;
+                                    break;
+                                default:
+                                    cboMemberLevel.SelectedIndex = 0;
+                                    cboMemberLevel.Foreground = Brushes.Green;
+                                    cboMemberLevel.FontWeight = FontWeights.Bold;
+                                    break;
+                            }
+                        }
+                        else 
+                            cboMemberLevel.SelectedIndex = (int)selectedBusiness.MembershipLevel;
 
                         /* Populate the addresses for the selected business. */
-                        txtMailAddr.Text = selectedBusiness.MailingAddress?.StreetAddress;
-                        txtMailCity.Text = selectedBusiness.MailingAddress?.City;
-                        txtMailState.Text = selectedBusiness.MailingAddress?.State;
-                        txtMailZip.Text = selectedBusiness.MailingAddress?.ZipCode.ToString();
+                        if (dictPdfImport != null && !dictPdfImport["Mailing Address"].Equals(""))
+                        {
+                            txtMailAddr.Text = dictPdfImport["Mailing Address"];
+                            txtMailAddr.Background = Brushes.Green;
+                            txtMailAddr.FontWeight = FontWeights.Bold;
+                        }
+                        else
+                            txtMailAddr.Text = selectedBusiness.MailingAddress?.StreetAddress;
+
+                        if (dictPdfImport != null && !dictPdfImport["City"].Equals(""))
+                        {
+                            txtMailCity.Text = dictPdfImport["City"];
+                            txtMailCity.Background = Brushes.Green;
+                            txtMailCity.FontWeight = FontWeights.Bold;
+                        }
+                        else
+                            txtMailCity.Text = selectedBusiness.MailingAddress?.City;
+
+                        if (dictPdfImport != null && !dictPdfImport["State"].Equals(""))
+                        {
+                            txtMailState.Text = dictPdfImport["State"];
+                            txtMailState.Background = Brushes.Green;
+                            txtMailState.FontWeight = FontWeights.Bold;
+                        }
+                        else
+                            txtMailState.Text = selectedBusiness.MailingAddress?.State;
+
+                        if (dictPdfImport != null && !dictPdfImport["Zip Code"].Equals(""))
+                        {
+                            txtMailZip.Text = dictPdfImport["Zip Code"];
+                            txtMailZip.Background = Brushes.Green;
+                            txtMailZip.FontWeight = FontWeights.Bold;
+                        }
+                        else
+                            txtMailZip.Text = selectedBusiness.MailingAddress?.ZipCode.ToString();
 
                         if (selectedBusiness.MailingAddressId == selectedBusiness.PhysicalAddressId)
                         {
@@ -90,7 +182,15 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                     GStrTitle = "Contact " + MIntContactCount + ":",
                                     GIntContactId = rep.ContactPersonId
                                 };
-                                CiContact.TxtName.Text = rep.ContactPerson.Name;
+
+                                if (dictPdfImport != null && !dictPdfImport["Contact Name"].Equals(""))
+                                {
+                                    CiContact.TxtName.Text = dictPdfImport["Contact Name"];
+                                    CiContact.TxtName.Background = Brushes.Green;
+                                    CiContact.TxtName.FontWeight = FontWeights.Bold;
+                                }
+                                else
+                                    CiContact.TxtName.Text = rep.ContactPerson.Name;
 
                                 /* Populate the emails for the contact. */
                                 if (rep.ContactPerson.Emails != null

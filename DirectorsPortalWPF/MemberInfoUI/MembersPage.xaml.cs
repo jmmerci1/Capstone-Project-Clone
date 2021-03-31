@@ -376,7 +376,15 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 using (DatabaseContext dbContext = new DatabaseContext())
                 {
                     busModified = dbContext.Businesses
-                        .Where(business => business.BusinessName.Equals(dictFields["Business Name"])).FirstOrDefault();
+                    .Include(x => x.MailingAddress)
+                    .Include(x => x.PhysicalAddress)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.Emails)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.PhoneNumbers)
+                    .FirstOrDefault(business => business.BusinessName.Equals(dictFields["Business Name"]));
                 }
 
                 if (busModified != null)
