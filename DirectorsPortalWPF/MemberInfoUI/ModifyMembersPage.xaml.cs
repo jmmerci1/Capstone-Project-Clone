@@ -650,7 +650,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
             /* Verify the physical address.
              * Make sure that none of the fields are blank and zip code is a number. */
-            if (ChkLocationSameAsMailing.IsChecked == false) 
+            if (ChkLocationSameAsMailing.IsChecked == false)
             {
                 if (txtLocationAddr.Text.Equals(""))
                 {
@@ -715,6 +715,13 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 {
                     ResetFormError(txtLocationZip);
                 }
+            }
+            else 
+            {
+                ResetFormError(txtLocationAddr);
+                ResetFormError(txtLocationCity);
+                ResetFormError(txtLocationState);
+                ResetFormError(txtLocationZip);
             }
 
             Regex regexEmail = new Regex(@"\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b");
