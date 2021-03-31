@@ -151,6 +151,108 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 lblHeader.Content = "Add Member";
                 btnModifyMember.Content = "Add Member";
                 btnModifyMember.Click += BtnAddMember_Click;
+
+                if (dictPdfImport != null)
+                {
+                    txtBusinessName.Text = dictPdfImport["Business Name"];
+                    txtYearEst.Text = dictPdfImport["Established"];
+                    txtWebsite.Text = dictPdfImport["Website"];
+
+                    switch (dictPdfImport["Level"])
+                    {
+                        case "Gold":
+                            cboMemberLevel.SelectedIndex = 1;
+                            break;
+
+                        case "Silver":
+                            cboMemberLevel.SelectedIndex = 2;
+                            break;
+
+                        case "Associate":
+                            cboMemberLevel.SelectedIndex = 3;
+                            break;
+
+                        case "Indiviual":
+                            cboMemberLevel.SelectedIndex = 4;
+                            break;
+
+                        case "Courtesy":
+                            cboMemberLevel.SelectedIndex = 5;
+                            break;
+                        default:
+                            cboMemberLevel.SelectedIndex = 0;
+                            break;
+                    }
+
+
+                    txtMailAddr.Text = dictPdfImport["Mailing Address"];
+                    txtMailCity.Text = dictPdfImport["City"];
+                    txtMailState.Text = dictPdfImport["State"];
+                    txtMailZip.Text = dictPdfImport["Zip Code"];
+
+                    ChkLocationSameAsMailing.IsChecked = true;
+
+                    MIntContactCount++;
+
+                    ContactInput CiContact = new ContactInput
+                    {
+                        GStrTitle = "Contact " + MIntContactCount + ":"
+                    };
+
+                    if ((!dictPdfImport["Contact Name"].Equals("") && dictPdfImport["Contact Name"] != null) ||
+                        (!dictPdfImport["Email Address"].Equals("") && dictPdfImport["Email Address"] != null) ||
+                        (!dictPdfImport["Phone Number"].Equals("") && dictPdfImport["Phone Number"] != null) ||
+                        (!dictPdfImport["Fax Number"].Equals("") && dictPdfImport["Fax Number"] != null))
+                    {
+                        SpContacts.Children.Add(CiContact);
+                        CiContact.TxtName.Text = dictPdfImport["Contact Name"];
+                    }
+
+                    if (!dictPdfImport["Email Address"].Equals("") && dictPdfImport["Email Address"] != null)
+                    {
+                        CiContact.GntEmailCount++;
+
+                        EmailInput eiEmail = new EmailInput
+                        {
+                            GStrInputName = "Email " + CiContact.GntEmailCount + ":",
+                            GCiContactInputParent = CiContact,
+                        };
+                        eiEmail.TxtEmail.Text = dictPdfImport["Email Address"];
+
+                        CiContact.SpContactEmails.Children.Add(eiEmail);
+                    }
+
+                    if (!dictPdfImport["Phone Number"].Equals("") && dictPdfImport["Phone Number"] != null)
+                    {
+                        CiContact.GIntNumberCount++;
+
+                        ContactNumberInput cniNumber = new ContactNumberInput
+                        {
+                            GStrInputName = "Number " + CiContact.GIntNumberCount + ":",
+                            GCiContactInputParent = CiContact,
+                        };
+                        cniNumber.TxtContactNumber.Text = dictPdfImport["Phone Number"];
+                        cniNumber.CboNumberType.SelectedIndex = 1;
+
+                        CiContact.SpContactNumbers.Children.Add(cniNumber);
+                    }
+
+                    if (!dictPdfImport["Fax Number"].Equals("") && dictPdfImport["Fax Number"] != null)
+                    {
+                        CiContact.GIntNumberCount++;
+
+                        ContactNumberInput cniFax = new ContactNumberInput
+                        {
+                            GStrInputName = "Number " + CiContact.GIntNumberCount + ":",
+                            GCiContactInputParent = CiContact,
+                        };
+                        cniFax.TxtContactNumber.Text = dictPdfImport["Fax Number"];
+                        cniFax.CboNumberType.SelectedIndex = 2;
+
+                        CiContact.SpContactNumbers.Children.Add(cniFax);
+                    }
+                }
+
             }
         }
 

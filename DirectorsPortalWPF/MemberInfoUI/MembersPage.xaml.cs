@@ -381,7 +381,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
                 if (busModified != null)
                 {
-                    NavigationService.Navigate(new ModifyMembersPage(null, busModified));
+                    NavigationService.Navigate(new ModifyMembersPage(dictFields, busModified));
                 }
                 else
                     MessageBox.Show($"{ dictFields["Business Name"] } is not an existing Businss in the Database", "Business Not Found");
