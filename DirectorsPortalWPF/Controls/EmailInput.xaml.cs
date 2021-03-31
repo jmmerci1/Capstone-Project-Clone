@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DirectorsPortalWPF.Controls
 {
     /// <summary>
-    /// Interaction logic for GenericTextInput.xaml
+    /// A custom control for adding new email addresses to a contact on the Modify Members
+    /// page.
     /// </summary>
     public partial class EmailInput : UserControl
     {
@@ -24,6 +13,9 @@ namespace DirectorsPortalWPF.Controls
         public int GIntEmailId { get; set; } = -1;
         public ContactInput GCiContactInputParent { get; set; }
 
+        /// <summary>
+        /// Initializes the control and sets the data context.
+        /// </summary>
         public EmailInput()
         {
             InitializeComponent();
@@ -31,13 +23,21 @@ namespace DirectorsPortalWPF.Controls
             DataContext = this;
         }
 
+        /// <summary>
+        /// A method for removing this email control from the form.
+        /// </summary>
+        /// <param name="sender">The object that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
         private void BtnRemoveEmail_Click(object sender, RoutedEventArgs e)
         {
+            /* If this email is not associated with an ID from the database, don't add it
+             * to the list of emails to be removed. */
             if (GIntEmailId != -1 && GCiContactInputParent != null) 
             {
                 GCiContactInputParent.GIntEmailsToRemove.Add(GIntEmailId);
             }
 
+            /* Setting the Content to null removes the control from the page. */
             Content = null;
         }
     }

@@ -1,23 +1,13 @@
 ﻿using DirectorsPortalWPF.MemberInfoUI;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DirectorsPortalWPF.Controls
 {
     /// <summary>
-    /// Interaction logic for ContactInput.xaml
+    /// A custom control for adding new contact to the Modify Members page.
     /// </summary>
     public partial class ContactInput : UserControl
     {
@@ -28,6 +18,9 @@ namespace DirectorsPortalWPF.Controls
         public List<int> GIntEmailsToRemove { get; set; } = new List<int>();
         public List<int> GIntNumbersToRemove { get; set; } = new List<int>();
 
+        /// <summary>
+        /// Initializes the control and sets the data context.
+        /// </summary>
         public ContactInput()
         {
             InitializeComponent();
@@ -35,6 +28,11 @@ namespace DirectorsPortalWPF.Controls
             this.DataContext = this;
         }
 
+        /// <summary>
+        /// A method for adding a new email input to the control.
+        /// </summary>
+        /// <param name="sender">The object that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
         private void BtnAddEmail_Click(object sender, RoutedEventArgs e)
         {
             GntEmailCount++;
@@ -47,6 +45,11 @@ namespace DirectorsPortalWPF.Controls
             SpContactEmails.Children.Add(EiEmail);
         }
 
+        /// <summary>
+        /// A method for adding a new contact number input to the control.
+        /// </summary>
+        /// <param name="sender">The object that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
         private void BtnAddNumber_Click(object sender, RoutedEventArgs e)
         {
             GIntNumberCount++;
@@ -59,14 +62,22 @@ namespace DirectorsPortalWPF.Controls
             SpContactNumbers.Children.Add(CniNumber);
         }
 
+        /// <summary>
+        /// A method for removing this contact control from the form.
+        /// </summary>
+        /// <param name="sender">The object that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
         private void BtnRemoveContact_Click(object sender, RoutedEventArgs e)
         {
+            /* If this conatct input is not associated with an ID from the database, don't add it
+             * to the list of numbers to be removed. */
             if (GIntContactId != -1) 
             {
                 ModifyMembersPage page = NavigationService.GetNavigationService(this).Content as ModifyMembersPage;
                 page.GIntContactsToRemove.Add(GIntContactId);
             }
 
+            /* Setting the Content to null removes the control from the page. */
             Content = null;
         }
     }
