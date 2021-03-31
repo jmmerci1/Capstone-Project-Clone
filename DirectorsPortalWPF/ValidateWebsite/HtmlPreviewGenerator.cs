@@ -134,13 +134,18 @@ namespace DirectorsPortalWPF.ValidateWebsite
             {
                 List<Business> rgAllBusinesses = dbContext.Businesses.ToList();  // List of all businesses in DB
                 List<Categories> rgAllCategories = dbContext.Categories.ToList();
+                List<CategoryRef> rgAllCategoryRefs = dbContext.CategoryRef.ToList();
 
                 foreach (Categories cat in rgAllCategories)
                 {
-                    // Only print the category IF there are businesses that are in that category.
-                    List<Business> rgValidBusinessesMatchingCategory = rgAllBusinesses
-                        .Where(e => e.Categories.Count() > 0)
-                        .Where(e => e.Categories.FirstOrDefault().Category.Equals(cat.Category)).ToList();
+                    //Loop through all references to current category and store each business to be output
+                    List<CategoryRef> rgCurrentCategoryRefs = rgAllCategoryRefs.Where(cr => cr.CategoryId.Equals(cat.Id)).ToList();
+                    List<Business> rgValidBusinessesMatchingCategory = new List<Business>();
+                    foreach (CategoryRef catref in rgCurrentCategoryRefs)
+                    {
+                        rgValidBusinessesMatchingCategory.Add(rgAllBusinesses.Where(b => b.Id.Equals(catref.BusinessId)).FirstOrDefault());
+                    }
+                    
 
                     if (rgValidBusinessesMatchingCategory.Count > 0) 
                     {
