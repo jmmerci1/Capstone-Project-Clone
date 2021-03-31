@@ -3,24 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DirectorPortalDatabase.Migrations
 {
-    public partial class Payments : Migration
+    public partial class PaymentsV2 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Items",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(nullable: true),
-                    Price = table.Column<decimal>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Items", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Payments",
                 columns: table => new
@@ -54,18 +40,13 @@ namespace DirectorPortalDatabase.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     PaymentId = table.Column<int>(nullable: true),
-                    ItemId = table.Column<int>(nullable: true),
+                    ItemName = table.Column<string>(nullable: true),
+                    UnitPrice = table.Column<decimal>(nullable: false),
                     Quantity = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PaymentItems", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PaymentItems_Items_ItemId",
-                        column: x => x.ItemId,
-                        principalTable: "Items",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_PaymentItems_Payments_PaymentId",
                         column: x => x.PaymentId,
@@ -73,11 +54,6 @@ namespace DirectorPortalDatabase.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PaymentItems_ItemId",
-                table: "PaymentItems",
-                column: "ItemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PaymentItems_PaymentId",
@@ -94,9 +70,6 @@ namespace DirectorPortalDatabase.Migrations
         {
             migrationBuilder.DropTable(
                 name: "PaymentItems");
-
-            migrationBuilder.DropTable(
-                name: "Items");
 
             migrationBuilder.DropTable(
                 name: "Payments");

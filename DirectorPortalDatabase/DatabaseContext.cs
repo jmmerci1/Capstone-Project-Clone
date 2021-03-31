@@ -91,11 +91,6 @@ namespace DirectorPortalDatabase
         public DbSet<PaymentItem> PaymentItems { get; set; }
 
         /// <summary>
-        /// Reprents an item that can be put on a Payment.
-        /// </summary>
-        public DbSet<Item> Items { get; set; }
-
-        /// <summary>
         /// Pulls the connection string from the App.config file,
         /// then manipulates it to remove the %APPDATA% and replace it
         /// with the value of <code>Environment.GetFolderPath(ApplicationData)</code>.

@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DirectorPortalDatabase.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20210324000506_Payments")]
-    partial class Payments
+    [Migration("20210328210608_PaymentsV2")]
+    partial class PaymentsV2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -177,23 +177,6 @@ namespace DirectorPortalDatabase.Migrations
                     b.ToTable("Emails");
                 });
 
-            modelBuilder.Entity("DirectorPortalDatabase.Models.Item", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Items");
-                });
-
             modelBuilder.Entity("DirectorPortalDatabase.Models.Payment", b =>
                 {
                     b.Property<int>("Id")
@@ -237,8 +220,8 @@ namespace DirectorPortalDatabase.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("ItemId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ItemName")
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("PaymentId")
                         .HasColumnType("INTEGER");
@@ -246,9 +229,10 @@ namespace DirectorPortalDatabase.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("Id");
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("TEXT");
 
-                    b.HasIndex("ItemId");
+                    b.HasKey("Id");
 
                     b.HasIndex("PaymentId");
 
@@ -443,10 +427,6 @@ namespace DirectorPortalDatabase.Migrations
 
             modelBuilder.Entity("DirectorPortalDatabase.Models.PaymentItem", b =>
                 {
-                    b.HasOne("DirectorPortalDatabase.Models.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId");
-
                     b.HasOne("DirectorPortalDatabase.Models.Payment", "Payment")
                         .WithMany("Items")
                         .HasForeignKey("PaymentId");
