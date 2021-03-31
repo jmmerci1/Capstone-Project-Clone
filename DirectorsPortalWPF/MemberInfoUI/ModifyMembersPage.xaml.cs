@@ -441,9 +441,12 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                                     Email newEmail = new Email();
                                                     newEmail.EmailAddress = eiEmail.TxtEmail.Text;
 
-                                                    context.Emails.Add(newEmail);
+                                                    if (!newEmail.EmailAddress.Equals("")) 
+                                                    {
+                                                        context.Emails.Add(newEmail);
 
-                                                    currentRep.ContactPerson.Emails.Add(newEmail);
+                                                        currentRep.ContactPerson.Emails.Add(newEmail);
+                                                    }
                                                 }
                                                 else
                                                 {
@@ -472,9 +475,12 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                                     newPhoneNumber.Notes = cniNumber.txtNumberNotes.Text;
                                                     newPhoneNumber.GEnumPhoneType = (PhoneType)cniNumber.CboNumberType.SelectedIndex;
 
-                                                    context.PhoneNumbers.Add(newPhoneNumber);
+                                                    if (!newPhoneNumber.Number.Equals("")) 
+                                                    {
+                                                        context.PhoneNumbers.Add(newPhoneNumber);
 
-                                                    currentRep.ContactPerson.PhoneNumbers.Add(newPhoneNumber);
+                                                        currentRep.ContactPerson.PhoneNumbers.Add(newPhoneNumber);
+                                                    }
                                                 }
                                                 else
                                                 {
@@ -883,7 +889,14 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 case MessageBoxResult.Yes:
                     /* Add the entered business */
                     MBoolIgnoreWarnings = true;
-                    BtnAddMember_Click(messageBoxResult, null);
+                    if (MSelectedBusiness != null)
+                    {
+                        BtnUpdateMember_Click(messageBoxResult, null);
+                    }
+                    else 
+                    {
+                        BtnAddMember_Click(messageBoxResult, null);
+                    }
                     break;
 
                 case MessageBoxResult.No:

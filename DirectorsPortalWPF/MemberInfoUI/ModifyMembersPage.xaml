@@ -82,6 +82,7 @@
                             <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
                                 <Label Width="100">Level:</Label>
                                 <ComboBox x:Name="cboMemberLevel" Width="200">
+                                    <ComboBoxItem Content="None"></ComboBoxItem>
                                     <ComboBoxItem Content="Gold"></ComboBoxItem>
                                     <ComboBoxItem Content="Silver"></ComboBoxItem>
                                     <ComboBoxItem Content="Associate"></ComboBoxItem>
