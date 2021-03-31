@@ -253,6 +253,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     }
                 }
 
+                btnDelete.Visibility = Visibility.Hidden;
             }
         }
 
@@ -505,16 +506,6 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                 /* Check if the contact was removed. */
                                 if (GIntContactsToRemove.Contains(ciContact.GIntContactId))
                                 {
-                                    foreach (Email emailToRemove in currentRep.ContactPerson.Emails)
-                                    {
-                                        context.Remove(emailToRemove);
-                                    }
-
-                                    foreach (PhoneNumber numberToRemove in currentRep.ContactPerson.PhoneNumbers)
-                                    {
-                                        context.Remove(numberToRemove);
-                                    }
-
                                     context.Remove(currentRep.ContactPerson);
                                     context.Remove(currentRep);
                                 }
@@ -655,6 +646,65 @@ namespace DirectorsPortalWPF.MemberInfoUI
             }
 
             NavigationService.Navigate(new MembersPage());
+        }
+
+        /// <summary>
+        /// A mehtod for removing a business and all it's info from the database.
+        /// This method is called by the delete button on the edit member screen.
+        /// </summary>
+        /// <param name="sender">The object that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
+        private void BtnDelete_Click(object sender, RoutedEventArgs e)
+        {
+            string strMessage = "Are you sure you want to delete this memeber?\n"
+                + "This action cannot be undone.";
+
+            MessageBoxResult messageBoxResult = MessageBox.Show(strMessage, "Delete Member", MessageBoxButton.YesNo);
+            switch (messageBoxResult)
+            {
+                case MessageBoxResult.Yes:
+                    /* Remove the member and return to the members page. */
+                    using (DatabaseContext context = new DatabaseContext()) 
+                    {
+                        using (var transaction = context.Database.BeginTransaction()) 
+                        {
+                            try
+                            {
+                                /* Remove the businesses addresses. */
+                                context.Remove(MSelectedBusiness.MailingAddress);
+                                context.Remove(MSelectedBusiness.PhysicalAddress);
+
+                                /* Remove all the business reps for the business.
+                                 * This includes contact people, emails, and phone numbers.*/
+                                foreach (BusinessRep rep in MSelectedBusiness.BusinessReps) 
+                                {
+                                    context.Remove(rep.ContactPerson);
+                                    context.Remove(rep);
+                                }
+
+                                /* Finally, remove the business. */
+                                context.Remove(MSelectedBusiness);
+
+                                context.SaveChanges();
+                                transaction.Commit();
+                            }
+                            catch (Exception ex) 
+                            {
+                                transaction.Rollback();
+
+                                Console.WriteLine(ex.Message);
+                                Console.WriteLine(ex.StackTrace);
+                            }
+                        }
+                    }
+
+                    NavigationService.Navigate(new MembersPage());
+                    break;
+
+                case MessageBoxResult.No:
+                    /* Do nothing */
+                    break;
+            }
         }
 
         /// <summary>

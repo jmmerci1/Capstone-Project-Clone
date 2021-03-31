@@ -165,7 +165,11 @@
                     </StackPanel>
                 </Grid>
             </ScrollViewer>
-            
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Column="0" Grid.Row="2" Margin="0,0,20,5">
+                <Button x:Name="btnDelete" Click="BtnDelete_Click" Content="Delete" 
+                    Template="{StaticResource smallButtonGrey}" Margin="5,5,5,5" Height="20" Padding="0,0,80,0" />
+            </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2" Margin="0,0,20,5">
                 <Button x:Name="btnCancel" Click="BtnCancel_Click" Content="Cancel" 
                     Template="{StaticResource smallButton}" Margin="5,5,5,5" Height="20" Padding="0,0,80,0" />
