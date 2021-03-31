@@ -1,23 +1,15 @@
 ﻿using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
 using DirectorsPortalWPF.Controls;
-using DirectorsPortalWPF.MemberInfoUI.MemberInfoViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DirectorsPortalWPF.MemberInfoUI
 {
@@ -26,27 +18,33 @@ namespace DirectorsPortalWPF.MemberInfoUI
     /// </summary>
     public partial class ModifyMembersPage : Page
     {
-        private Business GSelectedBusiness = null;
-        private int GIntContactCount = 0;
         public List<int> GIntContactsToRemove { get; set; } = new List<int>();
-        private bool GBoolIgnoreWarnings = false;
+
+        private Business MSelectedBusiness = null;
+        private int MIntContactCount = 0;
+        private bool MBoolIgnoreWarnings = false;
 
         /// <summary>
-        /// A method for generating the add members UI.
-        /// 
-        /// Optional parameter will be used to populate this form with data pulled
-        /// from a PDF
+        /// A method for initializing the modify members page. This method determines whether the page should be
+        /// setup to add a new member or edit an existing one based on the passed in Business parameter.
         /// </summary>
+        /// <param name="dictPdfImport">A dictionary used to populate the form with data pulled from a PDF.</param>
+        /// <param name="selectedBusiness">
+        /// The business selected from the list view that should be populated in the form. If this field is null
+        /// the page will be setup to add a new member instead of editing an existing one.
+        /// </param>
         public ModifyMembersPage([Optional] Dictionary<string, string> dictPdfImport, Business selectedBusiness)
         {
             InitializeComponent();
 
             if (selectedBusiness != null)
             {
+                /* A business was passed in so this page needs to update an already existing business and not
+                 * add a new one.*/
                 btnModifyMember.Content = "Update";
                 btnModifyMember.Click += BtnUpdateMember_Click;
 
-                GSelectedBusiness = selectedBusiness;
+                MSelectedBusiness = selectedBusiness;
 
                 using (DatabaseContext context = new DatabaseContext())
                 {
@@ -84,11 +82,11 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             /* Generate the UI elements for each contact. */
                             foreach (BusinessRep rep in selectedBusiness.BusinessReps)
                             {
-                                GIntContactCount++;
+                                MIntContactCount++;
 
                                 ContactInput CiContact = new ContactInput
                                 {
-                                    GStrTitle = "Contact " + GIntContactCount + ":",
+                                    GStrTitle = "Contact " + MIntContactCount + ":",
                                     GIntContactId = rep.ContactPersonId
                                 };
                                 CiContact.TxtName.Text = rep.ContactPerson.Name;
@@ -147,13 +145,14 @@ namespace DirectorsPortalWPF.MemberInfoUI
             }
             else 
             {
+                /* No business was passed in so this page needs to be setup to add a new business. */
                 btnModifyMember.Content = "Add Member";
                 btnModifyMember.Click += BtnAddMember_Click;
             }
         }
 
         /// <summary>
-        /// A method for canceling add business action and taking the user back to the member info page.
+        /// A method for canceling the modify business action, taking the user back to the member info page.
         /// </summary>
         /// <param name="sender">The object that called the method.</param>
         /// <param name="e">Event data asscociated with this event.</param>
@@ -163,15 +162,15 @@ namespace DirectorsPortalWPF.MemberInfoUI
         }
 
         /// <summary>
-        /// A method for converting the view model to a new business and writing it to the database.
+        /// A method for adding a new business to the database from the information entered in the page.
         /// </summary>
         /// <param name="sender">The object that called the method.</param>
         /// <param name="e">Event data asscociated with this event.</param>
         private void BtnAddMember_Click(object sender, RoutedEventArgs e)
         {
-            if (!ValidateDataInForm(GBoolIgnoreWarnings)) 
+            if (!ValidateDataInForm(MBoolIgnoreWarnings)) 
             {
-                /* Return early since the form has invalid data. */
+                /* Return early since the form has invalid or missing data. */
                 return;
             }
 
@@ -217,6 +216,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             newPhysicalAddress = newMailingAddress;
                         }
 
+                        /* Check the addresses to make sure that they contain data. We don't want to add blank
+                         * addresses to the database. */
                         if (!newMailingAddress.IsEmpty()) 
                         {
                             newBusiness.MailingAddress = newMailingAddress;
@@ -232,40 +233,52 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         {
                             if (uiContact is ContactInput)
                             {
-                                ContactInput contactInput = (uiContact as ContactInput);
+                                ContactInput ciContact = (uiContact as ContactInput);
                                 BusinessRep newBusinessRep = new BusinessRep();
                                 ContactPerson newContact = new ContactPerson
                                 {
-                                    Name = contactInput.TxtName.Text,
+                                    Name = ciContact.TxtName.Text,
                                     Emails = new List<Email>(),
                                     PhoneNumbers = new List<PhoneNumber>()
                                 };
 
                                 /* Get the contacts emails from the form. */
-                                foreach (UIElement uiEmail in contactInput.SpContactEmails.Children)
+                                foreach (UIElement uiEmail in ciContact.SpContactEmails.Children)
                                 {
                                     if (uiEmail is EmailInput)
                                     {
-                                        EmailInput emailInput = (uiEmail as EmailInput);
+                                        EmailInput eiEmail = (uiEmail as EmailInput);
                                         Email newEmail = new Email();
 
-                                        newEmail.EmailAddress = emailInput.TxtEmail.Text;
-                                        newContact.Emails.Add(newEmail);
+                                        newEmail.EmailAddress = eiEmail.TxtEmail.Text;
+
+                                        /* Make sure the email address is not blank. We don't want to add blank addresses
+                                         * to the database.*/
+                                        if (!newEmail.EmailAddress.Equals("")) 
+                                        {
+                                            newContact.Emails.Add(newEmail);
+                                        }
                                     }
                                 }
 
                                 /* Get the contacts phone numbers from the form. */
-                                foreach (UIElement uiPhoneNumber in contactInput.SpContactNumbers.Children)
+                                foreach (UIElement uiPhoneNumber in ciContact.SpContactNumbers.Children)
                                 {
                                     if (uiPhoneNumber is ContactNumberInput)
                                     {
-                                        ContactNumberInput contactNumberInput = (uiPhoneNumber as ContactNumberInput);
+                                        ContactNumberInput cniNumber = (uiPhoneNumber as ContactNumberInput);
                                         PhoneNumber newPhoneNumber = new PhoneNumber();
 
-                                        newPhoneNumber.Number = contactNumberInput.TxtContactNumber.Text;
-                                        newPhoneNumber.GEnumPhoneType = (PhoneType)contactNumberInput.CboNumberType.SelectedIndex;
-                                        newPhoneNumber.Notes = contactNumberInput.txtNumberNotes.Text;
-                                        newContact.PhoneNumbers.Add(newPhoneNumber);
+                                        newPhoneNumber.Number = cniNumber.TxtContactNumber.Text;
+                                        newPhoneNumber.GEnumPhoneType = (PhoneType)cniNumber.CboNumberType.SelectedIndex;
+                                        newPhoneNumber.Notes = cniNumber.txtNumberNotes.Text;
+
+                                        /* Make sure the phone number is not blank. We don't want to add blank numbers
+                                         * to the database.*/
+                                        if (!newPhoneNumber.Number.Equals("")) 
+                                        {
+                                            newContact.PhoneNumbers.Add(newPhoneNumber);
+                                        }
                                     }
                                 }
 
@@ -289,6 +302,12 @@ namespace DirectorsPortalWPF.MemberInfoUI
             NavigationService.Navigate(new MembersPage());
         }
 
+        /// <summary>
+        /// A method for updating an exisitng business (This business is held in MSelectedBusiness) from the
+        /// information entered in the page.
+        /// </summary>
+        /// <param name="sender">The object that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
         private void BtnUpdateMember_Click(object sender, RoutedEventArgs e)
         {
             using (DatabaseContext context = new DatabaseContext())
@@ -298,24 +317,24 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     try
                     {
                         /* Update the business info from the form. */
-                        GSelectedBusiness.BusinessName = txtBusinessName.Text;
+                        MSelectedBusiness.BusinessName = txtBusinessName.Text;
 
                         int.TryParse(txtYearEst.Text, out int intYearEst);
-                        GSelectedBusiness.YearEstablished = intYearEst;
+                        MSelectedBusiness.YearEstablished = intYearEst;
 
-                        GSelectedBusiness.Website = txtWebsite.Text;
-                        GSelectedBusiness.ExtraNotes = txtNotes.Text;
-                        GSelectedBusiness.MembershipLevel = (MembershipLevel)cboMemberLevel.SelectedIndex;
+                        MSelectedBusiness.Website = txtWebsite.Text;
+                        MSelectedBusiness.ExtraNotes = txtNotes.Text;
+                        MSelectedBusiness.MembershipLevel = (MembershipLevel)cboMemberLevel.SelectedIndex;
 
                         /* Update the mailing address from the form. */
-                        GSelectedBusiness.MailingAddress.StreetAddress = txtMailAddr.Text;
-                        GSelectedBusiness.MailingAddress.City = txtMailCity.Text;
-                        GSelectedBusiness.MailingAddress.State = txtMailState.Text;
+                        MSelectedBusiness.MailingAddress.StreetAddress = txtMailAddr.Text;
+                        MSelectedBusiness.MailingAddress.City = txtMailCity.Text;
+                        MSelectedBusiness.MailingAddress.State = txtMailState.Text;
 
                         int.TryParse(txtMailZip.Text, out int intMailZipCode);
-                        GSelectedBusiness.MailingAddress.ZipCode = intMailZipCode;
+                        MSelectedBusiness.MailingAddress.ZipCode = intMailZipCode;
 
-                        if (GSelectedBusiness.MailingAddressId == GSelectedBusiness.PhysicalAddressId &&
+                        if (MSelectedBusiness.MailingAddressId == MSelectedBusiness.PhysicalAddressId &&
                             ChkLocationSameAsMailing.IsChecked == false)
                         {
                             /* The mailing address was the same as the location address, but now we want to add
@@ -330,27 +349,27 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
                             context.Addresses.Add(newLocationAddress);
 
-                            GSelectedBusiness.PhysicalAddress = newLocationAddress;
+                            MSelectedBusiness.PhysicalAddress = newLocationAddress;
                         }
-                        else if (GSelectedBusiness.MailingAddressId != GSelectedBusiness.PhysicalAddressId &&
+                        else if (MSelectedBusiness.MailingAddressId != MSelectedBusiness.PhysicalAddressId &&
                             ChkLocationSameAsMailing.IsChecked == true)
                         {
                             /* The location address was removed, delete it and update the business location ID 
                              * to the mailing ID. */
-                            context.Addresses.Remove(GSelectedBusiness.PhysicalAddress);
+                            context.Addresses.Remove(MSelectedBusiness.PhysicalAddress);
 
-                            GSelectedBusiness.PhysicalAddress = GSelectedBusiness.MailingAddress;
+                            MSelectedBusiness.PhysicalAddress = MSelectedBusiness.MailingAddress;
                         }
-                        else if (GSelectedBusiness.MailingAddressId != GSelectedBusiness.PhysicalAddressId &&
+                        else if (MSelectedBusiness.MailingAddressId != MSelectedBusiness.PhysicalAddressId &&
                             ChkLocationSameAsMailing.IsChecked == false)
                         {
                             /* Update the location address with the one from the form. */
-                            GSelectedBusiness.PhysicalAddress.StreetAddress = txtLocationAddr.Text;
-                            GSelectedBusiness.PhysicalAddress.City = txtLocationCity.Text;
-                            GSelectedBusiness.PhysicalAddress.State = txtLocationState.Text;
+                            MSelectedBusiness.PhysicalAddress.StreetAddress = txtLocationAddr.Text;
+                            MSelectedBusiness.PhysicalAddress.City = txtLocationCity.Text;
+                            MSelectedBusiness.PhysicalAddress.State = txtLocationState.Text;
 
                             int.TryParse(txtLocationZip.Text, out int intLocationZipCode);
-                            GSelectedBusiness.PhysicalAddress.ZipCode = intLocationZipCode;
+                            MSelectedBusiness.PhysicalAddress.ZipCode = intLocationZipCode;
                         }
 
                         /* Update the contacts from the form. */
@@ -359,20 +378,20 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             if (uiContact is ContactInput)
                             {
                                 ContactInput ciContact = uiContact as ContactInput;
-                                BusinessRep currentRep = GSelectedBusiness.BusinessReps
+                                BusinessRep currentRep = MSelectedBusiness.BusinessReps
                                     .FirstOrDefault(rep => rep.ContactPersonId == ciContact.GIntContactId);
 
                                 /* Check if the contact was removed. */
                                 if (GIntContactsToRemove.Contains(ciContact.GIntContactId))
                                 {
-                                    foreach (Email email in currentRep.ContactPerson.Emails)
+                                    foreach (Email emailToRemove in currentRep.ContactPerson.Emails)
                                     {
-                                        context.Remove(email);
+                                        context.Remove(emailToRemove);
                                     }
 
-                                    foreach (PhoneNumber number in currentRep.ContactPerson.PhoneNumbers)
+                                    foreach (PhoneNumber numberToRemove in currentRep.ContactPerson.PhoneNumbers)
                                     {
-                                        context.Remove(number);
+                                        context.Remove(numberToRemove);
                                     }
 
                                     context.Remove(currentRep.ContactPerson);
@@ -429,14 +448,14 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                                 }
                                                 else if (cniNumber.GIntNumberId == -1)
                                                 {
-                                                    PhoneNumber newNumber = new PhoneNumber();
-                                                    newNumber.Number = cniNumber.TxtContactNumber.Text;
-                                                    newNumber.Notes = cniNumber.txtNumberNotes.Text;
-                                                    newNumber.GEnumPhoneType = (PhoneType)cniNumber.CboNumberType.SelectedIndex;
+                                                    PhoneNumber newPhoneNumber = new PhoneNumber();
+                                                    newPhoneNumber.Number = cniNumber.TxtContactNumber.Text;
+                                                    newPhoneNumber.Notes = cniNumber.txtNumberNotes.Text;
+                                                    newPhoneNumber.GEnumPhoneType = (PhoneType)cniNumber.CboNumberType.SelectedIndex;
 
-                                                    context.PhoneNumbers.Add(newNumber);
+                                                    context.PhoneNumbers.Add(newPhoneNumber);
 
-                                                    currentRep.ContactPerson.PhoneNumbers.Add(newNumber);
+                                                    currentRep.ContactPerson.PhoneNumbers.Add(newPhoneNumber);
                                                 }
                                                 else
                                                 {
@@ -449,6 +468,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                     }
                                     else
                                     {
+                                        /* This is an entirely new contact. Add it to the database and business. */
                                         BusinessRep newRep = new BusinessRep();
                                         ContactPerson newContact = new ContactPerson
                                         {
@@ -464,11 +484,11 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                         {
                                             if (uiEmail is EmailInput)
                                             {
-                                                EmailInput emailInput = (uiEmail as EmailInput);
-                                                Email email = new Email();
+                                                EmailInput eiEmail = (uiEmail as EmailInput);
+                                                Email newEmail = new Email();
 
-                                                email.EmailAddress = emailInput.TxtEmail.Text;
-                                                newRep.ContactPerson.Emails.Add(email);
+                                                newEmail.EmailAddress = eiEmail.TxtEmail.Text;
+                                                newRep.ContactPerson.Emails.Add(newEmail);
                                             }
                                         }
 
@@ -477,24 +497,24 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                         {
                                             if (uiPhoneNumber is ContactNumberInput)
                                             {
-                                                ContactNumberInput contactNumberInput = (uiPhoneNumber as ContactNumberInput);
-                                                PhoneNumber phoneNumber = new PhoneNumber();
+                                                ContactNumberInput cniNumber = (uiPhoneNumber as ContactNumberInput);
+                                                PhoneNumber newPhoneNumber = new PhoneNumber();
 
-                                                phoneNumber.Number = contactNumberInput.TxtContactNumber.Text;
-                                                phoneNumber.Notes = contactNumberInput.txtNumberNotes.Text;
-                                                phoneNumber.GEnumPhoneType = (PhoneType)contactNumberInput.CboNumberType.SelectedIndex;
-                                                newRep.ContactPerson.PhoneNumbers.Add(phoneNumber);
+                                                newPhoneNumber.Number = cniNumber.TxtContactNumber.Text;
+                                                newPhoneNumber.Notes = cniNumber.txtNumberNotes.Text;
+                                                newPhoneNumber.GEnumPhoneType = (PhoneType)cniNumber.CboNumberType.SelectedIndex;
+                                                newRep.ContactPerson.PhoneNumbers.Add(newPhoneNumber);
                                             }
                                         }
 
                                         context.BusinessReps.Add(newRep);
-                                        GSelectedBusiness.BusinessReps.Add(newRep);
+                                        MSelectedBusiness.BusinessReps.Add(newRep);
                                     }
                                 }
                             }
                         }
 
-                        context.Update(GSelectedBusiness);
+                        context.Update(MSelectedBusiness);
                         context.SaveChanges();
 
                         transaction.Commit();
@@ -509,6 +529,17 @@ namespace DirectorsPortalWPF.MemberInfoUI
             NavigationService.Navigate(new MembersPage());
         }
 
+        /// <summary>
+        /// A method for validating the data in the form.
+        /// This method will mark all required data that is missing or incorrectly formatted in the form with a
+        /// RED border.
+        /// This method will mark all missing, non-required data in the form witht a YELLOW border.
+        /// </summary>
+        /// <param name="boolIgnoreWarnings">
+        /// A booling variable that is set when the user chooses to ignore warnings. When true,
+        /// no warning message box will be shown to the user.
+        /// </param>
+        /// <returns>A boolean value. If true the form has error / is missing required data.</returns>
         private bool ValidateDataInForm(bool boolIgnoreWarnings) 
         {
             string strWarningMessage = "The following fields are missing data:";
@@ -719,7 +750,15 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             EmailInput emailInput = (uiEmail as EmailInput);
                             string strEmail = emailInput.TxtEmail.Text.ToLower().Trim();
 
-                            if (!regexEmail.IsMatch(strEmail))
+                            if (emailInput.TxtEmail.Text.Equals("")) 
+                            {
+                                boolShowWarning = true;
+
+                                emailInput.TxtEmail.BorderBrush = Brushes.Yellow;
+
+                                strWarningMessage += "\n" + contactInput.GStrTitle + " email";
+                            }
+                            else if (!regexEmail.IsMatch(strEmail))
                             {
                                 boolAllDataIsValid = false;
 
@@ -745,7 +784,15 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             ContactNumberInput contactNumberInput = (uiPhoneNumber as ContactNumberInput);
                             string strNumber = contactNumberInput.TxtContactNumber.Text.Trim();
 
-                            if (!regexPhoneNumber.IsMatch(strNumber))
+                            if (contactNumberInput.TxtContactNumber.Text.Equals(""))
+                            {
+                                boolShowWarning = true;
+
+                                contactNumberInput.TxtContactNumber.BorderBrush = Brushes.Yellow;
+
+                                strWarningMessage += "\n" + contactInput.GStrTitle + " phone number";
+                            }
+                            else if (!regexPhoneNumber.IsMatch(strNumber))
                             {
                                 boolAllDataIsValid = false;
 
@@ -775,12 +822,30 @@ namespace DirectorsPortalWPF.MemberInfoUI
             return boolAllDataIsValid;
         }
 
+        /// <summary>
+        /// This method resets a giving text box that was marked for an error or warning
+        /// back to its default state.
+        /// </summary>
+        /// <param name="txtError">The textbox in the form to reset.</param>
         private void ResetFormError(TextBox txtError) 
         {
             txtError.BorderBrush = new SolidColorBrush(Color.FromRgb(171, 173, 179));
             txtError.ToolTip = null;
         }
 
+        /// <summary>
+        /// This message creates the warning message box to notify the user when some fields have been left
+        /// blank.
+        /// 
+        /// When YES is selected in the message box the form will be resubmitted and warnings will be ignored. The resubmit
+        /// will still fail if required data is missing or incrorrectly formatted.
+        /// 
+        /// When NO is selected the user is returned to the form and the form is not resubmitted.
+        /// </summary>
+        /// <param name="strMessage">
+        /// The message to display in the message box. This message should state the fields in the form
+        /// that generated the warnings.
+        /// </param>
         private void CreateWarningMessageBox(string strMessage) 
         {
             strMessage += "\n\nWould you like to add the data anyways?";
@@ -790,7 +855,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             {
                 case MessageBoxResult.Yes:
                     /* Add the entered business */
-                    GBoolIgnoreWarnings = true;
+                    MBoolIgnoreWarnings = true;
                     BtnAddMember_Click(messageBoxResult, null);
                     break;
 
@@ -800,23 +865,41 @@ namespace DirectorsPortalWPF.MemberInfoUI
             }
         }
 
+        /// <summary>
+        /// A method for adding a new contact input control to the SpContacts stack panel on
+        /// the form.
+        /// </summary>
+        /// <param name="sender">The object that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
         private void BtnAddContact_Click(object sender, RoutedEventArgs e)
         {
-            GIntContactCount++;
+            MIntContactCount++;
 
             ContactInput CiContact = new ContactInput
             {
-                GStrTitle = "Contact " + GIntContactCount + ":"
+                GStrTitle = "Contact " + MIntContactCount + ":"
             };
 
             SpContacts.Children.Add(CiContact);
         }
 
+        /// <summary>
+        /// A method for disabling the SpLocation address stack panel when the user checks the
+        /// ChkLocationSameAsMailing checkbox on the form.
+        /// </summary>
+        /// <param name="sender">The object that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
         private void ChkLocationSameAsMailing_Checked(object sender, RoutedEventArgs e)
         {
             SpLocationAddress.IsEnabled = false;
         }
 
+        /// <summary>
+        /// A method for enabling the SpLocation address stack panel when the user unchecks the
+        /// ChkLocationSameAsMailing checkbox on the form.
+        /// </summary>
+        /// <param name="sender">The object that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
         private void ChkLocationSameAsMailing_Unchecked(object sender, RoutedEventArgs e)
         {
             SpLocationAddress.IsEnabled = true;
