@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -69,7 +69,16 @@ namespace DirectorPortalDatabase.Models
         /// <summary>
         /// Represents an array of buisness type categories
         /// </summary>
-        public virtual List<Categories> Categories { get; set; }
+        public virtual List<Categories> Categories 
+        {
+            get
+            {
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    return dbContext.CategoryRef.Where(x => x.BusinessId == Id).Select(b => b.Category).ToList();
+                }
+            }
+        }
 
         /// <summary>
         /// Represents an array of the yearly data objects
