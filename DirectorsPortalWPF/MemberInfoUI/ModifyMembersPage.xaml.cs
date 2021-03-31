@@ -41,6 +41,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             {
                 /* A business was passed in so this page needs to update an already existing business and not
                  * add a new one.*/
+                lblHeader.Content = "Update Member";
                 btnModifyMember.Content = "Update";
                 btnModifyMember.Click += BtnUpdateMember_Click;
 
@@ -139,13 +140,15 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     }
                     catch (Exception ex)
                     {
-                        string newEx = ex.Message;
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
                     }
                 }
             }
             else 
             {
                 /* No business was passed in so this page needs to be setup to add a new business. */
+                lblHeader.Content = "Add Member";
                 btnModifyMember.Content = "Add Member";
                 btnModifyMember.Click += BtnAddMember_Click;
             }
@@ -295,6 +298,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     catch (Exception ex) 
                     {
                         transaction.Rollback();
+
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
                     }
                 }
             }
@@ -310,6 +316,12 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// <param name="e">Event data asscociated with this event.</param>
         private void BtnUpdateMember_Click(object sender, RoutedEventArgs e)
         {
+            if (!ValidateDataInForm(MBoolIgnoreWarnings))
+            {
+                /* Return early since the form has invalid or missing data. */
+                return;
+            }
+
             using (DatabaseContext context = new DatabaseContext())
             {
                 using (var transaction = context.Database.BeginTransaction())
@@ -327,6 +339,11 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         MSelectedBusiness.MembershipLevel = (MembershipLevel)cboMemberLevel.SelectedIndex;
 
                         /* Update the mailing address from the form. */
+                        if (MSelectedBusiness.MailingAddress == null) 
+                        {
+                            MSelectedBusiness.MailingAddress = new Address();
+                        }
+
                         MSelectedBusiness.MailingAddress.StreetAddress = txtMailAddr.Text;
                         MSelectedBusiness.MailingAddress.City = txtMailCity.Text;
                         MSelectedBusiness.MailingAddress.State = txtMailState.Text;
@@ -347,9 +364,11 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             int.TryParse(txtLocationZip.Text, out int intLocationZipCode);
                             newLocationAddress.ZipCode = intLocationZipCode;
 
-                            context.Addresses.Add(newLocationAddress);
-
-                            MSelectedBusiness.PhysicalAddress = newLocationAddress;
+                            if (!newLocationAddress.IsEmpty())
+                            {
+                                context.Addresses.Add(newLocationAddress);
+                                MSelectedBusiness.PhysicalAddress = newLocationAddress;
+                            }
                         }
                         else if (MSelectedBusiness.MailingAddressId != MSelectedBusiness.PhysicalAddressId &&
                             ChkLocationSameAsMailing.IsChecked == true)
@@ -522,6 +541,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
                     }
                 }
             }

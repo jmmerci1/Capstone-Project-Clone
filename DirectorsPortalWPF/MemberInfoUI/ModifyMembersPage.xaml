@@ -42,7 +42,7 @@
                 </Grid.RowDefinitions>
 
                 <Border Background="#FF00B0F0" Grid.RowSpan="5" Grid.ColumnSpan="3" Height="30" BorderBrush="#FFACACAC" BorderThickness="0" CornerRadius="5,5,0,0"/>
-                <Label Content="Add Member" HorizontalAlignment="Left" Foreground="White" Margin="10,0,15,0" VerticalAlignment="Center" />
+                <Label x:Name="lblHeader" Content="Add Member" HorizontalAlignment="Left" Foreground="White" Margin="10,0,15,0" VerticalAlignment="Center" />
             </Grid>
             
             <ScrollViewer Grid.Column="0" Grid.Row="1" CanContentScroll="True" HorizontalScrollBarVisibility="Auto" Margin="1,1,1,1">
