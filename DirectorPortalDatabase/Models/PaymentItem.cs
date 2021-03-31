@@ -25,9 +25,14 @@ namespace DirectorPortalDatabase.Models
         public virtual Payment Payment { get; set; }
 
         /// <summary>
-        /// The item added to the payment.
+        /// The name of the item.
         /// </summary>
-        public virtual Item Item { get; set; }
+        public string ItemName { get; set; }
+
+        /// <summary>
+        /// The price of the item per unit.
+        /// </summary>
+        public decimal UnitPrice { get; set; }
 
         /// <summary>
         /// The quantity of the item on the payment.

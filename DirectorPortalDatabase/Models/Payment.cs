@@ -80,5 +80,14 @@ namespace DirectorPortalDatabase.Models
         {
             return base.GetHashCode();
         }
+
+        /// <summary>
+        /// Calculate the Net dollar amount this payment resulted in after processing fees.
+        /// </summary>
+        /// <returns>The net dollar amount.</returns>
+        public decimal NetPay()
+        {
+            return GrossPay - ProcessingFees;
+        }
     }
 }

@@ -606,51 +606,23 @@ namespace DirectorsPortalWPF.SettingsUI
         {
             using (var context = new DatabaseContext())
             {
-                for (int intCounter = 1; intCounter < Data.Count; intCounter++)
+                for (int intCounter = 1; intCounter < Data.Count - 1; intCounter++)
                 {
-                
-                    String strCityData = "";
-                    String strStateData = "";
-                    String strZipData = "";
-                    
-                    int intCheck = 0;
+                    if (Data[intCounter].gstrBusinessName.Equals(""))
+                    {
+                        break;
+                    } 
 
                     String strCityStateZip = Data[intCounter].gstrCityStateZip;
-                    String[] arrSplit = strCityStateZip.Split(' ');         
-
-                    for (int intCount = 0; intCount < arrSplit.Length; intCount++)
-                    { 
-
-                        if (!arrSplit[intCount].Equals("") && intCheck == 0)
-                        {
-
-                            if (arrSplit[intCount].EndsWith("."))
-                            {
-                                strCityData = arrSplit[intCount];
-                              
-                            } else
-                            {
-                                strCityData = strCityData + arrSplit[intCount].TrimEnd(',');
-
-                                intCheck = 1;
-
-                            }
-
-                        } else if (!arrSplit[intCount].Equals("") && intCheck == 1)
-                        {
-                            
-                            strStateData = arrSplit[intCount];
-
-                            intCheck = 2;
-                        }
-                        else if (!arrSplit[intCount].Equals("") && intCheck == 2)
-                        {
-                            strZipData = arrSplit[intCount];
-                        }
-                    }
-                 
                     String strLevelData = Data[intCounter].gstrLevel;
                     String strAdditionalNote = "";
+
+                    String[] arrSplit = strCityStateZip.Split(',');
+                    String strCityData = arrSplit[0];
+
+                    String[] arrSplitStateZip = arrSplit[1].Split(' ');
+                    String strStateData = arrSplitStateZip[1];
+                    String strZipData = arrSplitStateZip[2];
               
                     try
                     {
@@ -739,7 +711,6 @@ namespace DirectorsPortalWPF.SettingsUI
 
                         context.Addresses.Add(objMailingAddress);
                         context.Addresses.Add(objLocationAddress);
-                        context.SaveChanges();
 
                         Business objBusiness = new Business()
                         {
@@ -747,8 +718,8 @@ namespace DirectorsPortalWPF.SettingsUI
                             YearEstablished = Int32.Parse(Data[intCounter].gstrEstablished),
                             Website = Data[intCounter].gstrWebsiteAddress,
                             ExtraNotes = Data[intCounter].gstrNotes + " " + strAdditionalNote,
-                            MailingAddressId = objMailingAddress.Id,
-                            PhysicalAddressId = objLocationAddress.Id
+                            MailingAddress = objMailingAddress,
+                            PhysicalAddress = objLocationAddress
 
                         };
 
@@ -774,17 +745,17 @@ namespace DirectorsPortalWPF.SettingsUI
                         }
 
                         context.Businesses.Add(objBusiness);
-                        context.SaveChanges();
 
                         ContactPerson objContactPerson = new ContactPerson()
                         {
                             Name = Data[intCounter].gstrContactPerson
+                            
                         };
-
 
                         arrLocationSplit = Data[intCounter].gstrContactPerson.Split('&');
                         arrLocationSplitSlash = Data[intCounter].gstrContactPerson.Split('/');
                         arrLocationSplitAnd = Data[intCounter].gstrPhoneNumber.Split('/');
+                        arrSplit = Data[intCounter].gstrEmailAddress.Split(',');
 
                         if (arrLocationSplit.Length > 1)
                         {
@@ -796,17 +767,35 @@ namespace DirectorsPortalWPF.SettingsUI
                                 };
 
                                 context.ContactPeople.Add(objContactPerson);
-                                context.SaveChanges();
 
                                 PhoneNumber objPhoneNumber = new PhoneNumber()
                                 {
-                                    ContactPersonId = objContactPerson.Id,
+                                    ContactPerson = objContactPerson,
                                     Number = Data[intCounter].gstrPhoneNumber,
                                     GEnumPhoneType = PhoneType.Office
                                 };
 
                                 context.PhoneNumbers.Add(objPhoneNumber);
-                                context.SaveChanges();
+
+                                BusinessRep objBusinessRep = new BusinessRep()
+                                {
+                                    Business = objBusiness,
+                                    ContactPerson = objContactPerson
+                                };
+
+                                context.BusinessReps.Add(objBusinessRep);
+
+                                for (int intCountEmail = 0; intCountEmail < arrSplit.Length; intCountEmail++)
+                                {
+
+                                    Email objEmail = new Email()
+                                    {
+                                        ContactPerson = objContactPerson,
+                                        EmailAddress = arrSplit[intCountEmail]
+                                    };
+
+                                    context.Emails.Add(objEmail);
+                                }
                             }
                         }
                         else if (arrLocationSplitSlash.Length > 1 && arrLocationSplitAnd.Length > 1)
@@ -819,79 +808,117 @@ namespace DirectorsPortalWPF.SettingsUI
                                 };
 
                                 context.ContactPeople.Add(objContactPerson);
-                                context.SaveChanges();
 
                                 PhoneNumber objPhoneNumber = new PhoneNumber()
                                 {
-                                    ContactPersonId = objContactPerson.Id,
+                                    ContactPerson = objContactPerson,
                                     Number = arrLocationSplitAnd[intCount],
                                     GEnumPhoneType = PhoneType.Office
                                 };
 
                                 context.PhoneNumbers.Add(objPhoneNumber);
-                                context.SaveChanges();
+
+                                BusinessRep objBusinessRep = new BusinessRep()
+                                {
+                                    Business = objBusiness,
+                                    ContactPerson = objContactPerson
+                                };
+
+                                context.BusinessReps.Add(objBusinessRep);
+
+                                for (int intCountEmail = 0; intCountEmail < arrSplit.Length; intCountEmail++)
+                                {
+
+                                    Email objEmail = new Email()
+                                    {
+                                        ContactPerson = objContactPerson,
+                                        EmailAddress = arrSplit[intCountEmail]
+                                    };
+
+                                    context.Emails.Add(objEmail);
+                                }
                             }
                         }
                         else
                         {
                             context.ContactPeople.Add(objContactPerson);
-                            context.SaveChanges();
 
                             PhoneNumber objPhoneNumber = new PhoneNumber()
                             {
-                                ContactPersonId = objContactPerson.Id,
+                                ContactPerson = objContactPerson,
                                 Number = Data[intCounter].gstrPhoneNumber,
                                 GEnumPhoneType = PhoneType.Office
                             };
 
                             context.PhoneNumbers.Add(objPhoneNumber);
-                            context.SaveChanges();
+
+                            BusinessRep objBusinessRep = new BusinessRep()
+                            {
+                                Business = objBusiness,
+                                ContactPerson = objContactPerson
+                            };
+
+                            context.BusinessReps.Add(objBusinessRep);
+
+                            for (int intCount = 0; intCount < arrSplit.Length; intCount++)
+                            {
+
+                                Email objEmail = new Email()
+                                {
+                                    ContactPerson = objContactPerson,
+                                    EmailAddress = arrSplit[intCount]
+                                };
+
+                                context.Emails.Add(objEmail);
+                            }
                         }
-
-                        BusinessRep objBusinessRep = new BusinessRep()
-                        {
-                            BusinessId = objBusiness.Id,
-                            ContactPersonId = objContactPerson.Id
-                        };
-
-                        context.BusinessReps.Add(objBusinessRep);
-                        context.SaveChanges();
-
-                        Email objEmail = new Email()
-                        {
-                            ContactPersonId = objContactPerson.Id,
-                            EmailAddress = Data[intCounter].gstrEmailAddress
-                        };
-
-                        context.Emails.Add(objEmail);
-                        context.SaveChanges();
                      
                         PhoneNumber objFaxNumber = new PhoneNumber()
                         {
-                            ContactPersonId = objContactPerson.Id,
+                            ContactPerson = objContactPerson,
                             Number = Data[intCounter].gstrFaxNumber,
                             GEnumPhoneType = PhoneType.Fax
                         };
 
                         context.PhoneNumbers.Add(objFaxNumber);
-                        context.SaveChanges();
 
-                        //YearlyData GObjYearlyData = new YearlyData
-                        //{
-                        //    GIntBusinessId = GObjBusiness.GIntId,
-                        //    GDblDuesPaid = Double.Parse(Data[GIntCounter].getDuesPaid()),
-                        //    GDblTicketsReturned = Double.Parse(Data[GIntCounter].getRaffleTicketReturnedPaid()),
-                        //    GDblCredit = Double.Parse(Data[GIntCounter].getCredit()),
-                        //    GIntBallotNumber = Int32.Parse(Data[GIntCounter].getBallot()),
+                        DateTime strCurrentYear = DateTime.Now;
 
-                        //};
-                     
-                        //context.BusinessYearlyData.Add(GObjYearlyData);
-                        //context.SaveChanges();                    
+                        YearlyData objYearlyData = new YearlyData
+                        {
+                           Year = Int32.Parse(strCurrentYear.Year.ToString()),
+                           Business = objBusiness,
+                           DuesPaid = Double.Parse(Data[intCounter].gstrDuesPaid),
+                           TicketsReturned = Double.Parse(Data[intCounter].gstrRaffleTicketReturnedPaid),
+                           Credit = Double.Parse(Data[intCounter].gstrCredit),
+                           BallotNumber = Int32.Parse(Data[intCounter].gstrBallot),
+
+                        };
+
+                        if (Data[intCounter].gstrTerms.Equals("Annually"))
+                        {
+                            objYearlyData.TermLength = TermLength.Annually;
+                        }
+                        else if (Data[intCounter].gstrTerms.Equals("Semiannually"))
+                        {
+                            objYearlyData.TermLength = TermLength.Semiannually;
+                        }
+                        else if (Data[intCounter].gstrTerms.Equals("Quarterly"))
+                        {
+                            objYearlyData.TermLength = TermLength.Quarterly;
+                        }
+                        else if (Data[intCounter].gstrTerms.Equals("Monthly"))
+                        {
+                            objYearlyData.TermLength = TermLength.Monthly;
+                        }
+
+                        context.BusinessYearlyData.Add(objYearlyData);
+
+                        context.SaveChanges();                    
                     }
                     catch (System.FormatException)
                     {
-                   
+                        Console.WriteLine(Data[intCounter].gstrBusinessName);
                     }                  
                 }
             }

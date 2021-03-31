@@ -213,22 +213,7 @@ namespace DirectorPortalDatabase.Migrations
                     b.ToTable("EmailGroupMembers");
                 });
 
-            modelBuilder.Entity("DirectorPortalDatabase.Models.Item", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Items");
-                });
+            
 
             modelBuilder.Entity("DirectorPortalDatabase.Models.Payment", b =>
                 {
@@ -273,8 +258,8 @@ namespace DirectorPortalDatabase.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("ItemId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ItemName")
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("PaymentId")
                         .HasColumnType("INTEGER");
@@ -282,9 +267,10 @@ namespace DirectorPortalDatabase.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("Id");
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("TEXT");
 
-                    b.HasIndex("ItemId");
+                    b.HasKey("Id");
 
                     b.HasIndex("PaymentId");
 
@@ -490,10 +476,6 @@ namespace DirectorPortalDatabase.Migrations
 
             modelBuilder.Entity("DirectorPortalDatabase.Models.PaymentItem", b =>
                 {
-                    b.HasOne("DirectorPortalDatabase.Models.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId");
-
                     b.HasOne("DirectorPortalDatabase.Models.Payment", "Payment")
                         .WithMany("Items")
                         .HasForeignKey("PaymentId");
