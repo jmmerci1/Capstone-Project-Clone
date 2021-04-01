@@ -146,8 +146,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             .Where(pn => pn.ContactPersonId == contactPerson.Id).ToList();
                         foreach (PhoneNumber phoneNumber in phoneNumbers)
                         {
-                            if (phoneNumber.GEnumPhoneType == PhoneType.Mobile ||
-                                phoneNumber.GEnumPhoneType == PhoneType.Office)
+                            if (phoneNumber.GEnumPhoneType == DirectorPortalDatabase.Models.PhoneType.Mobile ||
+                                phoneNumber.GEnumPhoneType == DirectorPortalDatabase.Models.PhoneType.Office)
                             {
                                 businessTableView.StrPhoneNumber = phoneNumber?.Number;
                             }
@@ -185,7 +185,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 /* Add a button to edit the business to the end of each row. */
                 var btnFactoryEditBusiness = new FrameworkElementFactory(typeof(Button));
                 btnFactoryEditBusiness.SetValue(ContentProperty, "Edit");
-                btnFactoryEditBusiness.SetValue(TemplateProperty, (ControlTemplate)Application.Current.Resources["smallButton"]);
+                btnFactoryEditBusiness.SetValue(TemplateProperty, (ControlTemplate)System.Windows.Application.Current.Resources["smallButton"]);
                 btnFactoryEditBusiness.AddHandler(ButtonBase.ClickEvent, new RoutedEventHandler(BtnEditBusiness_Click));
 
                 DataTemplate dtEdit = new DataTemplate() 
@@ -388,8 +388,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
         async Task AutoPdfGet()
         {
-            var asdfhafeiauphf = await GraphApiClient.GetAllEmails();
-            foreach (Message message in asdfhafeiauphf)
+            var a = await GraphApiClient.GetAllEmails();
+            foreach (Message message in a)
                 pdfEmails.Add(EmailGetPdfs(message));
         }
 
@@ -484,7 +484,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
             if (openFileDialog.ShowDialog() == true)
             {
-                Console.WriteLine(File.ReadAllText(openFileDialog.FileName));
+                Console.WriteLine(System.IO.File.ReadAllText(openFileDialog.FileName));
 
                 //create new reader object
                 PdfReader reader = new PdfReader(openFileDialog.FileName);
