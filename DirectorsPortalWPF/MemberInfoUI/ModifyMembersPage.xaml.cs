@@ -156,16 +156,47 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         else
                             txtMailZip.Text = selectedBusiness.MailingAddress?.ZipCode.ToString();
 
-                        if (selectedBusiness.MailingAddressId == selectedBusiness.PhysicalAddressId)
+                        if (selectedBusiness.MailingAddressId == selectedBusiness.PhysicalAddressId && !(dictPdfImport != null && !dictPdfImport["Location Address"].Equals("")))
                         {
                             ChkLocationSameAsMailing.IsChecked = true;
                         }
                         else
                         {
-                            txtLocationAddr.Text = selectedBusiness.PhysicalAddress?.StreetAddress;
-                            txtLocationCity.Text = selectedBusiness.PhysicalAddress?.City;
-                            txtLocationState.Text = selectedBusiness.PhysicalAddress?.State;
-                            txtLocationZip.Text = selectedBusiness.PhysicalAddress?.ZipCode.ToString();
+                            if (dictPdfImport != null && !dictPdfImport["Location Address"].Equals(""))
+                            {
+                                txtLocationAddr.Text = dictPdfImport["Location Address"];
+                                txtLocationAddr.Background = Brushes.Green;
+                                txtLocationAddr.FontWeight = FontWeights.Bold;
+                            }
+                            else
+                                txtLocationAddr.Text = selectedBusiness.PhysicalAddress?.StreetAddress;
+
+                            if (dictPdfImport != null && !dictPdfImport["Location City"].Equals(""))
+                            {
+                                txtLocationCity.Text = dictPdfImport["Location City"];
+                                txtLocationCity.Background = Brushes.Green;
+                                txtLocationCity.FontWeight = FontWeights.Bold;
+                            }
+                            else
+                                txtLocationCity.Text = selectedBusiness.PhysicalAddress?.City;
+
+                            if (dictPdfImport != null && !dictPdfImport["Location State"].Equals(""))
+                            {
+                                txtLocationState.Text = dictPdfImport["Location State"];
+                                txtLocationState.Background = Brushes.Green;
+                                txtLocationState.FontWeight = FontWeights.Bold;
+                            }
+                            else
+                                txtLocationState.Text = selectedBusiness.PhysicalAddress?.State;
+
+                            if (dictPdfImport != null && !dictPdfImport["Location Zip Code"].Equals(""))
+                            {
+                                txtLocationZip.Text = dictPdfImport["Location Zip Code"];
+                                txtLocationZip.Background = Brushes.Green;
+                                txtLocationZip.FontWeight = FontWeights.Bold;
+                            } 
+                            else
+                                txtLocationZip.Text = selectedBusiness.PhysicalAddress?.ZipCode.ToString();
                         }
 
                         /* Populate the contacts for the selected business. */
