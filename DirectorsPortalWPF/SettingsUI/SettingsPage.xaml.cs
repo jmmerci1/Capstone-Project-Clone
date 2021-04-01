@@ -10,7 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-
+using System.Threading;
 
 /// <summary>
 /// File Purpose:
@@ -457,6 +457,9 @@ namespace DirectorsPortalWPF.SettingsUI
             //List using class Members to store Member information.
             List<Members> Members = new List<Members>();
 
+
+       
+
             //String that contains the excel file that the user selects.
             string FilePath = FindFile();
 
@@ -465,15 +468,31 @@ namespace DirectorsPortalWPF.SettingsUI
             
             //Populated members List.
             Members = ReadExcelFile(FilePath);
+
+            Thread threadImportExcel = new Thread(()=>ImportThread(Members));
+
+            Loading loadForm = new Loading();
             
             if (Members.Count > 0)
             { 
-                
-                ImportToDatabase(Members);
+                threadImportExcel.Start();
+                loadForm.TopMost = true;
+                loadForm.Show();
+               // ImportToDatabase(Members);
              
             }
         }
           
+
+        private static void ImportThread(List<Members> data)
+        {
+            Application.Current.Dispatcher.Invoke((Action)delegate {
+                // your code
+                SettingsPage spSettings = new SettingsPage();
+                spSettings.ImportToDatabase(data);
+            });
+           
+        }
         private void BtnImportPayPal_Click(object sender, RoutedEventArgs e)
         {
             string filePath = FindPayPalFile();
