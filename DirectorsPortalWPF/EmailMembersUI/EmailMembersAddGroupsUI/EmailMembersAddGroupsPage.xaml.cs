@@ -1,5 +1,6 @@
 using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
+using DirectorsPortalWPF.EmailMembersSendEmailUI;
 using DirectorsPortalWPF.EmailMembersUI;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -34,12 +35,14 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
         DatabaseContext dbContext = new DatabaseContext();
         List<EmailGroup> mrgGroupList = new List<EmailGroup>();
         EmailPage emailPage;
+        EmailMembersSendEmailPage objSendPage;
 
-        public EmailMembersAddGroupsPage(EmailPage emailPage)
+        public EmailMembersAddGroupsPage(EmailPage emailPage, EmailMembersSendEmailPage sendPage)
         {
             InitializeComponent();
             LoadEmailGroups();
             this.emailPage = emailPage;
+            objSendPage = sendPage;
         }
         /// <summary>
         /// Pulls the list of email groups. Depending on whether
@@ -147,7 +150,7 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
 
             this.emailPage.LoadEmailGroups();
             // TODO: Link with database once implemented
-            this.NavigationService.GoBack();
+            this.NavigationService.Navigate(objSendPage);
         }
 
         /// <summary>
@@ -169,7 +172,7 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
         /// <param name="e">The button press event</param>
         private void Cancel(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.GoBack();
+            this.NavigationService.Navigate(objSendPage);
         }
 
         /// <summary>

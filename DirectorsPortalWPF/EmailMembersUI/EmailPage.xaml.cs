@@ -128,7 +128,7 @@ namespace DirectorsPortalWPF.EmailMembersUI
                         /// </summary>
                         /// <param name="sender">The 'Edit' Button</param>
                         /// <param name="e">The Click Event</param>
-                        emailFrame.Navigate(new EmailMembersEditGroupsUI.EmailMembersEditGroupsPage(group, this));
+                        emailFrame.Navigate(new EmailMembersEditGroupsUI.EmailMembersEditGroupsPage(group, this, emailMembersSendEmailPage));
                     };
 
                     btnEmailGroupSendButton.Click += (sender, e) => AddEmailGroupToMessage(sender, e, group);
@@ -147,7 +147,7 @@ namespace DirectorsPortalWPF.EmailMembersUI
         /// <param name="e">The Click Event</param>
         private void AddGroupsPage_Navigate(object sender, RoutedEventArgs e)
         {
-            emailFrame.Navigate(new EmailMembersAddGroupsUI.EmailMembersAddGroupsPage(this));
+            emailFrame.Navigate(new EmailMembersAddGroupsUI.EmailMembersAddGroupsPage(this, emailMembersSendEmailPage));
         }
         /// <summary>
         /// Opens a pop-up window that displays the current frames help information. 
