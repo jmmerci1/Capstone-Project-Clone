@@ -381,7 +381,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"This file is not compatible for import", "File Not Compatible");
+                // MessageBox.Show($"This file is not compatible for import", "File Not Compatible");
             }
         }
 
@@ -428,7 +428,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"This file is not compatible for import", "File Not Compatible");
+                // MessageBox.Show($"This file is not compatible for import", "File Not Compatible");
             }
 
         }
