@@ -36,6 +36,9 @@ namespace DirectorsPortalWPF
     {
         // The object containing all data for the user of a Constant Contact account. 
         private ConstantContact gObjConstContact;
+        private WebsitePreviewPage webPreviewPage;
+        private ConstantContactPage constantContactPage;
+
 
         /// <summary>
         /// Launches the Window containing the application.
@@ -179,7 +182,11 @@ namespace DirectorsPortalWPF
         /// <param name="e">The Click Event</param>
         private void WebsitePreviewPage_Navigate(object sender, RoutedEventArgs e)
         {
-            mainFrame.Navigate(new WebsitePreviewPage());
+            if (webPreviewPage == null)
+            {
+                webPreviewPage = new WebsitePreviewPage();
+            }
+            mainFrame.Navigate(webPreviewPage);
 
             btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
@@ -283,7 +290,11 @@ namespace DirectorsPortalWPF
 
         private void ConstantContactPage_Navigate(object sender, RoutedEventArgs e)
         {
-            mainFrame.Navigate(new ConstantContactPage(gObjConstContact));
+            if(constantContactPage == null)
+            {
+                constantContactPage = new ConstantContactPage(gObjConstContact);
+            }
+            mainFrame.Navigate(constantContactPage);
 
             btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
