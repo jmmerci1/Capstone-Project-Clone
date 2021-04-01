@@ -237,7 +237,15 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                             GCiContactInputParent = CiContact,
                                             GIntEmailId = email.Id
                                         };
-                                        eiEmail.TxtEmail.Text = email.EmailAddress;
+
+                                        if (dictPdfImport != null && !dictPdfImport["Email Address"].Equals("") && !email.EmailAddress.Equals(dictPdfImport["Email Address"]))
+                                        {
+                                            eiEmail.TxtEmail.Text = dictPdfImport["Email Address"];
+                                            eiEmail.TxtEmail.Background = Brushes.Green;
+                                            eiEmail.TxtEmail.FontWeight = FontWeights.Bold;
+                                        }
+                                        else
+                                            eiEmail.TxtEmail.Text = email.EmailAddress;
 
                                         CiContact.SpContactEmails.Children.Add(eiEmail);
                                     }
@@ -257,11 +265,32 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                             GCiContactInputParent = CiContact,
                                             GIntNumberId = number.Id
                                         };
-                                        cniNumber.TxtContactNumber.Text = number.Number;
-                                        cniNumber.CboNumberType.SelectedIndex = (int)number.GEnumPhoneType;
-                                        cniNumber.txtNumberNotes.Text = number.Notes;
 
-                                        CiContact.SpContactNumbers.Children.Add(cniNumber);
+                                        if (dictPdfImport != null && !dictPdfImport["Phone Number"].Equals("") && !number.Number.Equals(dictPdfImport["Phone Number"])
+                                            && ((int)number.GEnumPhoneType) == 1)
+                                        {
+                                            cniNumber.TxtContactNumber.Text = dictPdfImport["Phone Number"];
+                                            cniNumber.TxtContactNumber.Background = Brushes.Green;
+                                            cniNumber.TxtContactNumber.FontWeight = FontWeights.Bold;
+                                            cniNumber.CboNumberType.SelectedIndex = 1;
+                                        }
+                                        else
+                                        if (dictPdfImport != null && !dictPdfImport["Fax Number"].Equals("") && !number.Number.Equals(dictPdfImport["Fax Number"]) 
+                                            && ((int)number.GEnumPhoneType) == 2)
+                                        {
+                                            cniNumber.TxtContactNumber.Text = dictPdfImport["Fax Number"];
+                                            cniNumber.TxtContactNumber.Background = Brushes.Green;
+                                            cniNumber.TxtContactNumber.FontWeight = FontWeights.Bold;
+                                            cniNumber.CboNumberType.SelectedIndex = 2;
+                                        }
+                                        else
+                                        {
+                                            cniNumber.TxtContactNumber.Text = number.Number;
+                                            cniNumber.CboNumberType.SelectedIndex = (int)number.GEnumPhoneType;
+                                            cniNumber.txtNumberNotes.Text = number.Notes;
+                                        }
+
+                                            CiContact.SpContactNumbers.Children.Add(cniNumber);
                                     }
                                 }
 
