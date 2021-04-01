@@ -36,11 +36,12 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
     /// 
     public partial class EmailMembersSendEmailPage : Page
     {
-        private string gStrAttachedFilePath;
         List<EmailGroup> emailGroups;
+        List<string> gStrAttachedFilePath = new List<string>();
+        List<string> gStrFileExtension = new List<string>();
+        List<string> gStrFileName = new List<string>();
         DatabaseContext dbContext = new DatabaseContext();
-        private string gStrFileExtension;
-        private string gStrFileName;
+
 
         public EmailMembersSendEmailPage(List<EmailGroup> emailGroups)
         {
@@ -138,14 +139,15 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
 
             FileDialog.ShowDialog();
 
-        
-            gStrAttachedFilePath = FileDialog.FileName.ToString();
+            String strFilePath = FileDialog.FileName.ToString();
 
-            gStrFileExtension = Path.GetExtension(FileDialog.FileName);
+            gStrAttachedFilePath.Add(strFilePath);
 
-            gStrFileName = Path.GetFileNameWithoutExtension(FileDialog.FileName);
+            gStrFileExtension.Add(Path.GetExtension(FileDialog.FileName));
 
-            MessageBox.Show(gStrAttachedFilePath, "Attached File Name",
+            gStrFileName.Add(Path.GetFileNameWithoutExtension(FileDialog.FileName));
+
+            MessageBox.Show(strFilePath, "Attached File Name",
          MessageBoxButton.OK,
          MessageBoxImage.Information);
 
