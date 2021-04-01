@@ -352,9 +352,30 @@ namespace DirectorsPortalWPF.MemberInfoUI
         {
             // Get fields from PDF then pass to Add Members Screen.
             Dictionary<string, string> dictFields = OpenFile();
+            Business busToCheckExists = new Business();
 
-            if (dictFields.ContainsKey("Business Name"))
-                NavigationService.Navigate(new ModifyMembersPage(dictFields, null));
+            // Do some logic to find the business being modified.
+            using (DatabaseContext dbContext = new DatabaseContext())
+            {
+                busToCheckExists = dbContext.Businesses
+                .Include(x => x.MailingAddress)
+                .Include(x => x.PhysicalAddress)
+                .Include(x => x.BusinessReps)
+                .ThenInclude(x => x.ContactPerson)
+                .ThenInclude(x => x.Emails)
+                .Include(x => x.BusinessReps)
+                .ThenInclude(x => x.ContactPerson)
+                .ThenInclude(x => x.PhoneNumbers)
+                .FirstOrDefault(business => business.BusinessName.Equals(dictFields["Business Name"]));
+            }
+
+            if (busToCheckExists == null)
+            {
+                if (dictFields.ContainsKey("Business Name"))
+                    NavigationService.Navigate(new ModifyMembersPage(dictFields, null));
+            }
+            else
+                MessageBox.Show($"{ dictFields["Business Name"] } already exists in the Database", "Business Already Exists");
         }
 
         /// <summary>
@@ -389,7 +410,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
                 if (busModified != null)
                 {
-                    NavigationService.Navigate(new ModifyMembersPage(dictFields, busModified));
+                    if (dictFields.ContainsKey("Business Name"))
+                        NavigationService.Navigate(new ModifyMembersPage(dictFields, busModified));
                 }
                 else
                     MessageBox.Show($"{ dictFields["Business Name"] } is not an existing Businss in the Database", "Business Not Found");
