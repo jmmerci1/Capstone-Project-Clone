@@ -604,6 +604,8 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="Data">List of opbject members.</param>
         private void ImportToDatabase(List<Members> Data)
         {
+            List<string> lstStrFailedDataImports = new List<string>();
+
             using (var context = new DatabaseContext())
             {
                 for (int intCounter = 1; intCounter < Data.Count - 1; intCounter++)
@@ -746,11 +748,7 @@ namespace DirectorsPortalWPF.SettingsUI
 
                         context.Businesses.Add(objBusiness);
 
-                        ContactPerson objContactPerson = new ContactPerson()
-                        {
-                            Name = Data[intCounter].gstrContactPerson
-                            
-                        };
+               
 
                         arrLocationSplit = Data[intCounter].gstrContactPerson.Split('&');
                         arrLocationSplitSlash = Data[intCounter].gstrContactPerson.Split('/');
@@ -761,7 +759,7 @@ namespace DirectorsPortalWPF.SettingsUI
                         {
                             for (int intCount = 0; intCount < arrLocationSplit.Length; intCount++)
                             {
-                                objContactPerson = new ContactPerson()
+                                ContactPerson objContactPerson = new ContactPerson()
                                 {
                                     Name = arrLocationSplit[intCount]
                                 };
@@ -776,6 +774,18 @@ namespace DirectorsPortalWPF.SettingsUI
                                 };
 
                                 context.PhoneNumbers.Add(objPhoneNumber);
+
+                                if (Data[intCounter].gstrFaxNumber.Length > 1)
+                                {
+                                    PhoneNumber objFaxNumber = new PhoneNumber()
+                                    {
+                                        ContactPerson = objContactPerson,
+                                        Number = Data[intCounter].gstrFaxNumber,
+                                        GEnumPhoneType = PhoneType.Fax
+                                    };
+
+                                    context.PhoneNumbers.Add(objFaxNumber);
+                                }
 
                                 BusinessRep objBusinessRep = new BusinessRep()
                                 {
@@ -802,7 +812,7 @@ namespace DirectorsPortalWPF.SettingsUI
                         {
                             for (int intCount = 0; intCount < arrLocationSplitSlash.Length; intCount++)
                             {
-                                objContactPerson = new ContactPerson()
+                                ContactPerson objContactPerson = new ContactPerson()
                                 {
                                     Name = arrLocationSplitSlash[intCount]
                                 };
@@ -817,6 +827,17 @@ namespace DirectorsPortalWPF.SettingsUI
                                 };
 
                                 context.PhoneNumbers.Add(objPhoneNumber);
+
+                                if (Data[intCounter].gstrFaxNumber.Length > 1)
+                                {
+                                    PhoneNumber objFaxNumber = new PhoneNumber()
+                                    {
+                                        ContactPerson = objContactPerson,
+                                        Number = Data[intCounter].gstrFaxNumber,
+                                        GEnumPhoneType = PhoneType.Fax
+                                    };
+                                    context.PhoneNumbers.Add(objFaxNumber);
+                                }
 
                                 BusinessRep objBusinessRep = new BusinessRep()
                                 {
@@ -839,18 +860,39 @@ namespace DirectorsPortalWPF.SettingsUI
                                 }
                             }
                         }
-                        else
+                        else if(Data[intCounter].gstrContactPerson.Length > 0)
                         {
-                            context.ContactPeople.Add(objContactPerson);
 
-                            PhoneNumber objPhoneNumber = new PhoneNumber()
+                            ContactPerson objContactPerson = new ContactPerson()
                             {
-                                ContactPerson = objContactPerson,
-                                Number = Data[intCounter].gstrPhoneNumber,
-                                GEnumPhoneType = PhoneType.Office
+                                Name = Data[intCounter].gstrContactPerson
                             };
 
-                            context.PhoneNumbers.Add(objPhoneNumber);
+                            context.ContactPeople.Add(objContactPerson);
+
+
+                            for (int intCount = 0; intCount < arrLocationSplitAnd.Length; intCount++)
+                            {
+                                PhoneNumber objPhoneNumber = new PhoneNumber()
+                                {
+                                    ContactPerson = objContactPerson,
+                                    Number = Data[intCounter].gstrPhoneNumber,
+                                    GEnumPhoneType = PhoneType.Office
+                                };
+
+                                context.PhoneNumbers.Add(objPhoneNumber);
+                            }
+                            if (Data[intCounter].gstrFaxNumber.Length > 1) 
+                            {
+                                PhoneNumber objFaxNumber = new PhoneNumber()
+                                {
+                                    ContactPerson = objContactPerson,
+                                    Number = Data[intCounter].gstrFaxNumber,
+                                    GEnumPhoneType = PhoneType.Fax
+                                };
+
+                                context.PhoneNumbers.Add(objFaxNumber);
+                            }
 
                             BusinessRep objBusinessRep = new BusinessRep()
                             {
@@ -872,15 +914,6 @@ namespace DirectorsPortalWPF.SettingsUI
                                 context.Emails.Add(objEmail);
                             }
                         }
-                     
-                        PhoneNumber objFaxNumber = new PhoneNumber()
-                        {
-                            ContactPerson = objContactPerson,
-                            Number = Data[intCounter].gstrFaxNumber,
-                            GEnumPhoneType = PhoneType.Fax
-                        };
-
-                        context.PhoneNumbers.Add(objFaxNumber);
 
                         DateTime strCurrentYear = DateTime.Now;
 
@@ -916,12 +949,23 @@ namespace DirectorsPortalWPF.SettingsUI
 
                         context.SaveChanges();                    
                     }
-                    catch (System.FormatException)
+                    catch
                     {
-                        Console.WriteLine(Data[intCounter].gstrBusinessName);
-                    }                  
+                        lstStrFailedDataImports.Add(Data[intCounter].gstrBusinessName);
+
+                    }                   
                 }
             }
+
+            string strMessage = string.Join(Environment.NewLine, lstStrFailedDataImports);
+
+            if (strMessage.Length > 0) {
+                MessageBox.Show("ALL DATA ENTRY FAILED TO IMPORT TO DATABASE BELOW \n" + strMessage, "Excel Import Notice",
+                       MessageBoxButton.OK,
+                       MessageBoxImage.Information);
+
+            }
+            
 
             MessageBox.Show("Excel Data finished Importing to Database", "Excel Import Notice",
                 MessageBoxButton.OK,
