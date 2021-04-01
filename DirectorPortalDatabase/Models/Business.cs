@@ -91,13 +91,17 @@ namespace DirectorPortalDatabase.Models
         /// </summary>
         /// <param name="strEnumVal">The membership level from the data model</param>
         /// <returns>The membership enum value of the entered string.</returns>
-        public static MembershipLevel GetMemberShipEnum(string strEnumVal)
+        public static MembershipLevel GetMembershipLevelEnum(string strEnumVal)
         {
             MembershipLevel enumMembershipLevel;
             strEnumVal = strEnumVal.ToLower();
 
             switch (strEnumVal)
             {
+                case "none":
+                    enumMembershipLevel = MembershipLevel.NONE;
+                    break;
+
                 case "gold":
                     enumMembershipLevel = MembershipLevel.GOLD;
                     break;
@@ -119,9 +123,7 @@ namespace DirectorPortalDatabase.Models
                     break;
 
                 default:
-                    /* Probably shouldn't default to GOLD.
-                     * The database does not currently have an option for this field to be null though.*/
-                    enumMembershipLevel = MembershipLevel.GOLD;
+                    enumMembershipLevel = MembershipLevel.NONE;
                     break;
             }
 
@@ -140,6 +142,10 @@ namespace DirectorPortalDatabase.Models
 
             switch (membershipLevel)
             {
+                case MembershipLevel.NONE:
+                    strLevel = "None";
+                    break;
+
                 case MembershipLevel.GOLD:
                     strLevel = "Gold";
                     break;
@@ -174,10 +180,11 @@ namespace DirectorPortalDatabase.Models
     /// </summary>
     public enum MembershipLevel
     {
-        GOLD = 0,
-        SILVER = 1,
-        ASSOCIATE = 2,
-        INDIVIDUAL = 3,
-        COURTESY = 4
+        NONE = 0,
+        GOLD = 1,
+        SILVER = 2,
+        ASSOCIATE = 3,
+        INDIVIDUAL = 4,
+        COURTESY = 5
     }
 }
