@@ -11,6 +11,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
+
 /// <summary>
 /// File Purpose:
 ///     This file defines the logic for the 'Settings' screen in the Directors Portal application. The 
@@ -452,21 +453,27 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="e"></param>
         private async void BtnImportExcel_Click(object sender, RoutedEventArgs e)
         {
+           
             //List using class Members to store Member information.
             List<Members> Members = new List<Members>();
 
             //String that contains the excel file that the user selects.
             string FilePath = FindFile();
 
+            //Messagebox that notifies user that the program will take sometime to load excel data.
+            MessageBox.Show("The application will appear frozen while loading data from the selected excel file");
+            
             //Populated members List.
             Members = ReadExcelFile(FilePath);
-
+            
             if (Members.Count > 0)
-            {
+            { 
+                
                 ImportToDatabase(Members);
-            }                      
+             
+            }
         }
-
+          
         private void BtnImportPayPal_Click(object sender, RoutedEventArgs e)
         {
             string filePath = FindPayPalFile();
