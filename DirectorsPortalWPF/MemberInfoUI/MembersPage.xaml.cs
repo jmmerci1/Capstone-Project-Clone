@@ -146,8 +146,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             .Where(pn => pn.ContactPersonId == contactPerson.Id).ToList();
                         foreach (PhoneNumber phoneNumber in phoneNumbers)
                         {
-                            if (phoneNumber.GEnumPhoneType == DirectorPortalDatabase.Models.PhoneType.Mobile ||
-                                phoneNumber.GEnumPhoneType == DirectorPortalDatabase.Models.PhoneType.Office)
+                            if (phoneNumber.GEnumPhoneType == PhoneType.Mobile ||
+                                phoneNumber.GEnumPhoneType == PhoneType.Office)
                             {
                                 businessTableView.StrPhoneNumber = phoneNumber?.Number;
                             }
@@ -185,7 +185,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 /* Add a button to edit the business to the end of each row. */
                 var btnFactoryEditBusiness = new FrameworkElementFactory(typeof(Button));
                 btnFactoryEditBusiness.SetValue(ContentProperty, "Edit");
-                btnFactoryEditBusiness.SetValue(TemplateProperty, (ControlTemplate)System.Windows.Application.Current.Resources["smallButton"]);
+                btnFactoryEditBusiness.SetValue(TemplateProperty, (ControlTemplate)Application.Current.Resources["smallButton"]);
                 btnFactoryEditBusiness.AddHandler(ButtonBase.ClickEvent, new RoutedEventHandler(BtnEditBusiness_Click));
 
                 DataTemplate dtEdit = new DataTemplate() 
@@ -384,83 +384,82 @@ namespace DirectorsPortalWPF.MemberInfoUI
             }
         }
 
-        List<Message> pdfEmails = new List<Message>();
+        List<Dictionary<string, string>> pdfEmails = new List<Dictionary<string, string>>();
 
         async Task AutoPdfGet()
         {
-            var a = await GraphApiClient.GetAllEmails();
-            foreach (Message message in a)
-                pdfEmails.Add(message);
+            var asdfhafeiauphf = await GraphApiClient.GetAllEmails();
+            foreach (Message message in asdfhafeiauphf)
+                pdfEmails.Add(EmailGetPdfs(message));
         }
 
-        private Dictionary<string, string> EmailGetPdfs()
+        private Dictionary<string, string> EmailGetPdfs(Message a)
         {
             var dicToAdd = new Dictionary<string, string>();
-            foreach (Message message in pdfEmails)
+
+            //create new reader object
+            PdfReader reader = new PdfReader(a.Attachments[0].ContentType);
+            //variable for form fields in PDF 
+            var objFields = reader.AcroFields.Fields;
+            //array to contain all values from key value pairs read
+            var arrFieldData = new ArrayList();
+            //iterates over key value pairs and add values(data from pdf) to the array
+            foreach (var item in objFields.Keys)
             {
-                //create new reader object
-                PdfReader reader = new PdfReader(message.Attachments[0].ContentType);
-                //variable for form fields in PDF 
-                var objFields = reader.AcroFields.Fields;
-                //array to contain all values from key value pairs read
-                var arrFieldData = new ArrayList();
-                //iterates over key value pairs and add values(data from pdf) to the array
-                foreach (var item in objFields.Keys)
-                {
-                    arrFieldData.Add(reader.AcroFields.GetField(item.ToString()));
-                    Console.WriteLine(reader.AcroFields.GetField(item.ToString()));
-                }
-                //array to split city state zip 
-                String[] strCityStateZip = arrFieldData[4].ToString().Split(',');
-
-
-                //dictionary add statements to add pdf data to ui
-                dicToAdd.Add("Business Name", (string)arrFieldData[0]);
-                dicToAdd.Add("Website", (string)arrFieldData[8]);
-                dicToAdd.Add("Level", (string)arrFieldData[13]);
-                dicToAdd.Add("Established", (string)arrFieldData[9]);
-
-                // Mailing Address
-                dicToAdd.Add("Mailing Address", (string)arrFieldData[2]);
-
-                if (strCityStateZip.Length > 0)
-                    dicToAdd.Add("City", strCityStateZip[0]);
-                else
-                    dicToAdd.Add("City", "");
-
-                if (strCityStateZip.Length > 1)
-                    dicToAdd.Add("State", strCityStateZip[1]);
-                else
-                    dicToAdd.Add("State", "");
-
-                if (strCityStateZip.Length > 2)
-                    dicToAdd.Add("Zip Code", strCityStateZip[2]);
-                else
-                    dicToAdd.Add("Zip Code", "");
-
-                // Location Address
-                dicToAdd.Add("Location Address", (string)arrFieldData[3]);
-
-                if (strCityStateZip.Length > 0)
-                    dicToAdd.Add("Location City", strCityStateZip[0]);
-                else
-                    dicToAdd.Add("Location City", "");
-
-                if (strCityStateZip.Length > 1)
-                    dicToAdd.Add("Location State", strCityStateZip[1]);
-                else
-                    dicToAdd.Add("Location State", "");
-
-                if (strCityStateZip.Length > 2)
-                    dicToAdd.Add("Location Zip Code", strCityStateZip[2]);
-                else
-                    dicToAdd.Add("Location Zip Code", "");
-
-                dicToAdd.Add("Contact Name", (string)arrFieldData[1]);
-                dicToAdd.Add("Phone Number", (string)arrFieldData[5]);
-                dicToAdd.Add("Fax Number", (string)arrFieldData[6]);
-                dicToAdd.Add("Email Address", (string)arrFieldData[7]);
+                arrFieldData.Add(reader.AcroFields.GetField(item.ToString()));
+                Console.WriteLine(reader.AcroFields.GetField(item.ToString()));
             }
+            //array to split city state zip 
+            String[] strCityStateZip = arrFieldData[4].ToString().Split(',');
+
+
+            //dictionary add statements to add pdf data to ui
+            dicToAdd.Add("Business Name", (string)arrFieldData[0]);
+            dicToAdd.Add("Website", (string)arrFieldData[8]);
+            dicToAdd.Add("Level", (string)arrFieldData[13]);
+            dicToAdd.Add("Established", (string)arrFieldData[9]);
+
+            // Mailing Address
+            dicToAdd.Add("Mailing Address", (string)arrFieldData[2]);
+
+            if (strCityStateZip.Length > 0)
+                dicToAdd.Add("City", strCityStateZip[0]);
+            else
+                dicToAdd.Add("City", "");
+
+            if (strCityStateZip.Length > 1)
+                dicToAdd.Add("State", strCityStateZip[1]);
+            else
+                dicToAdd.Add("State", "");
+
+            if (strCityStateZip.Length > 2)
+                dicToAdd.Add("Zip Code", strCityStateZip[2]);
+            else
+                dicToAdd.Add("Zip Code", "");
+
+            // Location Address
+            dicToAdd.Add("Location Address", (string)arrFieldData[3]);
+
+            if (strCityStateZip.Length > 0)
+                dicToAdd.Add("Location City", strCityStateZip[0]);
+            else
+                dicToAdd.Add("Location City", "");
+
+            if (strCityStateZip.Length > 1)
+                dicToAdd.Add("Location State", strCityStateZip[1]);
+            else
+                dicToAdd.Add("Location State", "");
+
+            if (strCityStateZip.Length > 2)
+                dicToAdd.Add("Location Zip Code", strCityStateZip[2]);
+            else
+                dicToAdd.Add("Location Zip Code", "");
+
+            dicToAdd.Add("Contact Name", (string)arrFieldData[1]);
+            dicToAdd.Add("Phone Number", (string)arrFieldData[5]);
+            dicToAdd.Add("Fax Number", (string)arrFieldData[6]);
+            dicToAdd.Add("Email Address", (string)arrFieldData[7]);
+
                 
             //dictionary return
             return dicToAdd;
@@ -485,7 +484,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
             if (openFileDialog.ShowDialog() == true)
             {
-                Console.WriteLine(System.IO.File.ReadAllText(openFileDialog.FileName));
+                Console.WriteLine(File.ReadAllText(openFileDialog.FileName));
 
                 //create new reader object
                 PdfReader reader = new PdfReader(openFileDialog.FileName);
