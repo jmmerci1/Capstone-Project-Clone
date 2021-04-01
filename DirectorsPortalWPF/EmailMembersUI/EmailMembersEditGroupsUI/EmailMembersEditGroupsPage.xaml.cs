@@ -145,7 +145,7 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
                 List<EmailGroupMember> objEmailGroupMems = dbContext.EmailGroupMembers.Where(x => x.GroupId == selectedEmailGroup.Id).ToList();
                 foreach (Business groupMember in rgRemoveFromGroup)
                 {
-                    List<BusinessRep> br = dbContext.BusinessReps.Where(x => groupMember.Id == x.Id).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
+                    List<BusinessRep> br = dbContext.BusinessReps.Where(x => groupMember.Id == x.BusinessId).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
                     int intEmailId = br[0].ContactPerson.Emails[0].Id;
 
                     dbContext.Remove(objEmailGroupMems.Find(g => g.EmailId == intEmailId));
@@ -155,7 +155,7 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
                 foreach (Business groupMember in rgAddToGroup)
                 {
                     Business b = dbContext.Businesses.FirstOrDefault(x => x.Id == groupMember.Id);
-                    List<BusinessRep> br = dbContext.BusinessReps.Where(x => b.Id == x.Id).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
+                    List<BusinessRep> br = dbContext.BusinessReps.Where(x => b.Id == x.BusinessId).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
                     int intEmailId = br[0].ContactPerson.Emails[0].Id;
 
                     EmailGroupMember emailGroupMember = new EmailGroupMember();

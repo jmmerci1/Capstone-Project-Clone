@@ -131,7 +131,7 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
                 foreach (Business groupMember in lstGroupMembers.Items)
                 {
                     Business b = dbContext.Businesses.FirstOrDefault(x => x.Id == groupMember.Id);
-                    List <BusinessRep> br = dbContext.BusinessReps.Where(x => b.Id ==  x.Id).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
+                    List <BusinessRep> br = dbContext.BusinessReps.Where(x => b.Id ==  x.BusinessId).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
                     int intEmailId = br[0].ContactPerson.Emails[0].Id;
 
                     EmailGroupMember emailGroupMember = new EmailGroupMember();
