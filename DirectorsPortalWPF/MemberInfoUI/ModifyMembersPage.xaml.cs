@@ -69,7 +69,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             txtWebsite.Text = dictPdfImport["Website"];
                             txtWebsite.Background = Brushes.Green;
                             txtWebsite.Foreground = Brushes.White;
-                            txtYearEst.FontWeight = FontWeights.Bold;
+                            txtWebsite.FontWeight = FontWeights.Bold;
                         }
                         else
                             txtWebsite.Text = selectedBusiness.Website;
