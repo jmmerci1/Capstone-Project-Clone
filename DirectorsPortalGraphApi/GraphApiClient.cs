@@ -7,6 +7,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Graph;
 using Microsoft.Extensions.Configuration;
 using DirectorsPortal.GraphHelpers;
+using System.Linq;
 
 namespace DirectorsPortal
 {
@@ -32,17 +33,17 @@ namespace DirectorsPortal
         /// Get Message by ID method
         /// </summary>
         /// <returns>a string containing the specified message</returns>
-        public static async Task<string> GetEmail(String strID)
+        public static async Task<Message> GetEmail(String strID)
         {
             GraphServiceClient mbjGraphClient = AuthenticationHelper.GetAuthenticatedClient();
 
             var objGraphResult = await mbjGraphClient.Me.Messages[strID].Request().GetAsync();
 
-            return objGraphResult.ToString();
+            return objGraphResult;
         }
 
         /// <summary>
-        /// Send Mail immediately usign message created in method
+        /// Send Mail immediately using message created in method
         /// </summary>
         /// <returns></returns>
         public static async Task SendMail(String strSubject, String[] arrRecipient, String strBody, String strFilePath, String strFileExtension, String strFileName)
@@ -104,7 +105,7 @@ namespace DirectorsPortal
         }
 
         /// <summary>
-        /// Send Mail immediately usign message created in method
+        /// Send Mail immediately using message created in method
         /// </summary>
         /// <returns></returns>
         public static async Task SendMail(String strSubject, String[] arrRecipient, String strBody)
@@ -220,6 +221,12 @@ namespace DirectorsPortal
             return objGraphResult.ToString();
         }
 
+        public static async Task<IMailFolderMessagesCollectionPage> GetAllEmails()
+        {
+            GraphServiceClient mbjGraphClient = AuthenticationHelper.GetAuthenticatedClient();
+            var objGraphResult = await mbjGraphClient.Me.MailFolders.Inbox.Messages.Request().Top(500).Select("subject").GetAsync();
+            return objGraphResult;
+        }
     }
 }
 

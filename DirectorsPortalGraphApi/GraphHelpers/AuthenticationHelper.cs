@@ -22,7 +22,7 @@ namespace DirectorsPortal.GraphHelpers
         /// <summary>
         /// Access modifiers needed for application to access user info 
         /// </summary>
-        public static string[] garrScopes = { "User.Read", "Mail.Send", "Files.ReadWrite" };
+        public static string[] garrScopes = { "User.Read", "Mail.Send","Mail.Read", "Files.ReadWrite" };
         /// <summary>
         /// Client application instance redirects to local host 8080 for Api calls
         /// </summary>

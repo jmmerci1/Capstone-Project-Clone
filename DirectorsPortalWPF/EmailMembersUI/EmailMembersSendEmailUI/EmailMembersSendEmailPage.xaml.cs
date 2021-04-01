@@ -21,6 +21,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml;
 using Path = System.IO.Path;
+using Microsoft.Graph;
 
 /// <summary>
 /// This file has all of the logic for handling the email page.
@@ -103,7 +104,6 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
             // Need API to call from the SDK team
             String strID = "";
             await GraphApiClient.GetEmail(strID);
-
         }
 
         /// <summary>
