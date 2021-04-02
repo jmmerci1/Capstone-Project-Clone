@@ -90,12 +90,7 @@ namespace DirectorsPortalConstantContact
             print("Updating previews");
             this.UpdateEmailCampaignActivityPreviews();
 
-            //print("Updating Reporting");
-            //this.UpdateContactTrackingReporting();
-            //print("Updating open rate");
-            //this.UpdateContactOpenRate();
-
-            //assignments
+            
             print("Updating assignments");
             this.ContactListAssignment();
             this.CustomFieldAssignment();
@@ -104,15 +99,6 @@ namespace DirectorsPortalConstantContact
             print("saving");
             this.save();
 
-            // GAVIN
-            //AddContactToContactList(this.FindListByName("gavinTempList"), this.FindContactByEmail("gemalisk@svsu.edu"));
-            //AddContactToContactList(this.FindListByName("gavinTempList"), this.FindContactByEmail("edwalk@svsu.edu"));
-
-            //ContactList tList = this.FindListByName("gavinTempList");
-            //EmailCampaignActivity tActivity = this.FindCampaignActivityByName("Re-opening");
-
-            //this.AddListToActivity(tList, tActivity);
-            //this.SendActivity(tActivity);
 
         }
 
