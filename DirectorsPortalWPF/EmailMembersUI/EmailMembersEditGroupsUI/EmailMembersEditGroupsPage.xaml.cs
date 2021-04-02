@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
+using DirectorsPortalWPF.EmailMembersSendEmailUI;
 using DirectorsPortalWPF.EmailMembersUI;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,12 +38,14 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
         List<Business> rgBusinessesOfGroup;
         EmailPage objEmailPage;
         EmailGroup selectedEmailGroup;
+        EmailMembersSendEmailPage objSendPage;
 
-        public EmailMembersEditGroupsPage(EmailGroup objGroup, EmailPage emailPage)
+        public EmailMembersEditGroupsPage(EmailGroup objGroup, EmailPage emailPage, EmailMembersSendEmailPage sendPage)
         {
             InitializeComponent();
             LoadGroupData(objGroup);
             selectedEmailGroup = objGroup;
+            objSendPage = sendPage;
             this.objEmailPage = emailPage;
         }
         /// <summary>
@@ -145,7 +148,7 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
                 List<EmailGroupMember> objEmailGroupMems = dbContext.EmailGroupMembers.Where(x => x.GroupId == selectedEmailGroup.Id).ToList();
                 foreach (Business groupMember in rgRemoveFromGroup)
                 {
-                    List<BusinessRep> br = dbContext.BusinessReps.Where(x => groupMember.Id == x.Id).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
+                    List<BusinessRep> br = dbContext.BusinessReps.Where(x => groupMember.Id == x.BusinessId).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
                     int intEmailId = br[0].ContactPerson.Emails[0].Id;
 
                     dbContext.Remove(objEmailGroupMems.Find(g => g.EmailId == intEmailId));
@@ -155,7 +158,7 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
                 foreach (Business groupMember in rgAddToGroup)
                 {
                     Business b = dbContext.Businesses.FirstOrDefault(x => x.Id == groupMember.Id);
-                    List<BusinessRep> br = dbContext.BusinessReps.Where(x => b.Id == x.Id).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
+                    List<BusinessRep> br = dbContext.BusinessReps.Where(x => b.Id == x.BusinessId).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
                     int intEmailId = br[0].ContactPerson.Emails[0].Id;
 
                     EmailGroupMember emailGroupMember = new EmailGroupMember();
@@ -174,7 +177,7 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
 
             this.objEmailPage.LoadEmailGroups();
             // TODO: Link with database once implemented
-            this.NavigationService.GoBack();
+            this.NavigationService.Navigate(objSendPage);
         }
 
         /// <summary>
@@ -200,7 +203,7 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
         /// <param name="e">The button press event</param>
         private void Cancel(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.GoBack();
+            this.NavigationService.Navigate(objSendPage);
         }
 
         /// <summary>
@@ -271,7 +274,7 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
             dbContext.Remove(selectedEmailGroup);
             dbContext.SaveChanges();
             this.objEmailPage.LoadEmailGroups();
-            this.NavigationService.GoBack();
+            this.NavigationService.Navigate(objSendPage);
         }
     }
 }

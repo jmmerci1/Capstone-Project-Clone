@@ -31,6 +31,8 @@ namespace DirectorsPortalWPF.ValidateWebsite
         public WebsitePreviewPage()
         {
             InitializeComponent();
+            btnViewInWeb.IsEnabled = false;
+            btnCopyContent.IsEnabled = false;
         }
 
         /// <summary>
@@ -139,6 +141,8 @@ namespace DirectorsPortalWPF.ValidateWebsite
         /// <param name="e">The Click Event</param>
         private void BtnRefreshValWeb_Click(object sender, RoutedEventArgs e)
         {
+            btnViewInWeb.IsEnabled = true;
+            btnCopyContent.IsEnabled = true;
 
             btnRefreshValWeb.Content = "Refreshing...";
             btnRefreshValWeb.Width = 100;

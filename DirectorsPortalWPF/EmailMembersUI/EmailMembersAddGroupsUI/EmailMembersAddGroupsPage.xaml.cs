@@ -1,5 +1,6 @@
 using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
+using DirectorsPortalWPF.EmailMembersSendEmailUI;
 using DirectorsPortalWPF.EmailMembersUI;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -34,12 +35,14 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
         DatabaseContext dbContext = new DatabaseContext();
         List<EmailGroup> mrgGroupList = new List<EmailGroup>();
         EmailPage emailPage;
+        EmailMembersSendEmailPage objSendPage;
 
-        public EmailMembersAddGroupsPage(EmailPage emailPage)
+        public EmailMembersAddGroupsPage(EmailPage emailPage, EmailMembersSendEmailPage sendPage)
         {
             InitializeComponent();
             LoadEmailGroups();
             this.emailPage = emailPage;
+            objSendPage = sendPage;
         }
         /// <summary>
         /// Pulls the list of email groups. Depending on whether
@@ -131,7 +134,7 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
                 foreach (Business groupMember in lstGroupMembers.Items)
                 {
                     Business b = dbContext.Businesses.FirstOrDefault(x => x.Id == groupMember.Id);
-                    List <BusinessRep> br = dbContext.BusinessReps.Where(x => b.Id ==  x.Id).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
+                    List <BusinessRep> br = dbContext.BusinessReps.Where(x => b.Id ==  x.BusinessId).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
                     int intEmailId = br[0].ContactPerson.Emails[0].Id;
 
                     EmailGroupMember emailGroupMember = new EmailGroupMember();
@@ -147,7 +150,7 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
 
             this.emailPage.LoadEmailGroups();
             // TODO: Link with database once implemented
-            this.NavigationService.GoBack();
+            this.NavigationService.Navigate(objSendPage);
         }
 
         /// <summary>
@@ -169,7 +172,7 @@ namespace DirectorsPortalWPF.EmailMembersAddGroupsUI
         /// <param name="e">The button press event</param>
         private void Cancel(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.GoBack();
+            this.NavigationService.Navigate(objSendPage);
         }
 
         /// <summary>
