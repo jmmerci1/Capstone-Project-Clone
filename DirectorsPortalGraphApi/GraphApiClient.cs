@@ -7,6 +7,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Graph;
 using Microsoft.Extensions.Configuration;
 using DirectorsPortal.GraphHelpers;
+using System.Linq;
 
 namespace DirectorsPortal
 {
@@ -45,11 +46,15 @@ namespace DirectorsPortal
         /// Send Mail immediately usign message created in method
         /// </summary>
         /// <returns></returns>
-        public static async Task SendMail(String strSubject, String[] arrRecipient, String strBody)
+        public static async Task SendMail(String strSubject, String[] arrRecipient, String strBody, List<string> strFilePath, List<string> strFileExtension, List<string> strFileName)
         {
             //string send = null;
             //defines message object 
+
             List<Recipient> lstRecipients = new List<Recipient>();
+
+            MessageAttachmentsCollectionPage attachments = new MessageAttachmentsCollectionPage();
+
             for (int i = 0; i <= arrRecipient.Length - 1; i++)
             {
                 lstRecipients.Add(
@@ -62,15 +67,94 @@ namespace DirectorsPortal
                         }
                 );
             }
+            for (int i = 0; i < strFilePath.Count; i++)
+            {
+                byte[] contentBytes = System.IO.File.ReadAllBytes(strFilePath[i]);
+
+                attachments.Add(new FileAttachment
+                {
+                    ODataType = "#microsoft.graph.fileAttachment",
+                    ContentBytes = contentBytes,
+                    ContentId = strFileName[i],
+                    Name = strFileName[i] + strFileExtension[i]
+                });
+
+            }
+
             var objMessage = new Message
             {
                 Subject = strSubject,
                 Body = new ItemBody
+                
                 {
                     ContentType = BodyType.Html,
                     Content = strBody
                 },
-                ToRecipients = lstRecipients
+                ToRecipients = lstRecipients,
+
+                Attachments = attachments
+                //{ 
+                //    new Recipient
+                //    {
+                //        EmailAddress = new EmailAddress
+                //        {
+                //            //Address = strRecipient
+                //        }
+                //    }
+                //}
+            };
+
+            var saveToSentItems = true;
+
+            GraphServiceClient objGraphClient = AuthenticationHelper.GetAuthenticatedClient();
+            await objGraphClient.Me.SendMail(objMessage, SaveToSentItems: saveToSentItems).Request().PostAsync();
+        }
+
+        /// <summary>
+        /// Send Mail immediately usign message created in method
+        /// </summary>
+        /// <returns></returns>
+        public static async Task SendMail(String strSubject, String[] arrRecipient, String strBody)
+        {
+            //string send = null;
+            //defines message object 
+            //byte[] contentBytes = System.IO.File.ReadAllBytes(strFilePath);
+
+            List<Recipient> lstRecipients = new List<Recipient>();
+            MessageAttachmentsCollectionPage attachments = new MessageAttachmentsCollectionPage();
+
+            for (int i = 0; i <= arrRecipient.Length - 1; i++)
+            {
+                lstRecipients.Add(
+                        new Recipient
+                        {
+                            EmailAddress = new EmailAddress
+                            {
+                                Address = arrRecipient[i]
+                            }
+                        }
+                );
+            }
+            //attachments.Add(new FileAttachment
+            //{
+            //    ODataType = "#microsoft.graph.fileAttachment",
+            //    ContentBytes = contentBytes,
+            //    ContentId = strFileName,
+            //   Name = strFileName + strFileExtension
+            //});
+
+            var objMessage = new Message
+            {
+                Subject = strSubject,
+                Body = new ItemBody
+
+                {
+                    ContentType = BodyType.Html,
+                    Content = strBody
+                },
+                ToRecipients = lstRecipients,
+
+                Attachments = attachments
                 //{ 
                 //    new Recipient
                 //    {

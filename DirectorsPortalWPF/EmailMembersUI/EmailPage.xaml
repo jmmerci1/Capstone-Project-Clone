@@ -45,7 +45,7 @@
                 </Grid.Background>
                 <Border Grid.RowSpan="2" Grid.ColumnSpan="1" BorderBrush="#FFACACAC" BorderThickness="1" CornerRadius="5" />
 
-                <Grid Grid.Row="0" Grid.Column="0" Width="200">
+                <Grid Grid.Row="0" Grid.Column="0" Width="220">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="auto" />
@@ -74,7 +74,7 @@
                 </StackPanel>
             </Grid>
 
-            <Frame x:Name="emailFrame" Margin="15,0,0,0" Grid.Column="2" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Source="./EmailMembersSendEmailUI/EmailmembersSendEmailPage.xaml"/>
+            <Frame x:Name="emailFrame" Margin="15,0,0,0" Grid.Column="2" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 
         </Grid>
     </Grid>

@@ -1,4 +1,7 @@
+using DirectorPortalDatabase;
+using DirectorPortalDatabase.Models;
 using DirectorsPortal;
+using DirectorsPortalWPF.EmailMembersUI;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -18,6 +21,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml;
+using Path = System.IO.Path;
 
 /// <summary>
 /// This file has all of the logic for handling the email page.
@@ -30,13 +34,21 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
     /// <summary>
     /// Interaction logic for EmailMembersSendEmailPage.xaml
     /// </summary>
+    /// 
     public partial class EmailMembersSendEmailPage : Page
     {
-        private string gStrAttachedFilePath;
+        List<EmailGroup> emailGroups;
+        List<string> gStrAttachedFilePath = new List<string>();
+        List<string> gStrFileExtension = new List<string>();
+        List<string> gStrFileName = new List<string>();
+        DatabaseContext dbContext = new DatabaseContext();
+        EmailPage objEmailPage;
 
-        public EmailMembersSendEmailPage()
+        public EmailMembersSendEmailPage(List<EmailGroup> emailGroups, EmailPage emailPage)
         {
             InitializeComponent();
+            this.emailGroups = emailGroups;
+            objEmailPage = emailPage;
         }
         /// <summary>
         /// Gets called on the click of the "Send" button on the email page.
@@ -58,11 +70,20 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
 
                 String strContent = GetRichTextDocumentHtmlContent();
 
-                await GraphApiClient.SendMail(strSubject, rgRecipient, strContent);
+                if (gStrAttachedFilePath != null)
+                    await GraphApiClient.SendMail(strSubject, rgRecipient, strContent, gStrAttachedFilePath, gStrFileExtension, gStrFileName);
+                else
+                    await GraphApiClient.SendMail(strSubject, rgRecipient, strContent);
 
+                objEmailPage.LoadEmailGroups();
+                LblAttachmentCount.Content = "";
+                emailGroups.Clear();
                 txtToField.Clear();
                 txtSubject.Clear();
                 rtbEmailBody.Document.Blocks.Clear();
+                gStrAttachedFilePath.Clear();
+                gStrFileExtension.Clear();
+                gStrFileName.Clear();
 
                 if (rgRecipient.Length > 1)
                     MessageBox.Show($"Message sent to {rgRecipient[0]} and {rgRecipient.Length - 1} others.", "Message Sent");
@@ -121,8 +142,24 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
         /// <param name="e">The Click event</param>
         private void AttachFile_Click(object sender, RoutedEventArgs e)
         {
-            gStrAttachedFilePath = OpenFile();
-            MessageBox.Show(gStrAttachedFilePath);
+
+            OpenFileDialog FileDialog = new OpenFileDialog();
+
+            FileDialog.ShowDialog();
+
+            String strFilePath = FileDialog.FileName.ToString();
+
+            gStrAttachedFilePath.Add(strFilePath);
+
+            gStrFileExtension.Add(Path.GetExtension(FileDialog.FileName));
+
+            gStrFileName.Add(Path.GetFileNameWithoutExtension(FileDialog.FileName));
+
+            MessageBox.Show(strFilePath, "Attached File Name",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+
+            LblAttachmentCount.Content = $"{gStrAttachedFilePath.Count()} Attachments";
 
         }
 
@@ -150,11 +187,42 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
         private List<string> GetEmails()
         {
             List<string> strEmailList = new List<string>();
+            List<Email> rgEmails = new List<Email>();
+            List<EmailGroupMember> rgEmailGroupMembers;
+
             string strToField = txtToField.Text;
             // TODO : Repleace Test Group List with list of groups pulled from DB
-            String[] strGroupList = { "Silver", "Gold", "Bronze" };
+            // String[] strGroupList = { "Silver", "Gold", "Bronze" };
 
-            List<string> strEmails = strToField.Split(';').ToList();
+            foreach(EmailGroup currentEmailGroup in this.emailGroups)
+            {
+                rgEmailGroupMembers = dbContext.EmailGroupMembers.Where(x => currentEmailGroup.Id == x.GroupId).ToList();
+                foreach (EmailGroupMember emailGroupMembers in rgEmailGroupMembers)
+                {
+                    rgEmails.Add(dbContext.Emails.Where(x => x.Id == emailGroupMembers.EmailId).FirstOrDefault());
+                }
+            }
+
+            List<string> strGroupEmails = new List<string>();
+
+            foreach (Email currentEmail in rgEmails)
+                strGroupEmails.Add(currentEmail.EmailAddress);
+
+            List<string> strEmails = strToField.Trim().Split(';').ToList();
+            strEmails.AddRange(strGroupEmails);
+
+            while (strEmails.Contains(""))
+                strEmails.Remove("");
+
+            for (int i = 0; i < strEmails.Count(); i++)
+                strEmails[i] = strEmails[i].Trim();
+
+            foreach (EmailGroup currentEmailGroup in this.emailGroups)
+            {
+                if (strEmails.Contains(currentEmailGroup.GroupName.Trim()))
+                    strEmails.Remove(currentEmailGroup.GroupName);
+            }
+
             //Removes last Element if it is an empty string
             //There to remove empty string generated by Split() after the final ';'
             if (strEmails.Last().Equals(""))
@@ -163,14 +231,7 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
             }
             foreach (string strEmail in strEmails)
             {
-                if (strGroupList.Contains(strEmail))
-                {
-                    //TODO : insert code that adds all emails contained in the Group            
-                }
-                else
-                {
-                    strEmailList.Add(strEmail);
-                }
+                strEmailList.Add(strEmail);
             }
             return strEmailList;
         }
@@ -183,40 +244,63 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
         private Boolean ValidateGroupsEmails()
         {
             Boolean blnAllValid = true;
-            string strToField = txtToField.Text;
-            string strEmailPattern = @"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}" +
-         @"\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\" +
-         @".)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$";
-            Regex re = new Regex(strEmailPattern);
-            String strDisplayInvalidEntries = "";
-            // TODO : Repleace Test Group List with list of groups pulled from DB
-            string[] strGroupList = { "Silver", "Gold", "Bronze" };
+            if (!txtToField.Text.Equals(""))
+            {
+                string strToField = txtToField.Text;
+                string strEmailPattern = @"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}" +
+             @"\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\" +
+             @".)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$";
 
-            List<string> strEmails = strToField.Split(';').ToList();
-            //Removes last Element if it is an empty string
-            //There to remove empty string generated by Split() after the final ';'
-            if (strEmails.Last().Equals(""))
-            {
-                strEmails.RemoveAt(strEmails.Count-1);
-            }
-            foreach (string strEmail in strEmails)
-            {
-                if (!re.IsMatch(strEmail) && !strGroupList.Contains(strEmail))
+                Regex re = new Regex(strEmailPattern);
+                String strDisplayInvalidEntries = "";
+                // TODO : Repleace Test Group List with list of groups pulled from DB
+                // string[] strGroupList = { "Silver", "Gold", "Bronze" };
+                List<string> strEmailGroups = new List<string>();
+
+                foreach (EmailGroup currentEmailGroup in this.emailGroups)
+                    strEmailGroups.Add(currentEmailGroup.GroupName);
+
+
+                List<string> strEmails = strToField.Trim().Split(';').ToList();
+
+                while (strEmails.Contains(""))
+                    strEmails.Remove("");
+
+                //Removes last Element if it is an empty string
+                //There to remove empty string generated by Split() after the final ';'
+                if (strEmails.Last().Equals(""))
                 {
+                    strEmails.RemoveAt(strEmails.Count - 1);
+                }
+
+                for (int i = 0; i < strEmails.Count(); i++)
+                    strEmails[i] = strEmails[i].Trim();
+
+                foreach (string strEmail in strEmails)
+                {
+                    if (!re.IsMatch(strEmail) && !strEmailGroups.Contains(strEmail))
+                    {
+                        blnAllValid = false;
+                        strDisplayInvalidEntries += strEmail + Environment.NewLine;
+                    }
+                }
+
+                if (strEmails.Count().Equals(0))
+                {
+                    MessageBox.Show("Input Emails or Groups in the To Field");
                     blnAllValid = false;
-                    strDisplayInvalidEntries += strEmail + Environment.NewLine;
+                }
+                else if (!blnAllValid)
+                {
+                    MessageBox.Show($"Invalid entry in To: field : {Environment.NewLine} {strDisplayInvalidEntries}");
                 }
             }
-
-            if(strEmails.Count().Equals(0))
+            else
             {
-                MessageBox.Show("Input Emails or Groups in the To Field");
                 blnAllValid = false;
+                MessageBox.Show("Please enter an email address or group to send a message to.");
             }
-            else if (!blnAllValid)
-            {
-                MessageBox.Show($"Invalid entry in To: field : {Environment.NewLine} {strDisplayInvalidEntries}");
-            }
+
             return blnAllValid;
         }
     }

@@ -15,17 +15,16 @@ namespace DirectorPortalDatabase.Models
         /// Autoincrements.
         /// </summary>
         [Key]
-        [Column("id")]
-        public int GIntId { get; set; }
+        public int Id { get; set; }
         /// <summary>
         /// The ID of the person the email belongs to
         /// </summary>
-        [Column("contactPersonId")]
-        public int GIntContactPersonId { get; set; }
+        public int ContactPersonId { get; set; }
+        public virtual ContactPerson ContactPerson { get; set; }
         /// <summary>
         /// The email address
         /// </summary>
-        [Column("email")]
-        public string GStrEmailAddress { get; set; }
+        public string EmailAddress { get; set; }
+        public virtual List<EmailGroupMember> EmailGroups { get; set; }
     }
 }

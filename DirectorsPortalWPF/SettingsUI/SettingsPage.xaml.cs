@@ -467,6 +467,15 @@ namespace DirectorsPortalWPF.SettingsUI
             }                      
         }
 
+        private void BtnImportPayPal_Click(object sender, RoutedEventArgs e)
+        {
+            string filePath = FindPayPalFile();
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                DirectorPortalPayPal.CsvParser.RunImport(filePath);
+            }
+        }
+
         /// <summary>
         /// ReadExcelFile method that will read the prior selected excel file. 
         /// </summary>
@@ -595,85 +604,59 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="Data">List of opbject members.</param>
         private void ImportToDatabase(List<Members> Data)
         {
+            List<string> lstStrFailedDataImports = new List<string>();
+
             using (var context = new DatabaseContext())
             {
-                for (int intCounter = 1; intCounter < Data.Count; intCounter++)
+                for (int intCounter = 1; intCounter < Data.Count - 1; intCounter++)
                 {
-                
-                    String strCityData = "";
-                    String strStateData = "";
-                    String strZipData = "";
-                    
-                    int intCheck = 0;
+                    if (Data[intCounter].gstrBusinessName.Equals(""))
+                    {
+                        break;
+                    } 
 
                     String strCityStateZip = Data[intCounter].gstrCityStateZip;
-                    String[] arrSplit = strCityStateZip.Split(' ');         
-
-                    for (int intCount = 0; intCount < arrSplit.Length; intCount++)
-                    { 
-
-                        if (!arrSplit[intCount].Equals("") && intCheck == 0)
-                        {
-
-                            if (arrSplit[intCount].EndsWith("."))
-                            {
-                                strCityData = arrSplit[intCount];
-                              
-                            } else
-                            {
-                                strCityData = strCityData + arrSplit[intCount].TrimEnd(',');
-
-                                intCheck = 1;
-
-                            }
-
-                        } else if (!arrSplit[intCount].Equals("") && intCheck == 1)
-                        {
-                            
-                            strStateData = arrSplit[intCount];
-
-                            intCheck = 2;
-                        }
-                        else if (!arrSplit[intCount].Equals("") && intCheck == 2)
-                        {
-                            strZipData = arrSplit[intCount];
-                        }
-                    }
-                 
                     String strLevelData = Data[intCounter].gstrLevel;
                     String strAdditionalNote = "";
+
+                    String[] arrSplit = strCityStateZip.Split(',');
+                    String strCityData = arrSplit[0];
+
+                    String[] arrSplitStateZip = arrSplit[1].Split(' ');
+                    String strStateData = arrSplitStateZip[1];
+                    String strZipData = arrSplitStateZip[2];
               
                     try
                     {
                         Address objMailingAddress = new Address()
                         {
-                            GStrAddress = Data[intCounter].gstrMailingAddress,
-                            GStrCity = strCityData,
-                            GStrState = strStateData,                      
+                            StreetAddress = Data[intCounter].gstrMailingAddress,
+                            City = strCityData,
+                            State = strStateData,                      
                         };                    
 
                         Address objLocationAddress = new Address()
                         {
-                            GStrAddress = Data[intCounter].gstrLocationAddress,
-                            GStrCity = strCityData,
-                            GStrState = strStateData,
+                            StreetAddress = Data[intCounter].gstrLocationAddress,
+                            City = strCityData,
+                            State = strStateData,
                         };
 
                         if (strZipData.Length > 5)
                         {
                             String[] arrZipSplit = strZipData.Split('-');
 
-                            objMailingAddress.GIntZipCode = Int32.Parse(arrZipSplit[0]);
-                            objLocationAddress.GIntZipCode = Int32.Parse(arrZipSplit[0]);
-                            objMailingAddress.GStrZipExtCode = strZipData;
-                            objLocationAddress.GStrZipExtCode = strZipData;
+                            objMailingAddress.ZipCode = Int32.Parse(arrZipSplit[0]);
+                            objLocationAddress.ZipCode = Int32.Parse(arrZipSplit[0]);
+                            objMailingAddress.ZipCodeExt = strZipData;
+                            objLocationAddress.ZipCodeExt = strZipData;
                         }
                         else
                         {
-                            objMailingAddress.GIntZipCode = Int32.Parse(strZipData);
-                            objLocationAddress.GIntZipCode = Int32.Parse(strZipData);
-                            objMailingAddress.GStrZipExtCode = strZipData;
-                            objLocationAddress.GStrZipExtCode = strZipData;
+                            objMailingAddress.ZipCode = Int32.Parse(strZipData);
+                            objLocationAddress.ZipCode = Int32.Parse(strZipData);
+                            objMailingAddress.ZipCodeExt = strZipData;
+                            objLocationAddress.ZipCodeExt = strZipData;
                         };
 
                         String strLocationAddress = Data[intCounter].gstrLocationAddress;
@@ -686,15 +669,15 @@ namespace DirectorsPortalWPF.SettingsUI
                             String[] arrStateZip = arrLocationSplit[2].Split(' ');
 
                             strLocationAddress = arrLocationSplit[1] + arrLocationSplit[2];
-                            objLocationAddress.GStrAddress = arrLocationSplit[0];
-                            objLocationAddress.GStrCity = arrLocationSplit[1];
-                            objLocationAddress.GStrState = arrStateZip[1];
-                            objLocationAddress.GIntZipCode = Int32.Parse(arrStateZip[2]);
-                            objLocationAddress.GStrZipExtCode = strZipData;
+                            objLocationAddress.StreetAddress = arrLocationSplit[0];
+                            objLocationAddress.City = arrLocationSplit[1];
+                            objLocationAddress.State = arrStateZip[1];
+                            objLocationAddress.ZipCode = Int32.Parse(arrStateZip[2]);
+                            objLocationAddress.ZipCodeExt = strZipData;
 
                         } else if (arrLocationSplitSlash.Length > 1)
                         {
-                            objLocationAddress.GStrAddress = arrLocationSplit[0];
+                            objLocationAddress.StreetAddress = arrLocationSplit[0];
                             strAdditionalNote = " - Additional Location Addresses : ";
 
                             for (int intCount = 1; intCount < arrLocationSplitSlash.Length; intCount++)
@@ -707,7 +690,7 @@ namespace DirectorsPortalWPF.SettingsUI
 
                         if (arrLocationSplit.Length > 1)
                         {
-                            objLocationAddress.GStrAddress = arrLocationSplit[0];
+                            objLocationAddress.StreetAddress = arrLocationSplit[0];
 
                             strAdditionalNote = " - Additional Location Addresses : ";
 
@@ -730,207 +713,340 @@ namespace DirectorsPortalWPF.SettingsUI
 
                         context.Addresses.Add(objMailingAddress);
                         context.Addresses.Add(objLocationAddress);
-                        context.SaveChanges();
 
                         Business objBusiness = new Business()
                         {
-                            GStrBusinessName = Data[intCounter].gstrBusinessName,
-                            GIntYearEstablished = Int32.Parse(Data[intCounter].gstrEstablished),
-                            GStrWebsite = Data[intCounter].gstrWebsiteAddress,
-                            GStrExtraNotes = Data[intCounter].gstrNotes + " " + strAdditionalNote,
-                            GIntMailingAddressId = objMailingAddress.GIntId,
-                            GIntPhysicalAddressId = objLocationAddress.GIntId
+                            BusinessName = Data[intCounter].gstrBusinessName,
+                            YearEstablished = Int32.Parse(Data[intCounter].gstrEstablished),
+                            Website = Data[intCounter].gstrWebsiteAddress,
+                            ExtraNotes = Data[intCounter].gstrNotes + " " + strAdditionalNote,
+                            MailingAddress = objMailingAddress,
+                            PhysicalAddress = objLocationAddress
 
                         };
 
                         if (strLevelData.Equals("Gold"))
                         {
-                            objBusiness.GEnumMembershipLevel = MembershipLevel.GOLD;
+                            objBusiness.MembershipLevel = MembershipLevel.GOLD;
                         }
                         else if (strLevelData.Equals("Silver"))
                         {
-                            objBusiness.GEnumMembershipLevel = MembershipLevel.SILVER;
+                            objBusiness.MembershipLevel = MembershipLevel.SILVER;
                         }
                         else if (strLevelData.Equals("Associate"))
                         {
-                            objBusiness.GEnumMembershipLevel = MembershipLevel.ASSOCIATE;
+                            objBusiness.MembershipLevel = MembershipLevel.ASSOCIATE;
                         }
                         else if (strLevelData.Equals("Individual"))
                         {
-                            objBusiness.GEnumMembershipLevel = MembershipLevel.INDIVIDUAL;
+                            objBusiness.MembershipLevel = MembershipLevel.INDIVIDUAL;
                         }
                         else if (strLevelData.Equals("Courtesy"))
                         {
-                            objBusiness.GEnumMembershipLevel = MembershipLevel.COURTESY;
+                            objBusiness.MembershipLevel = MembershipLevel.COURTESY;
                         }
 
                         context.Businesses.Add(objBusiness);
-                        context.SaveChanges();
 
-                        ContactPerson objContactPerson = new ContactPerson()
-                        {
-                            GStrName = Data[intCounter].gstrContactPerson
-                        };
-
+               
 
                         arrLocationSplit = Data[intCounter].gstrContactPerson.Split('&');
                         arrLocationSplitSlash = Data[intCounter].gstrContactPerson.Split('/');
                         arrLocationSplitAnd = Data[intCounter].gstrPhoneNumber.Split('/');
+                        arrSplit = Data[intCounter].gstrEmailAddress.Split(',');
 
                         if (arrLocationSplit.Length > 1)
                         {
                             for (int intCount = 0; intCount < arrLocationSplit.Length; intCount++)
                             {
-                                objContactPerson = new ContactPerson()
+                                ContactPerson objContactPerson = new ContactPerson()
                                 {
-                                    GStrName = arrLocationSplit[intCount]
+                                    Name = arrLocationSplit[intCount]
                                 };
 
                                 context.ContactPeople.Add(objContactPerson);
-                                context.SaveChanges();
 
                                 PhoneNumber objPhoneNumber = new PhoneNumber()
                                 {
-                                    GIntContactPersonId = objContactPerson.GIntId,
-                                    GStrPhoneNumber = Data[intCounter].gstrPhoneNumber,
+                                    ContactPerson = objContactPerson,
+                                    Number = Data[intCounter].gstrPhoneNumber,
                                     GEnumPhoneType = PhoneType.Office
                                 };
 
                                 context.PhoneNumbers.Add(objPhoneNumber);
-                                context.SaveChanges();
+
+                                if (Data[intCounter].gstrFaxNumber.Length > 1)
+                                {
+                                    PhoneNumber objFaxNumber = new PhoneNumber()
+                                    {
+                                        ContactPerson = objContactPerson,
+                                        Number = Data[intCounter].gstrFaxNumber,
+                                        GEnumPhoneType = PhoneType.Fax
+                                    };
+
+                                    context.PhoneNumbers.Add(objFaxNumber);
+                                }
+
+                                BusinessRep objBusinessRep = new BusinessRep()
+                                {
+                                    Business = objBusiness,
+                                    ContactPerson = objContactPerson
+                                };
+
+                                context.BusinessReps.Add(objBusinessRep);
+
+                                for (int intCountEmail = 0; intCountEmail < arrSplit.Length; intCountEmail++)
+                                {
+
+                                    Email objEmail = new Email()
+                                    {
+                                        ContactPerson = objContactPerson,
+                                        EmailAddress = arrSplit[intCountEmail]
+                                    };
+
+                                    context.Emails.Add(objEmail);
+                                }
                             }
                         }
                         else if (arrLocationSplitSlash.Length > 1 && arrLocationSplitAnd.Length > 1)
                         {
                             for (int intCount = 0; intCount < arrLocationSplitSlash.Length; intCount++)
                             {
-                                objContactPerson = new ContactPerson()
+                                ContactPerson objContactPerson = new ContactPerson()
                                 {
-                                    GStrName = arrLocationSplitSlash[intCount]
+                                    Name = arrLocationSplitSlash[intCount]
                                 };
 
                                 context.ContactPeople.Add(objContactPerson);
-                                context.SaveChanges();
 
                                 PhoneNumber objPhoneNumber = new PhoneNumber()
                                 {
-                                    GIntContactPersonId = objContactPerson.GIntId,
-                                    GStrPhoneNumber = arrLocationSplitAnd[intCount],
+                                    ContactPerson = objContactPerson,
+                                    Number = arrLocationSplitAnd[intCount],
                                     GEnumPhoneType = PhoneType.Office
                                 };
 
                                 context.PhoneNumbers.Add(objPhoneNumber);
-                                context.SaveChanges();
+
+                                if (Data[intCounter].gstrFaxNumber.Length > 1)
+                                {
+                                    PhoneNumber objFaxNumber = new PhoneNumber()
+                                    {
+                                        ContactPerson = objContactPerson,
+                                        Number = Data[intCounter].gstrFaxNumber,
+                                        GEnumPhoneType = PhoneType.Fax
+                                    };
+                                    context.PhoneNumbers.Add(objFaxNumber);
+                                }
+
+                                BusinessRep objBusinessRep = new BusinessRep()
+                                {
+                                    Business = objBusiness,
+                                    ContactPerson = objContactPerson
+                                };
+
+                                context.BusinessReps.Add(objBusinessRep);
+
+                                for (int intCountEmail = 0; intCountEmail < arrSplit.Length; intCountEmail++)
+                                {
+
+                                    Email objEmail = new Email()
+                                    {
+                                        ContactPerson = objContactPerson,
+                                        EmailAddress = arrSplit[intCountEmail]
+                                    };
+
+                                    context.Emails.Add(objEmail);
+                                }
                             }
                         }
-                        else
+                        else if(Data[intCounter].gstrContactPerson.Length > 0)
                         {
-                            context.ContactPeople.Add(objContactPerson);
-                            context.SaveChanges();
 
-                            PhoneNumber objPhoneNumber = new PhoneNumber()
+                            ContactPerson objContactPerson = new ContactPerson()
                             {
-                                GIntContactPersonId = objContactPerson.GIntId,
-                                GStrPhoneNumber = Data[intCounter].gstrPhoneNumber,
-                                GEnumPhoneType = PhoneType.Office
+                                Name = Data[intCounter].gstrContactPerson
                             };
 
-                            context.PhoneNumbers.Add(objPhoneNumber);
-                            context.SaveChanges();
+                            context.ContactPeople.Add(objContactPerson);
+
+
+                            for (int intCount = 0; intCount < arrLocationSplitAnd.Length; intCount++)
+                            {
+                                PhoneNumber objPhoneNumber = new PhoneNumber()
+                                {
+                                    ContactPerson = objContactPerson,
+                                    Number = Data[intCounter].gstrPhoneNumber,
+                                    GEnumPhoneType = PhoneType.Office
+                                };
+
+                                context.PhoneNumbers.Add(objPhoneNumber);
+                            }
+                            if (Data[intCounter].gstrFaxNumber.Length > 1) 
+                            {
+                                PhoneNumber objFaxNumber = new PhoneNumber()
+                                {
+                                    ContactPerson = objContactPerson,
+                                    Number = Data[intCounter].gstrFaxNumber,
+                                    GEnumPhoneType = PhoneType.Fax
+                                };
+
+                                context.PhoneNumbers.Add(objFaxNumber);
+                            }
+
+                            BusinessRep objBusinessRep = new BusinessRep()
+                            {
+                                Business = objBusiness,
+                                ContactPerson = objContactPerson
+                            };
+
+                            context.BusinessReps.Add(objBusinessRep);
+
+                            for (int intCount = 0; intCount < arrSplit.Length; intCount++)
+                            {
+
+                                Email objEmail = new Email()
+                                {
+                                    ContactPerson = objContactPerson,
+                                    EmailAddress = arrSplit[intCount]
+                                };
+
+                                context.Emails.Add(objEmail);
+                            }
                         }
 
-                        BusinessRep objBusinessRep = new BusinessRep()
+                        DateTime strCurrentYear = DateTime.Now;
+
+                        YearlyData objYearlyData = new YearlyData
                         {
-                            GIntBusinessId = objBusiness.GIntId,
-                            GIntContactPersonId = objContactPerson.GIntId
+                           Year = Int32.Parse(strCurrentYear.Year.ToString()),
+                           Business = objBusiness,
+                           DuesPaid = Double.Parse(Data[intCounter].gstrDuesPaid),
+                           TicketsReturned = Double.Parse(Data[intCounter].gstrRaffleTicketReturnedPaid),
+                           Credit = Double.Parse(Data[intCounter].gstrCredit),
+                           BallotNumber = Int32.Parse(Data[intCounter].gstrBallot),
+
                         };
 
-                        context.BusinessReps.Add(objBusinessRep);
-                        context.SaveChanges();
-
-                        Email objEmail = new Email()
+                        if (Data[intCounter].gstrTerms.Equals("Annually"))
                         {
-                            GIntContactPersonId = objContactPerson.GIntId,
-                            GStrEmailAddress = Data[intCounter].gstrEmailAddress
-                        };
-
-                        context.Emails.Add(objEmail);
-                        context.SaveChanges();
-                     
-                        PhoneNumber objFaxNumber = new PhoneNumber()
+                            objYearlyData.TermLength = TermLength.Annually;
+                        }
+                        else if (Data[intCounter].gstrTerms.Equals("Semiannually"))
                         {
-                            GIntContactPersonId = objContactPerson.GIntId,
-                            GStrPhoneNumber = Data[intCounter].gstrFaxNumber,
-                            GEnumPhoneType = PhoneType.Fax
-                        };
+                            objYearlyData.TermLength = TermLength.Semiannually;
+                        }
+                        else if (Data[intCounter].gstrTerms.Equals("Quarterly"))
+                        {
+                            objYearlyData.TermLength = TermLength.Quarterly;
+                        }
+                        else if (Data[intCounter].gstrTerms.Equals("Monthly"))
+                        {
+                            objYearlyData.TermLength = TermLength.Monthly;
+                        }
 
-                        context.PhoneNumbers.Add(objFaxNumber);
-                        context.SaveChanges();
+                        context.BusinessYearlyData.Add(objYearlyData);
 
-                        //YearlyData GObjYearlyData = new YearlyData
-                        //{
-                        //    GIntBusinessId = GObjBusiness.GIntId,
-                        //    GDblDuesPaid = Double.Parse(Data[GIntCounter].getDuesPaid()),
-                        //    GDblTicketsReturned = Double.Parse(Data[GIntCounter].getRaffleTicketReturnedPaid()),
-                        //    GDblCredit = Double.Parse(Data[GIntCounter].getCredit()),
-                        //    GIntBallotNumber = Int32.Parse(Data[GIntCounter].getBallot()),
-
-                        //};
-                     
-                        //context.BusinessYearlyData.Add(GObjYearlyData);
-                        //context.SaveChanges();                    
+                        context.SaveChanges();                    
                     }
-                    catch (System.FormatException)
+                    catch
                     {
-                   
-                    }                  
+                        lstStrFailedDataImports.Add(Data[intCounter].gstrBusinessName);
+
+                    }                   
                 }
             }
+
+            string strMessage = string.Join(Environment.NewLine, lstStrFailedDataImports);
+
+            if (strMessage.Length > 0) {
+                MessageBox.Show("ALL DATA ENTRY FAILED TO IMPORT TO DATABASE BELOW \n" + strMessage, "Excel Import Notice",
+                       MessageBoxButton.OK,
+                       MessageBoxImage.Information);
+
+            }
+            
 
             MessageBox.Show("Excel Data finished Importing to Database", "Excel Import Notice",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
         }
 
-            /// <summary>
-            /// FindFile method that allows the user to select the file they would like to be read into the application.
-            /// </summary>
-            /// <returns>String that contains the file path.</returns>
-            private string FindFile()
+        /// <summary>
+        /// FindFile method that allows the user to select the file they would like to be read into the application.
+        /// </summary>
+        /// <returns>String that contains the file path.</returns>
+        private string FindFile()
+        {
+            string FileName = "";
+            string FileExtension = "";
+
+            OpenFileDialog FileDialog = new OpenFileDialog();
+
+            FileDialog.Title = "Excel File Dialog";
+            FileDialog.InitialDirectory = @"c:\";
+            FileDialog.Filter = "Excel Files|*.xls;*.xlsx;";
+            FileDialog.FilterIndex = 2;
+            FileDialog.RestoreDirectory = true;
+            FileDialog.ShowDialog();
+
+
+            FileExtension = Path.GetExtension(FileDialog.FileName);
+
+            if (FileExtension.CompareTo(".xls") == 0 || FileExtension.CompareTo(".xlsx") == 0)
             {
-                string FileName = "";
-                string FileExtension = "";
+                FileName = FileDialog.FileName;
 
-                OpenFileDialog FileDialog = new OpenFileDialog();
-       
-                FileDialog.Title = "Excel File Dialog";
-                FileDialog.InitialDirectory = @"c:\";
-                FileDialog.Filter = "Excel Files|*.xls;*.xlsx;";
-                FileDialog.FilterIndex = 2;
-                FileDialog.RestoreDirectory = true;
-                FileDialog.ShowDialog();
+            }
+            else if (FileExtension.Equals(""))
+            {
 
-
-                FileExtension = Path.GetExtension(FileDialog.FileName);
-
-                if (FileExtension.CompareTo(".xls") == 0 || FileExtension.CompareTo(".xlsx") == 0)
-                {
-                    FileName = FileDialog.FileName;
-
-                }
-                else if(FileExtension.Equals(""))
-                {
-                
-                } else
-                {
-                    //Messagebox that prompts user to select the correct file type.
-                    MessageBox.Show("Please Select an valid Excel file.", "Excel Import Notice",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-                }    
+            }
+            else
+            {
+                //Messagebox that prompts user to select the correct file type.
+                MessageBox.Show("Please Select an valid Excel file.", "Excel Import Notice",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            }
 
             return FileName;
+        }
+
+        /// <summary>
+        /// FindPayPalFile method that allows the user to select the file they would like to be read into the application for PayPal transactions.
+        /// </summary>
+        /// <returns>String that contains the file path.</returns>
+        private string FindPayPalFile()
+        {
+            string FileName = "";
+            string FileExtension = "";
+
+            OpenFileDialog FileDialog = new OpenFileDialog();
+
+            FileDialog.Title = "Select PayPal Export File...";
+            FileDialog.InitialDirectory = @"c:\";
+            FileDialog.Filter = "CSV Files|*.csv;";
+            FileDialog.RestoreDirectory = true;
+            FileDialog.ShowDialog();
+
+
+            FileExtension = Path.GetExtension(FileDialog.FileName);
+
+            if (FileExtension == ".csv")
+            {
+                FileName = FileDialog.FileName;
             }
+            else
+            {
+                //Messagebox that prompts user to select the correct file type.
+                MessageBox.Show("Please Select an valid CSV file.", "Import Notice",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            }
+
+            return FileName;
+        }
 
         /// NOT FOR PRODUCTION:
         /// 

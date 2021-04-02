@@ -11,18 +11,17 @@ namespace DirectorPortalDatabase.Models
         /// Autoincrements.
         /// </summary>
         [Key]
-        [Column("id")]
-        public int GIntId { get; set; }
+        public int Id { get; set; }
         /// <summary>
         /// The id of the business that the representative
         /// belongs to in the database
         /// </summary>
-        [Column("businessId")]
-        public int GIntBusinessId { get; set; }
+        public int BusinessId { get; set; }
+        public virtual Business Business { get; set; }
         /// <summary>
         /// The representative's id in the table
         /// </summary>
-        [Column("contactPersonId")]
-        public int GIntContactPersonId { get; set; }
+        public int ContactPersonId { get; set; }
+        public virtual ContactPerson ContactPerson { get; set; }
     }
 }

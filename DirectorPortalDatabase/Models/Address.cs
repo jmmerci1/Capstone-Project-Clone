@@ -18,33 +18,27 @@ namespace DirectorPortalDatabase.Models
         /// Autoincrements.
         /// </summary>
         [Key]
-        [Column("id")]
-        public int GIntId { get; set; }
+        public int Id { get; set; }
         /// <summary>
         /// The actual address number and street of the address
         /// </summary>
-        [Column("address")]
-        public string GStrAddress { get; set; }
+        public string StreetAddress { get; set; }
         /// <summary>
         /// The city portion of the address
         /// </summary>
-        [Column("city")]
-        public string GStrCity { get; set; }
+        public string City { get; set; }
         /// <summary>
         /// The state portion of the address
         /// </summary>
-        [Column("state")]
-        public string GStrState { get; set; }
+        public string State { get; set; }
         /// <summary>
         /// The zip code of the address
         /// </summary>
-        [Column("zip")]
-        public int GIntZipCode { get; set; }
+        public int? ZipCode { get; set; }
         /// <summary>
         /// The zip extended code of the address
         /// </summary>
-        [Column("zipExt")]
-        public string GStrZipExtCode { get; set; }
+        public string ZipCodeExt { get; set; }
 
         /// <summary>
         /// A mehtod for comparing two addresses.
@@ -55,10 +49,10 @@ namespace DirectorPortalDatabase.Models
         {
             Address addressToCompare = obj as Address;
 
-            if (GStrAddress.Equals(addressToCompare.GStrAddress) &&
-                GStrCity.Equals(addressToCompare.GStrCity) &&
-                GStrState.Equals(addressToCompare.GStrState) &&
-                GIntZipCode == addressToCompare.GIntZipCode)
+            if (StreetAddress.Equals(addressToCompare.StreetAddress) &&
+                City.Equals(addressToCompare.City) &&
+                State.Equals(addressToCompare.State) &&
+                ZipCode == addressToCompare.ZipCode)
             {
                 return true;
             }
@@ -75,6 +69,18 @@ namespace DirectorPortalDatabase.Models
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        /// <summary>
+        /// A method for checking if an address is empty.
+        /// </summary>
+        /// <returns>Returtns true if the address is empty.</returns>
+        public bool IsEmpty()
+        {
+            return (StreetAddress.Equals("")
+                    && City.Equals("")
+                    && StreetAddress.Equals("")
+                    && ZipCode == 0);
         }
     }
 }

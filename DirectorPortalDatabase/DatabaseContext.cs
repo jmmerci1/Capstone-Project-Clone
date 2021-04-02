@@ -38,6 +38,14 @@ namespace DirectorPortalDatabase
         /// </summary>
         public DbSet<Email> Emails { get; set; }
         /// <summary>
+        /// A table that stores a group of emails
+        /// </summary>
+        public DbSet<EmailGroup> EmailGroups { get; set; }
+        /// <summary>
+        /// A relational table between Emails and EmailGroups 
+        /// </summary>
+        public DbSet<EmailGroupMember> EmailGroupMembers { get; set; }
+        /// <summary>
         /// A table with phone numbers. Links a phone number to a contact person.
         /// Each phone number has a different type assosciated with it to help
         /// identify it against the others.
@@ -70,6 +78,17 @@ namespace DirectorPortalDatabase
         /// while categories can be applicable to multiple businesses.
         /// </summary>
         public DbSet<CategoryRef> CategoryRef { get; set; }
+
+        /// <summary>
+        /// Represents an itemized payment posted by a contact of a business,
+        /// on the business's behalf. 
+        /// </summary>
+        public DbSet<Payment> Payments { get; set; }
+
+        /// <summary>
+        /// Represents a line item on a Payment.
+        /// </summary>
+        public DbSet<PaymentItem> PaymentItems { get; set; }
 
         /// <summary>
         /// Pulls the connection string from the App.config file,

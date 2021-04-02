@@ -2,10 +2,12 @@
 using DirectorPortalDatabase.Models;
 using DirectorPortalDatabase.Utility;
 using iTextSharp.text.pdf;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -45,7 +47,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
         private void BtnAddMember_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.Navigate(new AddMembersPage());
+            NavigationService.Navigate(new ModifyMembersPage(null, null));
         }
 
         /// <summary>
@@ -74,11 +76,18 @@ namespace DirectorsPortalWPF.MemberInfoUI
             using (DatabaseContext context = new DatabaseContext()) 
             {
                 selectedBusiness = context.Businesses
-                    .Where(business => business.GStrBusinessName.Equals(selectedTableViewModel.StrBuisnessName))
-                    .FirstOrDefault();
+                    .Include(x => x.MailingAddress)
+                    .Include(x => x.PhysicalAddress)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.Emails)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.PhoneNumbers)
+                    .FirstOrDefault(business => business.BusinessName.Equals(selectedTableViewModel.StrBuisnessName));
             }
 
-            NavigationService.Navigate(new EditMembersPage(selectedBusiness));
+            NavigationService.Navigate(new ModifyMembersPage(null, selectedBusiness));
         }
 
         /// <summary>
@@ -94,27 +103,32 @@ namespace DirectorsPortalWPF.MemberInfoUI
             {
                 List<BusinessTableViewModel> lstTableViewModel = new List<BusinessTableViewModel>();
 
-                List<Business> lstBusiness = context.Businesses.ToList();
+                List<Business> lstBusiness = context.Businesses
+                    .Include(bus => bus.MailingAddress)
+                    .Include(bus => bus.PhysicalAddress)
+                    .ToList();
                 foreach (Business business in lstBusiness) 
                 {
                     BusinessTableViewModel businessTableView = new BusinessTableViewModel();
 
-                    businessTableView.StrBuisnessName = business.GStrBusinessName;
+                    businessTableView.StrBuisnessName = business.BusinessName;
 
                     /* Get the associated addresses for this business. */
-                    Address locationAddress = context.Addresses.Find(business.GIntPhysicalAddressId);
-                    Address malingAddress = context.Addresses.Find(business.GIntMailingAddressId);
+                    //Address locationAddress = context.Addresses.Find(business.PhysicalAddressId);
+                    //Address malingAddress = context.Addresses.Find(business.MailingAddressId);
+                    Address locationAddress = business.PhysicalAddress;
+                    Address malingAddress = business.MailingAddress;
 
-                    businessTableView.StrLocationAddress = locationAddress?.GStrAddress;
-                    businessTableView.StrMailingAddress = malingAddress?.GStrAddress;
-                    businessTableView.StrCity = malingAddress?.GStrCity;
-                    businessTableView.StrState = malingAddress?.GStrState;
-                    businessTableView.IntZipCode = CheckNullableInt(malingAddress?.GIntZipCode);
+                    businessTableView.StrLocationAddress = locationAddress?.StreetAddress;
+                    businessTableView.StrMailingAddress = malingAddress?.StreetAddress;
+                    businessTableView.StrCity = malingAddress?.City;
+                    businessTableView.StrState = malingAddress?.State;
+                    businessTableView.IntZipCode = CheckNullableInt(malingAddress?.ZipCode);
 
                     /* Get the business rep from the database. */
                     /* TODO: Need to figure out a way to display more than one buisiness rep. */
                     BusinessRep businessRep = context.BusinessReps
-                        .Where(r => r.GIntBusinessId == business.GIntId).FirstOrDefault();
+                        .Where(r => r.BusinessId == business.Id).FirstOrDefault();
 
                     if (businessRep == null)
                     {
@@ -127,36 +141,36 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     }
                     else 
                     {
-                        ContactPerson contactPerson = context.ContactPeople.Find(businessRep.GIntContactPersonId);
+                        ContactPerson contactPerson = context.ContactPeople.Find(businessRep.ContactPersonId);
 
-                        businessTableView.StrContactPerson = contactPerson?.GStrName;
+                        businessTableView.StrContactPerson = contactPerson?.Name;
 
                         /* Get the phone and fax number of the contact person. */
                         List<PhoneNumber> phoneNumbers = context.PhoneNumbers
-                            .Where(pn => pn.GIntContactPersonId == contactPerson.GIntId).ToList();
+                            .Where(pn => pn.ContactPersonId == contactPerson.Id).ToList();
                         foreach (PhoneNumber phoneNumber in phoneNumbers)
                         {
                             if (phoneNumber.GEnumPhoneType == PhoneType.Mobile ||
                                 phoneNumber.GEnumPhoneType == PhoneType.Office)
                             {
-                                businessTableView.StrPhoneNumber = phoneNumber?.GStrPhoneNumber;
+                                businessTableView.StrPhoneNumber = phoneNumber?.Number;
                             }
                             else
                             {
-                                businessTableView.StrFaxNumber = phoneNumber?.GStrPhoneNumber;
+                                businessTableView.StrFaxNumber = phoneNumber?.Number;
                             }
                         }
 
                         /* Get the contacts persons email address. */
                         Email email = context.Emails
-                            .Where(ea => ea.GIntContactPersonId == contactPerson.GIntId).FirstOrDefault();
-                        businessTableView.StrEmailAddress = email?.GStrEmailAddress;
+                            .Where(ea => ea.ContactPersonId == contactPerson.Id).FirstOrDefault();
+                        businessTableView.StrEmailAddress = email?.EmailAddress;
                     }
 
-                    businessTableView.StrWebsite = business?.GStrWebsite;
-                    businessTableView.StrLevel = Business.GetMebershipLevelString(business.GEnumMembershipLevel);
+                    businessTableView.StrWebsite = business?.Website;
+                    businessTableView.StrLevel = Business.GetMebershipLevelString(business.MembershipLevel);
 
-                    businessTableView.IntEstablishedYear = CheckNullableInt(business?.GIntYearEstablished);
+                    businessTableView.IntEstablishedYear = CheckNullableInt(business?.YearEstablished);
 
                     lstTableViewModel.Add(businessTableView);
                 }
@@ -169,6 +183,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     gvcCol.Header = GDicHumanReadableTableFields[property.Name];
                     gvcCol.DisplayMemberBinding = new Binding(property.Name);
                     gvMemberInfo.Columns.Add(gvcCol);
+                    
                 }
 
                 /* Add a button to edit the business to the end of each row. */
@@ -198,6 +213,62 @@ namespace DirectorsPortalWPF.MemberInfoUI
             }
         }
 
+        GridViewColumnHeader lastHeaderClicked = null;
+        ListSortDirection lastDirection = ListSortDirection.Ascending;
+        //Takes an input string, and direction
+        //Sorts column with name matching the string in the given direction
+        private void Sort(string strSortBy, ListSortDirection direction)
+        {
+            ICollectionView dataView =
+              CollectionViewSource.GetDefaultView(lvMemberInfo.ItemsSource);
+
+            dataView.SortDescriptions.Clear();
+            SortDescription sd = new SortDescription(strSortBy, direction);
+            dataView.SortDescriptions.Add(sd);
+            dataView.Refresh();
+        }
+        /// <summary>
+        /// Calls the sort function when a column header is clicked passing it the column name and direction
+        /// Maintains which column is currently being sorted and in which direction
+        /// </summary>
+        /// <param name="sender">The text box that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
+        private void GridViewColumnHeaderClickedHandler(object sender,
+                                            RoutedEventArgs e)
+        {
+            var headerClicked = e.OriginalSource as GridViewColumnHeader;
+            ListSortDirection direction;
+
+            if (headerClicked != null)
+            {
+                if (headerClicked.Role != GridViewColumnHeaderRole.Padding)
+                {
+                    if (headerClicked != lastHeaderClicked)
+                    {
+                        direction = ListSortDirection.Ascending;
+                    }
+                    else
+                    {
+                        if (lastDirection == ListSortDirection.Ascending)
+                        {
+                            direction = ListSortDirection.Descending;
+                        }
+                        else
+                        {
+                            direction = ListSortDirection.Ascending;
+                        }
+                    }
+
+                    var columnBinding = headerClicked.Column.DisplayMemberBinding as Binding;
+                    var strSortBy = columnBinding?.Path.Path ?? headerClicked.Column.Header as string;
+
+                    Sort(strSortBy, direction);
+
+                    lastHeaderClicked = headerClicked;
+                    lastDirection = direction;
+                }
+            }
+        }
         /// <summary>
         /// A method for detecting when the text in TxtFilter has changed.
         /// </summary>
@@ -279,9 +350,39 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// <param name="e">THe Click Event</param>
         private void BtnNewMembPdf_Click(object sender, RoutedEventArgs e)
         {
-            // Get fields from PDF then pass to Add Members Screen.
-            Dictionary<string, string> dictFields = OpenFile();
-            NavigationService.Navigate(new AddMembersPage(dictFields));
+            try
+            {
+                // Get fields from PDF then pass to Add Members Screen.
+                Dictionary<string, string> dictFields = OpenFile();
+                Business busToCheckExists = new Business();
+
+                // Do some logic to find the business being modified.
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    busToCheckExists = dbContext.Businesses
+                    .Include(x => x.MailingAddress)
+                    .Include(x => x.PhysicalAddress)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.Emails)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.PhoneNumbers)
+                    .FirstOrDefault(business => business.BusinessName.Equals(dictFields["Business Name"]));
+                }
+
+                if (busToCheckExists == null)
+                {
+                    if (dictFields.ContainsKey("Business Name"))
+                        NavigationService.Navigate(new ModifyMembersPage(dictFields, null));
+                }
+                else
+                    MessageBox.Show($"{ dictFields["Business Name"] } already exists in the Database", "Business Already Exists");
+            }
+            catch (Exception ex)
+            {
+                // MessageBox.Show($"This file is not compatible for import", "File Not Compatible");
+            }
         }
 
         /// <summary>
@@ -293,18 +394,43 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// <param name="e">The Click Event</param>
         private void BtnModMembPdf_Click(object sender, RoutedEventArgs e)
         {
-            // Get fields from PDF
-            Dictionary<string, string> dictFields = OpenFile();
-            Business busModified = new Business();
-
-            // Do some logic to find the business being modified.
-            using (DatabaseContext dbContext = new DatabaseContext())
+            try
             {
-                busModified = dbContext.Businesses
-                    .Where(business => business.GStrBusinessName.Equals(dictFields["Business Name"])).FirstOrDefault();
+                // Get fields from PDF
+                Dictionary<string, string> dictFields = OpenFile();
+                Business busModified = new Business();
+
+                if (dictFields.ContainsKey("Business Name"))
+                {
+                    // Do some logic to find the business being modified.
+                    using (DatabaseContext dbContext = new DatabaseContext())
+                    {
+                        busModified = dbContext.Businesses
+                        .Include(x => x.MailingAddress)
+                        .Include(x => x.PhysicalAddress)
+                        .Include(x => x.BusinessReps)
+                        .ThenInclude(x => x.ContactPerson)
+                        .ThenInclude(x => x.Emails)
+                        .Include(x => x.BusinessReps)
+                        .ThenInclude(x => x.ContactPerson)
+                        .ThenInclude(x => x.PhoneNumbers)
+                        .FirstOrDefault(business => business.BusinessName.Equals(dictFields["Business Name"]));
+                    }
+
+                    if (busModified != null)
+                    {
+                        if (dictFields.ContainsKey("Business Name"))
+                            NavigationService.Navigate(new ModifyMembersPage(dictFields, busModified));
+                    }
+                    else
+                        MessageBox.Show($"{ dictFields["Business Name"] } is not an existing Businss in the Database", "Business Not Found");
+                }
+            }
+            catch (Exception ex)
+            {
+                // MessageBox.Show($"This file is not compatible for import", "File Not Compatible");
             }
 
-            NavigationService.Navigate(new EditMembersPage(busModified, dictFields));
         }
 
         /// <summary>
@@ -314,78 +440,90 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// </summary>
         private Dictionary<string, string> OpenFile()
         {
+            //dictionary to store values to be sent to UI
+            var dicToAdd = new Dictionary<string, string>();
+
             //opens file dialog to select pdf
             OpenFileDialog openFileDialog = new OpenFileDialog()
             {
                 Filter = "PDF Files|*.pdf"
             };
 
-            if (openFileDialog.ShowDialog() == true)
-                Console.WriteLine(File.ReadAllText(openFileDialog.FileName));
-            //create new reader object
-            PdfReader reader = new PdfReader(openFileDialog.FileName);
-            //variable for form fields in PDF 
-            var objFields = reader.AcroFields.Fields;
-            //array to contain all values from key value pairs read
-            var arrFieldData = new ArrayList();
-            //iterates over key value pairs and add values(data from pdf) to the array
-            foreach (var item in objFields.Keys)
+            try 
             {
-                arrFieldData.Add(reader.AcroFields.GetField(item.ToString()));
-                Console.WriteLine(reader.AcroFields.GetField(item.ToString())); 
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    Console.WriteLine(File.ReadAllText(openFileDialog.FileName));
+
+                    //create new reader object
+                    PdfReader reader = new PdfReader(openFileDialog.FileName);
+                    //variable for form fields in PDF 
+                    var objFields = reader.AcroFields.Fields;
+                    //array to contain all values from key value pairs read
+                    var arrFieldData = new ArrayList();
+                    //iterates over key value pairs and add values(data from pdf) to the array
+                    foreach (var item in objFields.Keys)
+                    {
+                        arrFieldData.Add(reader.AcroFields.GetField(item.ToString()));
+                        Console.WriteLine(reader.AcroFields.GetField(item.ToString()));
+                    }
+                    //array to split city state zip 
+                    String[] strCityStateZip = arrFieldData[4].ToString().Split(',');
+
+
+                    //dictionary add statements to add pdf data to ui
+                    dicToAdd.Add("Business Name", (string)arrFieldData[0]);
+                    dicToAdd.Add("Website", (string)arrFieldData[8]);
+                    dicToAdd.Add("Level", (string)arrFieldData[13]);
+                    dicToAdd.Add("Established", (string)arrFieldData[9]);
+
+                    // Mailing Address
+                    dicToAdd.Add("Mailing Address", (string)arrFieldData[2]);
+
+                    if (strCityStateZip.Length > 0)
+                        dicToAdd.Add("City", strCityStateZip[0]);
+                    else
+                        dicToAdd.Add("City", "");
+
+                    if (strCityStateZip.Length > 1)
+                        dicToAdd.Add("State", strCityStateZip[1]);
+                    else
+                        dicToAdd.Add("State", "");
+
+                    if (strCityStateZip.Length > 2)
+                        dicToAdd.Add("Zip Code", strCityStateZip[2]);
+                    else
+                        dicToAdd.Add("Zip Code", "");
+
+                    // Location Address
+                    dicToAdd.Add("Location Address", (string)arrFieldData[3]);
+
+                    if (strCityStateZip.Length > 0)
+                        dicToAdd.Add("Location City", strCityStateZip[0]);
+                    else
+                        dicToAdd.Add("Location City", "");
+
+                    if (strCityStateZip.Length > 1)
+                        dicToAdd.Add("Location State", strCityStateZip[1]);
+                    else
+                        dicToAdd.Add("Location State", "");
+
+                    if (strCityStateZip.Length > 2)
+                        dicToAdd.Add("Location Zip Code", strCityStateZip[2]);
+                    else
+                        dicToAdd.Add("Location Zip Code", "");
+
+                    dicToAdd.Add("Contact Name", (string)arrFieldData[1]);
+                    dicToAdd.Add("Phone Number", (string)arrFieldData[5]);
+                    dicToAdd.Add("Fax Number", (string)arrFieldData[6]);
+                    dicToAdd.Add("Email Address", (string)arrFieldData[7]);
+                }
             }
-            //array to split city state zip 
-            String[] strCityStateZip = arrFieldData[4].ToString().Split(',');
-            //dictionary to store values to be sent to UI
-            var dicToAdd = new Dictionary<string, string>();
+            catch (ArgumentOutOfRangeException ex)
+            {
+                throw new Exception("File Not Compatible");
+            }
 
-            //dictionary add statements to add pdf data to ui
-            dicToAdd.Add("Business Name", (string)arrFieldData[0]);
-            dicToAdd.Add("Website", (string)arrFieldData[8]);
-            dicToAdd.Add("Level", (string)arrFieldData[13]);
-            dicToAdd.Add("Established", (string)arrFieldData[9]);
-
-            // Mailing Address
-            dicToAdd.Add("Mailing Address", (string)arrFieldData[2]);
-
-            if (strCityStateZip.Length > 0)
-                dicToAdd.Add("City", strCityStateZip[0]);
-            else
-                dicToAdd.Add("City", "");
-
-            if (strCityStateZip.Length > 1)
-                dicToAdd.Add("State", strCityStateZip[1]);
-            else
-                dicToAdd.Add("State", "");
-
-            if (strCityStateZip.Length > 2)
-                dicToAdd.Add("Zip Code", strCityStateZip[2]);
-            else
-                dicToAdd.Add("Zip Code", "");
-
-            // Location Address
-            dicToAdd.Add("Location Address", (string)arrFieldData[3]);
-
-            if (strCityStateZip.Length > 0)
-                dicToAdd.Add("Location City", strCityStateZip[0]);
-            else
-                dicToAdd.Add("Location City", "");
-
-            if (strCityStateZip.Length > 1)
-                dicToAdd.Add("Location State", strCityStateZip[1]);
-            else
-                dicToAdd.Add("Location State", "");
-
-            if (strCityStateZip.Length > 2)
-                dicToAdd.Add("Location Zip Code", strCityStateZip[2]);
-            else
-                dicToAdd.Add("Location Zip Code", "");
-
-            dicToAdd.Add("Contact Name", (string)arrFieldData[1]);
-            dicToAdd.Add("Phone Number", (string)arrFieldData[5]);
-            dicToAdd.Add("Fax Number", (string)arrFieldData[6]);
-            dicToAdd.Add("Email Address", (string)arrFieldData[7]);
-            
             //dictionary return
             return dicToAdd;
         }

@@ -8,7 +8,7 @@
       d:DesignHeight="373" d:DesignWidth="485"
       Title="EmailMembersSendEmailPage">
 
-    <Grid Margin="15,0,0,0" Grid.Column="2" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.Resources>
             <Style TargetType="{x:Type TextBox}">
                 <Setter Property="Margin" Value="5,5,5,10"></Setter>
@@ -129,5 +129,6 @@
         </DockPanel>
         <Button Click="SendEmail" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Grid.Column="2" Grid.Row="4" Content="Send" Margin="5,10,10,10" Padding="0,0,75,0" Height="20" />
         <Button Click="AttachFile_Click" HorizontalAlignment="Left" Template="{StaticResource smallButton}" Grid.Column="0" Grid.Row="4" Content="Attach" Margin="10,10,10,10" Padding="0,0,75,0" Height="20" />
+        <Label x:Name="LblAttachmentCount" Content="" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" />
     </Grid>
 </Page>
