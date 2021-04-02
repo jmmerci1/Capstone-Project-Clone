@@ -320,20 +320,20 @@ namespace DirectorsPortalConstantContact
 
             strOutString = this.ObfuscateString(strOutString);
 
-            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\DirectorsPortalWPF\\CCTokenCache.bin";
-            
+            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\CCTokenCache.bin";
+
 
             File.WriteAllText(strFname, strOutString, Encoding.UTF8);
             
         }
 
         /// <summary>
-        /// returns bool for valis access, if false, need to refresh
+        /// returns bool for valid access, if false, need to refresh
         /// </summary>
         private bool LoadCacheTokens()
         {
 
-            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\DirectorsPortalWPF\\CCTokenCache.bin";
+            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\CCTokenCache.bin";
 
             if (!File.Exists(strFname))
             {
