@@ -25,7 +25,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         private ComboBoxItem[] GRGReportTypeItems { get; set; }
         private List<string[]> GRGCurrentReport { get; set; }
         private List<ReportTemplate> GRGReportTemplates { get; set; }
-
+        private List<ListBoxItem> rgSelectedFieldItems;
         private int intKeyForExport = 0;
 
 
@@ -127,6 +127,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 txtTemplateName.Text = GRGReportTemplates[i].ReportTemplateName;
                 txtTemplateName.SetValue(Grid.RowProperty, i);
                 txtTemplateName.SetValue(Grid.ColumnProperty, 0);
+                txtTemplateName.Margin = new Thickness(0, 5, 5, 5);
                 grdReportTemplateList.Children.Add(txtTemplateName);
 
                 // Creates a button to view the report.
@@ -136,7 +137,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 btnViewReport.Click += ViewReportButtonHandler;
                 btnViewReport.SetValue(Grid.RowProperty, i);
                 btnViewReport.SetValue(Grid.ColumnProperty, 1);
-                btnViewReport.Margin = new Thickness(0, 0, 5, 0);
+                btnViewReport.Margin = new Thickness(0, 5, 5, 5);
                 btnViewReport.Template = (ControlTemplate)Application.Current.Resources["smallButton"];
                 grdReportTemplateList.Children.Add(btnViewReport);
 
@@ -147,7 +148,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 btnExportToExcel.Click += ExportToExcelButtonHandler;
                 btnExportToExcel.SetValue(Grid.RowProperty, i);
                 btnExportToExcel.SetValue(Grid.ColumnProperty, 2);
-                btnExportToExcel.Margin = new Thickness(0, 0, 5, 0);
+                btnExportToExcel.Margin = new Thickness(0, 5, 5, 5);
                 btnExportToExcel.Template = (ControlTemplate)Application.Current.Resources["smallButton"];
                 grdReportTemplateList.Children.Add(btnExportToExcel);
 
@@ -158,7 +159,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 btnDeleteReport.Click += DeleteReportButtonHandler;
                 btnDeleteReport.SetValue(Grid.RowProperty, i);
                 btnDeleteReport.SetValue(Grid.ColumnProperty, 3);
-                btnDeleteReport.Margin = new Thickness(0, 0, 5, 0);
+                btnDeleteReport.Margin = new Thickness(0, 5, 5, 5);
                 btnDeleteReport.Template = (ControlTemplate)Application.Current.Resources["smallButton"];
                 grdReportTemplateList.Children.Add(btnDeleteReport);
             }
@@ -308,7 +309,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                             {
                                 // Selects the ListBoxItem.
                                 lbiFieldItem.IsSelected = true;
-                                lstReportFields.SelectedItems.Add(lbiFieldItem);
+                                lstSelectedReportFields.SelectedItems.Add(lbiFieldItem);
                                 break;
                             }
                         }
@@ -466,6 +467,8 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         public GenerateReportsPage()
         {
             InitializeComponent();
+            rgSelectedFieldItems = new List<ListBoxItem>();
+            lstSelectedReportFields.ItemsSource = rgSelectedFieldItems;
 
             GRGCurrentReport = new List<string[]>();
             GRGReportTypeItems = new ComboBoxItem[ClsMetadataHelper.IntNumberOfModels];
@@ -556,6 +559,55 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
 
             txtReportTemplateName.Text = "";
+        }
+
+        private void LstReportFields_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (rgSelectedFieldItems.Contains((ListBoxItem)lstReportFields.SelectedItem))
+                rgSelectedFieldItems.Remove((ListBoxItem)lstReportFields.SelectedItem);
+            else
+                rgSelectedFieldItems.Add((ListBoxItem)lstReportFields.SelectedItem);
+
+            lstSelectedReportFields.Items.Refresh();
+        }
+
+        private void BtnClearFields_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                rgSelectedFieldItems.Clear();
+                lstSelectedReportFields.Items.Refresh();
+
+                // Gets the selected report type name from the combo box.
+                ComboBoxItem cbiSelectedReportTypeItem = (ComboBoxItem)cboReportType.SelectedItem;
+                // Extracts the model information from the ComboBoxItem.
+                GUdtSelectedReportType = (ClsMetadataHelper.ClsModelInfo)cbiSelectedReportTypeItem.Tag;
+                if (GUdtSelectedReportType != null)
+                {
+                    int intNumberOfFields = GUdtSelectedReportType.UdtTableMetaData.IntNumberOfFields;
+                    ListBoxItem[] rgFieldItems = new ListBoxItem[intNumberOfFields];
+
+                    // Iterates over the fields of the selected table.
+                    for (int i = 0; i < intNumberOfFields; i++)
+                    {
+                        // Stores the i-th field's information in a new ListBoxItem.
+                        ClsMetadataHelper.ClsTableField udtField = GUdtSelectedReportType.UdtTableMetaData.GetField(i);
+                        ListBoxItem lbiFieldItem = new ListBoxItem();
+                        lbiFieldItem.Content = udtField.StrHumanReadableName;
+                        lbiFieldItem.Tag = udtField;
+
+                        // Stores the new ListBoxItem in the array.
+                        rgFieldItems[i] = lbiFieldItem;
+                    }
+                    // Displays the table's fields in the listbox.
+                    lstReportFields.ItemsSource = rgFieldItems;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Nothing to clear", ex);
+            }
+
         }
     }
 
