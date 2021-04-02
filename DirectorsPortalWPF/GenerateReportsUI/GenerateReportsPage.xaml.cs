@@ -309,7 +309,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                             {
                                 // Selects the ListBoxItem.
                                 lbiFieldItem.IsSelected = true;
-                                lstSelectedReportFields.SelectedItems.Add(lbiFieldItem);
+                                lstReportFields.SelectedItems.Add(lbiFieldItem);
                                 break;
                             }
                         }
