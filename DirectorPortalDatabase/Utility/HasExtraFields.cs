@@ -98,5 +98,17 @@ namespace DirectorPortalDatabase.Utility
             });
             context.SaveChanges();
         }
+
+        /// <summary>
+        /// Remove a field from the table. Does not actually modify any of the
+        /// db entries, but will remove the additionalfields attribute.
+        /// </summary>
+        /// <param name="context">Database context</param>
+        /// <param name="field">Field name to delete</param>
+        public void DeleteField(DatabaseContext context, string field)
+        {
+            context.AdditionalFields.RemoveRange(context.AdditionalFields.Where(x => x.FieldName == field).ToList());
+            context.SaveChanges();
+        }
     }
 }

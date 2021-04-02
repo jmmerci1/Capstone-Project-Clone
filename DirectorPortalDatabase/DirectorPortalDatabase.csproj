@@ -167,6 +167,10 @@
     <Compile Include="Migrations\20210326235714_EmailGroup.designer.cs">
       <DependentUpon>20210326235714_EmailGroup.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20210330014412_AddAdditionalFieldUtilities.cs" />
+    <Compile Include="Migrations\20210330014412_AddAdditionalFieldUtilities.designer.cs">
+      <DependentUpon>20210330014412_AddAdditionalFieldUtilities.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\DatabaseContextModelSnapshot.cs" />
     <Compile Include="Models\AdditionalFields.cs" />
     <Compile Include="Models\Address.cs" />
