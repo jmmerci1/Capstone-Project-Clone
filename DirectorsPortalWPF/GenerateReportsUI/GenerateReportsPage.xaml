@@ -53,10 +53,18 @@
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="Report Fields" Grid.Row="0"/>
-                                <ListBox x:Name="lstReportFields" SelectionMode="Multiple" Grid.Row="1" Width="400" Height="210" HorizontalAlignment="Left">
-                                    <!--<ListBoxItem>Business Name</ListBoxItem>
+                                <TextBlock Text="Report Fields" Grid.Row="0" Margin="5,0,0,0"/>
+                                <ListBox x:Name="lstReportFields" SelectionMode="Multiple" Grid.Row="1" HorizontalAlignment="Stretch" Height="210" Margin="5,5,5,5"/>
+
+                                <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="5,0,0,0">
+                                    <TextBlock Text="Selected Report Fields" Grid.Row="0" Grid.Column="1" />
+                                    <Button x:Name="btnClearFields" Grid.Row="0" Grid.Column="1" Width="100" Content="Clear Selection" Margin="5,0,0,0" Template="{StaticResource smallButton}" />
+                                </StackPanel>
+
+                                <ListBox x:Name="lstSelectedReportFields" SelectionMode="Multiple" Grid.Row="1" Grid.Column="1" Height="210" HorizontalAlignment="Stretch" Margin="5,5,5,5">
+                                        <!--<ListBoxItem>Business Name</ListBoxItem>
                                 <ListBoxItem>Mailing Address</ListBoxItem>
                                 <ListBoxItem>Location Address</ListBoxItem>
                                 <ListBoxItem>City/State/Zip</ListBoxItem>
@@ -140,7 +148,8 @@
                             Grid.Column="0"
                             Height="auto"
                             Width="auto"
-                            Margin="140,25,20,20">
+                            Margin="140,25,20,20"
+                            Template="{StaticResource smallButton}" >
                         Save Template
                     </Button>
                     <Button Name="btnCancel"
@@ -149,7 +158,8 @@
                             Grid.Column="1"
                             Height="auto"
                             Width="auto"
-                            Margin="20,25,140,20">
+                            Margin="20,25,140,20"
+                            Template="{StaticResource smallButton}" >
                         Cancel
                     </Button>
                 </Grid>

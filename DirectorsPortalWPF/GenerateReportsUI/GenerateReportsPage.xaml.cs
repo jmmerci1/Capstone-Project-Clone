@@ -136,6 +136,8 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 btnViewReport.Click += ViewReportButtonHandler;
                 btnViewReport.SetValue(Grid.RowProperty, i);
                 btnViewReport.SetValue(Grid.ColumnProperty, 1);
+                btnViewReport.Margin = new Thickness(0, 0, 5, 0);
+                btnViewReport.Template = (ControlTemplate)Application.Current.Resources["smallButton"];
                 grdReportTemplateList.Children.Add(btnViewReport);
 
                 // Creates a button to export the report to Excel.
@@ -145,6 +147,8 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 btnExportToExcel.Click += ExportToExcelButtonHandler;
                 btnExportToExcel.SetValue(Grid.RowProperty, i);
                 btnExportToExcel.SetValue(Grid.ColumnProperty, 2);
+                btnExportToExcel.Margin = new Thickness(0, 0, 5, 0);
+                btnExportToExcel.Template = (ControlTemplate)Application.Current.Resources["smallButton"];
                 grdReportTemplateList.Children.Add(btnExportToExcel);
 
                 // Creates a button to delete the report template.
@@ -154,6 +158,8 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 btnDeleteReport.Click += DeleteReportButtonHandler;
                 btnDeleteReport.SetValue(Grid.RowProperty, i);
                 btnDeleteReport.SetValue(Grid.ColumnProperty, 3);
+                btnDeleteReport.Margin = new Thickness(0, 0, 5, 0);
+                btnDeleteReport.Template = (ControlTemplate)Application.Current.Resources["smallButton"];
                 grdReportTemplateList.Children.Add(btnDeleteReport);
             }
         }
