@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using DirectorPortalDatabase.Models;
@@ -56,24 +57,47 @@ namespace DirectorPortalDatabase.Utility
         /// </summary>
         /// <param name="field">Name of the field to set</param>
         /// <param name="value">Value to place in the field</param>
-        public void SetField(string field, string value, DatabaseContext context)
+        public void SetField(string field, string value, DatabaseContext context, [Optional] string newFieldName)
         {
-            if (ExtraFields != null)
+            if (value != null)
             {
-                var data = ExtraFieldData;
-                data.Add(field, value);
-                ExtraFieldData = data;
-                context.SaveChanges();
+                if (ExtraFields != null)
+                {
+                    var data = ExtraFieldData;
+                    data.Add(field, value);
+                    ExtraFieldData = data;
+                    context.SaveChanges();
+                }
+                else
+                {
+                    Dictionary<string, string> data = new Dictionary<string, string>();
+                    data.Add(field, value);
+                    ExtraFieldData = data;
+                    context.SaveChanges();
+                }
+            }
+            if (newFieldName != null)
+            {
+                if (ExtraFields != null)
+                {
+                    var data = ExtraFieldData;
+
+                    string strItem = data[field];
+                    data.Remove(field);
+                    data[newFieldName] = strItem;
+
+                    ExtraFieldData = data;
+                    context.SaveChanges();
+                    return;
+                }
             }
             else
             {
-                Dictionary<string, string> data = new Dictionary<string, string>();
-                data.Add(field, value);
-                ExtraFieldData = data;
-                context.SaveChanges();
+                return;
             }
 
         }
+
         /// <summary>
         /// Get the value stored in the extra field key.
         /// </summary>
@@ -125,6 +149,12 @@ namespace DirectorPortalDatabase.Utility
             {
                 AdditionalFields fieldToRename = context.AdditionalFields.Where(x => x.FieldName.Equals(field)).FirstOrDefault();
                 fieldToRename.FieldName = newName;
+
+                List<Business> businesses = context.Businesses.ToList();
+                foreach(Business business in businesses)
+                {
+                    business.SetField(field, null, context, newName);
+                }
             }
             else
             {
