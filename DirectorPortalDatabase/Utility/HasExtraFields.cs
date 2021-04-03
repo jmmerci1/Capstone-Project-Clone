@@ -56,11 +56,23 @@ namespace DirectorPortalDatabase.Utility
         /// </summary>
         /// <param name="field">Name of the field to set</param>
         /// <param name="value">Value to place in the field</param>
-        public void SetField(string field, string value)
+        public void SetField(string field, string value, DatabaseContext context)
         {
-            var data = ExtraFieldData;
-            data.Add(field, value);
-            ExtraFieldData = data;
+            if (ExtraFields != null)
+            {
+                var data = ExtraFieldData;
+                data.Add(field, value);
+                ExtraFieldData = data;
+                context.SaveChanges();
+            }
+            else
+            {
+                Dictionary<string, string> data = new Dictionary<string, string>();
+                data.Add(field, value);
+                ExtraFieldData = data;
+                context.SaveChanges();
+            }
+
         }
         /// <summary>
         /// Get the value stored in the extra field key.
@@ -96,6 +108,32 @@ namespace DirectorPortalDatabase.Utility
                 FieldName = field,
                 TableName = GetType().Name
             });
+            context.SaveChanges();
+        }
+
+        /// <summary>
+        /// Add a new field to the table. Doesn't technically do anything
+        /// to the data currently there, just adds a new entry to the
+        /// <see cref="AdditionalFields"/> table in the schema for UI purposes.
+        /// </summary>
+        /// <param name="context">The database context.</param>
+        /// <param name="field">The name of the field to add.</param>
+        public void RenameField(DatabaseContext context, string field, string newName)
+        {
+            List<string> currentFields = AvailableFields(context);
+            if (currentFields.Select(x => x.ToLower()).Contains(field.ToLower()))
+            {
+                AdditionalFields fieldToRename = context.AdditionalFields.Where(x => x.FieldName.Equals(field)).FirstOrDefault();
+                fieldToRename.FieldName = newName;
+            }
+            else
+            {
+                context.AdditionalFields.Add(new AdditionalFields()
+                {
+                    FieldName = field,
+                    TableName = GetType().Name
+                });
+            }
             context.SaveChanges();
         }
 

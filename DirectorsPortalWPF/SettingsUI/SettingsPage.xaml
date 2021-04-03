@@ -97,12 +97,6 @@
 
                         <Separator Grid.Row="1" Grid.ColumnSpan="2" Margin="0,10,0,10" />
 
-
-                        <Label Grid.Row="2" Grid.Column="0" Content="Entity:" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                        <ComboBox x:Name="cmbEntity" Grid.Row="2" Grid.Column="1" Width="150" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Background="Transparent" Foreground="Black" IsEditable="True" SelectionChanged="CmbEntity_SelectionChanged" ItemsSource="{Binding Path=GUdtyReportTypes}" />
-
-                        <Separator Grid.Row="3" Grid.ColumnSpan="2" Margin="0,10,0,10" />
-
                         <Grid x:Name="gridFieldTable" Grid.Row="4" Grid.ColumnSpan ="2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
@@ -131,9 +125,6 @@
 
                             <Label Grid.Row="0" Grid.Column="0" Content="Field Name:" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,30,0" />
                             <TextBox Grid.Row="0" Grid.Column="1" Name="txtBoxFieldName" Width="300" HorizontalAlignment="Left" VerticalAlignment="Center" Height="21.5"/>
-
-                            <Label Grid.Row="1" Grid.Column="0" Content="Field Format:" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,30,0" />
-                            <TextBox Grid.Row="1" Grid.Column="1" Name="txtBoxFieldFormat" Width="300" HorizontalAlignment="Left" VerticalAlignment="Center" Height="21.5"/>
 
                             <Button x:Name="btnSaveField" Content="Save Field" Template="{StaticResource smallButton}" Click="BtnSaveField_Click" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Margin="0,10,0,10" />
                         </Grid>
