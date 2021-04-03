@@ -25,8 +25,8 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         private ComboBoxItem[] GRGReportTypeItems { get; set; }
         private List<string[]> GRGCurrentReport { get; set; }
         private List<ReportTemplate> GRGReportTemplates { get; set; }
-        private List<ListBoxItem> rgSelectedFieldItems;
-        private List<string> rgSelectedTables;
+        private List<ListBoxItem> rgSelectedFieldItems;     // Used to populate the selected fields listbox
+        private List<string> rgSelectedTables;              // This list is used to keep track of the tables and fields selected. format: "tableName,fieldName"
         private int intKeyForExport = 0;
 
 
