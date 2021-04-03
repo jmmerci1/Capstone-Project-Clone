@@ -104,9 +104,10 @@
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition />
+                                <RowDefinition />
                             </Grid.RowDefinitions>
-
-                            <StackPanel x:Name="sPanelFields">
+                            <Label Grid.Row="0" Grid.ColumnSpan="2" Content="You can expand the tracked data by adding extra fields in the database. Use the 'Add Fields' button to add extra fields."/>
+                            <StackPanel Grid.Row="1" x:Name="sPanelFields">
 
                             </StackPanel>
 
