@@ -660,6 +660,34 @@ namespace DirectorsPortalConstantContact
             }
         }
 
+        public void RemoveContactFromContactList(ContactList objContactList, Contact objContact)
+        {
+            this.gobjCCAuth.ValidateAuthentication();
+
+            JArray objContactIds = new JArray(objContact.contact_id);
+            JProperty objContactProp = new JProperty("contact_ids", objContactIds);
+
+            JObject objSource = new JObject(objContactProp);
+
+            JProperty objSourceProp = new JProperty("source", objSource);
+
+
+
+            JArray LstListIDs = new JArray(objContactList.list_id);
+            JProperty objListProp = new JProperty("list_ids", LstListIDs);
+
+
+            JObject objFinal = new JObject();
+            objFinal.Add(objSourceProp);
+            objFinal.Add(objListProp);
+
+
+
+            string strFinalJson = JsonConvert.SerializeObject(objFinal);
+
+            this.PostJson(strFinalJson, "activities/remove_list_memberships");
+        }
+
         public void AddListToActivity(ContactList objList, EmailCampaignActivity objActivity)
         {
             objActivity.contact_list_ids.Add(objList.list_id);
