@@ -26,6 +26,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         private List<string[]> GRGCurrentReport { get; set; }
         private List<ReportTemplate> GRGReportTemplates { get; set; }
         private List<ListBoxItem> rgSelectedFieldItems;
+        private List<string> rgSelectedTables;
         private int intKeyForExport = 0;
 
 
@@ -468,6 +469,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         {
             InitializeComponent();
             rgSelectedFieldItems = new List<ListBoxItem>();
+            rgSelectedTables = new List<string>();
             lstSelectedReportFields.ItemsSource = rgSelectedFieldItems;
 
             GRGCurrentReport = new List<string[]>();
@@ -563,10 +565,23 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
         private void LstReportFields_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (rgSelectedFieldItems.Contains((ListBoxItem)lstReportFields.SelectedItem))
-                rgSelectedFieldItems.Remove((ListBoxItem)lstReportFields.SelectedItem);
-            else
-                rgSelectedFieldItems.Add((ListBoxItem)lstReportFields.SelectedItem);
+            try
+            {
+                if (rgSelectedFieldItems.Contains((ListBoxItem)lstReportFields.SelectedItem))
+                {
+                    rgSelectedFieldItems.Remove((ListBoxItem)lstReportFields.SelectedItem);
+                    rgSelectedTables.Remove(cboReportType.Text + "," + ((ListBoxItem)lstReportFields.SelectedItem).Content);
+                }
+                else
+                {
+                    rgSelectedFieldItems.Add((ListBoxItem)lstReportFields.SelectedItem);
+                    rgSelectedTables.Add(cboReportType.Text + "," + ((ListBoxItem)lstReportFields.SelectedItem).Content);
+                }
+            }
+            catch (NullReferenceException ex)
+            {
+                Console.WriteLine(ex);
+            }
 
             lstSelectedReportFields.Items.Refresh();
         }
@@ -576,6 +591,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             try
             {
                 rgSelectedFieldItems.Clear();
+                rgSelectedTables.Clear();
                 lstSelectedReportFields.Items.Refresh();
 
                 // Gets the selected report type name from the combo box.
