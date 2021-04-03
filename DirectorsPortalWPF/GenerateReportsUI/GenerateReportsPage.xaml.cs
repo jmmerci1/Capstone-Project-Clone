@@ -567,7 +567,9 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         {
             try
             {
-                if (!rgSelectedFieldItems.Contains((ListBoxItem)lstReportFields.SelectedItem))
+
+                ListBoxItem lbItemExists = rgSelectedFieldItems.Find(x => x.Content.Equals(((ListBoxItem)lstReportFields.SelectedItem).Content));
+                if (lbItemExists == null)
                 {
                     rgSelectedFieldItems.Add((ListBoxItem)lstReportFields.SelectedItem);
                     rgSelectedTables.Add(cboReportType.Text + "," + ((ListBoxItem)lstReportFields.SelectedItem).Content);
