@@ -82,12 +82,19 @@ namespace DirectorPortalDatabase.Utility
                 {
                     var data = ExtraFieldData;
 
-                    string strItem = data[field];
-                    data.Remove(field);
-                    data[newFieldName] = strItem;
+                    if (data.ContainsKey(field))
+                    {
+                        string strItem = data[field];
+                        data.Remove(field);
+                        data[newFieldName] = strItem;
 
-                    ExtraFieldData = data;
-                    context.SaveChanges();
+                        ExtraFieldData = data;
+                        context.SaveChanges();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"{GetType().Name} Does not contain {field}");
+                    }
                     return;
                 }
             }
