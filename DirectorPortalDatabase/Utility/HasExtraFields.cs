@@ -21,6 +21,7 @@ namespace DirectorPortalDatabase.Utility
         /// or the other functions provided.
         /// </summary>
         public string ExtraFields { get; set; }
+
         /// <summary>
         /// The parsed version of the extra fields.
         /// Can be used directly, but I would suggest using
@@ -53,12 +54,15 @@ namespace DirectorPortalDatabase.Utility
                 .ToList();
         }
         /// <summary>
-        /// Set the value of a field
+        /// Set the value of a field. Can also be used to rename a key representing a field. 
         /// </summary>
         /// <param name="field">Name of the field to set</param>
         /// <param name="value">Value to place in the field</param>
+        /// <param name="context">The database context for writing changed to the DB</param>
+        /// <param name="newFieldName">Optional parameter for renaming a dictionary key representing a field</param>
         public void SetField(string field, string value, DatabaseContext context, [Optional] string newFieldName)
         {
+
             if (value != null)
             {
                 if (ExtraFields != null)
@@ -143,12 +147,13 @@ namespace DirectorPortalDatabase.Utility
         }
 
         /// <summary>
-        /// Add a new field to the table. Doesn't technically do anything
-        /// to the data currently there, just adds a new entry to the
+        /// Rename a field in the table. Doesn't technically do anything
+        /// to the data currently there, just edits the entry in the
         /// <see cref="AdditionalFields"/> table in the schema for UI purposes.
         /// </summary>
         /// <param name="context">The database context.</param>
-        /// <param name="field">The name of the field to add.</param>
+        /// <param name="field">The name of the field to edit.</param>
+        /// <param name="newName">The new name for the field</param>
         public void RenameField(DatabaseContext context, string field, string newName)
         {
             List<string> currentFields = AvailableFields(context);
