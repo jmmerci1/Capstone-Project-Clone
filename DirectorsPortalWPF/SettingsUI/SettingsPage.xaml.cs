@@ -141,7 +141,7 @@ namespace DirectorsPortalWPF.SettingsUI
         {
             TextBox txtBoxFieldEdit = (TextBox)sPanelToDelete.Children[0];
             MessageBoxResult confirmDelete = MessageBox.Show(
-                $"Are you sure you want to delete \'{txtBoxFieldEdit.Text}\'?",
+                $"Are you sure you want to delete \'{txtBoxFieldEdit.Text}\'? All data in this field will become inaccessible, this operation cannot be reversed.",
                 "Warning!",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
