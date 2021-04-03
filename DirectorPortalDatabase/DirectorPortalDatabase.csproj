@@ -185,6 +185,7 @@
     <Compile Include="Models\Todo.cs" />
     <Compile Include="Models\YearlyData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\ClsJoinHelper.cs" />
     <Compile Include="Utility\ClsMetadataHelper.cs" />
   </ItemGroup>
   <ItemGroup>

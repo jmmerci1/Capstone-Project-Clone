@@ -195,11 +195,11 @@ namespace DirectorPortalDatabase.Utility
             /// <summary>
             /// Gets the DbSet from the context for this ClsModelInfo instance's model type. The return type is technically IQueryable of object.
             /// </summary>
-            public IQueryable<object> GetContextDbSet(DatabaseContext context)
+            public IQueryable<object> GetContextDbSet(DatabaseContext dbContext)
             {
-                // Calls the generic method context.Set, which returns the DbSet for a generic type.
+                // Calls the generic method dbContext.Set, which returns the DbSet for a generic type.
                 // The call is modified to account for the fact that TypeModelType is not generic.
-                IQueryable qryAllRecords = (IQueryable)context.GetType().GetMethod("Set").MakeGenericMethod(TypeModelType).Invoke(context, null);
+                IQueryable qryAllRecords = (IQueryable)dbContext.GetType().GetMethod("Set").MakeGenericMethod(TypeModelType).Invoke(dbContext, null);
                 // Converts the IQueryable to IQueryable<object>.
                 return qryAllRecords.Cast<object>();
             }
