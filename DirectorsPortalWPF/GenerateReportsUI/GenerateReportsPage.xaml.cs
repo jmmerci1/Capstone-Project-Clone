@@ -567,15 +567,35 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         {
             try
             {
-                if (rgSelectedFieldItems.Contains((ListBoxItem)lstReportFields.SelectedItem))
-                {
-                    rgSelectedFieldItems.Remove((ListBoxItem)lstReportFields.SelectedItem);
-                    rgSelectedTables.Remove(cboReportType.Text + "," + ((ListBoxItem)lstReportFields.SelectedItem).Content);
-                }
-                else
+                if (!rgSelectedFieldItems.Contains((ListBoxItem)lstReportFields.SelectedItem))
                 {
                     rgSelectedFieldItems.Add((ListBoxItem)lstReportFields.SelectedItem);
                     rgSelectedTables.Add(cboReportType.Text + "," + ((ListBoxItem)lstReportFields.SelectedItem).Content);
+                }
+
+                // Gets the selected report type name from the combo box.
+                ComboBoxItem cbiSelectedReportTypeItem = (ComboBoxItem)cboReportType.SelectedItem;
+                // Extracts the model information from the ComboBoxItem.
+                GUdtSelectedReportType = (ClsMetadataHelper.ClsModelInfo)cbiSelectedReportTypeItem.Tag;
+                if (GUdtSelectedReportType != null)
+                {
+                    int intNumberOfFields = GUdtSelectedReportType.UdtTableMetaData.IntNumberOfFields;
+                    ListBoxItem[] rgFieldItems = new ListBoxItem[intNumberOfFields];
+
+                    // Iterates over the fields of the selected table.
+                    for (int i = 0; i < intNumberOfFields; i++)
+                    {
+                        // Stores the i-th field's information in a new ListBoxItem.
+                        ClsMetadataHelper.ClsTableField udtField = GUdtSelectedReportType.UdtTableMetaData.GetField(i);
+                        ListBoxItem lbiFieldItem = new ListBoxItem();
+                        lbiFieldItem.Content = udtField.StrHumanReadableName;
+                        lbiFieldItem.Tag = udtField;
+
+                        // Stores the new ListBoxItem in the array.
+                        rgFieldItems[i] = lbiFieldItem;
+                    }
+                    // Displays the table's fields in the listbox.
+                    lstReportFields.ItemsSource = rgFieldItems;
                 }
             }
             catch (NullReferenceException ex)
