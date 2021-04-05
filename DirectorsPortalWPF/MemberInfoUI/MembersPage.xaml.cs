@@ -1,9 +1,10 @@
-﻿using DirectorPortalDatabase;
+using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
 using DirectorPortalDatabase.Utility;
 using iTextSharp.text.pdf;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -177,13 +178,13 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
                 /* Create the columns for the table. */
                 Type typeTableViewModel = typeof(BusinessTableViewModel);
+                /*Create Data Columns*/
                 foreach (var property in typeTableViewModel.GetProperties())
                 {
                     GridViewColumn gvcCol = new GridViewColumn();
                     gvcCol.Header = GDicHumanReadableTableFields[property.Name];
                     gvcCol.DisplayMemberBinding = new Binding(property.Name);
                     gvMemberInfo.Columns.Add(gvcCol);
-                    
                 }
 
                 /* Add a button to edit the business to the end of each row. */
@@ -202,8 +203,24 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     CellTemplate = dtEdit,
                     Header = "Edit"
                 };
-
                 gvMemberInfo.Columns.Add(gvcEdit);
+                /* Add a button to export the business to a PDF */
+                var btnFactoryGenerateBusinessPDF = new FrameworkElementFactory(typeof(Button));
+                btnFactoryGenerateBusinessPDF.SetValue(ContentProperty, "Create");
+                btnFactoryGenerateBusinessPDF.SetValue(TemplateProperty, (ControlTemplate)Application.Current.Resources["smallButton"]);
+                btnFactoryGenerateBusinessPDF.AddHandler(ButtonBase.ClickEvent, new RoutedEventHandler(BtnCreMembPdf_Click));
+
+                DataTemplate dtPDF = new DataTemplate()
+                {
+                    VisualTree = btnFactoryGenerateBusinessPDF
+                };
+
+                GridViewColumn gvcPDF = new GridViewColumn
+                {
+                    CellTemplate = dtPDF,
+                    Header = "GeneratePDF"
+                };
+                gvMemberInfo.Columns.Add(gvcPDF);
 
                 lvMemberInfo.ItemsSource = lstTableViewModel;
 
@@ -432,7 +449,171 @@ namespace DirectorsPortalWPF.MemberInfoUI
             }
 
         }
+        /// <summary>
+        /// When the user click the 'Create' button, the CreatePDF() function is called
+        /// Creating a new pdf for the corresponding buisness
+        /// </summary>
+        /// <param name="sender">The 'Create' button</param>
+        /// <param name="e">The Click Event</param>
+        private void BtnCreMembPdf_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            BusinessTableViewModel selectedTableViewModel = btn.DataContext as BusinessTableViewModel;
 
+            Business selectedBusiness = new Business();
+            using (DatabaseContext context = new DatabaseContext())
+            {
+                selectedBusiness = context.Businesses
+                    .Where(business => business.BusinessName.Equals(selectedTableViewModel.StrBuisnessName))
+                    .FirstOrDefault();
+            }
+            CreatePDF(selectedBusiness);
+
+
+        }
+
+        /// <summary>
+        /// Creates a new PDF from PDF Template
+        /// 
+        /// </summary>
+        private void CreatePDF(Business bus)
+        {
+
+            //Path to MyDocuments folder
+            string strMyDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string strNewFile = String.Format(@"{0}\{1}.pdf", strMyDocumentsPath, bus.BusinessName.Replace(" ", ""));
+            //Path to Template file in myDocuments
+            string strTemplatePath = String.Format(@"{0}/general_membership_application_template.pdf", strMyDocumentsPath);
+            //Checks MyDocuments folder for template file
+            if (!File.Exists(strTemplatePath))
+            {
+                MessageBox.Show("Template PDF Not Found.\n Put general_membership_application_template.pdf in your MyDocuments Folder");
+            }
+            else
+            { 
+                //create new reader object
+                PdfReader pdfReader = new PdfReader(strTemplatePath);
+                PdfStamper pdfStamper = new PdfStamper(pdfReader, new FileStream(strNewFile, FileMode.Create));
+                AcroFields pdfFormFields = pdfStamper.AcroFields;
+                    using (DatabaseContext context = new DatabaseContext())
+                    {
+                        //variable for form fields in PDF 
+                        //Membership Name
+                        pdfFormFields.SetField("Business Name", bus.BusinessName);
+
+                        //Logic for Contact Person name, Phone, and Fax
+                        string strContact = "";
+                        string strPhone = "";
+                        string strFax = "";
+                        string strEmail = "";
+
+                        BusinessRep businessRep = context.BusinessReps
+                            .Where(r => r.BusinessId == bus.Id).FirstOrDefault();
+                        if (businessRep != null)
+                        {
+                            ContactPerson contactPerson = context.ContactPeople.Find(businessRep.ContactPersonId);
+                            strContact = contactPerson?.Name;
+
+                            //Logic to grab Phone number used in later section
+                            List<PhoneNumber> phoneNumbers = context.PhoneNumbers
+                                .Where(pn => pn.ContactPersonId == contactPerson.Id).ToList();
+                            foreach (PhoneNumber phoneNumber in phoneNumbers)
+                            {
+                                if (phoneNumber.GEnumPhoneType == PhoneType.Mobile ||
+                                    phoneNumber.GEnumPhoneType == PhoneType.Office)
+                                {
+                                    strPhone = phoneNumber?.Number;
+                                }
+                                else
+                                {
+                                    strFax = phoneNumber?.Number;
+                                }
+                            }
+                            /* Get the contacts persons email address. */
+                            Email email = context.Emails
+                                .Where(ea => ea.ContactPersonId == contactPerson.Id).FirstOrDefault();
+                            strEmail = email?.EmailAddress;
+                        }
+
+                        //Contact Person
+                        pdfFormFields.SetField("Contact Name", strContact);
+                        // Mailing Address
+                        Address mailingAddress = context.Addresses.FirstOrDefault(x => x.Id == bus.MailingAddressId);
+                        pdfFormFields.SetField("Mailing Address", mailingAddress?.StreetAddress);
+                        // Location Address
+                        Address locationAddress = context.Addresses.FirstOrDefault(x => x.Id == bus.PhysicalAddressId);
+                        pdfFormFields.SetField("Location Address", locationAddress?.StreetAddress);
+                        // City, State, Zip
+                        string strCityStateZip = String.Format("{0} {1} {2}", mailingAddress?.City, mailingAddress?.State, CheckNullableInt(mailingAddress?.ZipCode));
+                        pdfFormFields.SetField("CityStateZip", strCityStateZip);
+                        // Phone Number
+                        pdfFormFields.SetField("Phone Number", strPhone);
+                        //Fax
+                        pdfFormFields.SetField("Fax Number", strFax);
+                        //Email Address
+                        pdfFormFields.SetField("Email Address", strEmail);
+                        // Website
+                        pdfFormFields.SetField("Website", bus.Website);
+                        //Year Established
+                        pdfFormFields.SetField("Established", bus.YearEstablished.ToString());
+                        /*Mebership Levels Radio Buttons
+                        0 = Gold, 1 = Silver, 2 = Associate, 3 = Individual
+                        */
+                        string strLevel = "";
+                        switch (bus.MembershipLevel.ToString())
+                        {
+                            case "GOLD":
+                                strLevel = "Gold";
+                                break;
+
+                            case "SILVER":
+                                strLevel = "Silver";
+                                break;
+
+                            case "ASSOCIATE":
+                                strLevel = "Associate";
+                                break;
+
+                            default:
+                                strLevel = "Individual";
+                                break;
+                        }
+                        pdfFormFields.SetField("Level", strLevel);
+                        /*Membership Payment Frequency Radio Buttons
+                        0 = Bi Annual, 1 = Quarterly, 2 = Monthly
+                            */
+                        string strTermLength = "0";
+                        string strIsAnnual = "Yes";
+                        YearlyData yearlyData = context.BusinessYearlyData
+                           .Where(r => r.BusinessId == bus.Id).FirstOrDefault();
+                        string strTermLengthEnum = yearlyData.TermLength.ToString();
+                        switch (strTermLengthEnum)
+                        {
+                            case "Semiannually":
+                                strTermLength = "0";
+                                break;
+
+                            case "Quarterly":
+                                strTermLength = "1";
+                                break;
+
+                            case "Monthly":
+                                strTermLength = "2";
+                                break;
+
+                            default:
+                                strTermLength = "";
+                                strIsAnnual = "";
+                                break;
+                        }
+                        pdfFormFields.SetField("yearlyData", strTermLength);
+                        // Non-Annual payment selected
+                        pdfFormFields.SetField("NonAnnual", strIsAnnual);
+                        pdfStamper.FormFlattening = false;
+                        pdfStamper.Close();
+                }
+            }
+        }
         /// <summary>
         /// Ability to open a file using the OpenFileDialog. 
         /// 
@@ -451,73 +632,72 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
             try 
             {
-                if (openFileDialog.ShowDialog() == true)
+                Console.WriteLine(File.ReadAllText(openFileDialog.FileName));
+
+                //create new reader object
+                PdfReader reader = new PdfReader(openFileDialog.FileName);
+                //variable for form fields in PDF 
+                AcroFields pdfFormFields = reader.AcroFields;
+                //array to split city state zip 
+                string strCityStateZip = pdfFormFields.GetField("CityStateZip");
+                String[] strArrCityStateZip;
+                //Logic to prevent errors if PDF is invalid
+                if (strCityStateZip != null)
                 {
-                    Console.WriteLine(File.ReadAllText(openFileDialog.FileName));
-
-                    //create new reader object
-                    PdfReader reader = new PdfReader(openFileDialog.FileName);
-                    //variable for form fields in PDF 
-                    var objFields = reader.AcroFields.Fields;
-                    //array to contain all values from key value pairs read
-                    var arrFieldData = new ArrayList();
-                    //iterates over key value pairs and add values(data from pdf) to the array
-                    foreach (var item in objFields.Keys)
-                    {
-                        arrFieldData.Add(reader.AcroFields.GetField(item.ToString()));
-                        Console.WriteLine(reader.AcroFields.GetField(item.ToString()));
-                    }
-                    //array to split city state zip 
-                    String[] strCityStateZip = arrFieldData[4].ToString().Split(',');
-
-
-                    //dictionary add statements to add pdf data to ui
-                    dicToAdd.Add("Business Name", (string)arrFieldData[0]);
-                    dicToAdd.Add("Website", (string)arrFieldData[8]);
-                    dicToAdd.Add("Level", (string)arrFieldData[13]);
-                    dicToAdd.Add("Established", (string)arrFieldData[9]);
-
-                    // Mailing Address
-                    dicToAdd.Add("Mailing Address", (string)arrFieldData[2]);
-
-                    if (strCityStateZip.Length > 0)
-                        dicToAdd.Add("City", strCityStateZip[0]);
-                    else
-                        dicToAdd.Add("City", "");
-
-                    if (strCityStateZip.Length > 1)
-                        dicToAdd.Add("State", strCityStateZip[1]);
-                    else
-                        dicToAdd.Add("State", "");
-
-                    if (strCityStateZip.Length > 2)
-                        dicToAdd.Add("Zip Code", strCityStateZip[2]);
-                    else
-                        dicToAdd.Add("Zip Code", "");
-
-                    // Location Address
-                    dicToAdd.Add("Location Address", (string)arrFieldData[3]);
-
-                    if (strCityStateZip.Length > 0)
-                        dicToAdd.Add("Location City", strCityStateZip[0]);
-                    else
-                        dicToAdd.Add("Location City", "");
-
-                    if (strCityStateZip.Length > 1)
-                        dicToAdd.Add("Location State", strCityStateZip[1]);
-                    else
-                        dicToAdd.Add("Location State", "");
-
-                    if (strCityStateZip.Length > 2)
-                        dicToAdd.Add("Location Zip Code", strCityStateZip[2]);
-                    else
-                        dicToAdd.Add("Location Zip Code", "");
-
-                    dicToAdd.Add("Contact Name", (string)arrFieldData[1]);
-                    dicToAdd.Add("Phone Number", (string)arrFieldData[5]);
-                    dicToAdd.Add("Fax Number", (string)arrFieldData[6]);
-                    dicToAdd.Add("Email Address", (string)arrFieldData[7]);
+                    strArrCityStateZip = strCityStateZip.ToString().Split(',');
                 }
+                else
+                {
+                    strArrCityStateZip = new string[0];
+                }
+
+
+                //dictionary add statements to add pdf data to ui
+                dicToAdd.Add("Business Name", pdfFormFields.GetField("Business Name"));
+                dicToAdd.Add("Website", pdfFormFields.GetField("Website"));
+                dicToAdd.Add("Level", pdfFormFields.GetField("Level"));
+                dicToAdd.Add("Established", pdfFormFields.GetField("Established"));
+
+                // Mailing Address
+                dicToAdd.Add("Mailing Address", pdfFormFields.GetField("Mailing Address"));
+
+                if (strArrCityStateZip.Length > 0)
+                    dicToAdd.Add("City", strArrCityStateZip[0]);
+                else
+                    dicToAdd.Add("City", "");
+
+                if (strArrCityStateZip.Length > 1)
+                    dicToAdd.Add("State", strArrCityStateZip[1].Replace(" ", ""));
+                else
+                    dicToAdd.Add("State", "");
+
+                if (strArrCityStateZip.Length > 2)
+                    dicToAdd.Add("Zip Code", strArrCityStateZip[2].Replace(" ", ""));
+                else
+                    dicToAdd.Add("Zip Code", "");
+
+                // Location Address
+                dicToAdd.Add("Location Address", pdfFormFields.GetField("Location Address"));
+
+                if (strArrCityStateZip.Length > 0)
+                    dicToAdd.Add("Location City", strArrCityStateZip[0]);
+                else
+                    dicToAdd.Add("Location City", "");
+
+                if (strArrCityStateZip.Length > 1)
+                    dicToAdd.Add("Location State", strArrCityStateZip[1].Replace(" ", ""));
+                else
+                    dicToAdd.Add("Location State", "");
+
+                if (strArrCityStateZip.Length > 2)
+                    dicToAdd.Add("Location Zip Code", strArrCityStateZip[2].Replace(" ", ""));
+                else
+                    dicToAdd.Add("Location Zip Code", "");
+
+                dicToAdd.Add("Contact Name", pdfFormFields.GetField("Contact Name"));
+                dicToAdd.Add("Phone Number", pdfFormFields.GetField("Phone Number"));
+                dicToAdd.Add("Fax Number", pdfFormFields.GetField("Fax Number"));
+                dicToAdd.Add("Email Address", pdfFormFields.GetField("Email Address"));  
             }
             catch (ArgumentOutOfRangeException ex)
             {
