@@ -64,6 +64,9 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
         {
             String strSubject = txtSubject.Text;
             String strRecipient = txtToField.Text;
+
+            btnSendEmail.IsEnabled = false; 
+
             if (ValidateGroupsEmails())
             {
                 String[] rgRecipient = GetEmails().ToArray();
@@ -89,6 +92,8 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
                     MessageBox.Show($"Message sent to {rgRecipient[0]} and {rgRecipient.Length - 1} others.", "Message Sent");
                 else
                     MessageBox.Show($"Message sent to {rgRecipient[0]}.", "Message Sent");
+
+                btnSendEmail.IsEnabled = true;
             }
         }
         /// <summary>
