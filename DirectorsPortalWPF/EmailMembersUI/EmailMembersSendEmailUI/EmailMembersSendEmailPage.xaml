@@ -127,7 +127,7 @@
             </ToolBar>
             <RichTextBox Name="rtbEmailBody" AcceptsTab="True" SpellCheck.IsEnabled="True"></RichTextBox>
         </DockPanel>
-        <Button Click="SendEmail" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Grid.Column="2" Grid.Row="4" Content="Send" Margin="5,10,10,10" Padding="0,0,75,0" Height="20" />
+        <Button x:Name="btnSendEmail" Click="SendEmail" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Grid.Column="2" Grid.Row="4" Content="Send" Margin="5,10,10,10" Padding="0,0,75,0" Height="20" />
         <Button Click="AttachFile_Click" HorizontalAlignment="Left" Template="{StaticResource smallButton}" Grid.Column="0" Grid.Row="4" Content="Attach" Margin="10,10,10,10" Padding="0,0,75,0" Height="20" />
         <Label x:Name="LblAttachmentCount" Content="" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" />
     </Grid>
