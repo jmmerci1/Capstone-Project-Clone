@@ -40,13 +40,16 @@ namespace DirectorsPortalWPF.SettingsUI
         readonly Dictionary<string, string> GDicHumanReadableTableFields
             = new Dictionary<string, string>();
 
+        List<Business> GObjDuplicateBusinesses;
+
         /// <summary>
         /// Initialization of the Data Import Conflict Screen.
         /// </summary>
-        public DataConflictPage()
+        public DataConflictPage(List<Business> duplicateBusiness)
         {
             InitializeComponent();
             PopulateHumanReadableTableFields();
+            GObjDuplicateBusinesses = duplicateBusiness;
         }
 
         /// <summary>
@@ -97,9 +100,7 @@ namespace DirectorsPortalWPF.SettingsUI
             {
                 List<BusinessTableViewModel> lstTableViewModel = new List<BusinessTableViewModel>();
 
-                List<Business> lstBusiness = dbContext.Businesses.ToList();
-
-                foreach (Business busCurrentBusiness in lstBusiness)
+                foreach (Business busCurrentBusiness in GObjDuplicateBusinesses)
                 {
                     BusinessTableViewModel objBusinessTableView = new BusinessTableViewModel
                     {

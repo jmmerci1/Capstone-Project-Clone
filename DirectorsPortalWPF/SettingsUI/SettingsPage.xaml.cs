@@ -461,6 +461,25 @@ namespace DirectorsPortalWPF.SettingsUI
             //Populated members List.
             Members = ReadExcelFile(FilePath);
 
+            List<Business> rgDuplicates = FindDuplicateDBData(Members);
+
+            if (rgDuplicates.Count > 0)
+            {
+
+                foreach (Business duplicate in rgDuplicates)
+                {
+                    Members currentMember = Members.Find(x => x.gstrBusinessName.Equals(duplicate.BusinessName));
+                    if (currentMember != null)
+                    {
+                        Members.Remove(currentMember);
+                        Console.WriteLine(currentMember.gstrBusinessName);
+                    }
+                }
+
+
+                NavigationService.Navigate(new DataConflictPage(rgDuplicates));
+            }
+
             if (Members.Count > 0)
             {
                 ImportToDatabase(Members);
@@ -1108,7 +1127,7 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="e">The Click Event</param>
         private void btnSimulateConflict_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.Navigate(new DataConflictPage());
+            // NavigationService.Navigate(new DataConflictPage());
         }
 
     }
