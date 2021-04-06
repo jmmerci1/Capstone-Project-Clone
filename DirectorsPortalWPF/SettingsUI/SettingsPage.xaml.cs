@@ -484,7 +484,7 @@ namespace DirectorsPortalWPF.SettingsUI
                     }
                 }
 
-                NavigationService.Navigate(new DataConflictPage(rgDuplicates, this));
+                NavigationService.Navigate(new DataConflictPage(rgDuplicates));
             }
 
             //Thread created to import data 
@@ -1072,9 +1072,6 @@ namespace DirectorsPortalWPF.SettingsUI
                        MessageBoxImage.Information);
 
             }
-            
-
-           
         }
 
         /// <summary>
@@ -1194,8 +1191,6 @@ public class Members
     public string gstrFreeWebAd { get; }
     public string gstrBallot { get; }
 
-public Members() { }
-
     public Members(string strEstablished, string strLevel, string strBusinessName, string strMailingAddress,
                    string strLocationAddress, string strCityStateZip, string strContactPerson, string strPhoneNumber,
                    string strFaxNumber, string strEmailAddress, string strWebsiteAddress, string strDuesPaid, string strRaffleTicketReturnedPaid,
@@ -1219,5 +1214,27 @@ public Members() { }
         this.gstrNotes = strNotes;
         this.gstrFreeWebAd = strFreeWebAd;
         this.gstrBallot = strBallot;
+    }
+
+    public Members()
+    {
+        this.gstrEstablished = "";
+        this.gstrLevel = "";
+        this.gstrBusinessName = "";
+        this.gstrMailingAddress = "";
+        this.gstrLocationAddress = "";
+        this.gstrCityStateZip = "";
+        this.gstrContactPerson = "";
+        this.gstrPhoneNumber = "";
+        this.gstrFaxNumber = "";
+        this.gstrEmailAddress = "";
+        this.gstrWebsiteAddress = "";
+        this.gstrDuesPaid = "";
+        this.gstrRaffleTicketReturnedPaid = "";
+        this.gstrCredit = "";
+        this.gstrTerms = "";
+        this.gstrNotes = "";
+        this.gstrFreeWebAd = "";
+        this.gstrBallot = "";
     }
 }

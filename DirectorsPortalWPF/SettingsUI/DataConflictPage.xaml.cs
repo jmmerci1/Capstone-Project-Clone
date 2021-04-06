@@ -44,19 +44,15 @@ namespace DirectorsPortalWPF.SettingsUI
         private List<Members> GObjDuplicateBusinesses;
         private List<Members> GObjSelectedForImport;
 
-        private SettingsPage gObjSettingsPage;
-
         /// <summary>
         /// Initialization of the Data Import Conflict Screen.
         /// </summary>
-        public DataConflictPage(List<Members> duplicateBusiness, SettingsPage settings)
+        public DataConflictPage(List<Members> duplicateBusiness)
         {
             InitializeComponent();
             PopulateHumanReadableTableFields();
             GObjDuplicateBusinesses = duplicateBusiness;
             GObjSelectedForImport = new List<Members>();
-            gObjSettingsPage = settings;
-            GObjSelectedForImport.Add(new Members());
             GObjSelectedForImport.Add(new Members());
         }
 
@@ -102,7 +98,7 @@ namespace DirectorsPortalWPF.SettingsUI
                 }
             }
 
-            gObjSettingsPage.ImportToDatabase(GObjSelectedForImport);
+            ImportToDatabase(GObjSelectedForImport);
             // Template code, need functionality to be implemented.
             NavigationService.GoBack();
         }
@@ -390,6 +386,376 @@ namespace DirectorsPortalWPF.SettingsUI
                         Console.WriteLine(ex.StackTrace);
                     }
                 }
+            }
+        }
+
+        /// Take in a List of members to sort and import data into the database
+        /// </summary>
+        /// <param name="Data">List of opbject members.</param>
+        public void ImportToDatabase(List<Members> Data)
+        {
+            List<string> lstStrFailedDataImports = new List<string>();
+
+            using (var context = new DatabaseContext())
+            {
+                for (int intCounter = 1; intCounter <= Data.Count - 1; intCounter++)
+                {
+                    if (Data[intCounter].gstrBusinessName.Equals(""))
+                    {
+                        break;
+                    }
+
+                    String strCityStateZip = Data[intCounter].gstrCityStateZip;
+                    String strLevelData = Data[intCounter].gstrLevel;
+                    String strAdditionalNote = "";
+
+                    String[] arrSplit = strCityStateZip.Split(',');
+                    String strCityData = arrSplit[0];
+
+                    String[] arrSplitStateZip = arrSplit[1].Split(' ');
+                    String strStateData = arrSplitStateZip[1];
+                    String strZipData = arrSplitStateZip[2];
+
+                    try
+                    {
+                        Address objMailingAddress = new Address()
+                        {
+                            StreetAddress = Data[intCounter].gstrMailingAddress,
+                            City = strCityData,
+                            State = strStateData,
+                        };
+
+                        Address objLocationAddress = new Address()
+                        {
+                            StreetAddress = Data[intCounter].gstrLocationAddress,
+                            City = strCityData,
+                            State = strStateData,
+                        };
+
+                        if (strZipData.Length > 5)
+                        {
+                            String[] arrZipSplit = strZipData.Split('-');
+
+                            objMailingAddress.ZipCode = Int32.Parse(arrZipSplit[0]);
+                            objLocationAddress.ZipCode = Int32.Parse(arrZipSplit[0]);
+                            objMailingAddress.ZipCodeExt = strZipData;
+                            objLocationAddress.ZipCodeExt = strZipData;
+                        }
+                        else
+                        {
+                            objMailingAddress.ZipCode = Int32.Parse(strZipData);
+                            objLocationAddress.ZipCode = Int32.Parse(strZipData);
+                            objMailingAddress.ZipCodeExt = strZipData;
+                            objLocationAddress.ZipCodeExt = strZipData;
+                        };
+
+                        String strLocationAddress = Data[intCounter].gstrLocationAddress;
+                        String[] arrLocationSplit = strLocationAddress.Split(',');
+                        String[] arrLocationSplitSlash = strLocationAddress.Split('/');
+                        String[] arrLocationSplitAnd = strLocationAddress.Split('&');
+
+                        if (arrLocationSplit.Length == 3)
+                        {
+                            String[] arrStateZip = arrLocationSplit[2].Split(' ');
+
+                            strLocationAddress = arrLocationSplit[1] + arrLocationSplit[2];
+                            objLocationAddress.StreetAddress = arrLocationSplit[0];
+                            objLocationAddress.City = arrLocationSplit[1];
+                            objLocationAddress.State = arrStateZip[1];
+                            objLocationAddress.ZipCode = Int32.Parse(arrStateZip[2]);
+                            objLocationAddress.ZipCodeExt = strZipData;
+
+                        }
+                        else if (arrLocationSplitSlash.Length > 1)
+                        {
+                            objLocationAddress.StreetAddress = arrLocationSplit[0];
+                            strAdditionalNote = " - Additional Location Addresses : ";
+
+                            for (int intCount = 1; intCount < arrLocationSplitSlash.Length; intCount++)
+                            {
+                                strAdditionalNote = strAdditionalNote + "  " + arrLocationSplitSlash[intCount] + " " + strCityStateZip;
+                            }
+                        }
+
+                        arrLocationSplit = strLocationAddress.Split('&');
+
+                        if (arrLocationSplit.Length > 1)
+                        {
+                            objLocationAddress.StreetAddress = arrLocationSplit[0];
+
+                            strAdditionalNote = " - Additional Location Addresses : ";
+
+                            for (int intCount = 1; intCount < arrLocationSplit.Length; intCount++)
+                            {
+                                arrLocationSplitSlash = arrLocationSplit[intCount].Split(',');
+
+                                if (arrLocationSplitSlash.Length > 1)
+                                {
+                                    strAdditionalNote = strAdditionalNote + "  " + arrLocationSplit[intCount];
+
+                                }
+                                else
+                                {
+                                    strAdditionalNote = strAdditionalNote + "  " + arrLocationSplit[intCount] + " " + strCityStateZip;
+                                }
+
+                            }
+                        }
+
+                        context.Addresses.Add(objMailingAddress);
+                        context.Addresses.Add(objLocationAddress);
+
+                        Business objBusiness = new Business()
+                        {
+                            BusinessName = Data[intCounter].gstrBusinessName,
+                            YearEstablished = Int32.Parse(Data[intCounter].gstrEstablished),
+                            Website = Data[intCounter].gstrWebsiteAddress,
+                            ExtraNotes = Data[intCounter].gstrNotes + " " + strAdditionalNote,
+                            MailingAddress = objMailingAddress,
+                            PhysicalAddress = objLocationAddress
+
+                        };
+
+                        if (strLevelData.Equals("Gold"))
+                        {
+                            objBusiness.MembershipLevel = MembershipLevel.GOLD;
+                        }
+                        else if (strLevelData.Equals("Silver"))
+                        {
+                            objBusiness.MembershipLevel = MembershipLevel.SILVER;
+                        }
+                        else if (strLevelData.Equals("Associate"))
+                        {
+                            objBusiness.MembershipLevel = MembershipLevel.ASSOCIATE;
+                        }
+                        else if (strLevelData.Equals("Individual"))
+                        {
+                            objBusiness.MembershipLevel = MembershipLevel.INDIVIDUAL;
+                        }
+                        else if (strLevelData.Equals("Courtesy"))
+                        {
+                            objBusiness.MembershipLevel = MembershipLevel.COURTESY;
+                        }
+
+                        context.Businesses.Add(objBusiness);
+
+
+
+                        arrLocationSplit = Data[intCounter].gstrContactPerson.Split('&');
+                        arrLocationSplitSlash = Data[intCounter].gstrContactPerson.Split('/');
+                        arrLocationSplitAnd = Data[intCounter].gstrPhoneNumber.Split('/');
+                        arrSplit = Data[intCounter].gstrEmailAddress.Split(',');
+
+                        if (arrLocationSplit.Length > 1)
+                        {
+                            for (int intCount = 0; intCount < arrLocationSplit.Length; intCount++)
+                            {
+                                ContactPerson objContactPerson = new ContactPerson()
+                                {
+                                    Name = arrLocationSplit[intCount]
+                                };
+
+                                context.ContactPeople.Add(objContactPerson);
+
+                                PhoneNumber objPhoneNumber = new PhoneNumber()
+                                {
+                                    ContactPerson = objContactPerson,
+                                    Number = Data[intCounter].gstrPhoneNumber,
+                                    GEnumPhoneType = PhoneType.Office
+                                };
+
+                                context.PhoneNumbers.Add(objPhoneNumber);
+
+                                if (Data[intCounter].gstrFaxNumber.Length > 1)
+                                {
+                                    PhoneNumber objFaxNumber = new PhoneNumber()
+                                    {
+                                        ContactPerson = objContactPerson,
+                                        Number = Data[intCounter].gstrFaxNumber,
+                                        GEnumPhoneType = PhoneType.Fax
+                                    };
+
+                                    context.PhoneNumbers.Add(objFaxNumber);
+                                }
+
+                                BusinessRep objBusinessRep = new BusinessRep()
+                                {
+                                    Business = objBusiness,
+                                    ContactPerson = objContactPerson
+                                };
+
+                                context.BusinessReps.Add(objBusinessRep);
+
+                                for (int intCountEmail = 0; intCountEmail < arrSplit.Length; intCountEmail++)
+                                {
+
+                                    Email objEmail = new Email()
+                                    {
+                                        ContactPerson = objContactPerson,
+                                        EmailAddress = arrSplit[intCountEmail]
+                                    };
+
+                                    context.Emails.Add(objEmail);
+                                }
+                            }
+                        }
+                        else if (arrLocationSplitSlash.Length > 1 && arrLocationSplitAnd.Length > 1)
+                        {
+                            for (int intCount = 0; intCount < arrLocationSplitSlash.Length; intCount++)
+                            {
+                                ContactPerson objContactPerson = new ContactPerson()
+                                {
+                                    Name = arrLocationSplitSlash[intCount]
+                                };
+
+                                context.ContactPeople.Add(objContactPerson);
+
+                                PhoneNumber objPhoneNumber = new PhoneNumber()
+                                {
+                                    ContactPerson = objContactPerson,
+                                    Number = arrLocationSplitAnd[intCount],
+                                    GEnumPhoneType = PhoneType.Office
+                                };
+
+                                context.PhoneNumbers.Add(objPhoneNumber);
+
+                                if (Data[intCounter].gstrFaxNumber.Length > 1)
+                                {
+                                    PhoneNumber objFaxNumber = new PhoneNumber()
+                                    {
+                                        ContactPerson = objContactPerson,
+                                        Number = Data[intCounter].gstrFaxNumber,
+                                        GEnumPhoneType = PhoneType.Fax
+                                    };
+                                    context.PhoneNumbers.Add(objFaxNumber);
+                                }
+
+                                BusinessRep objBusinessRep = new BusinessRep()
+                                {
+                                    Business = objBusiness,
+                                    ContactPerson = objContactPerson
+                                };
+
+                                context.BusinessReps.Add(objBusinessRep);
+
+                                for (int intCountEmail = 0; intCountEmail < arrSplit.Length; intCountEmail++)
+                                {
+
+                                    Email objEmail = new Email()
+                                    {
+                                        ContactPerson = objContactPerson,
+                                        EmailAddress = arrSplit[intCountEmail]
+                                    };
+
+                                    context.Emails.Add(objEmail);
+                                }
+                            }
+                        }
+                        else if (Data[intCounter].gstrContactPerson.Length > 0)
+                        {
+
+                            ContactPerson objContactPerson = new ContactPerson()
+                            {
+                                Name = Data[intCounter].gstrContactPerson
+                            };
+
+                            context.ContactPeople.Add(objContactPerson);
+
+
+                            for (int intCount = 0; intCount < arrLocationSplitAnd.Length; intCount++)
+                            {
+                                PhoneNumber objPhoneNumber = new PhoneNumber()
+                                {
+                                    ContactPerson = objContactPerson,
+                                    Number = Data[intCounter].gstrPhoneNumber,
+                                    GEnumPhoneType = PhoneType.Office
+                                };
+
+                                context.PhoneNumbers.Add(objPhoneNumber);
+                            }
+                            if (Data[intCounter].gstrFaxNumber.Length > 1)
+                            {
+                                PhoneNumber objFaxNumber = new PhoneNumber()
+                                {
+                                    ContactPerson = objContactPerson,
+                                    Number = Data[intCounter].gstrFaxNumber,
+                                    GEnumPhoneType = PhoneType.Fax
+                                };
+
+                                context.PhoneNumbers.Add(objFaxNumber);
+                            }
+
+                            BusinessRep objBusinessRep = new BusinessRep()
+                            {
+                                Business = objBusiness,
+                                ContactPerson = objContactPerson
+                            };
+
+                            context.BusinessReps.Add(objBusinessRep);
+
+                            for (int intCount = 0; intCount < arrSplit.Length; intCount++)
+                            {
+
+                                Email objEmail = new Email()
+                                {
+                                    ContactPerson = objContactPerson,
+                                    EmailAddress = arrSplit[intCount]
+                                };
+
+                                context.Emails.Add(objEmail);
+                            }
+                        }
+
+                        DateTime strCurrentYear = DateTime.Now;
+
+                        YearlyData objYearlyData = new YearlyData
+                        {
+                            Year = Int32.Parse(strCurrentYear.Year.ToString()),
+                            Business = objBusiness,
+                            DuesPaid = Double.Parse(Data[intCounter].gstrDuesPaid),
+                            TicketsReturned = Double.Parse(Data[intCounter].gstrRaffleTicketReturnedPaid),
+                            Credit = Double.Parse(Data[intCounter].gstrCredit),
+                            BallotNumber = Int32.Parse(Data[intCounter].gstrBallot),
+
+                        };
+
+                        if (Data[intCounter].gstrTerms.Equals("Annually"))
+                        {
+                            objYearlyData.TermLength = TermLength.Annually;
+                        }
+                        else if (Data[intCounter].gstrTerms.Equals("Semiannually"))
+                        {
+                            objYearlyData.TermLength = TermLength.Semiannually;
+                        }
+                        else if (Data[intCounter].gstrTerms.Equals("Quarterly"))
+                        {
+                            objYearlyData.TermLength = TermLength.Quarterly;
+                        }
+                        else if (Data[intCounter].gstrTerms.Equals("Monthly"))
+                        {
+                            objYearlyData.TermLength = TermLength.Monthly;
+                        }
+
+                        context.BusinessYearlyData.Add(objYearlyData);
+
+                        context.SaveChanges();
+                    }
+                    catch
+                    {
+                        lstStrFailedDataImports.Add(Data[intCounter].gstrBusinessName);
+
+                    }
+                }
+            }
+
+            string strMessage = string.Join(Environment.NewLine, lstStrFailedDataImports);
+
+            if (strMessage.Length > 0)
+            {
+                MessageBox.Show("ALL DATA ENTRY FAILED TO IMPORT TO DATABASE BELOW \n" + strMessage, "Excel Import Notice",
+                       MessageBoxButton.OK,
+                       MessageBoxImage.Information);
+
             }
         }
     }
