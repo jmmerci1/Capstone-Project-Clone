@@ -290,6 +290,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ConstantContactUI\AddContactListUI\AddContactListPage.xaml.cs">
+      <DependentUpon>AddContactListPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ConstantContactUI\ConstantContactPage.xaml.cs">
       <DependentUpon>ConstantContactPage.xaml</DependentUpon>
     </Compile>
@@ -301,6 +304,12 @@
     </Compile>
     <Compile Include="Controls\EmailInput.xaml.cs">
       <DependentUpon>EmailInput.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ConstantContactUI\EditContactListUI\EditContactListPage.xaml.cs">
+      <DependentUpon>EditContactListPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ExtraField.xaml.cs">
+      <DependentUpon>ExtraField.xaml</DependentUpon>
     </Compile>
     <Compile Include="EmailMembersUI\EmailMembersAddGroupsUI\EmailMembersAddGroupsPage.xaml.cs">
       <DependentUpon>EmailMembersAddGroupsPage.xaml</DependentUpon>
@@ -355,6 +364,10 @@
     <Compile Include="ValidateWebsite\WebsitePreviewPage.xaml.cs">
       <DependentUpon>WebsitePreviewPage.xaml</DependentUpon>
     </Compile>
+    <Page Include="ConstantContactUI\AddContactListUI\AddContactListPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ConstantContactUI\ConstantContactPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -368,6 +381,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\EmailInput.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ConstantContactUI\EditContactListUI\EditContactListPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ExtraField.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -510,6 +531,7 @@
       <Name>DirectorsPortalGraphApi</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

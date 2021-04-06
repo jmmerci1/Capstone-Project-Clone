@@ -3,14 +3,16 @@ using System;
 using DirectorPortalDatabase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DirectorPortalDatabase.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20210330014412_AddAdditionalFieldUtilities")]
+    partial class AddAdditionalFieldUtilities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,7 +50,7 @@ namespace DirectorPortalDatabase.Migrations
                     b.Property<string>("StreetAddress")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ZipCode")
+                    b.Property<int>("ZipCode")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ZipCodeExt")
@@ -74,19 +76,19 @@ namespace DirectorPortalDatabase.Migrations
                     b.Property<string>("ExtraNotes")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("MailingAddressId")
+                    b.Property<int>("MailingAddressId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("MembershipLevel")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("PhysicalAddressId")
+                    b.Property<int>("PhysicalAddressId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Website")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("YearEstablished")
+                    b.Property<int>("YearEstablished")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -230,6 +232,23 @@ namespace DirectorPortalDatabase.Migrations
                     b.ToTable("EmailGroupMembers");
                 });
 
+            modelBuilder.Entity("DirectorPortalDatabase.Models.Item", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Items");
+                });
+
             modelBuilder.Entity("DirectorPortalDatabase.Models.Payment", b =>
                 {
                     b.Property<int>("Id")
@@ -273,8 +292,8 @@ namespace DirectorPortalDatabase.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ItemName")
-                        .HasColumnType("TEXT");
+                    b.Property<int?>("ItemId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("PaymentId")
                         .HasColumnType("INTEGER");
@@ -282,10 +301,9 @@ namespace DirectorPortalDatabase.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("INTEGER");
 
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
 
                     b.HasIndex("PaymentId");
 
@@ -322,9 +340,6 @@ namespace DirectorPortalDatabase.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("ModelName")
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModelPropertyName")
                         .HasColumnType("TEXT");
@@ -417,11 +432,15 @@ namespace DirectorPortalDatabase.Migrations
                 {
                     b.HasOne("DirectorPortalDatabase.Models.Address", "MailingAddress")
                         .WithMany()
-                        .HasForeignKey("MailingAddressId");
+                        .HasForeignKey("MailingAddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DirectorPortalDatabase.Models.Address", "PhysicalAddress")
                         .WithMany()
-                        .HasForeignKey("PhysicalAddressId");
+                        .HasForeignKey("PhysicalAddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DirectorPortalDatabase.Models.BusinessRep", b =>
@@ -494,6 +513,10 @@ namespace DirectorPortalDatabase.Migrations
 
             modelBuilder.Entity("DirectorPortalDatabase.Models.PaymentItem", b =>
                 {
+                    b.HasOne("DirectorPortalDatabase.Models.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId");
+
                     b.HasOne("DirectorPortalDatabase.Models.Payment", "Payment")
                         .WithMany("Items")
                         .HasForeignKey("PaymentId");

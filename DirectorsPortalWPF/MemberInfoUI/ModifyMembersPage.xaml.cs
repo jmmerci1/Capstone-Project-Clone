@@ -37,6 +37,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
         {
             InitializeComponent();
 
+            MSelectedBusiness = selectedBusiness;
+            CreateExtraFields();
+
             if (selectedBusiness != null)
             {
                 /* A business was passed in so this page needs to update an already existing business and not
@@ -44,8 +47,6 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 lblHeader.Content = "Update Member";
                 btnModifyMember.Content = "Update";
                 btnModifyMember.Click += BtnUpdateMember_Click;
-
-                MSelectedBusiness = selectedBusiness;
 
                 using (DatabaseContext context = new DatabaseContext())
                 {
@@ -457,6 +458,17 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         newBusiness.ExtraNotes = txtNotes.Text;
                         newBusiness.MembershipLevel = (MembershipLevel)cboMemberLevel.SelectedIndex;
 
+                        /* Get all fo the extra fields from the form. */
+                        foreach (UIElement uiExtraField in spExtraFields.Children) 
+                        {
+                            if (uiExtraField is ExtraField) 
+                            {
+                                ExtraField efField = (uiExtraField as ExtraField);
+                                string strFieldName = efField.GStrFieldName.TrimEnd(':');
+                                newBusiness.SetField(strFieldName, efField.TxtExtraField.Text, context);
+                            }
+                        }
+
                         /* Get the mailing address from the form. */
                         Address newMailingAddress = new Address();
                         newMailingAddress.StreetAddress = txtMailAddr.Text;
@@ -600,6 +612,17 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         MSelectedBusiness.Website = txtWebsite.Text;
                         MSelectedBusiness.ExtraNotes = txtNotes.Text;
                         MSelectedBusiness.MembershipLevel = (MembershipLevel)cboMemberLevel.SelectedIndex;
+
+                        /* Update all of the extra fields from the form. */
+                        foreach (UIElement uiExtraField in spExtraFields.Children)
+                        {
+                            if (uiExtraField is ExtraField)
+                            {
+                                ExtraField efField = (uiExtraField as ExtraField);
+                                string strFieldName = efField.GStrFieldName.TrimEnd(':');
+                                MSelectedBusiness.SetField(strFieldName, efField.TxtExtraField.Text, context);
+                            }
+                        }
 
                         /* Update the mailing address from the form. */
                         if (MSelectedBusiness.MailingAddress == null) 
@@ -831,8 +854,14 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             try
                             {
                                 /* Remove the businesses addresses. */
-                                context.Remove(MSelectedBusiness.MailingAddress);
-                                context.Remove(MSelectedBusiness.PhysicalAddress);
+                                if (MSelectedBusiness.MailingAddress != null) 
+                                {
+                                    context.Remove(MSelectedBusiness.MailingAddress);
+                                }
+                                if (MSelectedBusiness.PhysicalAddress != null) 
+                                {
+                                    context.Remove(MSelectedBusiness.PhysicalAddress);
+                                }
 
                                 /* Remove all the business reps for the business.
                                  * This includes contact people, emails, and phone numbers.*/
@@ -864,6 +893,41 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 case MessageBoxResult.No:
                     /* Do nothing */
                     break;
+            }
+        }
+
+        /// <summary>
+        /// A method for populating the form with the extra fields from the DB.
+        /// </summary>
+        private void CreateExtraFields()
+        {
+            using (DatabaseContext context = new DatabaseContext()) 
+            {
+                try
+                {
+                    Business business = new Business();
+                    List<string> strExtraFields = business.AvailableFields(context);
+
+                    foreach (string strField in strExtraFields)
+                    {
+                        ExtraField efField = new ExtraField
+                        {
+                            GStrFieldName = strField + ":"
+                        };
+
+                        if (MSelectedBusiness != null)
+                        {
+                            efField.TxtExtraField.Text = MSelectedBusiness?.GetField(strField);
+                        }
+
+                        spExtraFields.Children.Add(efField);
+                    }
+                }
+                catch (Exception ex) 
+                {
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.StackTrace);
+                }
             }
         }
 

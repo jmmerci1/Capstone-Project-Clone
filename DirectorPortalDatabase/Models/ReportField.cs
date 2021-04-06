@@ -17,6 +17,7 @@ namespace DirectorPortalDatabase.Models
         /// </summary>
         public int TemplateId { get; set; }
         public virtual ReportTemplate Template { get; set; }
+        public string ModelName { get; set; }
         public string ModelPropertyName { get; set; }
     }
 }

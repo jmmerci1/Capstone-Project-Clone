@@ -33,6 +33,24 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.1\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
@@ -167,7 +185,16 @@
     <Compile Include="Migrations\20210326235714_EmailGroup.designer.cs">
       <DependentUpon>20210326235714_EmailGroup.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20210405182002_ReportFieldsStoreModelNames.cs" />
+    <Compile Include="Migrations\20210405182002_ReportFieldsStoreModelNames.designer.cs">
+      <DependentUpon>20210405182002_ReportFieldsStoreModelNames.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20210330014412_AddAdditionalFieldUtilities.cs" />
+    <Compile Include="Migrations\20210330014412_AddAdditionalFieldUtilities.designer.cs">
+      <DependentUpon>20210330014412_AddAdditionalFieldUtilities.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\DatabaseContextModelSnapshot.cs" />
+    <Compile Include="Models\AdditionalFields.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Business.cs" />
     <Compile Include="Models\BusinessRep.cs" />
@@ -187,6 +214,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\ClsJoinHelper.cs" />
     <Compile Include="Utility\ClsMetadataHelper.cs" />
+    <Compile Include="Utility\ClsJoinResultRecord.cs" />
+    <Compile Include="Utility\HasExtraFields.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

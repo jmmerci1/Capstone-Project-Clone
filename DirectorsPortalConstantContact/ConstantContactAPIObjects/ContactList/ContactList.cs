@@ -16,9 +16,10 @@ namespace DirectorsPortalConstantContact
         [Newtonsoft.Json.JsonIgnore]
         public List<Contact> glstMembers = new List<Contact>();
 
-        public ContactList(string strName=null)
+        public ContactList(string strName=null,string strDesc=null)
         {
             this.name = strName;
+            this.description = strDesc;
         }
         public ContactList()
         {
