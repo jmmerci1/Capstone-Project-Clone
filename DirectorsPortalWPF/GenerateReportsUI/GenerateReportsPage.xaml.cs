@@ -468,7 +468,6 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                     break;
                 }
 
-
             }
 
             //Loop to insert data into excel file.

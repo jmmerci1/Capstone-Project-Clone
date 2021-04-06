@@ -49,12 +49,12 @@ namespace DirectorsPortalWPF.ConstantContactUI
 
 
             //ConstantContact CC = new ConstantContact();
-            //CC.Authenticate();
+            //CC.gobjCCAuth.ValidateAuthentication();
 
             //MessageBox.Show(CC.gdctEmailCampaigns.ElementAt(i).Value.Activities.First().permalink_url);
 
-            //LoadEmailCampaigns(CC);
-            //LoadEmailGroups(CC);
+            LoadEmailCampaigns(ccHelper);
+            LoadContactLists(ccHelper);
 
             /*Update Contact
             Contact c = CC.FindContactByEmail("aamodt@example.com");
@@ -78,17 +78,17 @@ namespace DirectorsPortalWPF.ConstantContactUI
         /// Pulls the list of email groups.This function allows for a dynamic load
         /// of the emails groups to the 'email groups' sidepane in the Constant Contact screen.
         /// </summary>
-        public void LoadEmailGroups(ConstantContact ccHelper)
+        public void LoadContactLists(ConstantContact ccHelper)
         {
             // Pull the email list element from the page
-            object nodGroupList = FindName("EmailGroupList");
+            object nodContactList = FindName("ContactList");
             // Ensure that the email list element is a stack panel
-            if (nodGroupList is StackPanel)
+            if (nodContactList is StackPanel)
             {
 
                 // Cast email list to stack panel so it can be used
-                StackPanel vspGroupList = nodGroupList as StackPanel;
-                vspGroupList.Children.Clear();
+                StackPanel vspContactList = nodContactList as StackPanel;
+                vspContactList.Children.Clear();
                 // TODO: This should be retrieved from an API from SDK team or database team
                 //string[] rgstrGroups = { "Gold Members", "Silver Members", "Restaurants" };
 
@@ -134,11 +134,20 @@ namespace DirectorsPortalWPF.ConstantContactUI
                         Margin = new Thickness(5, 0, 0, 0),
                         Height = 15
                     };
+                    btnEmailGroupEditButton.Click += (s, e) =>
+                    {
+                        /// <summary>
+                        /// Navigates to the EditGroups screen and passes the corresponding group name
+                        /// </summary>
+                        /// <param name="sender">The 'Edit' Button</param>
+                        /// <param name="e">The Click Event</param>
+                        this.NavigationService.Navigate(new EditContactListUI.EditContactListPage(ccHelper, ccEmailGroup.Value.name));
+                    };
                     btnEmailGroupSelectButton.Click += (sender, e) => AddEmailGroupToMessage(sender, e, ccEmailGroup.Value.name);
                     hspEmailGroupRow.Children.Add(btnEmailGroupSelectButton);
                     hspEmailGroupRow.Children.Add(btnEmailGroupEditButton);
                     hspEmailGroupRow.Children.Add(lblEmailGroupName);
-                    vspGroupList.Children.Add(hspEmailGroupRow);
+                    vspContactList.Children.Add(hspEmailGroupRow);
                     
                 }
             }
@@ -283,7 +292,7 @@ namespace DirectorsPortalWPF.ConstantContactUI
         /// <param name="e">The arguments for when the worker completes work</param>
         private void LoadConstantContactData(object sender, RunWorkerCompletedEventArgs e)
         {
-            LoadEmailGroups(gObjConstContact);
+            LoadContactLists(gObjConstContact);
             LoadEmailCampaigns(gObjConstContact);
 
             btnRefreshConstantContact.Content = "Refresh";
@@ -338,6 +347,11 @@ namespace DirectorsPortalWPF.ConstantContactUI
             {
                 MessageBox.Show("Please select an Email to send first.", "Alert");
             }
+        }
+
+        private void Add_Contact_List(object sender, RoutedEventArgs e)
+        {
+            this.NavigationService.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact));
         }
     }
 }

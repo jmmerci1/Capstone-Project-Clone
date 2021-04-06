@@ -35,6 +35,11 @@ namespace DirectorsPortalConstantContact
         public double open_rate;
         public double click_rate;
 
+
+        [Newtonsoft.Json.JsonIgnore]
+        public string strFullname => this.first_name + " " + this.last_name;
+
+
         //https://www.c-sharpcorner.com/article/encryption-and-decryption-using-a-symmetric-key-in-c-sharp/
 
 
