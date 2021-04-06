@@ -308,6 +308,9 @@
     <Compile Include="ConstantContactUI\EditContactListUI\EditContactListPage.xaml.cs">
       <DependentUpon>EditContactListPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ExtraField.xaml.cs">
+      <DependentUpon>ExtraField.xaml</DependentUpon>
+    </Compile>
     <Compile Include="EmailMembersUI\EmailMembersAddGroupsUI\EmailMembersAddGroupsPage.xaml.cs">
       <DependentUpon>EmailMembersAddGroupsPage.xaml</DependentUpon>
     </Compile>
@@ -382,6 +385,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ConstantContactUI\EditContactListUI\EditContactListPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ExtraField.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -79,7 +79,7 @@
                                          VerticalScrollBarVisibility="Visible" Width="400" Height="100"/>
                             </StackPanel>
 
-                            <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
                                 <Label Width="100">Level:</Label>
                                 <ComboBox x:Name="cboMemberLevel" Width="200">
                                     <ComboBoxItem Content="None"></ComboBoxItem>
@@ -89,6 +89,10 @@
                                     <ComboBoxItem Content="Individual"></ComboBoxItem>
                                     <ComboBoxItem Content="Courtesy"></ComboBoxItem>
                                 </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel x:Name="spExtraFields" Margin="0,0,0,10" Orientation="Vertical">
+                                <!--Extra fields are generated in code.-->
                             </StackPanel>
                         </StackPanel>
 
@@ -156,6 +160,7 @@
                         </TextBlock>
 
                         <StackPanel x:Name="SpContacts" Margin="0,0,0,3" Orientation="Vertical">
+                            <!--Contacts are generated in code.-->
                         </StackPanel>
 
                         <StackPanel Margin="5,0,0,3" Orientation="Horizontal">

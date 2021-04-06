@@ -38,6 +38,8 @@ namespace DirectorsPortalWPF.SettingsUI
         //List using class Members to store Member information.
         List<Members> Members = new List<Members>();
 
+        private List<string> rgAvailableFields;
+        private string strOldFieldName;
         /// <summary>
         /// Intializes the Page and content within the Page
         /// </summary>
@@ -45,34 +47,20 @@ namespace DirectorsPortalWPF.SettingsUI
         {
             InitializeComponent(); //initialize the GUI
 
+/*            Business business;
+            using (DatabaseContext dbContext = new DatabaseContext())
+            {
+                business = dbContext.Businesses.Where(x => x.Id == 1).FirstOrDefault();
+                business.SetField("Another Field", "Another Test", dbContext);
+            }*/
+
             //create selections for the combo box that allows the user to choose when they will recieve backup notifications
             cmbNotificationFrequency.ItemsSource = new List<string> { "None", "Daily", "Weekly", "Monthly" };
             cmbNotificationTime.ItemsSource = GenerateDropdownTimeList();
-
-            ComboBoxItem[] rgReportTypeItems = new ComboBoxItem[ClsMetadataHelper.IntNumberOfModels];
             
             //loads settings
             LoadSavedSettings();
-
-            for (int i = 0; i < ClsMetadataHelper.IntNumberOfModels; i++)
-            {
-                // Gets info on the i-th database model.
-                Type typeModelType = ClsMetadataHelper.GetModelTypeByIndex(i);
-                ClsMetadataHelper.ClsModelInfo udtModelInfo = ClsMetadataHelper.GetModelInfo(typeModelType);
-
-                // Stores model information in a new ComboBoxItem.
-                ComboBoxItem cbiModelItem = new ComboBoxItem();
-                cbiModelItem.Content = udtModelInfo.StrHumanReadableName;
-                cbiModelItem.Tag = udtModelInfo;
-
-                // Adds the ComboBoxItem to the array.
-                rgReportTypeItems[i] = cbiModelItem;
-            }
-
-            cmbEntity.ItemsSource = rgReportTypeItems;
-
-            
-
+            DisplayEditableFields();
         }
 
         /// <summary>
@@ -160,10 +148,9 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="sPanelToDelete">The Stack Panel containing the Field to be deleted.</param>
         private void DeleteTextField(object sender, RoutedEventArgs e, StackPanel sPanelToDelete)
         {
-
             TextBox txtBoxFieldEdit = (TextBox)sPanelToDelete.Children[0];
             MessageBoxResult confirmDelete = MessageBox.Show(
-                $"Are you sure you want to delete \'{txtBoxFieldEdit.Text}\'?",
+                $"Are you sure you want to delete \'{txtBoxFieldEdit.Text}\'? All data in this field will become inaccessible, this operation cannot be reversed.",
                 "Warning!",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
@@ -171,10 +158,14 @@ namespace DirectorsPortalWPF.SettingsUI
             switch (confirmDelete)
             {
                 case MessageBoxResult.Yes:
-                    sPanelFields.Children.Remove(sPanelToDelete);
-                    sPanelToDelete.Children.Clear();
-
-                    GC.Collect();               // Initiate garbage collection so rogue stack panel children isn't floating around in heap.
+                    {
+                        using (DatabaseContext dbContext = new DatabaseContext())
+                        {
+                            Business business = new Business();
+                            business.DeleteField(dbContext, txtBoxFieldEdit.Text);
+                            DisplayEditableFields();
+                        }
+                    }
                     break;
                 case MessageBoxResult.No:
                     return;
@@ -197,12 +188,20 @@ namespace DirectorsPortalWPF.SettingsUI
             if (txtBox.IsEnabled)
             {   // Disable the TextBox and Save, change the button lable back to "Edit"
                 txtBox.IsEnabled = false;
-                txtBox.Text = txtBox.Text;
+               
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    Business business = new Business();
+                    business.RenameField(dbContext, strOldFieldName, txtBox.Text);
+                    DisplayEditableFields();
+                }
+/*
                 btnEditText.Content = "Edit";
-                btnDelete.Visibility = Visibility.Hidden;
+                btnDelete.Visibility = Visibility.Hidden;*/
             }
             else
             {   // Enable the TextBox and change the button label to "Save"
+                strOldFieldName = txtBox.Text;
                 txtBox.IsEnabled = true;
                 btnEditText.Content = "Save";
                 btnDelete.Visibility = Visibility.Visible;
@@ -315,27 +314,14 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="e">The click event</param>
         private void BtnSaveField_Click(object sender, RoutedEventArgs e)
         {
-            StackPanel sPanelTxtBoxAndBtn = CreateStackPanel(Orientation.Horizontal);
+            using (DatabaseContext dbContext = new DatabaseContext())
+            {
+                Business business = new Business();
+                business.AddField(dbContext, txtBoxFieldName.Text);
+                DisplayEditableFields();
+            }
 
-            TextBox txtBoxNewField = CreateTextBox(false);
-            txtBoxNewField.Text = txtBoxFieldName.Text;
-
-            txtBoxFieldName.Text = "";
             gridAddField.Visibility = Visibility.Hidden;
-
-            Button btnNewButtonEdit = CreateButton("Edit");
-            Button btnNewButtonDelete = CreateButton("Delete");
-            btnNewButtonDelete.Visibility = Visibility.Hidden;
-
-            btnNewButtonEdit.Click += (next_Sender, next_e) => SetTextField(next_Sender, next_e, txtBoxNewField, btnNewButtonDelete);
-            btnNewButtonDelete.Click += (next_Sender, next_e) => DeleteTextField(next_Sender, next_e, sPanelTxtBoxAndBtn);
-
-            sPanelTxtBoxAndBtn.Children.Add(txtBoxNewField);
-            sPanelTxtBoxAndBtn.Children.Add(btnNewButtonEdit);
-            sPanelTxtBoxAndBtn.Children.Add(btnNewButtonDelete);
-
-            sPanelFields.Children.Add(sPanelTxtBoxAndBtn);
-
             btnAddField.Content = "Add Field";
         }
 
@@ -577,55 +563,37 @@ namespace DirectorsPortalWPF.SettingsUI
             return TempMembers;
         }
 
-        /// <summary>
-        /// After selecting a table from the 'Entity' combo box, a list of all fields will appear in that
-        /// selected table. Users will have the ability to edit/delete the field names in the selected table.
-        /// </summary>
-        /// <param name="sender">The Selected Table from the Combo Box</param>
-        /// <param name="e">The SelectionChange event</param>
-        private void CmbEntity_SelectionChanged(object sender, SelectionChangedEventArgs e)
+ 
+
+        public void DisplayEditableFields()
         {
-            // Gets the selected report type name from the combo box.
-            ComboBoxItem cbiSelectedReportTypeItem = (ComboBoxItem)cmbEntity.SelectedItem;
-            // Extracts the model information from the ComboBoxItem.
-            GUdtSelectedReportType = (ClsMetadataHelper.ClsModelInfo)cbiSelectedReportTypeItem.Tag;
-            // Clear the fields populated from the last table selection.
             sPanelFields.Children.Clear();
 
-            if (GUdtSelectedReportType != null)
+            using (DatabaseContext dbContext = new DatabaseContext())
             {
-                int intNumberOfFields = GUdtSelectedReportType.UdtTableMetaData.IntNumberOfFields;
+                Business business = new Business();
+                List<string> rgExtraFields = business.AvailableFields(dbContext);
 
-                for (int i = 0; i < intNumberOfFields; i++)
+                foreach (string field in rgExtraFields)
                 {
-                    ClsMetadataHelper.ClsTableField udtField = GUdtSelectedReportType.UdtTableMetaData.GetField(i);
-
                     StackPanel sPanelTxtBoxAndBtn = CreateStackPanel(Orientation.Horizontal);
 
                     Button btnEdit = CreateButton("Edit");
                     Button btnDelete = CreateButton("Delete");
                     btnDelete.Visibility = Visibility.Hidden;
 
-                    if (!udtField.StrHumanReadableName.Equals("Extra Fields"))
-                    {
-                        btnEdit.IsEnabled = false;
-                        btnDelete.IsEnabled = false;
-                        btnEdit.Content = "🔒";
-                        btnEdit.ToolTip = new ToolTip().Content = "This field is required in the database and cannot be modified.";
-                        btnDelete.ToolTip = new ToolTip().Content = "This field is required in the database and cannot be modified.";
-                    }
-
                     TextBox txtBoxFieldEdit = CreateTextBox(false);
-                    txtBoxFieldEdit.Text = $"{udtField.StrHumanReadableName}";
-
+                    txtBoxFieldEdit.Text = $"{field}";
                     btnEdit.Click += (next_sender, next_e) => SetTextField(next_sender, next_e, txtBoxFieldEdit, btnDelete);
                     btnDelete.Click += (next_sender, next_e) => DeleteTextField(next_sender, next_e, sPanelTxtBoxAndBtn);
+
 
                     sPanelTxtBoxAndBtn.Children.Add(txtBoxFieldEdit);
                     sPanelTxtBoxAndBtn.Children.Add(btnEdit);
                     sPanelTxtBoxAndBtn.Children.Add(btnDelete);
 
                     sPanelFields.Children.Add(sPanelTxtBoxAndBtn);
+
                 }
             }
         }

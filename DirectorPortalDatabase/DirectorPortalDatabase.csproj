@@ -189,7 +189,12 @@
     <Compile Include="Migrations\20210405182002_ReportFieldsStoreModelNames.designer.cs">
       <DependentUpon>20210405182002_ReportFieldsStoreModelNames.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20210330014412_AddAdditionalFieldUtilities.cs" />
+    <Compile Include="Migrations\20210330014412_AddAdditionalFieldUtilities.designer.cs">
+      <DependentUpon>20210330014412_AddAdditionalFieldUtilities.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\DatabaseContextModelSnapshot.cs" />
+    <Compile Include="Models\AdditionalFields.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Business.cs" />
     <Compile Include="Models\BusinessRep.cs" />
@@ -210,6 +215,7 @@
     <Compile Include="Utility\ClsJoinHelper.cs" />
     <Compile Include="Utility\ClsMetadataHelper.cs" />
     <Compile Include="Utility\ClsJoinResultRecord.cs" />
+    <Compile Include="Utility\HasExtraFields.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
