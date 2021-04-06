@@ -40,7 +40,8 @@ namespace DirectorPortalDatabase.Models
         public static void ImportFile()
         {
             //Replace filename
-            string strFilepath = "Buisness_Categories.txt";
+            string strFilepath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\DirectorsPortalDatabase\\Buisness_Categories.txt";
+            //string strFilepath = "Buisness_Categories.txt";
             using (StreamReader srFileInput = File.OpenText(strFilepath))
             {
                 string strImportCategory = "";
