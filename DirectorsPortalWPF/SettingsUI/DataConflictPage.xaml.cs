@@ -44,15 +44,20 @@ namespace DirectorsPortalWPF.SettingsUI
         private List<Members> GObjDuplicateBusinesses;
         private List<Members> GObjSelectedForImport;
 
+        private SettingsPage gObjSettingsPage;
+
         /// <summary>
         /// Initialization of the Data Import Conflict Screen.
         /// </summary>
-        public DataConflictPage(List<Members> duplicateBusiness)
+        public DataConflictPage(List<Members> duplicateBusiness, SettingsPage settings)
         {
             InitializeComponent();
             PopulateHumanReadableTableFields();
             GObjDuplicateBusinesses = duplicateBusiness;
             GObjSelectedForImport = new List<Members>();
+            gObjSettingsPage = settings;
+            GObjSelectedForImport.Add(new Members());
+            GObjSelectedForImport.Add(new Members());
         }
 
         /// <summary>
@@ -93,14 +98,12 @@ namespace DirectorsPortalWPF.SettingsUI
 
                 if (selectedBusiness != null)
                 {
-                    Address PhysicalAddres = new Address()
-                    {
-                        StreetAddress = currentMember?.gstrCityStateZip.Split(',')[0]
-                        
-                    };
+                    DeleteMember(selectedBusiness);
                 }
             }
-            // Template code, need functionality to be implemented. 
+
+            gObjSettingsPage.ImportToDatabase(GObjSelectedForImport);
+            // Template code, need functionality to be implemented.
             NavigationService.GoBack();
         }
 
@@ -345,7 +348,52 @@ namespace DirectorsPortalWPF.SettingsUI
             return strLevel;
         }
 
+        /// <summary>
+        /// A mehtod for removing a business and all it's info from the database.
+        /// This method is called by the delete button on the edit member screen.
+        /// </summary>
+        /// <param name="sender">The object that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
+        private void DeleteMember(Business MSelectedBusiness)
+        {
+
+            /* Remove the member and return to the members page. */
+            using (DatabaseContext context = new DatabaseContext())
+            {
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        /* Remove the businesses addresses. */
+                        context.Remove(MSelectedBusiness.MailingAddress);
+                        context.Remove(MSelectedBusiness.PhysicalAddress);
+
+                        /* Remove all the business reps for the business.
+                            * This includes contact people, emails, and phone numbers.*/
+                        foreach (BusinessRep rep in MSelectedBusiness.BusinessReps)
+                        {
+                            context.Remove(rep.ContactPerson);
+                            context.Remove(rep);
+                        }
+
+                        /* Finally, remove the business. */
+                        context.Remove(MSelectedBusiness);
+
+                        context.SaveChanges();
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
+                    }
+                }
+            }
+        }
     }
+
 
     /// <summary>
     /// A view model that defines the members table.

@@ -463,13 +463,11 @@ namespace DirectorsPortalWPF.SettingsUI
             
             BackgroundWorker bWrk = new BackgroundWorker();
 
-                
+            //String that contains the excel file that the user selects.
+            string FilePath = FindFile();
 
-                //String that contains the excel file that the user selects.
-                string FilePath = FindFile();
-
-                //Populated members List.
-                Members = ReadExcelFile(FilePath);
+            //Populated members List.
+            Members = ReadExcelFile(FilePath);
 
             List<Members> rgDuplicates = FindDuplicateExcelData(Members);
 
@@ -486,23 +484,22 @@ namespace DirectorsPortalWPF.SettingsUI
                     }
                 }
 
-
-                NavigationService.Navigate(new DataConflictPage(rgDuplicates));
+                NavigationService.Navigate(new DataConflictPage(rgDuplicates, this));
             }
 
-                //Thread created to import data 
-                bWrk.DoWork += LoadHousingForImport;
-                bWrk.RunWorkerCompleted += LoadSettingsPage;
-                bWrk.RunWorkerAsync();
+            //Thread created to import data 
+            bWrk.DoWork += LoadHousingForImport;
+            bWrk.RunWorkerCompleted += LoadSettingsPage;
+            bWrk.RunWorkerAsync();
 
 
-                //Form to display message to not click through the application during import data.
-                frmLoadPage.TopMost = true;
-                frmLoadPage.MaximizeBox = false;
-                frmLoadPage.MinimizeBox = false;
-                frmLoadPage.ControlBox = false;
-                frmLoadPage.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-                frmLoadPage.Show();
+            //Form to display message to not click through the application during import data.
+            frmLoadPage.TopMost = true;
+            frmLoadPage.MaximizeBox = false;
+            frmLoadPage.MinimizeBox = false;
+            frmLoadPage.ControlBox = false;
+            frmLoadPage.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            frmLoadPage.Show();
         }
 
         /// Contains the method needed to start importing data into the database.
@@ -712,7 +709,7 @@ namespace DirectorsPortalWPF.SettingsUI
         /// Take in a List of members to sort and import data into the database
         /// </summary>
         /// <param name="Data">List of opbject members.</param>
-        private void ImportToDatabase(List<Members> Data)
+        public void ImportToDatabase(List<Members> Data)
         {
             List<string> lstStrFailedDataImports = new List<string>();
 
