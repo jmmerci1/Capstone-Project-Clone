@@ -12,17 +12,11 @@ namespace DirectorPortalDatabase.Utility
     /// Utility class that allows the program to retrieve metadata about a table using only the table's model name.
     /// Also allows the program to grab a DbSet from the context when the type is not known at compile time.
     /// </summary>
-    /// <remarks>
-    /// Author: Patrick Ancel, 2/5/2021
-    /// </remarks>
     public class ClsMetadataHelper
     {
         /// <summary>
         /// Stores metadata on a single table field and allows for retrieval of a record's field value.
         /// </summary>
-        /// <remarks>
-        /// Author: Patrick Ancel, 2/5/2021
-        /// </remarks>
         public class ClsTableField
         {
             /// <summary>
@@ -44,7 +38,6 @@ namespace DirectorPortalDatabase.Utility
             /// </summary>
             /// <param name="recordInstance"></param>
             /// <remarks>
-            /// Author: Patrick Ancel, 2/5/2021
             /// You must pass in an instance of the class which actually has the underlying property.
             /// </remarks>
             public object GetValue(object recordInstance)
@@ -56,9 +49,6 @@ namespace DirectorPortalDatabase.Utility
         /// <summary>
         /// Holds a collection of ClsTableField objects to describe a database table's metadata.
         /// </summary>
-        /// <remarks>
-        /// Author: Patrick Ancel, 2/5/2021
-        /// </remarks>
         public class ClsDatabaseTable
         {
             /// <summary>
@@ -97,7 +87,6 @@ namespace DirectorPortalDatabase.Utility
         /// Used to get the human-readable version of a variable name.
         /// </summary>
         /// <remarks>
-        /// Author: Patrick Ancel, 2/5/2021
         /// The reason for hardcoding this dictionary here is that it breaks nothing if
         /// class property names were to change, even if that means they no longer have
         /// an entry here.
@@ -165,7 +154,6 @@ namespace DirectorPortalDatabase.Utility
         /// </summary>
         /// <param name="strClassOrPropertyName"></param>
         /// <remarks>
-        /// Author: Patrick Ancel, 2/5/2021
         /// Cannot yet parse names of unknown variables. Instead, for those, it returns what was passed in.
         /// </remarks>
         public static string GetHumanReadableFieldName(string strClassOrPropertyName)
@@ -186,7 +174,7 @@ namespace DirectorPortalDatabase.Utility
             public Type TypeModelType { get; private set; }
             public ClsDatabaseTable UdtTableMetaData { get; private set; }
             public string StrHumanReadableName { get; private set; }
-            public ClsModelInfo (Type typeModelType)
+            public ClsModelInfo(Type typeModelType)
             {
                 TypeModelType = typeModelType;
                 UdtTableMetaData = new ClsDatabaseTable(typeModelType);
@@ -203,17 +191,42 @@ namespace DirectorPortalDatabase.Utility
                 // Converts the IQueryable to IQueryable<object>.
                 return qryAllRecords.Cast<object>();
             }
+
+            /// <summary>
+            /// For ClsModelInfo instances, returns whether the model types are the same. For all other types, returns false.
+            /// </summary>
+            /// <param name="obj"></param>
+            /// <returns></returns>
+            public override bool Equals(object objOther)
+            {
+                Type typeOtherType = objOther.GetType();
+                if (typeOtherType == typeof(ClsModelInfo))
+                {
+                    ClsModelInfo udtOther = (ClsModelInfo)objOther;
+                    return this.TypeModelType == udtOther.TypeModelType;
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
+        /// <summary>
+        /// Maps model types to ClsModelInfo instances that describe them.
+        /// </summary>
         private static Dictionary<Type, ClsModelInfo> dictModels = new Dictionary<Type, ClsModelInfo>
         {
             [typeof(Address)] = new ClsModelInfo(typeof(Address)),
             [typeof(Business)] = new ClsModelInfo(typeof(Business)),
             [typeof(BusinessRep)] = new ClsModelInfo(typeof(BusinessRep)),
+            [typeof(Categories)] = new ClsModelInfo(typeof(Categories)),
             [typeof(ContactPerson)] = new ClsModelInfo(typeof(ContactPerson)),
             [typeof(Email)] = new ClsModelInfo(typeof(Email)),
+            [typeof(EmailGroup)] = new ClsModelInfo(typeof(EmailGroup)),
+            [typeof(Payment)] = new ClsModelInfo(typeof(Payment)),
+            [typeof(PaymentItem)] = new ClsModelInfo(typeof(PaymentItem)),
             [typeof(PhoneNumber)] = new ClsModelInfo(typeof(PhoneNumber)),
-            [typeof(Todo)] = new ClsModelInfo(typeof(Todo)),
             [typeof(YearlyData)] = new ClsModelInfo(typeof(YearlyData))
         };
 
@@ -222,18 +235,68 @@ namespace DirectorPortalDatabase.Utility
             typeof(Address),
             typeof(Business),
             typeof(BusinessRep),
+            typeof(Categories),
             typeof(ContactPerson),
             typeof(Email),
+            typeof(EmailGroup),
+            typeof(Payment),
+            typeof(PaymentItem),
             typeof(PhoneNumber),
-            typeof(Todo),
             typeof(YearlyData)
         };
 
+        /// <summary>
+        /// Maps the names of models to their types.
+        /// </summary>
+        private static Dictionary<string, Type> dictTypeByName = new Dictionary<string, Type>
+        {
+            [typeof(Address).Name] = typeof(Address),
+            [typeof(Business).Name] = typeof(Business),
+            [typeof(BusinessRep).Name] = typeof(BusinessRep),
+            [typeof(Categories).Name] = typeof(Categories),
+            [typeof(ContactPerson).Name] = typeof(ContactPerson),
+            [typeof(Email).Name] = typeof(Email),
+            [typeof(EmailGroup).Name] = typeof(EmailGroup),
+            [typeof(Payment).Name] = typeof(Payment),
+            [typeof(PaymentItem).Name] = typeof(PaymentItem),
+            [typeof(PhoneNumber).Name] = typeof(PhoneNumber),
+            [typeof(YearlyData).Name] = typeof(YearlyData)
+        };
+
+        /// <summary>
+        /// Maps model types to their corresponding enums.
+        /// </summary>
+        private static Dictionary<Type, ClsJoinHelper.EnumTable> dictEnumTableByType = new Dictionary<Type, ClsJoinHelper.EnumTable>
+        {
+            [typeof(Address)] = ClsJoinHelper.EnumTable.Address,
+            [typeof(Business)] = ClsJoinHelper.EnumTable.Business,
+            [typeof(BusinessRep)] = ClsJoinHelper.EnumTable.BusinessRep,
+            [typeof(Categories)] = ClsJoinHelper.EnumTable.Categories,
+            [typeof(ContactPerson)] = ClsJoinHelper.EnumTable.ContactPerson,
+            [typeof(Email)] = ClsJoinHelper.EnumTable.Email,
+            [typeof(EmailGroup)] = ClsJoinHelper.EnumTable.EmailGroup,
+            [typeof(Payment)] = ClsJoinHelper.EnumTable.Payment,
+            [typeof(PaymentItem)] = ClsJoinHelper.EnumTable.PaymentItem,
+            [typeof(PhoneNumber)] = ClsJoinHelper.EnumTable.PhoneNumber,
+            [typeof(YearlyData)] = ClsJoinHelper.EnumTable.YearlyData
+        };
+
         public static int IntNumberOfModels => rgModels.Length;
+        /// <summary>
+        /// Used to access the array of model types.
+        /// </summary>
+        /// <param name="intIndex"></param>
+        /// <returns></returns>
         public static Type GetModelTypeByIndex(int intIndex)
         {
             return rgModels[intIndex];
         }
+
+        /// <summary>
+        /// Returns an object that provides metadata pertaining to the model type that is passed in.
+        /// </summary>
+        /// <param name="typeModelType"></param>
+        /// <returns></returns>
         public static ClsModelInfo GetModelInfo(Type typeModelType)
         {
             if (dictModels.ContainsKey(typeModelType))
@@ -246,5 +309,39 @@ namespace DirectorPortalDatabase.Utility
             }
         }
 
+        /// <summary>
+        /// Converts a model type into an enum value that is used by the ClsJoinHelper utility class.
+        /// </summary>
+        /// <param name="typeModelType"></param>
+        /// <returns></returns>
+        public static ClsJoinHelper.EnumTable GetEnumTable(Type typeModelType)
+        {
+            if (dictEnumTableByType.ContainsKey(typeModelType))
+            {
+                return dictEnumTableByType[typeModelType];
+            }
+            else
+            {
+                throw new ArgumentException("This Type does not have an EnumTable.");
+            }
+        }
+
+        /// <summary>
+        /// Returns an object that provides metadata pertaining to the model type whose name matches the string passed in.
+        /// </summary>
+        /// <param name="strModelName"></param>
+        /// <returns></returns>
+        public static ClsModelInfo GetModelInfoByName(string strModelName)
+        {
+            if (dictTypeByName.ContainsKey(strModelName))
+            {
+                Type typeModelType = dictTypeByName[strModelName];
+                return GetModelInfo(typeModelType);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }
