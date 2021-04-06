@@ -10,6 +10,8 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.ComponentModel;
+
 
 /// <summary>
 /// File Purpose:
@@ -29,6 +31,12 @@ namespace DirectorsPortalWPF.SettingsUI
     public partial class SettingsPage : Page
     {
         private ClsMetadataHelper.ClsModelInfo GUdtSelectedReportType { get; set; }
+
+        //Reference to form needed to be displayed during import excel data
+        private ImportLoadPage frmLoadPage = new ImportLoadPage();
+        
+        //List using class Members to store Member information.
+        List<Members> Members = new List<Members>();
 
         /// <summary>
         /// Intializes the Page and content within the Page
@@ -452,19 +460,52 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="e"></param>
         private async void BtnImportExcel_Click(object sender, RoutedEventArgs e)
         {
-            //List using class Members to store Member information.
-            List<Members> Members = new List<Members>();
+            
+            BackgroundWorker bWrk = new BackgroundWorker();
 
-            //String that contains the excel file that the user selects.
-            string FilePath = FindFile();
+                
 
-            //Populated members List.
-            Members = ReadExcelFile(FilePath);
+                //String that contains the excel file that the user selects.
+                string FilePath = FindFile();
 
+                //Populated members List.
+                Members = ReadExcelFile(FilePath);
+
+                //Thread created to import data 
+                bWrk.DoWork += LoadHousingForImport;
+                bWrk.RunWorkerCompleted += LoadSettingsPage;
+                bWrk.RunWorkerAsync();
+
+
+                //Form to display message to not click through the application during import data.
+                frmLoadPage.TopMost = true;
+                frmLoadPage.MaximizeBox = false;
+                frmLoadPage.MinimizeBox = false;
+                frmLoadPage.ControlBox = false;
+                frmLoadPage.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+                frmLoadPage.Show();
+        }
+
+        /// Contains the method needed to start importing data into the database.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LoadHousingForImport(Object sender, DoWorkEventArgs e)
+        {
+            //
             if (Members.Count > 0)
             {
                 ImportToDatabase(Members);
-            }                      
+            }
+        }
+
+        /// Method for when the thread stops to close the form that was previously displayed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LoadSettingsPage(object sender, RunWorkerCompletedEventArgs e)
+        {
+            frmLoadPage.Close();
         }
 
         private void BtnImportPayPal_Click(object sender, RoutedEventArgs e)
@@ -1017,9 +1058,7 @@ namespace DirectorsPortalWPF.SettingsUI
             }
             
 
-            MessageBox.Show("Excel Data finished Importing to Database", "Excel Import Notice",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+           
         }
 
         /// <summary>
