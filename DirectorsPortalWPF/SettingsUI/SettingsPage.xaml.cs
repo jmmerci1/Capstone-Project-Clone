@@ -461,14 +461,14 @@ namespace DirectorsPortalWPF.SettingsUI
             //Populated members List.
             Members = ReadExcelFile(FilePath);
 
-            List<Business> rgDuplicates = FindDuplicateDBData(Members);
+            List<Members> rgDuplicates = FindDuplicateExcelData(Members);
 
             if (rgDuplicates.Count > 0)
             {
 
-                foreach (Business duplicate in rgDuplicates)
+                foreach (Members duplicate in rgDuplicates)
                 {
-                    Members currentMember = Members.Find(x => x.gstrBusinessName.Equals(duplicate.BusinessName));
+                    Members currentMember = Members.Find(x => x.gstrBusinessName.Equals(duplicate.gstrBusinessName));
                     if (currentMember != null)
                     {
                         Members.Remove(currentMember);
@@ -1137,7 +1137,7 @@ namespace DirectorsPortalWPF.SettingsUI
 /// <summary>
 /// Class Members that contains the data fields for members.
 /// </summary>
-class Members
+public class Members
 {
     public string gstrEstablished { get; }
     public string gstrLevel { get; }

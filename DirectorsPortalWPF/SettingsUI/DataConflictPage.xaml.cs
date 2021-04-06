@@ -1,5 +1,6 @@
 ﻿using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,16 +41,18 @@ namespace DirectorsPortalWPF.SettingsUI
         readonly Dictionary<string, string> GDicHumanReadableTableFields
             = new Dictionary<string, string>();
 
-        List<Business> GObjDuplicateBusinesses;
+        private List<Members> GObjDuplicateBusinesses;
+        private List<Members> GObjSelectedForImport;
 
         /// <summary>
         /// Initialization of the Data Import Conflict Screen.
         /// </summary>
-        public DataConflictPage(List<Business> duplicateBusiness)
+        public DataConflictPage(List<Members> duplicateBusiness)
         {
             InitializeComponent();
             PopulateHumanReadableTableFields();
             GObjDuplicateBusinesses = duplicateBusiness;
+            GObjSelectedForImport = new List<Members>();
         }
 
         /// <summary>
@@ -71,7 +74,32 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="e">The Click Event</param>
         private void BtnResolveConflict_Click(object sender, RoutedEventArgs e)
         {
+            foreach (Members currentMember in GObjSelectedForImport)
+            {
+                Business selectedBusiness = new Business();
+                using (DatabaseContext context = new DatabaseContext())
+                {
+                    selectedBusiness = context.Businesses
+                        .Include(x => x.MailingAddress)
+                        .Include(x => x.PhysicalAddress)
+                        .Include(x => x.BusinessReps)
+                        .ThenInclude(x => x.ContactPerson)
+                        .ThenInclude(x => x.Emails)
+                        .Include(x => x.BusinessReps)
+                        .ThenInclude(x => x.ContactPerson)
+                        .ThenInclude(x => x.PhoneNumbers)
+                        .FirstOrDefault(business => business.BusinessName.Equals(currentMember.gstrBusinessName));
+                }
 
+                if (selectedBusiness != null)
+                {
+                    Address PhysicalAddres = new Address()
+                    {
+                        StreetAddress = currentMember?.gstrCityStateZip.Split(',')[0]
+                        
+                    };
+                }
+            }
             // Template code, need functionality to be implemented. 
             NavigationService.GoBack();
         }
@@ -84,6 +112,29 @@ namespace DirectorsPortalWPF.SettingsUI
         private void ChkResolve_Click(object sender, RoutedEventArgs e)
         {
             // Should be used to mark an item to be saved to the Database.
+            CheckBox btn = sender as CheckBox;
+            BusinessTableViewModel selectedTableViewModel = btn.DataContext as BusinessTableViewModel;
+
+            string selectedBusinessName = selectedTableViewModel.StrBuisnessName;
+            Members selectedMember = GObjDuplicateBusinesses.Find(x => x.gstrBusinessName.Equals(selectedTableViewModel.StrBuisnessName));
+
+/*            Business selectedBusiness = new Business();
+            using (DatabaseContext context = new DatabaseContext())
+            {
+                selectedBusiness = context.Businesses
+                    .Include(x => x.MailingAddress)
+                    .Include(x => x.PhysicalAddress)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.Emails)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.PhoneNumbers)
+                    .FirstOrDefault(business => business.BusinessName.Equals(selectedTableViewModel.StrBuisnessName));
+            }*/
+
+            if (selectedMember != null)
+                GObjSelectedForImport.Add(selectedMember);
         }
 
         /// <summary>
@@ -100,71 +151,77 @@ namespace DirectorsPortalWPF.SettingsUI
             {
                 List<BusinessTableViewModel> lstTableViewModel = new List<BusinessTableViewModel>();
 
-                foreach (Business busCurrentBusiness in GObjDuplicateBusinesses)
+                foreach (Members busCurrentBusiness in GObjDuplicateBusinesses)
                 {
                     BusinessTableViewModel objBusinessTableView = new BusinessTableViewModel
                     {
-                        StrBuisnessName = busCurrentBusiness.BusinessName
+                        StrBuisnessName = busCurrentBusiness.gstrBusinessName
                     };
 
                     /* Get the associated addresses for this business. */
-                    Address objLocationAddress = dbContext.Addresses.Find(busCurrentBusiness.PhysicalAddress);
-                    Address objMalingAddress = dbContext.Addresses.Find(busCurrentBusiness.MailingAddress);
+                    // Address objLocationAddress = dbContext.Addresses.Find(busCurrentBusiness.);
+                    // Address objMalingAddress = dbContext.Addresses.Find(busCurrentBusiness.MailingAddress);
 
-                    objBusinessTableView.StrLocationAddress = objLocationAddress?.StreetAddress;
-                    objBusinessTableView.StrMailingAddress = objMalingAddress?.StreetAddress;
-                    objBusinessTableView.StrCity = objLocationAddress?.City;
-                    objBusinessTableView.StrState = objLocationAddress?.State;
-                    objBusinessTableView.IntZipCode = CheckNullableInt(objLocationAddress?.ZipCode);
+
+
+
+                    objBusinessTableView.StrLocationAddress = busCurrentBusiness?.gstrLocationAddress;
+                    objBusinessTableView.StrMailingAddress = busCurrentBusiness?.gstrMailingAddress;
+
+                    if (busCurrentBusiness.gstrCityStateZip.Split(',').Count() > 0)
+                        objBusinessTableView.StrCity = busCurrentBusiness?.gstrCityStateZip.Split(',')[0];
+                    if (busCurrentBusiness.gstrCityStateZip.Split(',').Count() > 1)
+                        objBusinessTableView.StrState = busCurrentBusiness?.gstrCityStateZip.Split(',')[1].Trim().Split(' ')[0];
+                    if (busCurrentBusiness.gstrCityStateZip.Split(',').Count() > 1)
+                        objBusinessTableView.IntZipCode = busCurrentBusiness?.gstrCityStateZip.Split(',')[1].Trim().Split(' ')[1];
 
                     /* Get the business rep from the database. */
                     /* TODO: Need to figure out a way to display more than one buisiness rep. */
-                    BusinessRep objBusinessRep = dbContext.BusinessReps
-                        .Where(r => r.BusinessId == busCurrentBusiness.Id).FirstOrDefault();
+                    // BusinessRep objBusinessRep = dbContext.BusinessReps
+                    //    .Where(r => r.BusinessId == busCurrentBusiness.Id).FirstOrDefault();
 
-                    if (objBusinessRep == null)
+                    // if (objBusinessRep == null)
+                    // {
+                    //    /* If there is no business rep then the business will not have any contact person
+                    //     * related inforamtion. */
+                    //    objBusinessTableView.StrContactPerson = "";
+                    //    objBusinessTableView.StrPhoneNumber = "";
+                    //    objBusinessTableView.StrFaxNumber = "";
+                    //    objBusinessTableView.StrEmailAddress = "";
+                    //}
+                    //else
                     {
-                        /* If there is no business rep then the business will not have any contact person
-                         * related inforamtion. */
-                        objBusinessTableView.StrContactPerson = "";
-                        objBusinessTableView.StrPhoneNumber = "";
-                        objBusinessTableView.StrFaxNumber = "";
-                        objBusinessTableView.StrEmailAddress = "";
-                    }
-                    else
-                    {
-                        ContactPerson objContactPerson = dbContext.ContactPeople.Find(objBusinessRep.ContactPersonId);
+                        // ContactPerson objContactPerson = dbContext.ContactPeople.Find(objBusinessRep.ContactPersonId);
 
-                        objBusinessTableView.StrContactPerson = objContactPerson?.Name;
+                        objBusinessTableView.StrContactPerson = busCurrentBusiness?.gstrContactPerson;
 
                         /* Get the phone and fax number of the contact person. */
-                        List<PhoneNumber> objPhoneNumbers = dbContext.PhoneNumbers
-                            .Where(pn => pn.ContactPersonId == objContactPerson.Id).ToList();
+                        // List<PhoneNumber> objPhoneNumbers = dbContext.PhoneNumbers
+                        //    .Where(pn => pn.ContactPersonId == objContactPerson.Id).ToList();
 
-                        foreach (PhoneNumber objCurrentPhoneNumber in objPhoneNumbers)
+                        //foreach (PhoneNumber objCurrentPhoneNumber in objPhoneNumbers)
                         {
-                            if (objCurrentPhoneNumber.GEnumPhoneType == PhoneType.Mobile ||
-                                objCurrentPhoneNumber.GEnumPhoneType == PhoneType.Office)
+                        //    if (objCurrentPhoneNumber.GEnumPhoneType == PhoneType.Mobile ||
+                        //        objCurrentPhoneNumber.GEnumPhoneType == PhoneType.Office)
                             {
-                                objBusinessTableView.StrPhoneNumber = objCurrentPhoneNumber?.Number;
+                                objBusinessTableView.StrPhoneNumber = busCurrentBusiness?.gstrPhoneNumber;
                             }
-                            else
+                            //else
                             {
-                                objBusinessTableView.StrFaxNumber = objCurrentPhoneNumber?.Number;
+                                objBusinessTableView.StrFaxNumber = busCurrentBusiness?.gstrFaxNumber;
                             }
                         }
 
                         /* Get the contacts persons email address. */
-                        Email objEmail = dbContext.Emails
-                            .Where(ea => ea.ContactPersonId == objContactPerson.Id).FirstOrDefault();
-                        objBusinessTableView.StrEmailAddress = objEmail?.EmailAddress;
+                        // Email objEmail = dbContext.Emails
+                        //    .Where(ea => ea.ContactPersonId == objContactPerson.Id).FirstOrDefault();
+                        objBusinessTableView.StrEmailAddress = busCurrentBusiness?.gstrEmailAddress;
                     }
 
-                    objBusinessTableView.StrWebsite = busCurrentBusiness?.Website;
-                    objBusinessTableView.StrLevel = GetMebershipLevelString(busCurrentBusiness.MembershipLevel);
+                    objBusinessTableView.StrWebsite = busCurrentBusiness?.gstrWebsiteAddress;
+                    objBusinessTableView.StrLevel = busCurrentBusiness?.gstrLevel;
 
-                    objBusinessTableView.IntEstablishedYear = CheckNullableInt(busCurrentBusiness?.YearEstablished);
-
+                    objBusinessTableView.IntEstablishedYear = busCurrentBusiness?.gstrEstablished;
                     lstTableViewModel.Add(objBusinessTableView);
                 }
 
@@ -300,13 +357,13 @@ namespace DirectorsPortalWPF.SettingsUI
         public string StrLocationAddress { get; set; }
         public string StrCity { get; set; }
         public string StrState { get; set; }
-        public int? IntZipCode { get; set; }
+        public string IntZipCode { get; set; }
         public string StrContactPerson { get; set; }
         public string StrPhoneNumber { get; set; }
         public string StrFaxNumber { get; set; }
         public string StrEmailAddress { get; set; }
         public string StrWebsite { get; set; }
         public string StrLevel { get; set; }
-        public int? IntEstablishedYear { get; set; }
+        public string IntEstablishedYear { get; set; }
     }
 }
