@@ -17,7 +17,7 @@ namespace DirectorPortalDatabase.Utility
         /// <summary>
         /// Stores metadata on a single table field and allows for retrieval of a record's field value.
         /// </summary>
-        public class ClsTableField
+        public class ClsTableField : ClsFieldHelper.IDataField
         {
             /// <summary>
             /// The PropertyInfo object used to instantiate the ClsTableField.
@@ -40,9 +40,9 @@ namespace DirectorPortalDatabase.Utility
             /// <remarks>
             /// You must pass in an instance of the class which actually has the underlying property.
             /// </remarks>
-            public object GetValue(object recordInstance)
+            public object GetValue(object objRecordInstance)
             {
-                return UnderlyingProperty.GetValue(recordInstance, null);
+                return UnderlyingProperty.GetValue(objRecordInstance, null);
             }
         }
 
@@ -55,18 +55,24 @@ namespace DirectorPortalDatabase.Utility
             /// The Type used to instantiate the ClsDatabaseTable.
             /// </summary>
             private Type TypeUnderlyingType { get; set; }
-            private ClsTableField[] RGFields { get; set; }
+            private ClsFieldHelper.IDataField[] RGFields { get; set; }
             public int IntNumberOfFields => RGFields.Length;
-            public ClsTableField GetField(int index)
+            
+            /// <summary>
+            /// Gets an object that provides metadata on one of this table's columns.
+            /// </summary>
+            /// <param name="intIndex"></param>
+            /// <returns></returns>
+            public ClsFieldHelper.IDataField GetField(int intIndex)
             {
-                return RGFields[index];
+                return RGFields[intIndex];
             }
 
             public ClsDatabaseTable(Type typeUnderlyingType)
             {
                 TypeUnderlyingType = typeUnderlyingType;
 
-                List<ClsTableField> rgFields = new List<ClsTableField>();
+                List<ClsFieldHelper.IDataField> rgFields = new List<ClsFieldHelper.IDataField>();
 
                 // Iterates over the properties of the underlying class type.
                 PropertyInfo[] rgProperties = typeUnderlyingType.GetProperties();
@@ -77,6 +83,18 @@ namespace DirectorPortalDatabase.Utility
                     {
                         rgFields.Add(new ClsTableField(recordProperty));
                     }
+                }
+
+                string strModelName = TypeUnderlyingType.Name;
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    List<ClsFieldHelper.IDataField> rgExtraFields = dbContext.AdditionalFields
+                        // Queries for all additional fields pointing to the underlying model.
+                        .Where(udtField => udtField.TableName == strModelName)
+                        // Stores the field names in objects that implement the ClsFieldHelper.IDataField interface.
+                        .Select(udtField => (ClsFieldHelper.IDataField)new ClsFieldHelper.ClsCustomField(udtField.FieldName)).ToList();
+
+                    rgFields.AddRange(rgExtraFields);
                 }
 
                 RGFields = rgFields.ToArray();

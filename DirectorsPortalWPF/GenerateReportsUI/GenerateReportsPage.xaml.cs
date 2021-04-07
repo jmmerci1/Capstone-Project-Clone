@@ -26,11 +26,11 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         private class ClsModelAndField
         {
             public ClsMetadataHelper.ClsModelInfo UdtModelInfo { get; set; }
-            public ClsMetadataHelper.ClsTableField UdtTableField { get; set; }
-            public ClsModelAndField(ClsMetadataHelper.ClsModelInfo udtModelInfo, ClsMetadataHelper.ClsTableField udtTableField)
+            public ClsFieldHelper.IDataField UdtDataField { get; set; }
+            public ClsModelAndField(ClsMetadataHelper.ClsModelInfo udtModelInfo, ClsFieldHelper.IDataField udtTableField)
             {
                 UdtModelInfo = udtModelInfo;
-                UdtTableField = udtTableField;
+                UdtDataField = udtTableField;
             }
 
             /// <summary>
@@ -45,7 +45,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 if (typeOtherType == typeof(ClsModelAndField))
                 {
                     ClsModelAndField udtOther = (ClsModelAndField)objOther;
-                    return this.UdtTableField.StrPropertyName == udtOther.UdtTableField.StrPropertyName
+                    return this.UdtDataField.StrPropertyName == udtOther.UdtDataField.StrPropertyName
                         && this.UdtModelInfo.Equals(udtOther.UdtModelInfo);
                 }
                 else
@@ -75,11 +75,11 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 int intNumberOfFields = GUdtSelectedReportType.UdtTableMetaData.IntNumberOfFields;
                 ListBoxItem[] rgFieldItems = new ListBoxItem[intNumberOfFields];
 
-                // Iterates over the fields of the selected table.
+                // Iterates over the built-in fields of the selected table.
                 for (int i = 0; i < intNumberOfFields; i++)
                 {
-                    // Stores the i-th field's information in a new ListBoxItem.
-                    ClsMetadataHelper.ClsTableField udtField = GUdtSelectedReportType.UdtTableMetaData.GetField(i);
+                    // Stores the i-th built-in field's information in a new ListBoxItem.
+                    ClsFieldHelper.IDataField udtField = GUdtSelectedReportType.UdtTableMetaData.GetField(i);
                     ListBoxItem lbiFieldItem = new ListBoxItem();
                     lbiFieldItem.Content = udtField.StrHumanReadableName;
                     lbiFieldItem.Tag = udtField;
@@ -87,6 +87,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                     // Stores the new ListBoxItem in the array.
                     rgFieldItems[i] = lbiFieldItem;
                 }
+
                 // Displays the table's fields in the listbox.
                 lstReportFields.ItemsSource = rgFieldItems;
             }
@@ -248,7 +249,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 for (int intLoop = 0; intLoop < rgReportColumns.Count; intLoop++)
                 {
                     rgReportHead[intLoop] = rgReportColumns[intLoop].UdtModelInfo.StrHumanReadableName
-                        + ": " + rgReportColumns[intLoop].UdtTableField.StrHumanReadableName;
+                        + ": " + rgReportColumns[intLoop].UdtDataField.StrHumanReadableName;
                 }
 
                 rgReport.Add(rgReportHead);
@@ -293,7 +294,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                             object objModel = udtRecord.GetObjectByType(udtModelAndField.UdtModelInfo.TypeModelType);
 
                             // Gets the value of the desired field.
-                            object objValue = udtModelAndField.UdtTableField.GetValue(objModel);
+                            object objValue = udtModelAndField.UdtDataField.GetValue(objModel);
 
                             // Stores the value in the report row (as a string).
                             rgReportRow[intFieldIndex] = objValue?.ToString() ?? "";
@@ -370,7 +371,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 // Searches for a property with a matching name.
                 for (int intLoop = 0; intLoop < udtModelInfo.UdtTableMetaData.IntNumberOfFields; intLoop++)
                 {
-                    ClsMetadataHelper.ClsTableField udtTableField = udtModelInfo.UdtTableMetaData.GetField(intLoop);
+                    ClsFieldHelper.IDataField udtTableField = udtModelInfo.UdtTableMetaData.GetField(intLoop);
                     if (udtTableField.StrPropertyName == udtReportField.ModelPropertyName)
                     {
                         // Creates a ListBoxItem to store this report item.
@@ -427,7 +428,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 // Searches for a property with a matching name.
                 for (int intLoop = 0; intLoop < udtModelInfo.UdtTableMetaData.IntNumberOfFields; intLoop++)
                 {
-                    ClsMetadataHelper.ClsTableField udtTableField = udtModelInfo.UdtTableMetaData.GetField(intLoop);
+                    ClsFieldHelper.IDataField udtTableField = udtModelInfo.UdtTableMetaData.GetField(intLoop);
                     if (udtTableField.StrPropertyName == udtReportField.ModelPropertyName)
                     {
                         // Creates a ListBoxItem to store this report item.
@@ -464,7 +465,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 for (int intLoop = 0; intLoop < rgReportColumns.Count; intLoop++)
                 {
                     rgReportHead[intLoop] = rgReportColumns[intLoop].UdtModelInfo.StrHumanReadableName
-                        + ": " + rgReportColumns[intLoop].UdtTableField.StrHumanReadableName;
+                        + ": " + rgReportColumns[intLoop].UdtDataField.StrHumanReadableName;
                 }
 
                 rgReport.Add(rgReportHead);
@@ -509,7 +510,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                             object objModel = udtRecord.GetObjectByType(udtModelAndField.UdtModelInfo.TypeModelType);
 
                             // Gets the value of the desired field.
-                            object objValue = udtModelAndField.UdtTableField.GetValue(objModel);
+                            object objValue = udtModelAndField.UdtDataField.GetValue(objModel);
 
                             // Stores the value in the report row (as a string).
                             rgReportRow[intFieldIndex] = objValue?.ToString() ?? "";
@@ -686,7 +687,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                             // This ID links to the template record.
                             TemplateId = udtTemplate.Id,
                             ModelName = udtModelAndField.UdtModelInfo.TypeModelType.Name,
-                            ModelPropertyName = udtModelAndField.UdtTableField.StrPropertyName
+                            ModelPropertyName = udtModelAndField.UdtDataField.StrPropertyName
                         };
 
                         dbContext.ReportFields.Add(udtReportField);
@@ -730,7 +731,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             {
                 // Extracts the field from the selected listbox item.
                 ListBoxItem lbiSelectedItem = (ListBoxItem)lstReportFields.SelectedItem;
-                ClsMetadataHelper.ClsTableField udtField = (ClsMetadataHelper.ClsTableField)lbiSelectedItem.Tag;
+                ClsFieldHelper.IDataField udtField = (ClsFieldHelper.IDataField)lbiSelectedItem.Tag;
 
                 // Creates an object to identify this report item.
                 ClsModelAndField udtModelAndField = new ClsModelAndField(GUdtSelectedReportType, udtField);
