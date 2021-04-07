@@ -449,20 +449,37 @@ namespace DirectorsPortalWPF.SettingsUI
             
             BackgroundWorker bWrk = new BackgroundWorker();
 
-                
+            //String that contains the excel file that the user selects.
+            string FilePath = FindFile();
 
-                //String that contains the excel file that the user selects.
-                string FilePath = FindFile();
+            //Populated members List.
+            Members = ReadExcelFile(FilePath);
 
-                //Populated members List.
-                Members = ReadExcelFile(FilePath);
+            List<Members> rgDuplicates = FindDuplicateExcelData(Members);
 
-                //Thread created to import data 
-                bWrk.DoWork += LoadHousingForImport;
-                bWrk.RunWorkerCompleted += LoadSettingsPage;
-                bWrk.RunWorkerAsync();
+            if (rgDuplicates.Count > 0)
+            {
 
+                foreach (Members duplicate in rgDuplicates)
+                {
+                    Members currentMember = Members.Find(x => x.gstrBusinessName.Equals(duplicate.gstrBusinessName));
+                    if (currentMember != null)
+                    {
+                        Members.Remove(currentMember);
+                        Console.WriteLine(currentMember.gstrBusinessName);
+                    }
+                }
 
+                NavigationService.Navigate(new DataConflictPage(rgDuplicates));
+            }
+
+            //Thread created to import data 
+            bWrk.DoWork += LoadHousingForImport;
+            bWrk.RunWorkerCompleted += LoadSettingsPage;
+            bWrk.RunWorkerAsync();
+
+            if (!(rgDuplicates.Count > 0))
+            {
                 //Form to display message to not click through the application during import data.
                 frmLoadPage.TopMost = true;
                 frmLoadPage.MaximizeBox = false;
@@ -470,6 +487,9 @@ namespace DirectorsPortalWPF.SettingsUI
                 frmLoadPage.ControlBox = false;
                 frmLoadPage.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
                 frmLoadPage.Show();
+            }
+
+
         }
 
         /// Contains the method needed to start importing data into the database.
@@ -661,7 +681,7 @@ namespace DirectorsPortalWPF.SettingsUI
         /// Take in a List of members to sort and import data into the database
         /// </summary>
         /// <param name="Data">List of opbject members.</param>
-        private void ImportToDatabase(List<Members> Data)
+        public void ImportToDatabase(List<Members> Data)
         {
             List<string> lstStrFailedDataImports = new List<string>();
 
@@ -1024,9 +1044,6 @@ namespace DirectorsPortalWPF.SettingsUI
                        MessageBoxImage.Information);
 
             }
-            
-
-           
         }
 
         /// <summary>
@@ -1115,7 +1132,7 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="e">The Click Event</param>
         private void btnSimulateConflict_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.Navigate(new DataConflictPage());
+            // NavigationService.Navigate(new DataConflictPage());
         }
 
     }
@@ -1125,7 +1142,7 @@ namespace DirectorsPortalWPF.SettingsUI
 /// <summary>
 /// Class Members that contains the data fields for members.
 /// </summary>
-class Members
+public class Members
 {
     public string gstrEstablished { get; }
     public string gstrLevel { get; }
@@ -1145,8 +1162,6 @@ class Members
     public string gstrNotes { get; }
     public string gstrFreeWebAd { get; }
     public string gstrBallot { get; }
-
-public Members() { }
 
     public Members(string strEstablished, string strLevel, string strBusinessName, string strMailingAddress,
                    string strLocationAddress, string strCityStateZip, string strContactPerson, string strPhoneNumber,
@@ -1171,5 +1186,27 @@ public Members() { }
         this.gstrNotes = strNotes;
         this.gstrFreeWebAd = strFreeWebAd;
         this.gstrBallot = strBallot;
+    }
+
+    public Members()
+    {
+        this.gstrEstablished = "";
+        this.gstrLevel = "";
+        this.gstrBusinessName = "";
+        this.gstrMailingAddress = "";
+        this.gstrLocationAddress = "";
+        this.gstrCityStateZip = "";
+        this.gstrContactPerson = "";
+        this.gstrPhoneNumber = "";
+        this.gstrFaxNumber = "";
+        this.gstrEmailAddress = "";
+        this.gstrWebsiteAddress = "";
+        this.gstrDuesPaid = "";
+        this.gstrRaffleTicketReturnedPaid = "";
+        this.gstrCredit = "";
+        this.gstrTerms = "";
+        this.gstrNotes = "";
+        this.gstrFreeWebAd = "";
+        this.gstrBallot = "";
     }
 }
