@@ -282,7 +282,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                     for (int intLoop = 0; intLoop < rgQueryResults.Length; intLoop++)
                     {
                         // Creates an array for this record.
-                        string[] rgReportRow = new string[rgQueryResults.Length];
+                        string[] rgReportRow = new string[rgReportColumns.Count];
 
                         ClsJoinResultRecord udtRecord = rgQueryResults[intLoop];
 
@@ -627,6 +627,9 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         public GenerateReportsPage()
         {
             InitializeComponent();
+
+            // Updates the model info dictionary to account for changes in extra fields.
+            ClsMetadataHelper.RefreshModelInfo();
 
             GRGCurrentReport = new List<string[]>();
             GRGReportTypeItems = new ComboBoxItem[ClsMetadataHelper.IntNumberOfModels];
