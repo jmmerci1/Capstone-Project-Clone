@@ -42,7 +42,9 @@ namespace DirectorsPortalConstantContact
 
         //https://www.c-sharpcorner.com/article/encryption-and-decryption-using-a-symmetric-key-in-c-sharp/
 
-
+        /// <summary>
+        /// constuctor to init all needed feilds
+        /// </summary>
         public Contact()
         {
             this.email_address = new GETEmailAddress()
@@ -56,6 +58,13 @@ namespace DirectorsPortalConstantContact
             this.street_addresses = new List<GETStreetAddress>();
             this.list_memberships = new List<string>();
         }
+
+        /// <summary>
+        /// optional paramaterized init
+        /// </summary>
+        /// <param name="strEmailAddress">email</param>
+        /// <param name="strFirstName">first name</param>
+        /// <param name="strLastName">last name</param>
         public Contact(string strEmailAddress = null, string strFirstName = null, string strLastName = null)
         {
             this.email_address = new GETEmailAddress() 
@@ -72,7 +81,10 @@ namespace DirectorsPortalConstantContact
         }
 
 
-
+        /// <summary>
+        /// translates the current contact to a PUTContact for use with the API
+        /// </summary>
+        /// <returns></returns>
         public PUTContact Update()
         {
             PUTContact objUpdateContact = new PUTContact();
@@ -123,6 +135,10 @@ namespace DirectorsPortalConstantContact
 
         }
 
+        /// <summary>
+        /// translates to a POSTContact for use with the API
+        /// </summary>
+        /// <returns></returns>
         public POSTContact Create()
         {
             if (string.IsNullOrEmpty(this.first_name) && string.IsNullOrEmpty(this.last_name) && string.IsNullOrEmpty(this.email_address.address))
