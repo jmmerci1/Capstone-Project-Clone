@@ -25,19 +25,14 @@ namespace DirectorsPortalConstantContact
         readonly private string gstrContactCustomFieldUrl = "contact_custom_fields?limit=100";
         readonly private string gstrEmailCampaignUrl = "emails?limit=500";
 
-        //these will become private
+        
         public Dictionary<string, Contact> gdctContacts = new Dictionary<string, Contact>();
         public Dictionary<string, ContactList> gdctContactLists = new Dictionary<string, ContactList>();
         public Dictionary<string, CustomField> gdctCustomFields = new Dictionary<string, CustomField>();
         public Dictionary<string, EmailCampaign> gdctEmailCampaigns = new Dictionary<string, EmailCampaign>();
         public Dictionary<string, EmailCampaignActivity> gdctEmailCampaignActivities = new Dictionary<string, EmailCampaignActivity>();
 
-        private ConstantContactOAuth gobjCCAuth = new ConstantContactOAuth()
-        {
-            MstrLocalRoute = "http://localhost:40000/",
-            mstrAppAPIKey = "08d80131-0c76-4829-83fc-be50e14bf0b4",
-            mstrAppAPISecret = "HvdbdEaUYXhVYQcUV2XEXg"
-        };
+        private ConstantContactOAuth gobjCCAuth = new ConstantContactOAuth();
 
         private string mstrTokenHeader => $"Bearer {this.gobjCCAuth.MstrAccessToken}";
 
@@ -52,12 +47,15 @@ namespace DirectorsPortalConstantContact
 
         public List<EmailCampaignActivityPreview> glstEmailCampaignActivityPreviews = new List<EmailCampaignActivityPreview>();
 
-
+        /// <summary>
+        /// Constuctor. Attempts to load the last cached data
+        /// </summary>
         public ConstantContact()
         {
+
             try
             {
-                this.load();
+                this.LoadData();
             }
             catch (FileNotFoundException)
             {
@@ -66,7 +64,7 @@ namespace DirectorsPortalConstantContact
         }
 
         /// <summary>
-        /// One function to run all of the update functions. 
+        /// One function to run all of the update function. Preforms thread sleeps to avoid going over the Constant Contact API Rate Limit
         ///
         /// </summary>
         public void RefreshData()
@@ -90,12 +88,10 @@ namespace DirectorsPortalConstantContact
 
             this.UpdateEmailCampaignActivityPreviews();
 
-            
             this.ContactListAssignment();
             this.CustomFieldAssignment();
 
-
-            this.save();
+            this.CacheData();
 
 
         }
@@ -118,9 +114,9 @@ namespace DirectorsPortalConstantContact
 
                 List<Contact> lstDecodedJson = JsonConvert.DeserializeObject<List<Contact>>(strContactList);
 
-                foreach (Contact contact in lstDecodedJson)
+                foreach (Contact objContact in lstDecodedJson)
                 {
-                    dctTempContacts.Add(contact.contact_id, contact);
+                    dctTempContacts.Add(objContact.contact_id, objContact);
                 }
                 
                 try
@@ -132,7 +128,7 @@ namespace DirectorsPortalConstantContact
                 {
                     //do i need to manage the gc here?
                     this.gdctContacts = dctTempContacts;
-                    this.save();
+                    this.CacheData();
                     return;
                 }
                 
@@ -162,7 +158,7 @@ namespace DirectorsPortalConstantContact
             }
 
             this.gdctContactLists = dctTempContactLists;
-            this.save();
+            this.CacheData();
             return;
         }
 
@@ -184,7 +180,7 @@ namespace DirectorsPortalConstantContact
             }
 
             this.gdctCustomFields = dctTempCustomFields;
-            this.save();
+            this.CacheData();
             return;
         }
 
@@ -224,14 +220,14 @@ namespace DirectorsPortalConstantContact
                 catch (System.NullReferenceException)
                 {
                     this.gdctEmailCampaigns = dctTempEmailCampaigns;
-                    this.save();
+                    this.CacheData();
                     return;
                 }
             }
         }
 
         /// <summary>
-        ///     update all of the activities for each campaign, with aas much info as we can get. 
+        ///     update all of the activities for each campaign, with as much info as we can get. 
         /// </summary>
         private void UpdateEmailCampaignActivities()
         {
@@ -270,8 +266,12 @@ namespace DirectorsPortalConstantContact
                 System.Threading.Thread.Sleep(250);
 
             }
+            this.CacheData();
         }
 
+        /// <summary>
+        /// Updates the local Previews of the Campaigns and saves them
+        /// </summary>
         private void UpdateEmailCampaignActivityPreviews()
         {
             foreach(EmailCampaign objCampaign in this.gdctEmailCampaigns.Values)
@@ -297,12 +297,15 @@ namespace DirectorsPortalConstantContact
                     
                 }
             }
+            this.CacheData();
         }
 
+        /// <summary>
+        /// Not currently used, Future Implementation
+        /// </summary>
         private void UpdateContactTrackingReporting()
         {
             //current data set does not meet the finctionality of this function yet
-            return;
             foreach (Contact objContact in this.Contacts)
             {
             //Contact objContact = this.FindContactByEmail("edwalk@svsu.edu");
@@ -324,10 +327,12 @@ namespace DirectorsPortalConstantContact
 
         }
 
+        /// <summary>
+        /// Not Currently used. Future Implemetation
+        /// </summary>
         private void UpdateContactOpenRate()
         {
             //current data set does not meet the finctionality of this function yet
-            return;
             foreach (Contact objContact in this.Contacts)
             {
                 //Contact objContact = this.FindContactByEmail("edwalk@svsu.edu");
@@ -451,7 +456,10 @@ namespace DirectorsPortalConstantContact
                 }
             }
         }
-        
+
+        /// <summary>
+        /// Called after LoadCache to correctly assign activities to campaigns in memory
+        /// </summary>
         private void LocalActivityAssignments()
         {
             foreach(EmailCampaign objCampaign in this.EmailCampaigns)
@@ -478,6 +486,10 @@ namespace DirectorsPortalConstantContact
             }
         }
         
+        
+        /// <summary>
+        /// Called after LoadCache to correctly assign previews to activities in memory
+        /// </summary>
         private void LocalPreviewAssignment()
         {
            foreach(EmailCampaignActivityPreview objPreview in this.glstEmailCampaignActivityPreviews)
@@ -539,6 +551,11 @@ namespace DirectorsPortalConstantContact
             return null;
         }
 
+        /// <summary>
+        /// Return a campaign given its name
+        /// </summary>
+        /// <param name="strName">name of the campaign</param>
+        /// <returns>CampaignActivity</returns>
         public EmailCampaignActivity FindCampaignActivityByName(string strName)
         {
             foreach (EmailCampaignActivityPreview objTemp in this.glstEmailCampaignActivityPreviews)
@@ -565,7 +582,7 @@ namespace DirectorsPortalConstantContact
                 NullValueHandling = NullValueHandling.Ignore
             });
             this.PUTJson(strJson, strUrl);
-            this.save();
+            this.CacheData();
         }
 
 
@@ -583,9 +600,13 @@ namespace DirectorsPortalConstantContact
                 NullValueHandling = NullValueHandling.Ignore
             });
             this.PUTJson(strJson, strUrl);
-            this.save();
+            this.CacheData();
         }
 
+        /// <summary>
+        /// Creates a new Contact in memory and in Constant Contact
+        /// </summary>
+        /// <param name="objContact">Contact to send up to Constant Contact</param>
         public void Create(Contact objContact)
         {
             this.gobjCCAuth.ValidateAuthentication();
@@ -597,10 +618,13 @@ namespace DirectorsPortalConstantContact
             });
             this.PostJson(strJson, "contacts");
             this.UpdateContacts();
-            this.save();
+            this.CacheData();
         }
 
-        // GAVIN
+        /// <summary>
+        /// Creates a list in memory and sends it up to Constant Contact-
+        /// </summary>
+        /// <param name="objContactList"></param>
         public void Create(ContactList objContactList)
         {
             this.gobjCCAuth.ValidateAuthentication();
@@ -612,9 +636,13 @@ namespace DirectorsPortalConstantContact
             });
             this.PostJson(strJson, "contact_lists");
             this.UpdateContactLists();
-            this.save();
+            this.CacheData();
         }
 
+        /// <summary>
+        /// Deletes a list in the constant Contact API
+        /// </summary>
+        /// <param name="objList"></param>
         private void DELETEContactList(ContactList objList)
         {
             HttpClient client = new HttpClient();
@@ -622,11 +650,15 @@ namespace DirectorsPortalConstantContact
 
             var response = client.DeleteAsync(this.gstrBaseURL + $"contact_lists/{objList.list_id}").Result;
             this.UpdateContactLists();
-            this.save();
+            this.CacheData();
 
         }
 
-
+        /// <summary>
+        /// Assigns a Contact to a list in miemory and the API
+        /// </summary>
+        /// <param name="objContactList">ContactList to update</param>
+        /// <param name="objContact">Contact to assign</param>
         public void AddContactToContactList(ContactList objContactList, Contact objContact)
         {
             if (objContact.list_memberships.Count() >= 50)
@@ -662,10 +694,15 @@ namespace DirectorsPortalConstantContact
                 this.PostJson(strFinalJson, "activities/add_list_memberships");
                 objContact.list_memberships.Add(objContactList.list_id);
                 this.ContactListAssignment();
-                this.save();
+                this.CacheData();
             }
         }
 
+        /// <summary>
+        /// Revoves a contact from a list
+        /// </summary>
+        /// <param name="objContactList">List to remove from</param>
+        /// <param name="objContact">Contact to remove</param>
         public void RemoveContactFromContactList(ContactList objContactList, Contact objContact)
         {
             this.gobjCCAuth.ValidateAuthentication();
@@ -678,30 +715,29 @@ namespace DirectorsPortalConstantContact
             JProperty objSourceProp = new JProperty("source", objSource);
 
 
-
             JArray LstListIDs = new JArray(objContactList.list_id);
             JProperty objListProp = new JProperty("list_ids", LstListIDs);
-
 
             JObject objFinal = new JObject();
             objFinal.Add(objSourceProp);
             objFinal.Add(objListProp);
 
 
-
             string strFinalJson = JsonConvert.SerializeObject(objFinal);
 
             this.PostJson(strFinalJson, "activities/remove_list_memberships");
 
-
-
             objContactList.glstMembers.RemoveAll(x => x.contact_id == objContact.contact_id);
             objContact.glstContactLists.RemoveAll(x => x.list_id == objContactList.list_id);
 
-
-            this.save();
+            this.CacheData();
         }
 
+        /// <summary>
+        /// Adds a list to an activity in memory and the api
+        /// </summary>
+        /// <param name="objList">List to add</param>
+        /// <param name="objActivity">Activity to have it added to</param>
         public void AddListToActivity(ContactList objList, EmailCampaignActivity objActivity)
         {
             objActivity.contact_list_ids.Add(objList.list_id);
@@ -716,6 +752,12 @@ namespace DirectorsPortalConstantContact
             this.PUTJson(strJson, $"/emails/activities/{objActivity.campaign_activity_id}");
 
         }
+
+        /// <summary>
+        /// Removes a list from an activity in memory and API
+        /// </summary>
+        /// <param name="objList">List to remove</param>
+        /// <param name="objActivity">Activity to remove from</param>
         public void RemoveListFromActivity(ContactList objList, EmailCampaignActivity objActivity)
         {
             objActivity.contact_list_ids.Remove(objList.list_id);
@@ -731,6 +773,10 @@ namespace DirectorsPortalConstantContact
 
         }
 
+        /// <summary>
+        /// Sends out the selected activity
+        /// </summary>
+        /// <param name="objActivity">Activity to send</param>
         public void SendActivity(EmailCampaignActivity objActivity)
         {
             if (objActivity.contact_list_ids.Count()>0)
@@ -749,7 +795,10 @@ namespace DirectorsPortalConstantContact
             }
         }
 
-        private void save()
+        /// <summary>
+        /// Saves all the data in memory to a bin file for faster load on program start up
+        /// </summary>
+        private void CacheData()
         {
             string strContacts = JsonConvert.SerializeObject(this.gdctContacts, new JsonSerializerSettings
             {
@@ -800,7 +849,10 @@ namespace DirectorsPortalConstantContact
             File.WriteAllText(strFname, strData, Encoding.UTF8);
         }
 
-        private void load()
+        /// <summary>
+        /// Loads the cached data for faster load times and proform the local assignments
+        /// </summary>
+        private void LoadData()
         {
 
             string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\CCSaveData.JSON";
@@ -823,6 +875,11 @@ namespace DirectorsPortalConstantContact
             this.ContactListAssignment();
         }
 
+        /// <summary>
+        /// Obfuscates a string to provide some level of privacy of data
+        /// </summary>
+        /// <param name="strIn">string to obfuscate</param>
+        /// <returns></returns>
         private string Obfuscate(string strIn)
         {
 
@@ -840,10 +897,14 @@ namespace DirectorsPortalConstantContact
 
             }
             
-
             return strWorking;
         }
 
+        /// <summary>
+        /// undoes the method this.Obfuscate() to have readable json for prosessing
+        /// </summary>
+        /// <param name="strIn">string to deobfuscate</param>
+        /// <returns></returns>
         private string Deobfuscate(string strIn)
         {
             string strWorking = strIn;

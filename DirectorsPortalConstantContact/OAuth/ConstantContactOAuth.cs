@@ -27,13 +27,49 @@ namespace DirectorsPortalConstantContact
         public string mstrAppAPISecret;
         DateTime mobjLastUse;
 
+        /// <summary>
+        /// Constuctor to set initial params for local socket and load the ini data for key and secret
+        /// </summary>
         public ConstantContactOAuth()
         {
             //sets socket at 1 minute timeout
             this.mobjLocalListener.TimeoutManager.DrainEntityBody = new TimeSpan(0, 1, 0);
+            this.LoadINI();
         }
 
-        
+        /// <summary>
+        /// loads the key and secret from a file in appdata. if the file is missing it will write it with hard coded default values that should be provided to Kate. 
+        /// </summary>
+        private void LoadINI()
+        {
+            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\CCAPIKey.ini";
+
+            
+            if (!File.Exists(strFname))
+            {
+                string[] strDefaults = { "##----------DEFAULT_VALUES----------", "LocalRoute=http://localhost:40000/", "APIKey=e3c18fc5-b03f-4067-aecf-d3ccafa30d41", "APISecret=p6C90WExMXbZXHzJPvt26Q" };
+                File.WriteAllLines(strFname, strDefaults, Encoding.UTF8);
+            }
+            foreach(string strLine in File.ReadAllLines(strFname, Encoding.UTF8))
+            {
+                if (!strLine.StartsWith("##"))
+                {
+                    if (strLine.StartsWith("LocalRoute="))
+                    {
+                        this.MstrLocalRoute = strLine.Split('=')[1].Trim();
+                    }
+                    else if (strLine.StartsWith("APIKey="))
+                    {
+                        this.mstrAppAPIKey = strLine.Split('=')[1].Trim();
+                    }
+                    else if (strLine.StartsWith("APISecret=")){
+                        this.mstrAppAPISecret = strLine.Split('=')[1].Trim();
+                    }
+
+                }
+            }
+        }
+
         /// <summary>
         /// validate and assign the localroute value
         /// </summary>
@@ -57,6 +93,9 @@ namespace DirectorsPortalConstantContact
             }
         }
 
+        /// <summary>
+        /// property for validating the Access token
+        /// </summary>
         public string MstrAccessToken
         {
             get
@@ -65,6 +104,9 @@ namespace DirectorsPortalConstantContact
             }
         }
 
+        /// <summary>
+        /// property to validate refresh token (depreciated)
+        /// </summary>
         public string MstrRefreshToken
         {
             get
@@ -132,6 +174,7 @@ namespace DirectorsPortalConstantContact
         /// sit ant wait for redirect to local host
         /// 
         /// [TODO] This should be threaded as it blocks untill responcse.
+        ///     {DONE} time out on the local socket handles this
         /// </summary>
         private void ManageListener()
         {
@@ -286,6 +329,9 @@ namespace DirectorsPortalConstantContact
 
         }
 
+        /// <summary>
+        /// this will attempt to obtain a new access token with the current refresh token
+        /// </summary>
         private void RefreshAccessToken()
         {
             string strUrl = $"https://idfed.constantcontact.com/as/token.oauth2?refresh_token={this.mstrRefreshToken}&grant_type=refresh_token";
@@ -312,6 +358,9 @@ namespace DirectorsPortalConstantContact
 
         }
 
+        /// <summary>
+        /// saves the refresh and access token to a file
+        /// </summary>
         private void CacheTokens()
         {
 
@@ -380,6 +429,11 @@ namespace DirectorsPortalConstantContact
             
         }
 
+        /// <summary>
+        /// obfuscates a string for security
+        /// </summary>
+        /// <param name="strData">string to obfuscate</param>
+        /// <returns></returns>
         private string ObfuscateString(string strData)
         {
 
@@ -405,6 +459,11 @@ namespace DirectorsPortalConstantContact
             return strB64;
         }
 
+        /// <summary>
+        /// undoes this.ObfuscateString()
+        /// </summary>
+        /// <param name="strData">string to clean</param>
+        /// <returns></returns>
         private string DeobfuscateString(string strData)
         {
             string strClean = strData;
@@ -427,6 +486,11 @@ namespace DirectorsPortalConstantContact
             return strClean;
         }
 
+        /// <summary>
+        /// base64 decode a string to serialize
+        /// </summary>
+        /// <param name="strData">string to serialize</param>
+        /// <returns></returns>
         private string Base64Decode(string strData)
         {
             byte[] lstBytes = Convert.FromBase64String(strData);

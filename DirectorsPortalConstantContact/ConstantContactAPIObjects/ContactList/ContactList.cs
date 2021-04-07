@@ -21,11 +21,19 @@ namespace DirectorsPortalConstantContact
             this.name = strName;
             this.description = strDesc;
         }
+
+        /// <summary>
+        /// init for needed fields
+        /// </summary>
         public ContactList()
         {
             this.name = null;
         }
 
+        /// <summary>
+        /// translates to put list for use with the API
+        /// </summary>
+        /// <returns></returns>
         public PUTContactList Update()
         {
             return new PUTContactList() {
@@ -35,6 +43,10 @@ namespace DirectorsPortalConstantContact
             };
         }
 
+        /// <summary>
+        /// translates to the POST list for use with the API
+        /// </summary>
+        /// <returns></returns>
         public POSTContactList Create()
         {
             if (String.IsNullOrEmpty(this.name))
