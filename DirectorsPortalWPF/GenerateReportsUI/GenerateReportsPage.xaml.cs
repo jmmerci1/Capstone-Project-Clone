@@ -402,12 +402,10 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             var wbWorkbook = new XLWorkbook();
             wbWorkbook.AddWorksheet("sheetName");
             var wsSheet = wbWorkbook.Worksheet("sheetName");
-
             //String for save file path
             String strfilepath = " ";
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-
 
             // Clears out all existing ListBoxItems in the ListBox of included report items.
             lstIncludedReportFields.Items.Clear();
@@ -593,7 +591,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
             //Saving the workbook in the selected path
             wbWorkbook.SaveAs(strfilepath + ".xlsx");
-
+            System.Diagnostics.Process.Start(strfilepath + ".xlsx");
             lstIncludedReportFields.Items.Clear();
         }
 
