@@ -630,74 +630,75 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 Filter = "PDF Files|*.pdf"
             };
 
-            try 
+            try
             {
-                Console.WriteLine(File.ReadAllText(openFileDialog.FileName));
-
-                //create new reader object
-                PdfReader reader = new PdfReader(openFileDialog.FileName);
-                //variable for form fields in PDF 
-                AcroFields pdfFormFields = reader.AcroFields;
-                //array to split city state zip 
-                string strCityStateZip = pdfFormFields.GetField("CityStateZip");
-                String[] strArrCityStateZip;
-                //Logic to prevent errors if PDF is invalid
-                if (strCityStateZip != null)
+                if (openFileDialog.ShowDialog() == true)
                 {
-                    strArrCityStateZip = strCityStateZip.ToString().Split(',');
+                    Console.WriteLine(File.ReadAllText(openFileDialog.FileName));
+
+                    //create new reader object
+                    PdfReader reader = new PdfReader(openFileDialog.FileName);
+                    //variable for form fields in PDF 
+                    var objFields = reader.AcroFields.Fields;
+                    //array to contain all values from key value pairs read
+                    var arrFieldData = new ArrayList();
+                    //iterates over key value pairs and add values(data from pdf) to the array
+                    foreach (var item in objFields.Keys)
+                    {
+                        arrFieldData.Add(reader.AcroFields.GetField(item.ToString()));
+                        Console.WriteLine(reader.AcroFields.GetField(item.ToString()));
+                    }
+                    //array to split city state zip 
+                    String[] strCityStateZip = arrFieldData[4].ToString().Split(',');
+
+
+                    //dictionary add statements to add pdf data to ui
+                    dicToAdd.Add("Business Name", (string)arrFieldData[0]);
+                    dicToAdd.Add("Website", (string)arrFieldData[8]);
+                    dicToAdd.Add("Level", (string)arrFieldData[13]);
+                    dicToAdd.Add("Established", (string)arrFieldData[9]);
+
+                    // Mailing Address
+                    dicToAdd.Add("Mailing Address", (string)arrFieldData[2]);
+
+                    if (strCityStateZip.Length > 0)
+                        dicToAdd.Add("City", strCityStateZip[0]);
+                    else
+                        dicToAdd.Add("City", "");
+
+                    if (strCityStateZip.Length > 1)
+                        dicToAdd.Add("State", strCityStateZip[1]);
+                    else
+                        dicToAdd.Add("State", "");
+
+                    if (strCityStateZip.Length > 2)
+                        dicToAdd.Add("Zip Code", strCityStateZip[2]);
+                    else
+                        dicToAdd.Add("Zip Code", "");
+
+                    // Location Address
+                    dicToAdd.Add("Location Address", (string)arrFieldData[3]);
+
+                    if (strCityStateZip.Length > 0)
+                        dicToAdd.Add("Location City", strCityStateZip[0]);
+                    else
+                        dicToAdd.Add("Location City", "");
+
+                    if (strCityStateZip.Length > 1)
+                        dicToAdd.Add("Location State", strCityStateZip[1]);
+                    else
+                        dicToAdd.Add("Location State", "");
+
+                    if (strCityStateZip.Length > 2)
+                        dicToAdd.Add("Location Zip Code", strCityStateZip[2]);
+                    else
+                        dicToAdd.Add("Location Zip Code", "");
+
+                    dicToAdd.Add("Contact Name", (string)arrFieldData[1]);
+                    dicToAdd.Add("Phone Number", (string)arrFieldData[5]);
+                    dicToAdd.Add("Fax Number", (string)arrFieldData[6]);
+                    dicToAdd.Add("Email Address", (string)arrFieldData[7]);
                 }
-                else
-                {
-                    strArrCityStateZip = new string[0];
-                }
-
-
-                //dictionary add statements to add pdf data to ui
-                dicToAdd.Add("Business Name", pdfFormFields.GetField("Business Name"));
-                dicToAdd.Add("Website", pdfFormFields.GetField("Website"));
-                dicToAdd.Add("Level", pdfFormFields.GetField("Level"));
-                dicToAdd.Add("Established", pdfFormFields.GetField("Established"));
-
-                // Mailing Address
-                dicToAdd.Add("Mailing Address", pdfFormFields.GetField("Mailing Address"));
-
-                if (strArrCityStateZip.Length > 0)
-                    dicToAdd.Add("City", strArrCityStateZip[0]);
-                else
-                    dicToAdd.Add("City", "");
-
-                if (strArrCityStateZip.Length > 1)
-                    dicToAdd.Add("State", strArrCityStateZip[1].Replace(" ", ""));
-                else
-                    dicToAdd.Add("State", "");
-
-                if (strArrCityStateZip.Length > 2)
-                    dicToAdd.Add("Zip Code", strArrCityStateZip[2].Replace(" ", ""));
-                else
-                    dicToAdd.Add("Zip Code", "");
-
-                // Location Address
-                dicToAdd.Add("Location Address", pdfFormFields.GetField("Location Address"));
-
-                if (strArrCityStateZip.Length > 0)
-                    dicToAdd.Add("Location City", strArrCityStateZip[0]);
-                else
-                    dicToAdd.Add("Location City", "");
-
-                if (strArrCityStateZip.Length > 1)
-                    dicToAdd.Add("Location State", strArrCityStateZip[1].Replace(" ", ""));
-                else
-                    dicToAdd.Add("Location State", "");
-
-                if (strArrCityStateZip.Length > 2)
-                    dicToAdd.Add("Location Zip Code", strArrCityStateZip[2].Replace(" ", ""));
-                else
-                    dicToAdd.Add("Location Zip Code", "");
-
-                dicToAdd.Add("Contact Name", pdfFormFields.GetField("Contact Name"));
-                dicToAdd.Add("Phone Number", pdfFormFields.GetField("Phone Number"));
-                dicToAdd.Add("Fax Number", pdfFormFields.GetField("Fax Number"));
-                dicToAdd.Add("Email Address", pdfFormFields.GetField("Email Address"));  
             }
             catch (ArgumentOutOfRangeException ex)
             {
