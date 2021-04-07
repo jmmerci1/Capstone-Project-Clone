@@ -544,17 +544,36 @@ namespace DirectorsPortalWPF.SettingsUI
                         //Reader that is used to hold data read from the excel file.
                         using (var Reader = ExcelReaderFactory.CreateReader(Stream))
                         {
+                            var dataset = Reader.AsDataSet(new ExcelDataSetConfiguration()
+                            {
+                                ConfigureDataTable = (_) => new ExcelDataTableConfiguration()
+                                {
+                                    UseHeaderRow = true
+                                }
+                            });
+                            int intExtraFieldCount = dataset.Tables[0].Columns.Count - 20;
+                            List<string> strlstColumnNames = new List<string>();
+                            for (int i = 0; i < intExtraFieldCount; i++)
+                            {
+                                strlstColumnNames.Add(dataset.Tables[0].Columns[i + 20].ColumnName);
+                            }
                             do
                             {
                                 while (Reader.Read())
                                 {
+                                    Dictionary<string, string> extraFieldData = new Dictionary<string, string>();
+                                    for (int i = 0; i < intExtraFieldCount; i++)
+                                    {
+                                        extraFieldData.Add(strlstColumnNames[i], Convert.ToString(Reader[20 + i]));
+                                    }
                                     //Add data that was read from the Excel sheet into a list.
                                     TempMembers.Add(new Members(Convert.ToString(Reader[0]), Convert.ToString(Reader[1]), Convert.ToString(Reader[2]),
                                                                 Convert.ToString(Reader[3]), Convert.ToString(Reader[4]), Convert.ToString(Reader[5]),
                                                                 Convert.ToString(Reader[6]), Convert.ToString(Reader[7]), Convert.ToString(Reader[8]),
                                                                 Convert.ToString(Reader[9]), Convert.ToString(Reader[10]), Convert.ToString(Reader[11]),
                                                                 Convert.ToString(Reader[12]), Convert.ToString(Reader[13]), Convert.ToString(Reader[14]),
-                                                                Convert.ToString(Reader[15]), Convert.ToString(Reader[17]), Convert.ToString(Reader[19])));
+                                                                Convert.ToString(Reader[15]), Convert.ToString(Reader[17]), Convert.ToString(Reader[19]),
+                                                                extraFieldData));
 
                                 }
                                 //Moves to the next sheet.
@@ -687,12 +706,23 @@ namespace DirectorsPortalWPF.SettingsUI
 
             using (var context = new DatabaseContext())
             {
+
+                if (Data.Count > 0)
+                {
+                    foreach (KeyValuePair<string, string> entry in Data[0].gdctExtraFields)
+                    {
+                        Business tmpBusiness = new Business();
+                        tmpBusiness.AddField(context, entry.Key);
+                    }
+                    context.SaveChanges();
+                }
+
                 for (int intCounter = 1; intCounter < Data.Count - 1; intCounter++)
                 {
                     if (Data[intCounter].gstrBusinessName.Equals(""))
                     {
                         break;
-                    } 
+                    }
 
                     String strCityStateZip = Data[intCounter].gstrCityStateZip;
                     String strLevelData = Data[intCounter].gstrLevel;
@@ -704,15 +734,15 @@ namespace DirectorsPortalWPF.SettingsUI
                     String[] arrSplitStateZip = arrSplit[1].Split(' ');
                     String strStateData = arrSplitStateZip[1];
                     String strZipData = arrSplitStateZip[2];
-              
+
                     try
                     {
                         Address objMailingAddress = new Address()
                         {
                             StreetAddress = Data[intCounter].gstrMailingAddress,
                             City = strCityData,
-                            State = strStateData,                      
-                        };                    
+                            State = strStateData,
+                        };
 
                         Address objLocationAddress = new Address()
                         {
@@ -742,7 +772,7 @@ namespace DirectorsPortalWPF.SettingsUI
                         String[] arrLocationSplit = strLocationAddress.Split(',');
                         String[] arrLocationSplitSlash = strLocationAddress.Split('/');
                         String[] arrLocationSplitAnd = strLocationAddress.Split('&');
-                        
+
                         if (arrLocationSplit.Length == 3)
                         {
                             String[] arrStateZip = arrLocationSplit[2].Split(' ');
@@ -754,7 +784,8 @@ namespace DirectorsPortalWPF.SettingsUI
                             objLocationAddress.ZipCode = Int32.Parse(arrStateZip[2]);
                             objLocationAddress.ZipCodeExt = strZipData;
 
-                        } else if (arrLocationSplitSlash.Length > 1)
+                        }
+                        else if (arrLocationSplitSlash.Length > 1)
                         {
                             objLocationAddress.StreetAddress = arrLocationSplit[0];
                             strAdditionalNote = " - Additional Location Addresses : ";
@@ -765,7 +796,7 @@ namespace DirectorsPortalWPF.SettingsUI
                             }
                         }
 
-                        arrLocationSplit = strLocationAddress.Split('&');                        
+                        arrLocationSplit = strLocationAddress.Split('&');
 
                         if (arrLocationSplit.Length > 1)
                         {
@@ -823,6 +854,9 @@ namespace DirectorsPortalWPF.SettingsUI
                         else if (strLevelData.Equals("Courtesy"))
                         {
                             objBusiness.MembershipLevel = MembershipLevel.COURTESY;
+                        }
+                        foreach (KeyValuePair<string, string> extraField in Data[intCounter].gdctExtraFields) {
+                            objBusiness.SetField(extraField.Key, extraField.Value, context);
                         }
 
                         context.Businesses.Add(objBusiness);
@@ -1162,11 +1196,12 @@ public class Members
     public string gstrNotes { get; }
     public string gstrFreeWebAd { get; }
     public string gstrBallot { get; }
+    public Dictionary<string, string> gdctExtraFields { get; }
 
     public Members(string strEstablished, string strLevel, string strBusinessName, string strMailingAddress,
                    string strLocationAddress, string strCityStateZip, string strContactPerson, string strPhoneNumber,
                    string strFaxNumber, string strEmailAddress, string strWebsiteAddress, string strDuesPaid, string strRaffleTicketReturnedPaid,
-                   string strCredit, string strTerms, string strNotes, string strFreeWebAd, string strBallot)
+                   string strCredit, string strTerms, string strNotes, string strFreeWebAd, string strBallot, Dictionary<string, string> extraFieldData)
     {
         this.gstrEstablished = strEstablished;
         this.gstrLevel = strLevel;
@@ -1186,6 +1221,7 @@ public class Members
         this.gstrNotes = strNotes;
         this.gstrFreeWebAd = strFreeWebAd;
         this.gstrBallot = strBallot;
+        this.gdctExtraFields = extraFieldData;
     }
 
     public Members()
@@ -1208,5 +1244,6 @@ public class Members
         this.gstrNotes = "";
         this.gstrFreeWebAd = "";
         this.gstrBallot = "";
+        this.gdctExtraFields = new Dictionary<string, string>();
     }
 }
