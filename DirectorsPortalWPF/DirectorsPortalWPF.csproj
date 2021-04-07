@@ -510,6 +510,7 @@
     <Resource Include="Resources\Icons\paragraphincreaseindentation.png" />
     <Resource Include="Resources\Icons\paragraphleftjustify.png" />
     <Resource Include="Resources\Icons\paragraphrightjustify.png" />
+    <Resource Include="Resources\Business_Categories.txt" />
     <Content Include="Resources\MembershipTemplate.html" />
   </ItemGroup>
   <ItemGroup>
