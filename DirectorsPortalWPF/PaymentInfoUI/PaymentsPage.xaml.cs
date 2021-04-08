@@ -41,6 +41,7 @@ using System.Windows.Media;
 ///     
 /// Modification History:
 ///     1/27/2021 - DH: Inital creation
+///     4/7/2021 - BH: Integrated with PaymentsV2 database. Revised methods accordingly.
 ///     
 /// </summary>
 namespace DirectorsPortalWPF.PaymentInfoUI
@@ -76,6 +77,7 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             InitializeComponent();
             var context = new DatabaseContext();
             List<Business> businesses = context.Businesses
+                .OrderBy(b => b.BusinessName)
                 .ToList();
             lbBusinessNames.ItemsSource = businesses;
         }
@@ -128,6 +130,9 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             ResetPaymentInfoColumn();
         }
 
+        /// <summary>
+        /// Show the initial Payment listing view in the right UI column.
+        /// </summary>
         private void ResetPaymentInfoColumn()
         {
             CurrentCreatePaymentUIElements = null;
@@ -296,6 +301,11 @@ namespace DirectorsPortalWPF.PaymentInfoUI
 
         }
 
+        /// <summary>
+        /// Event when the user selects a Business from the list in the left UI column.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void lbBusinessNames_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             spCustomerPayments.Children.Clear();
@@ -442,6 +452,11 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             }
         }
 
+        /// <summary>
+        /// Delete the payment the sending button was on.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DeletePayment(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
@@ -457,6 +472,11 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             ResetPaymentInfoColumn();
         }
 
+        /// <summary>
+        /// Replace the right UI column with the Payment editing interface.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void EditPayment(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
@@ -585,6 +605,11 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             datePkrPaymentDate.SelectedDate = payment.Timestamp;
         }
 
+        /// <summary>
+        /// Commit the edited Payment fields to the database.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SaveEditPayment(object sender, RoutedEventArgs e)
         {
             if (CurrentEditPaymentUIElements != null)
@@ -613,6 +638,11 @@ namespace DirectorsPortalWPF.PaymentInfoUI
             ResetPaymentInfoColumn();
         }
 
+        /// <summary>
+        /// Cancel the edit Payment interface.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CancelEditPayment(object sender, RoutedEventArgs e)
         {
             ResetPaymentInfoColumn();

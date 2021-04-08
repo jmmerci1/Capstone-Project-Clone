@@ -11,6 +11,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.ComponentModel;
+using DirectorPortalPayPal;
 
 
 /// <summary>
@@ -519,7 +520,24 @@ namespace DirectorsPortalWPF.SettingsUI
             string filePath = FindPayPalFile();
             if (!string.IsNullOrEmpty(filePath))
             {
-                DirectorPortalPayPal.CsvParser.RunImport(filePath);
+                TransactionImportResult result = CsvParser.RunImport(filePath);
+                if(result.Successful())
+                {
+                    MessageBox.Show(result.ImportSuccesses.Count() +
+                        " PayPal transactions successfully imported into Payments.\n"
+                        + result.DuplicateCount() + " duplicates were skipped.",
+                        "PayPal Import Successful");
+                }
+                else
+                {
+                    MessageBox.Show(result.ImportSuccesses.Count()
+                        + " PayPal transactions successfully imported into Payments.\n"
+                        + result.ImportFailures.Count() + " failed to import.\n\n"
+                        + "The importing wizard will now walk through manually importing the failures.",
+                        "PayPal Import Needs Attention!");
+                    PayPalTransactionImportWizard wizard = new PayPalTransactionImportWizard(result.ImportFailures);
+                    wizard.Show();
+                }
             }
         }
 
