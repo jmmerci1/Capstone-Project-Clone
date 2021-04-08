@@ -12,6 +12,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using DirectorPortalDatabase.Utility;
 using ClosedXML.Excel;
+using System.Diagnostics;
 
 namespace DirectorsPortalWPF.GenerateReportsUI
 {
@@ -102,35 +103,79 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             grdReportContent.RowDefinitions.Clear();
             grdReportContent.ColumnDefinitions.Clear();
 
+            var wbWorkbook = new XLWorkbook();
+            wbWorkbook.AddWorksheet("sheetName");
+            var wsSheet = wbWorkbook.Worksheet("sheetName");
+
+
             int intRowCount = GRGCurrentReport.Count;
+            List<int> lstColumnSize = new List<int>();
+
+            //Loop to insert data into excel file.
+            for (int i = 0; i < GRGCurrentReport.Count; i++)
+            {
+                for (int j = 0; j < GRGCurrentReport[i].Length; j++)
+                {
+                    //If value is null then skip
+                    if (GRGCurrentReport[i].GetValue(j) == null)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        //Adds first value into list
+                        if (i == 0)
+                        {
+                            int intValueSize = GRGCurrentReport[i].GetValue(j).ToString().Length;
+                            lstColumnSize.Add(intValueSize);
+                        }
+
+                        //If new value is larger than initial value then sets larger value to new value.
+                        if (lstColumnSize[j] < GRGCurrentReport[i].GetValue(j).ToString().Length)
+                        {
+                            lstColumnSize[j] = GRGCurrentReport[i].GetValue(j).ToString().Length;
+
+                        }
+                    }
+
+                }
+            }
 
             if (intRowCount > 0)
             {
                 int intColCount = GRGCurrentReport[0].Length;
 
-                for (int i = 0; i < intColCount; i++)
+/*                for (int i = 0; i < intColCount; i++)
                 {
                     grdReportContent.ColumnDefinitions.Add(new ColumnDefinition());
                 }
                 for (int i = 0; i < intRowCount; i++)
                 {
                     grdReportContent.RowDefinitions.Add(new RowDefinition());
-                }
+                }*/
                 for (int i = 0; i < intRowCount; i++)
                 {
                     for (int j = 0; j < intColCount; j++)
                     {
                         // Stores the report cell data in a TextBox, which is inserted into the Grid.
-                        TextBox txtReportCell = new TextBox();
-                        txtReportCell.IsReadOnly = true;
-                        txtReportCell.Text = GRGCurrentReport[i][j];
-                        txtReportCell.SetValue(Grid.RowProperty, i);
-                        txtReportCell.SetValue(Grid.ColumnProperty, j);
-                        grdReportContent.Children.Add(txtReportCell);
+                        /*  TextBox txtReportCell = new TextBox();
+                          txtReportCell.IsReadOnly = true;
+                          txtReportCell.Text = GRGCurrentReport[i][j];
+                          txtReportCell.SetValue(Grid.RowProperty, i);
+                          txtReportCell.SetValue(Grid.ColumnProperty, j);
+                          grdReportContent.Children.Add(txtReportCell);*/
+                        //For the first row column size is set for excel columns
+                        if (i == 0)
+                        {
+                            //Sets column size
+                            wsSheet.Cell(i + 1, j + 1).WorksheetColumn().Width = lstColumnSize[j];
+                        }
+                        wsSheet.Cell(i + 1, j + 1).Value = GRGCurrentReport[i][j];
                     }
                 }
             }
-
+            wbWorkbook.SaveAs("Test.xlsx");
+            Process.Start("Test.xlsx");
         }
 
         /// <summary>
@@ -591,7 +636,14 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
             //Saving the workbook in the selected path
             wbWorkbook.SaveAs(strfilepath + ".xlsx");
-            System.Diagnostics.Process.Start(strfilepath + ".xlsx");
+            try
+            {
+                System.Diagnostics.Process.Start(strfilepath + ".xlsx");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
             lstIncludedReportFields.Items.Clear();
         }
 
