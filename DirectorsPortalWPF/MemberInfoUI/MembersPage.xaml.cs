@@ -79,6 +79,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 selectedBusiness = context.Businesses
                     .Include(x => x.MailingAddress)
                     .Include(x => x.PhysicalAddress)
+                    .Include(x => x.CategoryRefs)
+                    .ThenInclude(x => x.Category)
                     .Include(x => x.BusinessReps)
                     .ThenInclude(x => x.ContactPerson)
                     .ThenInclude(x => x.Emails)

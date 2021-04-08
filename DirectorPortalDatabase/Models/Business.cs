@@ -62,7 +62,7 @@ namespace DirectorPortalDatabase.Models
         /// <summary>
         /// Represents an array of buisness type categories
         /// </summary>
-        public virtual List<Categories> Categories 
+/*        public virtual List<Categories> Categories 
         {
             get
             {
@@ -71,8 +71,9 @@ namespace DirectorPortalDatabase.Models
                     return dbContext.CategoryRef.Where(x => x.BusinessId == Id).Select(b => b.Category).ToList();
                 }
             }
-        }
+        }*/
 
+        public virtual List<CategoryRef> CategoryRefs { get; set; }
         /// <summary>
         /// Represents an array of the yearly data objects
         /// </summary>
