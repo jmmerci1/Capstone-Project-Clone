@@ -1,6 +1,7 @@
 ﻿using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
 using DirectorsPortalWPF.Controls;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,11 +20,10 @@ namespace DirectorsPortalWPF.MemberInfoUI
     public partial class ModifyMembersPage : Page
     {
         public List<int> GIntContactsToRemove { get; set; } = new List<int>();
-
+        public List<string> CategoriesToRemove = new List<string>();
         private Business MSelectedBusiness = null;
         private int MIntContactCount = 0;
         private bool MBoolIgnoreWarnings = false;
-
         /// <summary>
         /// A method for initializing the modify members page. This method determines whether the page should be
         /// setup to add a new member or edit an existing one based on the passed in Business parameter.
@@ -40,10 +40,42 @@ namespace DirectorsPortalWPF.MemberInfoUI
             MSelectedBusiness = selectedBusiness;
             CreateExtraFields();
 
+            RefreshCategories();
+
+            //Creating list to act as item source for lbCategories
+            List<string> items = new List<string>();
+            using (var context = new DatabaseContext())
+            {
+
+                List<Categories> allCategories = context.Categories.ToList();
+
+                foreach (Categories currentCat in allCategories)
+                {
+                    items.Add(currentCat.Category);
+                }
+
+                lbCategories.ItemsSource = items;
+            }
+
             if (selectedBusiness != null)
             {
                 /* A business was passed in so this page needs to update an already existing business and not
                  * add a new one.*/
+
+                //Populate categories from database
+                foreach (string currentItem in items)
+                {
+                    foreach (CategoryRef cat in selectedBusiness.CategoryRefs)
+                    {
+                        if (currentItem.Equals(cat.Category.Category))
+                        {
+                            lbCategories.SelectedItems.Add(currentItem);
+                            CategoriesToRemove.Add(currentItem);
+                        }
+                    }
+                }
+                lbCategories.UpdateLayout();
+
                 lblHeader.Content = "Update Member";
                 btnModifyMember.Content = "Update";
                 btnModifyMember.Click += BtnUpdateMember_Click;
@@ -418,6 +450,48 @@ namespace DirectorsPortalWPF.MemberInfoUI
             }
         }
 
+        private void RefreshCategories()
+        {
+            //Creating list to act as item source for lbCategories
+            List<string> items = new List<string>();
+            using (var context = new DatabaseContext())
+            {
+
+                List<Categories> allCategories = context.Categories.ToList();
+
+                foreach (Categories currentCat in allCategories)
+                {
+                    items.Add(currentCat.Category);
+                }
+
+                lbCategories.ItemsSource = items;
+            }
+
+            if (MSelectedBusiness!= null)
+            {
+                /* A business was passed in so this page needs to update an already existing business and not
+                 * add a new one.*/
+
+                /*                List<string> items = new List<string>();
+                                foreach (object i in selectedBusiness.Categories)
+                                {
+                                    items.Add((string)i);
+                                }
+
+                                lbCategories.ItemsSource = items;*/
+
+                foreach (string currentItem in items)
+                {
+                    foreach (CategoryRef cat in MSelectedBusiness.CategoryRefs)
+                    {
+                        if (currentItem.Equals(cat.Category.Category))
+                            lbCategories.SelectedItems.Add(currentItem);
+                    }
+                }
+                lbCategories.UpdateLayout();
+            }
+        }
+
         /// <summary>
         /// A method for canceling the modify business action, taking the user back to the member info page.
         /// </summary>
@@ -562,10 +636,22 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
                                 newBusinessRep.ContactPerson = newContact;
                                 newBusiness.BusinessReps.Add(newBusinessRep);
+
                             }
                         }
 
                         context.Businesses.Add(newBusiness);
+                        context.SaveChanges();
+
+                        foreach (string item in lbCategories.SelectedItems)
+                        {
+                            Categories cat = context.Categories.Where(x => x.Category.Equals(item)).FirstOrDefault();
+                            Business forCategories = context.Businesses.Where(x => x.BusinessName.Equals(newBusiness.BusinessName)).FirstOrDefault();
+                            CategoryRef catRef = new CategoryRef();
+                            catRef.BusinessId = forCategories.Id;
+                            catRef.CategoryId = cat.Id;
+                            context.CategoryRef.Add(catRef);
+                        }
                         context.SaveChanges();
 
                         transaction.Commit();
@@ -603,6 +689,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 {
                     try
                     {
+                        context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                         /* Update the business info from the form. */
                         MSelectedBusiness.BusinessName = txtBusinessName.Text;
 
@@ -827,6 +914,10 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     }
                 }
             }
+            
+            DeleteCategories();
+            AddCategories();
+
 
             NavigationService.Navigate(new MembersPage());
         }
@@ -928,6 +1019,47 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     Console.WriteLine(ex.Message);
                     Console.WriteLine(ex.StackTrace);
                 }
+            }
+        }
+
+        private void AddCategories()
+        {
+            using (DatabaseContext context = new DatabaseContext())
+            {
+                
+                //updates database with selected categories for business
+                foreach (string item in lbCategories.SelectedItems)
+                {
+                    if (!CategoriesToRemove.Contains(item))
+                    {
+                        Categories cat = context.Categories.Where(x => x.Category.Equals(item)).FirstOrDefault();
+                        CategoryRef catRef = new CategoryRef();
+                        catRef.BusinessId = MSelectedBusiness.Id;
+                        catRef.CategoryId = cat.Id;
+                        context.CategoryRef.Add(catRef);
+                    }
+                }
+                
+                context.SaveChanges();
+                context.Dispose();
+            }
+        }
+        private void DeleteCategories()
+        {
+            using (DatabaseContext context = new DatabaseContext())
+            {
+                foreach(string i in lbCategories.Items)
+                {
+                    Categories catRemove = context.Categories.Where(x => x.Category.Equals(i)).FirstOrDefault();
+                    CategoryRef catRefRemove = context.CategoryRef.Where(x => x.BusinessId.Equals(MSelectedBusiness.Id)).Where(x => x.CategoryId.Equals(catRemove.Id)).FirstOrDefault();
+                    if (CategoriesToRemove.Contains(i) && !lbCategories.SelectedItems.Contains(i))
+                    {
+                        context.CategoryRef.Remove(catRefRemove);
+                    }
+                }
+                
+                context.SaveChanges();
+                context.Dispose();
             }
         }
 
@@ -1319,6 +1451,42 @@ namespace DirectorsPortalWPF.MemberInfoUI
         private void ChkLocationSameAsMailing_Unchecked(object sender, RoutedEventArgs e)
         {
             SpLocationAddress.IsEnabled = true;
+        }
+
+        /// <summary>
+        /// A method for adding a category to the category options.
+        /// </summary>
+        /// <param name="sender">The object that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
+        private void BtnAddCategory_Click(object sender, RoutedEventArgs e)
+        {
+            // Don't add a category if the user didn't fill out the text bod
+            if (string.IsNullOrEmpty(txtAddCategory.Text))
+            {
+                MessageBox.Show("The added category cannot be empty.");
+                return;
+            }
+
+            using (var context = new DatabaseContext())
+            {
+                // Don't add this label if it already exists
+                if (context.Categories.Any(category => category.Category == txtAddCategory.Text))
+                {
+                    MessageBox.Show($"The category {txtAddCategory.Text} already exists.");
+                    return;
+                }
+
+                // Add the new category to the DB
+                Categories objNewCategory = new Categories
+                {
+                    Category = txtAddCategory.Text
+                };
+                context.Categories.Add(objNewCategory);
+                context.SaveChanges();
+
+                // Update the UI
+                RefreshCategories();
+            }
         }
     }
 }
