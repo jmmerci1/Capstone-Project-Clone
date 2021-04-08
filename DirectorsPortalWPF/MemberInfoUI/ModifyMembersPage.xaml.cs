@@ -40,43 +40,12 @@ namespace DirectorsPortalWPF.MemberInfoUI
             MSelectedBusiness = selectedBusiness;
             CreateExtraFields();
 
-            //Creating list to act as item source for lbCategories
-            List<string> items = new List<string>();
-            using (var context = new DatabaseContext())
-            {
-
-                List<Categories> allCategories = context.Categories.ToList();
-
-                foreach(Categories currentCat in allCategories)
-                {
-                    items.Add(currentCat.Category);
-                }
-
-                lbCategories.ItemsSource = items;
-            }
+            RefreshCategories();
 
             if (selectedBusiness != null)
             {
                 /* A business was passed in so this page needs to update an already existing business and not
                  * add a new one.*/
-
-                /*                List<string> items = new List<string>();
-                                foreach (object i in selectedBusiness.Categories)
-                                {
-                                    items.Add((string)i);
-                                }
-
-                                lbCategories.ItemsSource = items;*/
-
-                foreach (string currentItem in items)
-                {
-                    foreach (Categories cat in selectedBusiness.Categories)
-                    {
-                        if (currentItem.Equals(cat.Category))
-                            lbCategories.SelectedItems.Add(currentItem);
-                    }
-                }
-                lbCategories.UpdateLayout();
 
                 lblHeader.Content = "Update Member";
                 btnModifyMember.Content = "Update";
@@ -449,6 +418,48 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 }
 
                 btnDelete.Visibility = Visibility.Hidden;
+            }
+        }
+
+        private void RefreshCategories()
+        {
+            //Creating list to act as item source for lbCategories
+            List<string> items = new List<string>();
+            using (var context = new DatabaseContext())
+            {
+
+                List<Categories> allCategories = context.Categories.ToList();
+
+                foreach (Categories currentCat in allCategories)
+                {
+                    items.Add(currentCat.Category);
+                }
+
+                lbCategories.ItemsSource = items;
+            }
+
+            if (MSelectedBusiness!= null)
+            {
+                /* A business was passed in so this page needs to update an already existing business and not
+                 * add a new one.*/
+
+                /*                List<string> items = new List<string>();
+                                foreach (object i in selectedBusiness.Categories)
+                                {
+                                    items.Add((string)i);
+                                }
+
+                                lbCategories.ItemsSource = items;*/
+
+                foreach (string currentItem in items)
+                {
+                    foreach (Categories cat in MSelectedBusiness.Categories)
+                    {
+                        if (currentItem.Equals(cat.Category))
+                            lbCategories.SelectedItems.Add(currentItem);
+                    }
+                }
+                lbCategories.UpdateLayout();
             }
         }
 
@@ -1367,6 +1378,40 @@ namespace DirectorsPortalWPF.MemberInfoUI
         private void ChkLocationSameAsMailing_Unchecked(object sender, RoutedEventArgs e)
         {
             SpLocationAddress.IsEnabled = true;
+        }
+
+        /// <summary>
+        /// A method for adding a category to the category options.
+        /// </summary>
+        /// <param name="sender">The object that called the method.</param>
+        /// <param name="e">Event data asscociated with this event.</param>
+        private void BtnAddCategory_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtAddCategory.Text))
+            {
+                MessageBox.Show("The added category cannot be empty.");
+                return;
+            }
+
+            //Creating list to act as item source for lbCategories
+            List<string> items = new List<string>();
+            using (var context = new DatabaseContext())
+            {
+                if (context.Categories.Any(category => category.Category == txtAddCategory.Text))
+                {
+                    MessageBox.Show($"The category {txtAddCategory.Text} already exists.");
+                    return;
+                }
+
+                Categories objNewCategory = new Categories
+                {
+                    Category = txtAddCategory.Text
+                };
+                context.Categories.Add(objNewCategory);
+                context.SaveChanges();
+
+                RefreshCategories();
+            }
         }
     }
 }
