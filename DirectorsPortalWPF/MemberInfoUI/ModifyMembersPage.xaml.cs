@@ -1387,22 +1387,23 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// <param name="e">Event data asscociated with this event.</param>
         private void BtnAddCategory_Click(object sender, RoutedEventArgs e)
         {
+            // Don't add a category if the user didn't fill out the text bod
             if (string.IsNullOrEmpty(txtAddCategory.Text))
             {
                 MessageBox.Show("The added category cannot be empty.");
                 return;
             }
 
-            //Creating list to act as item source for lbCategories
-            List<string> items = new List<string>();
             using (var context = new DatabaseContext())
             {
+                // Don't add this label if it already exists
                 if (context.Categories.Any(category => category.Category == txtAddCategory.Text))
                 {
                     MessageBox.Show($"The category {txtAddCategory.Text} already exists.");
                     return;
                 }
 
+                // Add the new category to the DB
                 Categories objNewCategory = new Categories
                 {
                     Category = txtAddCategory.Text
@@ -1410,6 +1411,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 context.Categories.Add(objNewCategory);
                 context.SaveChanges();
 
+                // Update the UI
                 RefreshCategories();
             }
         }
