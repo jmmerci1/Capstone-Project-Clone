@@ -357,6 +357,12 @@
     <Compile Include="SettingsUI\ImportLoadPage.Designer.cs">
       <DependentUpon>ImportLoadPage.cs</DependentUpon>
     </Compile>
+    <Compile Include="SettingsUI\PayPalTransactionImportWizard.xaml.cs">
+      <DependentUpon>PayPalTransactionImportWizard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SettingsUI\PayPalTransactionImportWizardPage.xaml.cs">
+      <DependentUpon>PayPalTransactionImportWizardPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SettingsUI\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
@@ -448,6 +454,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SettingsUI\DataConflictPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SettingsUI\PayPalTransactionImportWizard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SettingsUI\PayPalTransactionImportWizardPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
