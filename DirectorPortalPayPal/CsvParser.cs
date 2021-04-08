@@ -4,7 +4,6 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
 using Microsoft.EntityFrameworkCore;
@@ -133,8 +132,10 @@ namespace DirectorPortalPayPal
             }
             catch (Exception)
             {
-                MessageBox.Show("Make sure the CSV file is not open in any other programs.",
-                        "Unable to open file");
+                // TODO: Get rid of this Try Catch.  This should actually be handled in the WPF project
+                //MessageBox.Show("Make sure the CSV file is not open in any other programs.",
+                //        "Unable to open file");
+                throw;
             }
 
             return reportItems;
