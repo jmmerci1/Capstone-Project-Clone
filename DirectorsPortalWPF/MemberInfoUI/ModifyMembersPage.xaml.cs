@@ -39,11 +39,13 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
             MSelectedBusiness = selectedBusiness;
             CreateExtraFields();
+
+            //Creating list to act as item source for lbCategories
             List<string> items = new List<string>();
-            foreach(object i in selectedBusiness.Categories)
-            {
-                items.Add((string)i);
-            }
+            //foreach(object i in Business.)
+            //{
+            //    items.Add((string)i);
+            //}
 
             lbCategories.ItemsSource = items;
             
