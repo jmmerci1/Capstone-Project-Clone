@@ -17,7 +17,7 @@ namespace DirectorPortalDatabase.Utility
         /// <summary>
         /// Stores metadata on a single table field and allows for retrieval of a record's field value.
         /// </summary>
-        public class ClsTableField
+        public class ClsTableField : ClsFieldHelper.IDataField
         {
             /// <summary>
             /// The PropertyInfo object used to instantiate the ClsTableField.
@@ -40,9 +40,9 @@ namespace DirectorPortalDatabase.Utility
             /// <remarks>
             /// You must pass in an instance of the class which actually has the underlying property.
             /// </remarks>
-            public object GetValue(object recordInstance)
+            public object GetValue(object objRecordInstance)
             {
-                return UnderlyingProperty.GetValue(recordInstance, null);
+                return UnderlyingProperty.GetValue(objRecordInstance, null);
             }
         }
 
@@ -55,28 +55,55 @@ namespace DirectorPortalDatabase.Utility
             /// The Type used to instantiate the ClsDatabaseTable.
             /// </summary>
             private Type TypeUnderlyingType { get; set; }
-            private ClsTableField[] RGFields { get; set; }
+            private ClsFieldHelper.IDataField[] RGFields { get; set; }
             public int IntNumberOfFields => RGFields.Length;
-            public ClsTableField GetField(int index)
+            
+            /// <summary>
+            /// Gets an object that provides metadata on one of this table's columns.
+            /// </summary>
+            /// <param name="intIndex"></param>
+            /// <returns></returns>
+            public ClsFieldHelper.IDataField GetField(int intIndex)
             {
-                return RGFields[index];
+                return RGFields[intIndex];
             }
 
             public ClsDatabaseTable(Type typeUnderlyingType)
             {
                 TypeUnderlyingType = typeUnderlyingType;
 
-                List<ClsTableField> rgFields = new List<ClsTableField>();
+                List<ClsFieldHelper.IDataField> rgFields = new List<ClsFieldHelper.IDataField>();
 
                 // Iterates over the properties of the underlying class type.
                 PropertyInfo[] rgProperties = typeUnderlyingType.GetProperties();
                 foreach (PropertyInfo recordProperty in rgProperties)
                 {
-                    // Checks if this is a property that we care about.
-                    if (recordProperty.PropertyType.IsPrimitive || recordProperty.PropertyType == typeof(string) || recordProperty.PropertyType.IsEnum)
+                    // Checks if this is a property type that we care about.
+                    if (recordProperty.PropertyType.IsPrimitive
+                        || recordProperty.PropertyType == typeof(string)
+                        || recordProperty.PropertyType.IsEnum
+                        || recordProperty.PropertyType == typeof(DateTime)
+                        || recordProperty.PropertyType == typeof(decimal))
                     {
-                        rgFields.Add(new ClsTableField(recordProperty));
+                        // Checks if this property is listed as one not to display.
+                        if (!(GDictPropertiesToAvoidByModelType.ContainsKey(TypeUnderlyingType) 
+                            && GDictPropertiesToAvoidByModelType[TypeUnderlyingType].Contains(recordProperty.Name)))
+                        {
+                            rgFields.Add(new ClsTableField(recordProperty));
+                        }
                     }
+                }
+
+                string strModelName = TypeUnderlyingType.Name;
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    List<ClsFieldHelper.IDataField> rgExtraFields = dbContext.AdditionalFields
+                        // Queries for all additional fields pointing to the underlying model.
+                        .Where(udtField => udtField.TableName == strModelName)
+                        // Stores the field names in objects that implement the ClsFieldHelper.IDataField interface.
+                        .Select(udtField => (ClsFieldHelper.IDataField)new ClsFieldHelper.ClsCustomField(udtField.FieldName)).ToList();
+
+                    rgFields.AddRange(rgExtraFields);
                 }
 
                 RGFields = rgFields.ToArray();
@@ -86,67 +113,34 @@ namespace DirectorPortalDatabase.Utility
         ///<summary>
         /// Used to get the human-readable version of a variable name.
         /// </summary>
-        /// <remarks>
-        /// The reason for hardcoding this dictionary here is that it breaks nothing if
-        /// class property names were to change, even if that means they no longer have
-        /// an entry here.
-        /// </remarks>
         private static Dictionary<string, string> GDictHumanReadableNames = new Dictionary<string, string>
         {
             // Table class names
-            ["Address"] = "Address",
-            ["ClsAddress"] = "Address",
-            ["Business"] = "Business",
-            ["ClsBusiness"] = "Business",
+            ["Categories"] = "Category",
             ["BusinessRep"] = "Business Representative",
-            ["ClsBusinessRep"] = "Business Representative",
-            ["ContactPerson"] = "Contact Person",
-            ["ClsContactPerson"] = "Contact Person",
-            ["Email"] = "Email",
-            ["ClsEmail"] = "Email",
-            ["PhoneNumber"] = "Phone Number",
-            ["ClsPhoneNumber"] = "Phone Number",
             ["Todo"] = "To-Do List Items",
-            ["ClsTodo"] = "To-Do List Items",
-            ["YearlyData"] = "Yearly Data",
-            ["ClsYearlyData"] = "Yearly Data",
             // Address class properties
-            ["GIntId"] = "ID",
-            ["GStrAddress"] = "Address",
-            ["GStrCity"] = "City",
-            ["GStrState"] = "State",
-            ["GIntZipCode"] = "ZIP Code",
-            // Business class properties
-            ["GStrBusinessName"] = "Business Name",
-            ["GIntYearEstablished"] = "Year Established",
-            ["GEnumMembershipLevel"] = "Membership Level",
-            ["GIntMailingAddressId"] = "Mailing Address ID",
-            ["GIntPhysicalAddressId"] = "Physical Address ID",
-            ["GStrWebsite"] = "Website",
-            ["GStrExtraNotes"] = "Extra Notes",
-            ["GStrExtraFields"] = "Extra Fields",
-            // BusinessRep class properties
-            ["GIntBusinessId"] = "Business ID",
-            ["GIntContactPersonId"] = "Contact Person ID",
-            // ContactPerson class properties
-            ["GStrName"] = "Name",
-            // Email class properties
-            ["GStrEmailAddress"] = "Email Address",
+            ["ZipCodeExt"] = "Extended Zip Code",
             // PhoneNumber class properties
-            ["GStrPhoneNumber"] = "Phone Number",
-            ["GStrNotes"] = "Notes",
-            ["GEnumPhoneType"] = "Phone Type",
-            // Todo class properties
-            ["GStrTitle"] = "Title",
-            ["GStrDescription"] = "Description",
-            ["GBlnMarkedAsDone"] = "Marked As Done",
-            // YearlyData properties
-            ["GIntYear"] = "Year",
-            ["GDblDuesPaid"] = "Dues Paid",
-            ["GDblTicketsReturned"] = "Raffle Tickets Returned",
-            ["GDblCredit"] = "Credit",
-            ["GEnumTermLength"] = "Term Length",
-            ["GIntBallotNumber"] = "Ballot Number"
+            ["GEnumPhoneType"] = "Phone Type"
+        };
+
+        /// <summary>
+        /// Used to get an array of the names of properties to avoid displaying to the user.
+        /// The key is the model type, and the value is the array of names.
+        /// </summary>
+        private static Dictionary<Type, string[]> GDictPropertiesToAvoidByModelType = new Dictionary<Type, string[]>
+        {
+            [typeof(Address)] = new string[] { "Id" },
+            [typeof(Business)] = new string[] { "Id", "MailingAddressId", "PhysicalAddressId", "ExtraFields" },
+            [typeof(Categories)] = new string[] { "Id" },
+            [typeof(ContactPerson)] = new string[] { "Id" },
+            [typeof(Email)] = new string[] { "Id", "ContactPersonId" },
+            [typeof(EmailGroup)] = new string[] { "Id" },
+            [typeof(Payment)] = new string[] { "Id" },
+            [typeof(PaymentItem)] = new string[] { "Id" },
+            [typeof(PhoneNumber)] = new string[] { "Id", "ContactPersonId" },
+            [typeof(YearlyData)] = new string[] { "Id", "BusinessId", "ExtraFields" }
         };
 
         /// <summary>
@@ -165,7 +159,8 @@ namespace DirectorPortalDatabase.Utility
             }
             else
             {
-                return strClassOrPropertyName;
+                // Adds a space before every capital letter and then removes the leading space if there is one.
+                return System.Text.RegularExpressions.Regex.Replace(strClassOrPropertyName, "[A-Z]", " $0").TrimStart();
             }
         }
 
@@ -215,7 +210,7 @@ namespace DirectorPortalDatabase.Utility
         /// <summary>
         /// Maps model types to ClsModelInfo instances that describe them.
         /// </summary>
-        private static Dictionary<Type, ClsModelInfo> dictModels = new Dictionary<Type, ClsModelInfo>
+        private static Dictionary<Type, ClsModelInfo> GDictModels = new Dictionary<Type, ClsModelInfo>
         {
             [typeof(Address)] = new ClsModelInfo(typeof(Address)),
             [typeof(Business)] = new ClsModelInfo(typeof(Business)),
@@ -230,11 +225,30 @@ namespace DirectorPortalDatabase.Utility
             [typeof(YearlyData)] = new ClsModelInfo(typeof(YearlyData))
         };
 
-        private static Type[] rgModels =
+        /// <summary>
+        /// Updates the GDictModels dictionary entries for models with extra fields.
+        /// This allows the report generator to respond to new fields without restarting the program.
+        /// </summary>
+        public static void RefreshModelInfo()
+        {
+            // Gets only the model types with extra fields.
+            Type[] rgModelsWithExtraFields = GDictModels.Keys
+                .Where(typeModelType => typeModelType.IsSubclassOf(typeof(HasExtraFields))).ToArray();
+
+            foreach (Type typeModelType in rgModelsWithExtraFields)
+            {
+                if (typeModelType.IsSubclassOf(typeof(HasExtraFields)))
+                {
+                    GDictModels[typeModelType] = new ClsModelInfo(typeModelType);
+                }
+            }
+        }
+
+        private static Type[] GRGModels =
         {
             typeof(Address),
             typeof(Business),
-            typeof(BusinessRep),
+            //typeof(BusinessRep),
             typeof(Categories),
             typeof(ContactPerson),
             typeof(Email),
@@ -248,7 +262,7 @@ namespace DirectorPortalDatabase.Utility
         /// <summary>
         /// Maps the names of models to their types.
         /// </summary>
-        private static Dictionary<string, Type> dictTypeByName = new Dictionary<string, Type>
+        private static Dictionary<string, Type> GDictTypeByName = new Dictionary<string, Type>
         {
             [typeof(Address).Name] = typeof(Address),
             [typeof(Business).Name] = typeof(Business),
@@ -266,7 +280,7 @@ namespace DirectorPortalDatabase.Utility
         /// <summary>
         /// Maps model types to their corresponding enums.
         /// </summary>
-        private static Dictionary<Type, ClsJoinHelper.EnumTable> dictEnumTableByType = new Dictionary<Type, ClsJoinHelper.EnumTable>
+        private static Dictionary<Type, ClsJoinHelper.EnumTable> GDictEnumTableByType = new Dictionary<Type, ClsJoinHelper.EnumTable>
         {
             [typeof(Address)] = ClsJoinHelper.EnumTable.Address,
             [typeof(Business)] = ClsJoinHelper.EnumTable.Business,
@@ -281,7 +295,7 @@ namespace DirectorPortalDatabase.Utility
             [typeof(YearlyData)] = ClsJoinHelper.EnumTable.YearlyData
         };
 
-        public static int IntNumberOfModels => rgModels.Length;
+        public static int IntNumberOfModels => GRGModels.Length;
         /// <summary>
         /// Used to access the array of model types.
         /// </summary>
@@ -289,7 +303,7 @@ namespace DirectorPortalDatabase.Utility
         /// <returns></returns>
         public static Type GetModelTypeByIndex(int intIndex)
         {
-            return rgModels[intIndex];
+            return GRGModels[intIndex];
         }
 
         /// <summary>
@@ -299,9 +313,9 @@ namespace DirectorPortalDatabase.Utility
         /// <returns></returns>
         public static ClsModelInfo GetModelInfo(Type typeModelType)
         {
-            if (dictModels.ContainsKey(typeModelType))
+            if (GDictModels.ContainsKey(typeModelType))
             {
-                return dictModels[typeModelType];
+                return GDictModels[typeModelType];
             }
             else
             {
@@ -316,9 +330,9 @@ namespace DirectorPortalDatabase.Utility
         /// <returns></returns>
         public static ClsJoinHelper.EnumTable GetEnumTable(Type typeModelType)
         {
-            if (dictEnumTableByType.ContainsKey(typeModelType))
+            if (GDictEnumTableByType.ContainsKey(typeModelType))
             {
-                return dictEnumTableByType[typeModelType];
+                return GDictEnumTableByType[typeModelType];
             }
             else
             {
@@ -333,9 +347,9 @@ namespace DirectorPortalDatabase.Utility
         /// <returns></returns>
         public static ClsModelInfo GetModelInfoByName(string strModelName)
         {
-            if (dictTypeByName.ContainsKey(strModelName))
+            if (GDictTypeByName.ContainsKey(strModelName))
             {
-                Type typeModelType = dictTypeByName[strModelName];
+                Type typeModelType = GDictTypeByName[strModelName];
                 return GetModelInfo(typeModelType);
             }
             else
