@@ -65,7 +65,7 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
             String strSubject = txtSubject.Text;
             String strRecipient = txtToField.Text;
 
-            btnSendEmail.IsEnabled = false; 
+
 
             if (ValidateGroupsEmails())
             {
@@ -73,27 +73,37 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
 
                 String strContent = GetRichTextDocumentHtmlContent();
 
-                if (gStrAttachedFilePath != null)
-                    await GraphApiClient.SendMail(strSubject, rgRecipient, strContent, gStrAttachedFilePath, gStrFileExtension, gStrFileName);
-                else
-                    await GraphApiClient.SendMail(strSubject, rgRecipient, strContent);
+                try 
+                {
+                    btnSendEmail.IsEnabled = false;
+                    if (gStrAttachedFilePath != null)
+                        await GraphApiClient.SendMail(strSubject, rgRecipient, strContent, gStrAttachedFilePath, gStrFileExtension, gStrFileName);
+                    else
+                        await GraphApiClient.SendMail(strSubject, rgRecipient, strContent);
 
-                objEmailPage.LoadEmailGroups();
-                LblAttachmentCount.Content = "";
-                emailGroups.Clear();
-                txtToField.Clear();
-                txtSubject.Clear();
-                rtbEmailBody.Document.Blocks.Clear();
-                gStrAttachedFilePath.Clear();
-                gStrFileExtension.Clear();
-                gStrFileName.Clear();
 
-                if (rgRecipient.Length > 1)
-                    MessageBox.Show($"Message sent to {rgRecipient[0]} and {rgRecipient.Length - 1} others.", "Message Sent");
-                else
-                    MessageBox.Show($"Message sent to {rgRecipient[0]}.", "Message Sent");
+                    objEmailPage.LoadEmailGroups();
+                    LblAttachmentCount.Content = "";
+                    emailGroups.Clear();
+                    txtToField.Clear();
+                    txtSubject.Clear();
+                    rtbEmailBody.Document.Blocks.Clear();
+                    gStrAttachedFilePath.Clear();
+                    gStrFileExtension.Clear();
+                    gStrFileName.Clear();
+
+                    if (rgRecipient.Length > 1)
+                        MessageBox.Show($"Message sent to {rgRecipient[0]} and {rgRecipient.Length - 1} others.", "Message Sent");
+                    else
+                        MessageBox.Show($"Message sent to {rgRecipient[0]}.", "Message Sent");
 
                 btnSendEmail.IsEnabled = true;
+                }
+                catch (Exception ex)
+                {
+                    btnSendEmail.IsEnabled = true;
+                    Console.WriteLine("Oops", ex);
+                }
             }
         }
         /// <summary>
