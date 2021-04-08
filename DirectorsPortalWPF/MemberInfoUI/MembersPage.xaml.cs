@@ -390,7 +390,14 @@ namespace DirectorsPortalWPF.MemberInfoUI
         {
             var a = await GraphApiClient.GetAllEmails();
             foreach (Message message in a)
-                pdfEmails.Add(EmailGetPdfs(message));
+                try
+                {
+                    pdfEmails.Add(EmailGetPdfs(message));
+                }
+                catch
+                {
+                    continue;
+                }
         }
 
         private Dictionary<string, string> EmailGetPdfs(Message a)
