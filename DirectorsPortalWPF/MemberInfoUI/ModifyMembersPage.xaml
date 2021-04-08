@@ -74,6 +74,17 @@
                             </StackPanel>
 
                             <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">Category:</Label>
+                                <ListBox x:Name ="lbCategories" Height="100" Width="400" SelectionMode="Multiple" >
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </StackPanel>
+                            
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
                                 <Label Width="100">Notes:</Label>
                                 <TextBox x:Name="txtNotes" TextWrapping="Wrap" AcceptsReturn="True" 
                                          VerticalScrollBarVisibility="Visible" Width="400" Height="100"/>
