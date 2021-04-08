@@ -42,19 +42,42 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
             //Creating list to act as item source for lbCategories
             List<string> items = new List<string>();
-            //foreach(object i in Business.)
-            //{
-            //    items.Add((string)i);
-            //}
+            using (var context = new DatabaseContext())
+            {
 
-            lbCategories.ItemsSource = items;
-            
-            
+                List<Categories> allCategories = context.Categories.ToList();
+
+                foreach(Categories currentCat in allCategories)
+                {
+                    items.Add(currentCat.Category);
+                }
+
+                lbCategories.ItemsSource = items;
+            }
 
             if (selectedBusiness != null)
             {
                 /* A business was passed in so this page needs to update an already existing business and not
                  * add a new one.*/
+
+                /*                List<string> items = new List<string>();
+                                foreach (object i in selectedBusiness.Categories)
+                                {
+                                    items.Add((string)i);
+                                }
+
+                                lbCategories.ItemsSource = items;*/
+
+                foreach (string currentItem in items)
+                {
+                    foreach (Categories cat in selectedBusiness.Categories)
+                    {
+                        if (currentItem.Equals(cat.Category))
+                            lbCategories.SelectedItems.Add(currentItem);
+                    }
+                }
+                lbCategories.UpdateLayout();
+
                 lblHeader.Content = "Update Member";
                 btnModifyMember.Content = "Update";
                 btnModifyMember.Click += BtnUpdateMember_Click;
@@ -573,10 +596,22 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
                                 newBusinessRep.ContactPerson = newContact;
                                 newBusiness.BusinessReps.Add(newBusinessRep);
+
                             }
                         }
 
                         context.Businesses.Add(newBusiness);
+                        context.SaveChanges();
+
+                        foreach (string item in lbCategories.SelectedItems)
+                        {
+                            Categories cat = context.Categories.Where(x => x.Category.Equals(item)).FirstOrDefault();
+                            Business forCategories = context.Businesses.Where(x => x.BusinessName.Equals(newBusiness.BusinessName)).FirstOrDefault();
+                            CategoryRef catRef = new CategoryRef();
+                            catRef.BusinessId = forCategories.Id;
+                            catRef.CategoryId = cat.Id;
+                            context.CategoryRef.Add(catRef);
+                        }
                         context.SaveChanges();
 
                         transaction.Commit();
@@ -825,6 +860,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                 }
                             }
                         }
+
+
 
                         context.Update(MSelectedBusiness);
                         context.SaveChanges();

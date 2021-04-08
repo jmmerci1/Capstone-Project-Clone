@@ -75,7 +75,7 @@
 
                             <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
                                 <Label Width="100">Category:</Label>
-                                <ListBox x:Name ="lbCategories" Height="100" Width="400" SelectionMode="Multiple" >
+                                <ListBox x:Name ="lbCategories" Height="100" Width="400" SelectionMode="Multiple">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding}"/>
