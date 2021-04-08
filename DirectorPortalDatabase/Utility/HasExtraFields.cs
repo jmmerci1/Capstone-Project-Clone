@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using DirectorPortalDatabase.Models;
 using Newtonsoft.Json;
 
+// :)
+
 namespace DirectorPortalDatabase.Utility
 {
     /// <summary>
