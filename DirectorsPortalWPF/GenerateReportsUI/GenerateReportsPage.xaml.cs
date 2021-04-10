@@ -183,8 +183,16 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             }
             catch (IOException ex)
             {
-                MessageBox.Show("Please close the current Excel report in  before generating a new report", "Alert");
-                Console.WriteLine(ex);
+                if (ex.Message.Contains("The process cannot access the file"))
+                {
+                    MessageBox.Show("Please close the current Excel report before generating a new report", "Alert");
+                    Console.WriteLine(ex);
+                }
+                else
+                {
+                    MessageBox.Show($"An error occured when attempting to generate the report: {ex}");
+                    Console.WriteLine(ex);
+                }
             }
 
         }
