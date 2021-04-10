@@ -3,6 +3,7 @@ using System.IO;
 using System.Security.Permissions;
 using System.Text;
 using System.Windows;
+using System.Linq;
 
 namespace DirectorsPortalWPF
 {
@@ -22,15 +23,45 @@ namespace DirectorsPortalWPF
         }
         static void HandleUncaught(object sender, UnhandledExceptionEventArgs args)
         {
-            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\DirectorsPortaaUnhandled_Error.txt";
+            string strBasename = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string strFname = strBasename + "\\DirectorsPortalUnhandled_Error.txt";
+
+            long size;
+            //rollover to a new file after 10 mb file size
+            string strFLine = "Current Rollover Count = 0";
+
+            if (File.Exists(strFname)){
+                FileInfo objInfo = new FileInfo(strFname);
+                size = (objInfo.Length/1024)/1024;
+                strFLine = File.ReadLines(strFname).First();
+                if (size >= 10)
+                {
+                    
+                    //current rollover count
+                    int intCount = Convert.ToInt32(strFLine.Split('=')[1].Trim());
+
+                    strFLine = strFLine.Split('=')[0] + '=' + ++intCount;
+                    File.WriteAllText(strFname, strFLine);
+                    File.AppendAllText(strFname, "\n\n");
+                }
+            }
+            else
+            {
+                File.WriteAllText(strFname, strFLine);
+                File.AppendAllText(strFname, "\n\n");
+            }
+
+
             Exception e = (Exception)args.ExceptionObject;
-            File.AppendAllText(strFname,  "------------------START Handle the unhandled-------------------\n");
+            string strTime = DateTime.Now.ToString();
+            File.AppendAllText(strFname, $"------------------------------BEGIN {strTime}------------------------------\n");
+            File.AppendAllText(strFname,  "------------------------------LEVEL 1--------------------------------------\n");
             File.AppendAllText(strFname, $"{e}\n");
-            File.AppendAllText(strFname, "---------------------------------------------------------\n");
-            File.AppendAllText(strFname, $"{e.InnerException}");
-            File.AppendAllText(strFname,  "---------------------------------------------------------\n");
+            File.AppendAllText(strFname,  "------------------------------LEVEL 2--------------------------------------\n");
+            File.AppendAllText(strFname, $"{e.InnerException}\n");
+            File.AppendAllText(strFname,  "------------------------------LEVEL 3--------------------------------------\n");
             File.AppendAllText(strFname, $"{e.InnerException.InnerException}\n");
-            File.AppendAllText(strFname, "------------------DONE Handle the unhandled-------------------\n");
+            File.AppendAllText(strFname, $"------------------------------END {strTime}--------------------------------\n");
         }
     }
     
