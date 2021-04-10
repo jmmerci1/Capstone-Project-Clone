@@ -179,7 +179,9 @@ namespace DirectorsPortalWPF.ValidateWebsite
                     int intNumberOfItems = 3;  // The number of Members per row
                     foreach (Business busCurrentBusiness in rgValidBusinessesMatchingCategory)
                     {
-                        if (busCurrentBusiness.CategoryRefs[0].Category.Category.Equals(cat.Category))
+                        CategoryRef categorySearch = busCurrentBusiness.CategoryRefs.Find(x => x.Category.Category.Equals(cat.Category));
+
+                        if (categorySearch.Category.Category.Equals(cat.Category))
                         {
 /*                            BusinessRep rgCurrentBusinessRep = dbContext.BusinessReps.Where(e => e.BusinessId.Equals(busCurrentBusiness.Id)).First();
                             ContactPerson rgCurrentContactPerson = dbContext.ContactPeople.Where(e => e.Id.Equals(rgCurrentBusinessRep.ContactPersonId)).First();
