@@ -429,8 +429,10 @@ namespace DirectorsPortalWPF.ValidateWebsite
         public string GetTemplateLocation()
         {
             var strExePath = AppDomain.CurrentDomain.BaseDirectory;
-            var dinfPagesFolder = Directory.GetParent(strExePath).Parent.Parent;
-            string strTemplateFullPath = dinfPagesFolder.FullName + "\\Resources\\MembershipTemplate.html";
+
+
+            string strTemplateFullPath = Directory.GetParent(strExePath) + "\\MembershipTemplate.html";
+
             Console.WriteLine(strTemplateFullPath);
 
             return strTemplateFullPath;
