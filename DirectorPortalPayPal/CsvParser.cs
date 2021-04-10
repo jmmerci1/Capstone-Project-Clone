@@ -16,13 +16,13 @@ namespace DirectorPortalPayPal
     public class CsvParser
     {
         /// <summary>
-        /// Import transaction data from a PayPal CSV file into the Payments db.
+        /// Import transaction data into the Payments db by matching Transaction.FromEmail 
+        /// to an Email associated with a Business.
         /// </summary>
-        /// <param name="csvFilePath">The full file path of the PayPal CSV export file.</param>
+        /// <param name="reportItems">The list of transactions pulled from a PayPal CSV export file.</param>
         /// <returns>An object containing a report of the import operation.</returns>
-        public static TransactionImportResult RunImport(string csvFilePath)
+        public static TransactionImportResult RunImport(List<Transaction> reportItems)
         {
-            List<Transaction> reportItems = LoadFromCSVFile(csvFilePath);
             List<Transaction> websitePayments = reportItems.Where(x => x.Type == "Website Payment").ToList();
             List<TransactionImportFailure> importFailures = new List<TransactionImportFailure>();
             List<Transaction> importSuccesses = new List<Transaction>();
@@ -106,39 +106,6 @@ namespace DirectorPortalPayPal
 
             return new TransactionImportResult(importFailures,
                 importSuccesses);
-        }
-
-        /// <summary>
-        /// Load rows of a PayPal CSV export into Transaction objects.
-        /// </summary>
-        /// <param name="filePath">The full file path to the PayPal CSV export.</param>
-        /// <returns>A list of transaction objects.</returns>
-        private static List<Transaction> LoadFromCSVFile(string filePath)
-        {
-            List<Transaction> reportItems = new List<Transaction>();
-
-            try
-            {
-                StreamReader fileReader = new StreamReader(filePath);
-
-                string[] columnHeaders = fileReader.ReadLine().Split(',');
-
-                string line = "";
-                while((line = fileReader.ReadLine()) != null)
-                {
-                    string[] rowData = line.Split(',');
-                    reportItems.Add(new Transaction(columnHeaders, rowData));
-                }
-            }
-            catch (Exception)
-            {
-                // TODO: Get rid of this Try Catch.  This should actually be handled in the WPF project
-                //MessageBox.Show("Make sure the CSV file is not open in any other programs.",
-                //        "Unable to open file");
-                throw;
-            }
-
-            return reportItems;
         }
     }
 }

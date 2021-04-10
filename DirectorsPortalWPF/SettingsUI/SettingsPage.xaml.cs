@@ -520,7 +520,29 @@ namespace DirectorsPortalWPF.SettingsUI
             string filePath = FindPayPalFile();
             if (!string.IsNullOrEmpty(filePath))
             {
-                TransactionImportResult result = CsvParser.RunImport(filePath);
+                List<Transaction> reportItems = new List<Transaction>();
+
+                try
+                {
+                    StreamReader fileReader = new StreamReader(filePath);
+
+                    string[] columnHeaders = fileReader.ReadLine().Split(',');
+
+                    string line = "";
+                    while ((line = fileReader.ReadLine()) != null)
+                    {
+                        string[] rowData = line.Split(',');
+                        reportItems.Add(new Transaction(columnHeaders, rowData));
+                    }
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Make sure the CSV file is not open in any other programs.",
+                            "Unable to open file");
+                    return;
+                }
+
+                TransactionImportResult result = CsvParser.RunImport(reportItems);
                 if(result.Successful())
                 {
                     MessageBox.Show(result.ImportSuccesses.Count() +
