@@ -36,11 +36,20 @@ namespace DirectorsPortalWPF
                 strFLine = File.ReadLines(strFname).First();
                 if (size >= 10)
                 {
-                    
-                    //current rollover count
-                    int intCount = Convert.ToInt32(strFLine.Split('=')[1].Trim());
 
-                    strFLine = strFLine.Split('=')[0] + '=' + ++intCount;
+                    //current rollover count
+                    int intCount = -2;
+                    string strError = "";
+                    try
+                    {
+                        intCount = Convert.ToInt32(strFLine.Split('=')[1].Trim());
+                    }
+                    catch (Exception)
+                    {
+                        strError = " :: ERROR";
+                    }
+
+                    strFLine = strFLine.Split('=')[0] + '=' + ++intCount + strError;
                     File.WriteAllText(strFname, strFLine);
                     File.AppendAllText(strFname, "\n\n");
                 }
