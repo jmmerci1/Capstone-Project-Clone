@@ -43,7 +43,7 @@ namespace DirectorPortalDatabase.Models
             //string strFilepath = "Buisness_Categories.txt";
             var strExePath = AppDomain.CurrentDomain.BaseDirectory;
             var dinfPagesFolder = Directory.GetParent(strExePath).Parent.Parent;
-            string strFilepath = dinfPagesFolder.FullName + "\\Resources\\Business_Categories.txt";
+            string strFilepath = "Business_Categories.txt";
 
             using (StreamReader srFileInput = File.OpenText(strFilepath))
             {

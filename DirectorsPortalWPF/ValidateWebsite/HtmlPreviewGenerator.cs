@@ -430,7 +430,9 @@ namespace DirectorsPortalWPF.ValidateWebsite
         {
             var strExePath = AppDomain.CurrentDomain.BaseDirectory;
             var dinfPagesFolder = Directory.GetParent(strExePath).Parent.Parent;
-            string strTemplateFullPath = dinfPagesFolder.FullName + "\\Resources\\MembershipTemplate.html";
+
+            string strTemplateFullPath = "MembershipTemplate.html";
+
             Console.WriteLine(strTemplateFullPath);
 
             return strTemplateFullPath;
