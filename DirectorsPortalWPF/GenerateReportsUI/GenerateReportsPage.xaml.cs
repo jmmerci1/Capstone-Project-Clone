@@ -175,11 +175,28 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                     }
                 }
             }
+            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\Director's Portal Report.xlsx";
+            try
+            {
+                wbWorkbook.SaveAs(strFname);
 
-            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\TempExcel.xlsx";
+                Process.Start(strFname);
+            }
+            catch (IOException ex)
+            {
+                if (ex.Message.Contains("The process cannot access the file"))
+                {
+                    MessageBox.Show("Please close the current Excel report before generating a new report", "Alert");
+                    Console.WriteLine(ex);
+                }
+                else
+                {
+                    MessageBox.Show($"An error occured when attempting to generate the report: {ex}");
+                    Console.WriteLine(ex);
+                }
+            }
 
-            wbWorkbook.SaveAs(strFname);
-            Process.Start(strFname);
+
         }
 
         /// <summary>

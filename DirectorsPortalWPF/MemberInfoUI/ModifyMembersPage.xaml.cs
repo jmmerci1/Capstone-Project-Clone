@@ -392,10 +392,10 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         GStrTitle = "Contact " + MIntContactCount + ":"
                     };
 
-                    if ((!dictPdfImport["Contact Name"].Equals("") && dictPdfImport["Contact Name"] != null) ||
-                        (!dictPdfImport["Email Address"].Equals("") && dictPdfImport["Email Address"] != null) ||
-                        (!dictPdfImport["Phone Number"].Equals("") && dictPdfImport["Phone Number"] != null) ||
-                        (!dictPdfImport["Fax Number"].Equals("") && dictPdfImport["Fax Number"] != null))
+                    if ((dictPdfImport["Contact Name"] != null && !dictPdfImport["Contact Name"].Equals("")) ||
+                        (dictPdfImport["Email Address"] != null && !dictPdfImport["Email Address"].Equals("")) ||
+                        (dictPdfImport["Phone Number"] != null && !dictPdfImport["Phone Number"].Equals("")) ||
+                        (dictPdfImport["Fax Number"] != null && !dictPdfImport["Fax Number"].Equals("")))
                     {
                         SpContacts.Children.Add(CiContact);
                         CiContact.TxtName.Text = dictPdfImport["Contact Name"];
