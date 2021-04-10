@@ -170,7 +170,7 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
 
             gStrFileName.Add(Path.GetFileNameWithoutExtension(FileDialog.FileName));
 
-            MessageBox.Show(strFilePath, "Attached File Name",
+            MessageBox.Show(strFilePath + " has been attached", "Attached File",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
 
