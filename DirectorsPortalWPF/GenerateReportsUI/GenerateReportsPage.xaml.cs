@@ -181,7 +181,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
                 Process.Start("Director's Portal Report.xlsx");
             }
-            catch (Exception ex)
+            catch (IOException ex)
             {
                 MessageBox.Show("Please close the current Excel report in  before generating a new report", "Alert");
                 Console.WriteLine(ex);
