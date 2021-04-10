@@ -228,7 +228,7 @@ namespace DirectorsPortalWPF.ValidateWebsite
                     .Include(x => x.BusinessReps)
                     .ThenInclude(x => x.ContactPerson)
                     .ThenInclude(x => x.PhoneNumbers)
-                    .Where(e => (int)e.MembershipLevel == 2).ToList();  // List of all associate businesses in DB
+                    .Where(e => (int)e.MembershipLevel == 3).ToList();  // List of all associate businesses in DB
 
                 rgAllBusinesses = rgAllBusinesses.OrderBy(e => e.BusinessName).ToList();
 
