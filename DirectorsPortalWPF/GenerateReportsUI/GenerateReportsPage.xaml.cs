@@ -175,8 +175,11 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                     }
                 }
             }
-            wbWorkbook.SaveAs("Test.xlsx");
-            Process.Start("Test.xlsx");
+
+            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\TempExcel.xlsx";
+
+            wbWorkbook.SaveAs(strFname);
+            Process.Start(strFname);
         }
 
         /// <summary>
