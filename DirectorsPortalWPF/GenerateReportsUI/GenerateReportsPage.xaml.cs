@@ -175,8 +175,18 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                     }
                 }
             }
-            wbWorkbook.SaveAs("Test.xlsx");
-            Process.Start("Test.xlsx");
+            try
+            {
+                wbWorkbook.SaveAs("Director's Portal Report.xlsx");
+
+                Process.Start("Director's Portal Report.xlsx");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Please close the current Excel report in  before generating a new report", "Alert");
+                Console.WriteLine(ex);
+            }
+
         }
 
         /// <summary>
