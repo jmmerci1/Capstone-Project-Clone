@@ -181,7 +181,7 @@ namespace DirectorsPortalWPF.ValidateWebsite
                     {
                         CategoryRef categorySearch = busCurrentBusiness.CategoryRefs.Find(x => x.Category.Category.Equals(cat.Category));
 
-                        if (categorySearch != null && categorySearch.Category.Category.Equals(cat.Category))
+                        if (categorySearch.Category.Category.Equals(cat.Category))
                         {
 /*                            BusinessRep rgCurrentBusinessRep = dbContext.BusinessReps.Where(e => e.BusinessId.Equals(busCurrentBusiness.Id)).First();
                             ContactPerson rgCurrentContactPerson = dbContext.ContactPeople.Where(e => e.Id.Equals(rgCurrentBusinessRep.ContactPersonId)).First();
