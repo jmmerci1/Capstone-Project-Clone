@@ -351,7 +351,10 @@ namespace DirectorsPortalWPF.ConstantContactUI
 
         private void Add_Contact_List(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact));
+            if (gObjConstContact.SignedIn)
+                this.NavigationService.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact));
+            else
+                MessageBox.Show("Please make sure that you are logged in before making changes!", "Alert");
         }
     }
 }

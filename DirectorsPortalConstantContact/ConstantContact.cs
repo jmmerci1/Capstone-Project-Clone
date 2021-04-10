@@ -63,6 +63,22 @@ namespace DirectorsPortalConstantContact
             }
         }
 
+        public bool SignedIn
+        {
+            get
+            {
+                if (gobjCCAuth.MstrAccessToken != null && gobjCCAuth.MstrRefreshToken != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+
         /// <summary>
         /// One function to run all of the update function. Preforms thread sleeps to avoid going over the Constant Contact API Rate Limit
         ///
