@@ -23,9 +23,11 @@ namespace DirectorsPortalConstantContact
         readonly private string gstrContactsUrl = "contacts?include=custom_fields,list_memberships,phone_numbers,street_addresses&limit=500";
         readonly private string gstrContactListUrl = "contact_lists?limit=1000";
         readonly private string gstrContactCustomFieldUrl = "contact_custom_fields?limit=100";
-        readonly private string gstrEmailCampaignUrl = "emails?limit=500";
+        readonly private string gstrEmailCampaignUrl = "emails?limit=500"; 
+        private readonly object lckUpdateLock = new object();
+        private bool isUpdating = false;
 
-        
+
         public Dictionary<string, Contact> gdctContacts = new Dictionary<string, Contact>();
         public Dictionary<string, ContactList> gdctContactLists = new Dictionary<string, ContactList>();
         public Dictionary<string, CustomField> gdctCustomFields = new Dictionary<string, CustomField>();
@@ -78,6 +80,14 @@ namespace DirectorsPortalConstantContact
             }
         }
 
+        public bool Updating
+        {
+            get
+            {
+                return this.isUpdating;
+            }
+        }
+
 
         /// <summary>
         /// One function to run all of the update function. Preforms thread sleeps to avoid going over the Constant Contact API Rate Limit
@@ -85,29 +95,34 @@ namespace DirectorsPortalConstantContact
         /// </summary>
         public void RefreshData()
         {
+            lock (this.lckUpdateLock)
+            {
+                this.isUpdating = true;
+                this.gobjCCAuth.ValidateAuthentication();
 
-            this.gobjCCAuth.ValidateAuthentication();
+                this.UpdateContacts();
+                System.Threading.Thread.Sleep(300);
 
-            this.UpdateContacts();
-            System.Threading.Thread.Sleep(300);
+                this.UpdateContactLists();
 
-            this.UpdateContactLists();
+                this.UpdateContactCustomFields();
+                System.Threading.Thread.Sleep(300);
 
-            this.UpdateContactCustomFields();
-            System.Threading.Thread.Sleep(300);
+                this.UpdateEmailCampaigns();
+                System.Threading.Thread.Sleep(200);
 
-            this.UpdateEmailCampaigns();
-            System.Threading.Thread.Sleep(200);
+                this.UpdateEmailCampaignActivities();
+                System.Threading.Thread.Sleep(200);
 
-            this.UpdateEmailCampaignActivities();
-            System.Threading.Thread.Sleep(200);
+                this.UpdateEmailCampaignActivityPreviews();
 
-            this.UpdateEmailCampaignActivityPreviews();
+                this.ContactListAssignment();
+                this.CustomFieldAssignment();
 
-            this.ContactListAssignment();
-            this.CustomFieldAssignment();
-
-            this.CacheData();
+                this.CacheData();
+                this.isUpdating = false;
+            }
+            
 
 
         }
@@ -812,57 +827,73 @@ namespace DirectorsPortalConstantContact
         }
 
         /// <summary>
+        /// delete constant contact log in token file
+        /// </summary>
+        public void LogOut()
+        {
+            this.gobjCCAuth.LogOut();
+        }
+
+        /// <summary>
         /// Saves all the data in memory to a bin file for faster load on program start up
         /// </summary>
         private void CacheData()
         {
-            string strContacts = JsonConvert.SerializeObject(this.gdctContacts, new JsonSerializerSettings
+            try
             {
-                NullValueHandling = NullValueHandling.Ignore
-            });
+                string strContacts = JsonConvert.SerializeObject(this.gdctContacts, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
 
-            string strContactLists = JsonConvert.SerializeObject(this.gdctContactLists, new JsonSerializerSettings
+                string strContactLists = JsonConvert.SerializeObject(this.gdctContactLists, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+
+                string strCustomFields = JsonConvert.SerializeObject(this.gdctCustomFields, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+
+                string strCampaigns = JsonConvert.SerializeObject(this.gdctEmailCampaigns, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+
+                string strActivities = JsonConvert.SerializeObject(this.gdctEmailCampaignActivities, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+
+                string strActivityPreviews = JsonConvert.SerializeObject(this.glstEmailCampaignActivityPreviews, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+
+                string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\CCSaveData.JSON";
+
+                Dictionary<string, string> dctData = new Dictionary<string, string>()
+                    {
+                        { "contacts",strContacts },
+                        { "contactlists",strContactLists },
+                        { "customfields",strCustomFields },
+                        { "campaigns",strCampaigns },
+                        { "activities",strActivities },
+                        { "activitypreviews",strActivityPreviews }
+                    };
+
+                string strData = JsonConvert.SerializeObject(dctData);
+
+                strData = this.Obfuscate(strData);
+
+                File.WriteAllText(strFname, strData, Encoding.UTF8);
+            }catch (Exception)
             {
-                NullValueHandling = NullValueHandling.Ignore
-            });
-
-            string strCustomFields = JsonConvert.SerializeObject(this.gdctCustomFields, new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore
-            });
-
-            string strCampaigns = JsonConvert.SerializeObject(this.gdctEmailCampaigns, new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore
-            });
-
-            string strActivities = JsonConvert.SerializeObject(this.gdctEmailCampaignActivities, new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore
-            });
-
-            string strActivityPreviews = JsonConvert.SerializeObject(this.glstEmailCampaignActivityPreviews, new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore
-            });
-
-            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\CCSaveData.JSON";
-
-            Dictionary<string, string> dctData = new Dictionary<string, string>()
-            {
-                { "contacts",strContacts },
-                { "contactlists",strContactLists },
-                { "customfields",strCustomFields },
-                { "campaigns",strCampaigns },
-                { "activities",strActivities },
-                { "activitypreviews",strActivityPreviews }
-            };
-
-            string strData = JsonConvert.SerializeObject(dctData);
-
-            strData = this.Obfuscate(strData);
-
-            File.WriteAllText(strFname, strData, Encoding.UTF8);
+                //if we cannot cache due to null reference just refurn and try again on next update
+                return;
+            }
+            
         }
 
         /// <summary>
@@ -870,25 +901,33 @@ namespace DirectorsPortalConstantContact
         /// </summary>
         private void LoadData()
         {
-
             string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\CCSaveData.JSON";
+            try
+            {
 
-            string strData = File.ReadAllText(strFname, Encoding.UTF8);
+                string strData = File.ReadAllText(strFname, Encoding.UTF8);
 
-            strData = this.Deobfuscate(strData);
+                strData = this.Deobfuscate(strData);
 
-            Dictionary<string, string> dctData = JsonConvert.DeserializeObject<Dictionary<string, string>>(strData);
+                Dictionary<string, string> dctData = JsonConvert.DeserializeObject<Dictionary<string, string>>(strData);
 
-            this.gdctContacts = JsonConvert.DeserializeObject<Dictionary<string, Contact>>(dctData["contacts"]);
-            this.gdctContactLists = JsonConvert.DeserializeObject<Dictionary<string, ContactList>>(dctData["contactlists"]);
-            this.gdctCustomFields = JsonConvert.DeserializeObject<Dictionary<string, CustomField>>(dctData["customfields"]);
-            this.gdctEmailCampaigns = JsonConvert.DeserializeObject<Dictionary<string, EmailCampaign>>(dctData["campaigns"]);
-            this.gdctEmailCampaignActivities = JsonConvert.DeserializeObject<Dictionary<string, EmailCampaignActivity>>(dctData["activities"]);
-            this.glstEmailCampaignActivityPreviews = JsonConvert.DeserializeObject<List<EmailCampaignActivityPreview>>(dctData["activitypreviews"]);
+                this.gdctContacts = JsonConvert.DeserializeObject<Dictionary<string, Contact>>(dctData["contacts"]);
+                this.gdctContactLists = JsonConvert.DeserializeObject<Dictionary<string, ContactList>>(dctData["contactlists"]);
+                this.gdctCustomFields = JsonConvert.DeserializeObject<Dictionary<string, CustomField>>(dctData["customfields"]);
+                this.gdctEmailCampaigns = JsonConvert.DeserializeObject<Dictionary<string, EmailCampaign>>(dctData["campaigns"]);
+                this.gdctEmailCampaignActivities = JsonConvert.DeserializeObject<Dictionary<string, EmailCampaignActivity>>(dctData["activities"]);
+                this.glstEmailCampaignActivityPreviews = JsonConvert.DeserializeObject<List<EmailCampaignActivityPreview>>(dctData["activitypreviews"]);
 
-            this.LocalActivityAssignments();
-            this.LocalPreviewAssignment();
-            this.ContactListAssignment();
+                this.LocalActivityAssignments();
+                this.LocalPreviewAssignment();
+                this.ContactListAssignment();
+            }
+            catch (Exception)
+            {
+                //if json is corupted or malformed, erase the file and load from Constant Contact API
+                File.WriteAllText(strFname, "");
+            }
+            
         }
 
         /// <summary>
