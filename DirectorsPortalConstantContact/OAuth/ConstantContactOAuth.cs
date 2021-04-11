@@ -35,6 +35,14 @@ namespace DirectorsPortalConstantContact
             //sets socket at 1 minute timeout
             this.mobjLocalListener.TimeoutManager.DrainEntityBody = new TimeSpan(0, 1, 0);
             this.LoadINI();
+            try
+            {
+                this.LoadCacheTokens();
+            }
+            catch (Exception)
+            {
+                //if there is an issue loading on start up, this will be handled by a msg box
+            }
         }
 
         /// <summary>
@@ -127,7 +135,6 @@ namespace DirectorsPortalConstantContact
 
             this.SetPrefixes();
 
-            //[TODO] other data validation
             if (!(this.mstrLocalRoute == null || this.mstrAppAPIKey == null || this.mstrAppAPISecret == null))
             {
                 this.OpenChromeToRedirect();
@@ -135,8 +142,11 @@ namespace DirectorsPortalConstantContact
             }
             else
             {
-                //handle not ready state
-                Console.WriteLine("OOF");
+                this.LoadINI();
+                if (!(this.mstrLocalRoute == null || this.mstrAppAPIKey == null || this.mstrAppAPISecret == null))
+                {
+                    throw new FormatException("INI File Malformed or incorrect data");
+                }
             }
 
         }
@@ -316,7 +326,6 @@ namespace DirectorsPortalConstantContact
             }
             catch (Exception ex) when (ex is FileNotFoundException || ex is FormatException || ex is WebException)
             {
-                Console.WriteLine("Current Token not valid, Authing");
                 //on fail proceed with auth process
                 this.GetAccessToken();
 
@@ -403,7 +412,6 @@ namespace DirectorsPortalConstantContact
                 string strTime = lstParts[2];
 
                 this.mstrRefreshToken = strRefresh;
-                return false;
 
                 //check 2 hour delta
                 DateTime objDt = DateTime.Parse(strTime);
@@ -427,6 +435,19 @@ namespace DirectorsPortalConstantContact
                 throw new FormatException();
             }
             
+        }
+
+        /// <summary>
+        /// delete constant contact log in token file
+        /// </summary>
+        public void LogOut()
+        {
+            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\CCTokenCache.bin";
+            if (File.Exists(strFname)){
+                File.Delete(strFname);
+                this.mstrAccessToken = null;
+                this.mstrRefreshToken = null;
+            }
         }
 
         /// <summary>

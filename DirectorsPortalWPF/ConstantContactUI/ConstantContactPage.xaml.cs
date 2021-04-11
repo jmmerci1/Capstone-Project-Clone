@@ -141,6 +141,11 @@ namespace DirectorsPortalWPF.ConstantContactUI
                         /// </summary>
                         /// <param name="sender">The 'Edit' Button</param>
                         /// <param name="e">The Click Event</param>
+                        if (!gObjConstContact.SignedIn)
+                            MessageBox.Show("Please make sure that you are logged in before making changes.", "Alert");
+                        else if (gObjConstContact.Updating)
+                            MessageBox.Show("Please wait for update to finish before making changes", "Alert");
+                        else
                         this.NavigationService.Navigate(new EditContactListUI.EditContactListPage(ccHelper, ccEmailGroup.Value.name));
                     };
                     btnEmailGroupSelectButton.Click += (sender, e) => AddEmailGroupToMessage(sender, e, ccEmailGroup.Value.name);
@@ -246,20 +251,27 @@ namespace DirectorsPortalWPF.ConstantContactUI
         {
             // This is just template code for now. In the future this method should be able to read a emailGroup object
             // and load the group name to the 'To' field.
-
-            Button btnSelection = (Button)sender;
-
-            // Only add the email group if it hasn't been selected, otherwise remove the group.
-            if (txtEmailGroups.Text.Contains(emailGroup))
+            if (this.gObjConstContact.SignedIn)
             {
-                txtEmailGroups.Text = txtEmailGroups.Text.Replace($"{emailGroup}; ", "");
-                btnSelection.Content = "Select";
+                Button btnSelection = (Button)sender;
+
+                // Only add the email group if it hasn't been selected, otherwise remove the group.
+                if (txtEmailGroups.Text.Contains(emailGroup))
+                {
+                    txtEmailGroups.Text = txtEmailGroups.Text.Replace($"{emailGroup}; ", "");
+                    btnSelection.Content = "Select";
+                }
+                else
+                {
+                    txtEmailGroups.Text += $"{emailGroup}; ";
+                    btnSelection.Content = "Remove";
+                }
             }
             else
             {
-                txtEmailGroups.Text += $"{emailGroup}; ";
-                btnSelection.Content = "Remove";
+                MessageBox.Show("Please make sure that you are logged in before making changes.", "Alert");
             }
+            
         }
 
         /// <summary>
@@ -272,15 +284,23 @@ namespace DirectorsPortalWPF.ConstantContactUI
         /// <param name="e">The click event</param>
         private void RefreshConstantContact_Click(object sender, RoutedEventArgs e)
         {
-            BackgroundWorker bWrk = new BackgroundWorker();
+            if (!gObjConstContact.Updating)
+            {
+                BackgroundWorker bWrk = new BackgroundWorker();
 
-            btnRefreshConstantContact.Content = "Refreshing...";
-            btnRefreshConstantContact.Width = 100;
+                btnRefreshConstantContact.Content = "Refreshing...";
+                btnRefreshConstantContact.Width = 100;
 
-            bWrk.DoWork += AuthenticateConstantContact;
-            bWrk.RunWorkerCompleted += LoadConstantContactData;
+                bWrk.DoWork += AuthenticateConstantContact;
+                bWrk.RunWorkerCompleted += LoadConstantContactData;
 
-            bWrk.RunWorkerAsync();
+                bWrk.RunWorkerAsync();
+            }
+            else
+            {
+                MessageBox.Show("We are currently updating your Constant Contact data, please wait until we are finished to refresh again.", "Alert");
+            }
+            
 
         }
 
@@ -297,6 +317,8 @@ namespace DirectorsPortalWPF.ConstantContactUI
 
             btnRefreshConstantContact.Content = "Refresh";
             btnRefreshConstantContact.Width = 60;
+            txtEmailGroups.Text = "";
+
         }
 
         /// <summary>
@@ -307,6 +329,7 @@ namespace DirectorsPortalWPF.ConstantContactUI
         /// <param name="e">The arguments for the 'DoWork' event</param>
         private void AuthenticateConstantContact(object sender, DoWorkEventArgs e)
         {
+            
             gObjConstContact.RefreshData();
         }
 
@@ -321,7 +344,7 @@ namespace DirectorsPortalWPF.ConstantContactUI
             txtEmailGroups.Text = txtEmailGroups.Text.Trim();
             string[] rgContactListNames = txtEmailGroups.Text.Split(';');
 
-            if (gObjCurrentlySelectedActivity != null)
+            if (gObjCurrentlySelectedActivity != null && gObjConstContact.SignedIn && !gObjConstContact.Updating)
             {
                 if (rgContactListNames.Length != 0)
                 {
@@ -345,13 +368,35 @@ namespace DirectorsPortalWPF.ConstantContactUI
             }
             else
             {
-                MessageBox.Show("Please select an Email to send first.", "Alert");
+                if (!gObjConstContact.SignedIn)
+                    MessageBox.Show("Please select an Email to send first.", "Alert");
+                else if (gObjConstContact.Updating)
+                    MessageBox.Show("Currently updating Constant Contact data, please wait before sending", "Alert");
+                else
+                    MessageBox.Show("Please make sure that you are logged in before sending an Email.", "Alert");
             }
         }
 
         private void Add_Contact_List(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact));
+            if (!gObjConstContact.SignedIn)
+                MessageBox.Show("Please make sure that you are logged in before making changes.", "Alert");
+            else if (gObjConstContact.Updating)
+                MessageBox.Show("Please wait for the current update to finish.", "Alert");
+            else
+                this.NavigationService.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact));
+
+        }
+
+        /// <summary>
+        /// Logs out of the constant contact service, if logged in.
+        /// </summary>
+        /// <param name="sender">The "logout" button</param>
+        /// <param name="e">The click event</param>
+        private void BtnLogout_Click(object sender, RoutedEventArgs e)
+        {
+            gObjConstContact.LogOut();
+            MessageBox.Show("You are now logged out", "Alert");
         }
     }
 }

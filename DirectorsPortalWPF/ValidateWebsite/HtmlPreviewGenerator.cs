@@ -433,7 +433,7 @@ namespace DirectorsPortalWPF.ValidateWebsite
             var strExePath = AppDomain.CurrentDomain.BaseDirectory;
 
 
-            string strTemplateFullPath = Directory.GetParent(strExePath) + "\\MembershipTemplate.html";
+            string strTemplateFullPath = Directory.GetParent(strExePath) + "\\Resources\\MembershipTemplate.html";
 
             Console.WriteLine(strTemplateFullPath);
 

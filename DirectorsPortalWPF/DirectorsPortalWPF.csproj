@@ -504,6 +504,9 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Content Include="Resources\general_membership_application_template.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -527,7 +530,10 @@
     <Resource Include="Resources\Icons\paragraphincreaseindentation.png" />
     <Resource Include="Resources\Icons\paragraphleftjustify.png" />
     <Resource Include="Resources\Icons\paragraphrightjustify.png" />
-    <Content Include="Resources\MembershipTemplate.html" />
+    <Content Include="MembershipTemplate.html" />
+    <Content Include="Resources\MembershipTemplate.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DirectorPortalDatabase\DirectorPortalDatabase.csproj">

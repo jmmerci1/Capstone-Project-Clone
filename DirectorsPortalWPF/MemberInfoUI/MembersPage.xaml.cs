@@ -486,10 +486,21 @@ namespace DirectorsPortalWPF.MemberInfoUI
         {
 
             //Path to MyDocuments folder
+            var strExePath = AppDomain.CurrentDomain.BaseDirectory;
+
+
+            string strTemplatePath = Directory.GetParent(strExePath) + "\\Resources\\general_membership_application_template.pdf";
+
             string strMyDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string strNewFile = String.Format(@"{0}\{1}.pdf", strMyDocumentsPath, bus.BusinessName.Replace(" ", ""));
+            string strCleanName = bus.BusinessName.Replace(" ", "");
+            char[] arrBad = { '<', '>', ':', '"', '/', '\\', '|', '?', '*' };
+            foreach(char cBad in arrBad)
+            {
+                strCleanName = strCleanName.Replace(Char.ToString(cBad), "_");
+            }
+            string strNewFile = String.Format(@"{0}\{1}.pdf", strMyDocumentsPath, strCleanName);
             //Path to Template file in myDocuments
-            string strTemplatePath = String.Format(@"{0}/general_membership_application_template.pdf", strMyDocumentsPath);
+
             //Checks MyDocuments folder for template file
             if (!File.Exists(strTemplatePath))
             {
@@ -618,6 +629,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         pdfStamper.FormFlattening = false;
                         pdfStamper.Close();
                 }
+                string strArguments = $"/select, \"{strNewFile}\"";
+                System.Diagnostics.Process.Start("explorer.exe", strArguments);
             }
         }
         /// <summary>

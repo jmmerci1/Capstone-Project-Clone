@@ -59,5 +59,29 @@ namespace DirectorsPortalWPF.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] general_membership_application_template {
+            get {
+                object obj = ResourceManager.GetObject("general_membership_application_template", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;h3 style=&quot;text-align: center; font-family: sans-serif; color:#448eb8; font-weight: bold; font-size: 1cm&quot;&gt;Featured Businesses&lt;/h3&gt;
+        ///&lt;div style=&quot;margin-left: 10%; margin-right:10% &quot;&gt;
+        ///&lt;table style=&quot;font-family: Arial, Arial, Helvetica, sans-serif; margin: auto&quot;&gt;
+        ///&lt;tr&gt;
+        ///&lt;td style=&quot;padding: 10px 10px 10px 10px; text-align:center&quot;&gt;
+        ///&lt;button type=&quot;button&quot;  onclick=&quot;visibility(&apos;Members A-Z&apos;)&quot; style=&quot;display: inline-block; text-decoration:none; height: 65px; background-color:#4d97E4; border-radius: 5px; padding: 0 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string MembershipTemplate {
+            get {
+                return ResourceManager.GetString("MembershipTemplate", resourceCulture);
+            }
+        }
     }
 }

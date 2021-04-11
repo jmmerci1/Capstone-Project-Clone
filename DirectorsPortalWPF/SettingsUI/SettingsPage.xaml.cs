@@ -930,7 +930,7 @@ namespace DirectorsPortalWPF.SettingsUI
                             {
                                 ContactPerson objContactPerson = new ContactPerson()
                                 {
-                                    Name = arrLocationSplit[intCount]
+                                    Name = arrLocationSplit[intCount].Trim()
                                 };
 
                                 context.ContactPeople.Add(objContactPerson);
@@ -983,7 +983,7 @@ namespace DirectorsPortalWPF.SettingsUI
                             {
                                 ContactPerson objContactPerson = new ContactPerson()
                                 {
-                                    Name = arrLocationSplitSlash[intCount]
+                                    Name = arrLocationSplitSlash[intCount].Trim()
                                 };
 
                                 context.ContactPeople.Add(objContactPerson);
@@ -1034,7 +1034,7 @@ namespace DirectorsPortalWPF.SettingsUI
 
                             ContactPerson objContactPerson = new ContactPerson()
                             {
-                                Name = Data[intCounter].gstrContactPerson
+                                Name = Data[intCounter].gstrContactPerson.Trim()
                             };
 
                             context.ContactPeople.Add(objContactPerson);
