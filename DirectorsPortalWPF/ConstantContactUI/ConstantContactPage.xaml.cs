@@ -284,7 +284,6 @@ namespace DirectorsPortalWPF.ConstantContactUI
         /// <param name="e">The click event</param>
         private void RefreshConstantContact_Click(object sender, RoutedEventArgs e)
         {
-            gObjConstContact.LogOut();
             if (!gObjConstContact.Updating)
             {
                 BackgroundWorker bWrk = new BackgroundWorker();
@@ -380,10 +379,13 @@ namespace DirectorsPortalWPF.ConstantContactUI
 
         private void Add_Contact_List(object sender, RoutedEventArgs e)
         {
-            if (gObjConstContact.SignedIn)
-                this.NavigationService.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact));
-            else
+            if (!gObjConstContact.SignedIn)
                 MessageBox.Show("Please make sure that you are logged in before making changes.", "Alert");
+            else if (gObjConstContact.Updating)
+                MessageBox.Show("Please wait for the current update to finish.", "Alert");
+            else
+                this.NavigationService.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact));
+
         }
 
         /// <summary>

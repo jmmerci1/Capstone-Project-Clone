@@ -157,7 +157,6 @@ namespace DirectorsPortalConstantContact
                 }
                 catch (System.NullReferenceException)
                 {
-                    //do i need to manage the gc here?
                     this.gdctContacts = dctTempContacts;
                     this.CacheData();
                     return;
@@ -268,6 +267,7 @@ namespace DirectorsPortalConstantContact
             foreach (EmailCampaign objCampaign in this.gdctEmailCampaigns.Values)
             {
                 string strUrl = $"emails/{objCampaign.campaign_id}";
+                objCampaign.Activities = new List<EmailCampaignActivity>();
 
                 string strJson = this.ReadJsonFromUrl(strUrl);
 
@@ -305,7 +305,8 @@ namespace DirectorsPortalConstantContact
         /// </summary>
         private void UpdateEmailCampaignActivityPreviews()
         {
-            foreach(EmailCampaign objCampaign in this.gdctEmailCampaigns.Values)
+            this.glstEmailCampaignActivityPreviews = new List<EmailCampaignActivityPreview>();
+            foreach (EmailCampaign objCampaign in this.gdctEmailCampaigns.Values)
             {
                 foreach(EmailCampaignActivity objActivity in objCampaign.Activities)
                 {
