@@ -381,6 +381,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     busToCheckExists = dbContext.Businesses
                     .Include(x => x.MailingAddress)
                     .Include(x => x.PhysicalAddress)
+                    .Include(x => x.CategoryRefs)
+                    .ThenInclude(x => x.Category)
                     .Include(x => x.BusinessReps)
                     .ThenInclude(x => x.ContactPerson)
                     .ThenInclude(x => x.Emails)
@@ -427,6 +429,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         busModified = dbContext.Businesses
                         .Include(x => x.MailingAddress)
                         .Include(x => x.PhysicalAddress)
+                        .Include(x => x.CategoryRefs)
+                        .ThenInclude(x => x.Category)
                         .Include(x => x.BusinessReps)
                         .ThenInclude(x => x.ContactPerson)
                         .ThenInclude(x => x.Emails)
