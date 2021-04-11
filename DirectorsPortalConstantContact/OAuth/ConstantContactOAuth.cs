@@ -42,6 +42,7 @@ namespace DirectorsPortalConstantContact
             catch (Exception)
             {
                 //if there is an issue loading on start up, this will be handled by a msg box
+                Console.WriteLine("Error loading ini on CCOAuth constructor");
             }
         }
 
