@@ -9,6 +9,7 @@ namespace DirectorPortalPayPal
     /// </summary>
     public class Transaction
     {
+        public bool IsValid { get; }
         public string Date { get; }
         public string Time { get; }
         public string TimeZone { get; }
@@ -54,43 +55,52 @@ namespace DirectorPortalPayPal
         /// <param name="csvLine">The data row of the PayPal CSV.</param>
         public Transaction(string[] headers, string[] csvLine)
         {
-            Date = csvLine[Array.IndexOf(headers, HeaderStrings.Date)];
-            Time = csvLine[Array.IndexOf(headers, HeaderStrings.Time)];
-            TimeZone = csvLine[Array.IndexOf(headers, HeaderStrings.TimeZone)];
-            Name = csvLine[Array.IndexOf(headers, HeaderStrings.Name)];
-            Type = csvLine[Array.IndexOf(headers, HeaderStrings.Type)];
-            Status = csvLine[Array.IndexOf(headers, HeaderStrings.Status)];
-            Currency = csvLine[Array.IndexOf(headers, HeaderStrings.Currency)];
-            Gross = csvLine[Array.IndexOf(headers, HeaderStrings.Gross)];
-            Fee = csvLine[Array.IndexOf(headers, HeaderStrings.Fee)];
-            Net = csvLine[Array.IndexOf(headers, HeaderStrings.Net)];
-            FromEmail = csvLine[Array.IndexOf(headers, HeaderStrings.FromEmail)];
-            ToEmail = csvLine[Array.IndexOf(headers, HeaderStrings.ToEmail)];
-            TransactionId = csvLine[Array.IndexOf(headers, HeaderStrings.TransactionId)];
-            ShippingAddress = csvLine[Array.IndexOf(headers, HeaderStrings.ShippingAddress)];
-            AddressStatus = csvLine[Array.IndexOf(headers, HeaderStrings.AddressStatus)];
-            ItemTitle = csvLine[Array.IndexOf(headers, HeaderStrings.ItemTitle)];
-            ItemId = csvLine[Array.IndexOf(headers, HeaderStrings.ItemId)];
-            ShippingAndHandlingAmount = csvLine[Array.IndexOf(headers, HeaderStrings.ShippingAndHandlingAmount)];
-            InsuranceAmount = csvLine[Array.IndexOf(headers, HeaderStrings.InsuranceAmount)];
-            SalesTax = csvLine[Array.IndexOf(headers, HeaderStrings.SalesTax)];
-            ReferenceTxnId = csvLine[Array.IndexOf(headers, HeaderStrings.ReferenceTransactionId)];
-            InvoiceNumber = csvLine[Array.IndexOf(headers, HeaderStrings.InvoiceNumber)];
-            CustomNumber = csvLine[Array.IndexOf(headers, HeaderStrings.CustomNumber)];
-            Quantity = csvLine[Array.IndexOf(headers, HeaderStrings.Quantity)];
-            ReceiptId = csvLine[Array.IndexOf(headers, HeaderStrings.ReceiptId)];
-            Balance = csvLine[Array.IndexOf(headers, HeaderStrings.Balance)];
-            AddressLine1 = csvLine[Array.IndexOf(headers, HeaderStrings.AddressLine1)];
-            AddressLine2 = csvLine[Array.IndexOf(headers, HeaderStrings.AddressLine2)];
-            City = csvLine[Array.IndexOf(headers, HeaderStrings.City)];
-            State = csvLine[Array.IndexOf(headers, HeaderStrings.State)];
-            ZipCode = csvLine[Array.IndexOf(headers, HeaderStrings.ZipCode)];
-            Country = csvLine[Array.IndexOf(headers, HeaderStrings.Country)];
-            ContactPhoneNumber = csvLine[Array.IndexOf(headers, HeaderStrings.ContactPhoneNumber)];
-            Subject = csvLine[Array.IndexOf(headers, HeaderStrings.Subject)];
-            Note = csvLine[Array.IndexOf(headers, HeaderStrings.Note)];
-            CountryCode = csvLine[Array.IndexOf(headers, HeaderStrings.CountryCode)];
-            BalanceImpact = csvLine[Array.IndexOf(headers, HeaderStrings.BalanceImpact)];
+            IsValid = true;
+
+            try
+            {
+                Date = csvLine[Array.IndexOf(headers, HeaderStrings.Date)];
+                Time = csvLine[Array.IndexOf(headers, HeaderStrings.Time)];
+                TimeZone = csvLine[Array.IndexOf(headers, HeaderStrings.TimeZone)];
+                Name = csvLine[Array.IndexOf(headers, HeaderStrings.Name)];
+                Type = csvLine[Array.IndexOf(headers, HeaderStrings.Type)];
+                Status = csvLine[Array.IndexOf(headers, HeaderStrings.Status)];
+                Currency = csvLine[Array.IndexOf(headers, HeaderStrings.Currency)];
+                Gross = csvLine[Array.IndexOf(headers, HeaderStrings.Gross)];
+                Fee = csvLine[Array.IndexOf(headers, HeaderStrings.Fee)];
+                Net = csvLine[Array.IndexOf(headers, HeaderStrings.Net)];
+                FromEmail = csvLine[Array.IndexOf(headers, HeaderStrings.FromEmail)];
+                ToEmail = csvLine[Array.IndexOf(headers, HeaderStrings.ToEmail)];
+                TransactionId = csvLine[Array.IndexOf(headers, HeaderStrings.TransactionId)];
+                ShippingAddress = csvLine[Array.IndexOf(headers, HeaderStrings.ShippingAddress)];
+                AddressStatus = csvLine[Array.IndexOf(headers, HeaderStrings.AddressStatus)];
+                ItemTitle = csvLine[Array.IndexOf(headers, HeaderStrings.ItemTitle)];
+                ItemId = csvLine[Array.IndexOf(headers, HeaderStrings.ItemId)];
+                ShippingAndHandlingAmount = csvLine[Array.IndexOf(headers, HeaderStrings.ShippingAndHandlingAmount)];
+                InsuranceAmount = csvLine[Array.IndexOf(headers, HeaderStrings.InsuranceAmount)];
+                SalesTax = csvLine[Array.IndexOf(headers, HeaderStrings.SalesTax)];
+                ReferenceTxnId = csvLine[Array.IndexOf(headers, HeaderStrings.ReferenceTransactionId)];
+                InvoiceNumber = csvLine[Array.IndexOf(headers, HeaderStrings.InvoiceNumber)];
+                CustomNumber = csvLine[Array.IndexOf(headers, HeaderStrings.CustomNumber)];
+                Quantity = csvLine[Array.IndexOf(headers, HeaderStrings.Quantity)];
+                ReceiptId = csvLine[Array.IndexOf(headers, HeaderStrings.ReceiptId)];
+                Balance = csvLine[Array.IndexOf(headers, HeaderStrings.Balance)];
+                AddressLine1 = csvLine[Array.IndexOf(headers, HeaderStrings.AddressLine1)];
+                AddressLine2 = csvLine[Array.IndexOf(headers, HeaderStrings.AddressLine2)];
+                City = csvLine[Array.IndexOf(headers, HeaderStrings.City)];
+                State = csvLine[Array.IndexOf(headers, HeaderStrings.State)];
+                ZipCode = csvLine[Array.IndexOf(headers, HeaderStrings.ZipCode)];
+                Country = csvLine[Array.IndexOf(headers, HeaderStrings.Country)];
+                ContactPhoneNumber = csvLine[Array.IndexOf(headers, HeaderStrings.ContactPhoneNumber)];
+                Subject = csvLine[Array.IndexOf(headers, HeaderStrings.Subject)];
+                Note = csvLine[Array.IndexOf(headers, HeaderStrings.Note)];
+                CountryCode = csvLine[Array.IndexOf(headers, HeaderStrings.CountryCode)];
+                BalanceImpact = csvLine[Array.IndexOf(headers, HeaderStrings.BalanceImpact)];
+            }
+            catch (Exception)
+            {
+                IsValid = false;
+            }
         }
 
         /// <summary>

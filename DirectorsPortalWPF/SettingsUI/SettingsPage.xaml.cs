@@ -526,13 +526,27 @@ namespace DirectorsPortalWPF.SettingsUI
                 {
                     StreamReader fileReader = new StreamReader(filePath);
 
-                    string[] columnHeaders = fileReader.ReadLine().Split(',');
+                    string headerLine = fileReader.ReadLine();
+                    if(headerLine == null)
+                    {
+                        MessageBox.Show("The CSV file selected is empty.",
+                            "Empty CSV File");
+                        return;
+                    }
+                    string[] columnHeaders = headerLine.Split(',');
 
                     string line = "";
                     while ((line = fileReader.ReadLine()) != null)
                     {
                         string[] rowData = line.Split(',');
-                        reportItems.Add(new Transaction(columnHeaders, rowData));
+                        Transaction transaction = new Transaction(columnHeaders, rowData);
+                        if (!transaction.IsValid)
+                        {
+                            MessageBox.Show("The data in the CSV file is of an unknown format.",
+                                "Invalid CSV File");
+                            return;
+                        }
+                        reportItems.Add(transaction);
                     }
                 }
                 catch (Exception)
