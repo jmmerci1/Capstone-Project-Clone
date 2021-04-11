@@ -385,5 +385,16 @@ namespace DirectorsPortalWPF.ConstantContactUI
             else
                 MessageBox.Show("Please make sure that you are logged in before making changes.", "Alert");
         }
+
+        /// <summary>
+        /// Logs out of the constant contact service, if logged in.
+        /// </summary>
+        /// <param name="sender">The "logout" button</param>
+        /// <param name="e">The click event</param>
+        private void BtnLogout_Click(object sender, RoutedEventArgs e)
+        {
+            gObjConstContact.LogOut();
+            MessageBox.Show("You are now logged out", "Alert");
+        }
     }
 }
