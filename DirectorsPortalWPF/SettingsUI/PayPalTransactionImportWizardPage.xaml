@@ -43,7 +43,7 @@
             <TextBox x:Name="txtSubject" Grid.Row="4" Grid.Column="1" AcceptsReturn="True" TextWrapping="Wrap" />
         </Grid>
 
-        <DataGrid x:Name="dgBusinesses" Grid.Row="1" Grid.Column="1" Margin="10" AutoGenerateColumns="False">
+        <DataGrid x:Name="dgBusinesses" Grid.Row="1" Grid.Column="1" Margin="10" AutoGenerateColumns="False" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" Binding="{Binding BusinessName}"/>
                 <DataGridTextColumn Header="Year Est." Binding="{Binding YearEstablished}"/>
@@ -52,7 +52,7 @@
         </DataGrid>
         
         <StackPanel Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
-            <Button Click="btnSkip_Click" x:Name="btnSkip" Content="Skip" Margin="5,5" Padding="5,0" Template="{StaticResource xtraSmallButtonGrey}"/>
+            <Button Click="btnSkip_Click" x:Name="btnSkip" Content="Do Not Import" Margin="5,5" Padding="5,0" Template="{StaticResource smallButtonGrey}"/>
             <Button Click="btnConfirmPage_Click" x:Name="btnConfirmPage" Content="Confirm Page"  Margin="5,5" Template="{StaticResource smallButton}"/>
         </StackPanel>
 
