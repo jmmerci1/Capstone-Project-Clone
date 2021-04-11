@@ -566,9 +566,11 @@ namespace DirectorsPortalWPF.SettingsUI
                 }
                 else
                 {
+                    int duplicateCount = result.DuplicateCount();
                     MessageBox.Show(result.ImportSuccesses.Count()
                         + " PayPal transactions successfully imported into Payments.\n"
-                        + result.ImportFailures.Count() + " failed to import.\n\n"
+                        + (result.ImportFailures.Count() - duplicateCount) + " failed to import.\n"
+                        + duplicateCount + " duplicates were not imported.\n\n"
                         + "The importing wizard will now walk through manually importing the failures.",
                         "PayPal Import Needs Attention!");
                     PayPalTransactionImportWizard wizard = new PayPalTransactionImportWizard(result.ImportFailures);
