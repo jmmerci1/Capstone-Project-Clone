@@ -37,9 +37,9 @@ namespace DirectorPortalDatabase.Models
 
     public enum PhoneType
     {
-        None = 0,
-        Mobile = 1,
-        Office = 2,
-        Fax = 3
+        //None = 0,
+        Mobile = 0,
+        Office = 1,
+        Fax = 2
     }
 }
