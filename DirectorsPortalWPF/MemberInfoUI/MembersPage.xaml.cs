@@ -603,7 +603,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         string strIsAnnual = "Yes";
                         YearlyData yearlyData = context.BusinessYearlyData
                            .Where(r => r.BusinessId == bus.Id).FirstOrDefault();
-                        string strTermLengthEnum = yearlyData.TermLength.ToString();
+                        string strTermLengthEnum = yearlyData?.TermLength.ToString();
                         switch (strTermLengthEnum)
                         {
                             case "Semiannually":

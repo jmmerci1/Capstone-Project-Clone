@@ -218,7 +218,7 @@ namespace DirectorsPortalWPF.SettingsUI
         {
             HelpUI.HelpScreenWindow helpWindow = new HelpUI.HelpScreenWindow();
             helpWindow.Show();
-            helpWindow.tabs.SelectedIndex = 6;
+            helpWindow.tabs.SelectedIndex = 7;
 
         }
 

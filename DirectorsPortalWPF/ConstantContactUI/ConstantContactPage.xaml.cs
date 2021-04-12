@@ -398,5 +398,17 @@ namespace DirectorsPortalWPF.ConstantContactUI
             gObjConstContact.LogOut();
             MessageBox.Show("You are now logged out", "Alert");
         }
+
+        /// <summary>
+        /// Opens a pop-up window that displays the current frames help information. 
+        /// </summary>
+        /// <param name="sender">Help button</param>
+        /// <param name="e">The Click event</param>
+        private void BtnHelp_Click(object sender, RoutedEventArgs e)
+        {
+            HelpUI.HelpScreenWindow helpWindow = new HelpUI.HelpScreenWindow();
+            helpWindow.Show();
+            helpWindow.tabs.SelectedIndex = 3;
+        }
     }
 }
