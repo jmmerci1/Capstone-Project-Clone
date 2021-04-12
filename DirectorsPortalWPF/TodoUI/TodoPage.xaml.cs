@@ -226,7 +226,7 @@ namespace DirectorsPortalWPF.TodoUI
         {
             HelpUI.HelpScreenWindow helpWindow = new HelpUI.HelpScreenWindow();
             helpWindow.Show();
-            helpWindow.tabs.SelectedIndex = 5;
+            helpWindow.tabs.SelectedIndex = 6;
 
         }
     }

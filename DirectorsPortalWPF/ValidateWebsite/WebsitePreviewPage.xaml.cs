@@ -80,7 +80,7 @@ namespace DirectorsPortalWPF.ValidateWebsite
         {
             HelpUI.HelpScreenWindow window = new HelpUI.HelpScreenWindow();
             window.Show();
-            window.tabs.SelectedIndex = 4;
+            window.tabs.SelectedIndex = 5;
         }
 
         /// <summary>

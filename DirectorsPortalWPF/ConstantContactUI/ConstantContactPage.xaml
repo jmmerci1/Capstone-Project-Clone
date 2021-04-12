@@ -24,7 +24,7 @@
 
         <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
             <Button x:Name="btnLogout" Template="{StaticResource largeButton}" Click="BtnLogout_Click" Width="50" Content="Logout" Margin="0,0,10,0"  />
-            <Button x:Name="btnHelp" Template="{StaticResource largeButton}" Width="20" Content="?" Margin="0,0,10,0"  />
+            <Button x:Name="btnHelp" Template="{StaticResource largeButton}" Click="BtnHelp_Click" Width="20" Content="?" Margin="0,0,10,0"  />
             <Button x:Name="btnRefreshConstantContact" Content="Refresh" Grid.Column="1" Grid.Row="0" Margin="0,10,49,10" Width="60" Click="RefreshConstantContact_Click" Template="{StaticResource largeButton}"/>
         </StackPanel>
 

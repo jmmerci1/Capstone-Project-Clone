@@ -90,7 +90,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Button x:Name="btnImportExcel" Content="Import from Excel" Template="{StaticResource smallButton}" Grid.Row="0" Grid.Column="0" Margin="0,10,10,10" Padding="0,0,110,0" Height="20" Click="BtnImportExcel_Click"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Import data from Excel and replace all data in the system with the Excel data. NOTE: This action cannot be undone."  HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Import data from Excel and add/replace data in the system with the Excel data. NOTE: This action cannot be undone."  HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap"/>
 
                         <Separator Grid.Row="1" Grid.ColumnSpan="2" Margin="0,10,0,10" />
 
