@@ -216,7 +216,7 @@ namespace DirectorsPortalWPF.ValidateWebsite
         {
             // Fourth table to hold Member details only for Associate members
             GWriter.WriteLine("<table id=\"Associates\" hidden=\"hidden\" style=\"font-family: Arial, Arial, Helvetica, sans-serif; margin: auto;\">");
-            GWriter.WriteLine("<tr><td><strong>Associates Members</strong></td><tr>");
+            GWriter.WriteLine("<tr><td><strong>Associate Members</strong></td><tr>");
 
             using (var dbContext = new DatabaseContext())     // Database context will be used to query membership details
             {
