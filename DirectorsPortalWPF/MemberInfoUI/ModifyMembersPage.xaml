@@ -85,9 +85,12 @@
                             </StackPanel>
 
                             <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
-                                <Label Width="100">Add Category:</Label>
-                                <TextBox x:Name="txtAddCategory" Width="400"/>
-                                <Button x:Name="btnAddCategory" Content="Add Category" Click="BtnAddCategory_Click"
+                                <Label Width="100">New Category:</Label>
+                                <TextBox x:Name="txtAddCategory" Width="400" GotFocus="ShowPopup" LostFocus="HidePopup"/>
+                                <Popup x:Name="popNewCategory" PlacementTarget = "{Binding ElementName=txtAddCategory}" IsOpen="False">
+                                    <Label Background="White">Add a new category to the categories list. Category will need to be selected in the above list to be added to the business.</Label>
+                                </Popup>
+                                <Button x:Name="btnAddCategory" Content="Add New Category" Click="BtnAddCategory_Click"
                                     Template="{StaticResource smallButton}" Margin="5,5,5,5" Height="20" Padding="0,0,80,0" />
                             </StackPanel>
 
