@@ -42,28 +42,13 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
             RefreshCategories();
 
-            //Creating list to act as item source for lbCategories
-            List<string> items = new List<string>();
-            using (var context = new DatabaseContext())
-            {
-
-                List<Categories> allCategories = context.Categories.ToList();
-
-                foreach (Categories currentCat in allCategories)
-                {
-                    items.Add(currentCat.Category);
-                }
-
-                lbCategories.ItemsSource = items;
-            }
-
             if (selectedBusiness != null)
             {
                 /* A business was passed in so this page needs to update an already existing business and not
                  * add a new one.*/
 
                 //Populate categories from database
-                foreach (string currentItem in items)
+                foreach (string currentItem in lbCategories.Items)
                 {
                     foreach (CategoryRef cat in selectedBusiness.CategoryRefs)
                     {
@@ -457,7 +442,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             using (var context = new DatabaseContext())
             {
 
-                List<Categories> allCategories = context.Categories.ToList();
+                List<Categories> allCategories = context.Categories.OrderBy(c=>c.Category).ToList();
 
                 foreach (Categories currentCat in allCategories)
                 {
@@ -1044,6 +1029,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 context.Dispose();
             }
         }
+        
         private void DeleteCategories()
         {
             using (DatabaseContext context = new DatabaseContext())
@@ -1486,7 +1472,30 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
                 // Update the UI
                 RefreshCategories();
+                txtAddCategory.Clear();
             }
+        }
+
+        /// <summary>
+        /// Gets called when user clicks into from Add Category textbox.
+        /// Shows the popup used to display explaination label
+        /// </summary>
+        /// <param name="sender">The Add Category textbox object that has called the function.</param>
+        /// <param name="e">The lost focus event</param>
+        private void ShowPopup(object sender, RoutedEventArgs e)
+        {
+            popNewCategory.IsOpen = true;
+        }
+
+        /// <summary>
+        /// Gets called when user clicks away from Add Category textbox.
+        /// Hides the popup used to display explaination label
+        /// </summary>
+        /// <param name="sender">The Add Category textbox object that has called the function.</param>
+        /// <param name="e">The lost focus event</param>
+        private void HidePopup(object sender, RoutedEventArgs e)
+        {
+            popNewCategory.IsOpen = false;
         }
     }
 }
