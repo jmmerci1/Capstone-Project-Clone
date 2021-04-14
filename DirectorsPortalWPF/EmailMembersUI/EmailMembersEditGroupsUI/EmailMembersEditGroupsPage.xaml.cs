@@ -134,13 +134,14 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
             //List<Business> businesses = new List<Business>();
             string strNotes = txtNotes.Text;
             int intEmailGroupId;
-
+            EmailGroup emailGroup = dbContext.EmailGroups.Where(x => x.GroupName.Equals(selectedEmailGroup.GroupName)).FirstOrDefault();
             //EmailGroup emailGroup = new EmailGroup();
             //emailGroup.GroupName = strGroupName;
             //emailGroup.Notes = strNotes;
             //dbContext.Add(emailGroup);
             //dbContext.SaveChanges();
-
+            emailGroup.GroupName = strGroupName;
+            emailGroup.Notes = strNotes;
             // List<EmailGroup> eg = dbContext.EmailGroups.Where(x => strGroupName == x.GroupName).ToList();
 
             intEmailGroupId = selectedEmailGroup.Id;
