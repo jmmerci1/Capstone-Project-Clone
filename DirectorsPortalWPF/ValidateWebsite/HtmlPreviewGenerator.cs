@@ -1,5 +1,6 @@
 ﻿using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -78,7 +79,15 @@ namespace DirectorsPortalWPF.ValidateWebsite
             GWriter.WriteLine($"<tr><td><strong>All Members from A to Z</strong></td><tr>");
             using (var dbContext = new DatabaseContext())     // Database context will be used to query membership details
             {
-                List<Business> rgAllBusinesses = dbContext.Businesses.ToList();  // List of all businesses in DB
+                List<Business> rgAllBusinesses = dbContext.Businesses
+                    .Include(x => x.MailingAddress)
+                    .Include(x => x.PhysicalAddress)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.Emails)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.PhoneNumbers).ToList();  // List of all businesses in DB
 
                 // Iterate through each Member and put them in the table
                 foreach (string strAlpha in rgAlpha)
@@ -94,18 +103,23 @@ namespace DirectorsPortalWPF.ValidateWebsite
                     {
                         if (busCurrentBusiness.BusinessName.ToUpper().StartsWith(strAlpha))
                         {
-                            BusinessRep rgCurrentBusinessRep = dbContext.BusinessReps.Where(e => e.BusinessId.Equals(busCurrentBusiness.Id)).First();
-                            ContactPerson rgCurrentContactPerson = dbContext.ContactPeople.Where(e => e.Id.Equals(rgCurrentBusinessRep.ContactPersonId)).First();
+                            //BusinessRep rgCurrentBusinessRep = dbContext.BusinessReps.Where(e => e.BusinessId.Equals(busCurrentBusiness.Id)).First();
+                            BusinessRep rgCurrentBusinessRep = busCurrentBusiness.BusinessReps.FirstOrDefault();
+                            //ContactPerson rgCurrentContactPerson = dbContext.ContactPeople.Where(e => e.Id.Equals(rgCurrentBusinessRep.ContactPersonId)).First();
+                            //ContactPerson rgCurrentContactPerson = rgCurrentBusinessRep.ContactPerson;
 
                             // Phone numbers, addresses, and email addresses for current business
-                            List<PhoneNumber> rgCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.ContactPersonId.Equals(rgCurrentContactPerson.Id)).ToList();
-                            List<Address> rgCurrentBusAddresses = dbContext.Addresses.Where(e => e.Id.Equals(busCurrentBusiness.PhysicalAddressId)).ToList();
-                            List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.ContactPersonId.Equals(rgCurrentContactPerson.Id)).ToList();
+                            //List<PhoneNumber> rgCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.ContactPersonId.Equals(rgCurrentContactPerson.Id)).ToList();
+                            //List<PhoneNumber> rgCurrentBusPhones = rgCurrentContactPerson.PhoneNumbers.ToList();
+                            //List<Address> rgCurrentBusAddresses = dbContext.Addresses.Where(e => e.Id.Equals(busCurrentBusiness.PhysicalAddressId)).ToList();
+                            //Address rgCurrentBusAddresses = busCurrentBusiness.PhysicalAddress;
+                            //List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.ContactPersonId.Equals(rgCurrentContactPerson.Id)).ToList();
+                            //List<Email> rgCurrentBusEmails = rgCurrentContactPerson.Emails.ToList();
 
                             if (intNumberOfItems == 3)             // Create a new row if there are three items to add to the row
                                 GWriter.WriteLine("<tr>");
 
-                            PrintMemberToTemplate(busCurrentBusiness, rgCurrentBusPhones, rgCurrentBusAddresses, rgCurrentBusEmails);
+                            PrintMemberToTemplate(busCurrentBusiness);
 
                             if (intNumberOfItems == 1)             // If this is the last of the three items in the row, then close the row
                             {
@@ -132,7 +146,16 @@ namespace DirectorsPortalWPF.ValidateWebsite
 
             using (var dbContext = new DatabaseContext())     // Database context will be used to query membership details
             {
-                List<Business> rgAllBusinesses = dbContext.Businesses.ToList();  // List of all businesses in DB
+                List<Business> rgAllBusinesses = dbContext.Businesses
+                    .Include(x => x.MailingAddress)
+                    .Include(x => x.PhysicalAddress)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.Emails)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.PhoneNumbers).ToList(); // List of all businesses in DB
+
                 List<Categories> rgAllCategories = dbContext.Categories.ToList();
                 List<CategoryRef> rgAllCategoryRefs = dbContext.CategoryRef.ToList();
 
@@ -156,20 +179,22 @@ namespace DirectorsPortalWPF.ValidateWebsite
                     int intNumberOfItems = 3;  // The number of Members per row
                     foreach (Business busCurrentBusiness in rgValidBusinessesMatchingCategory)
                     {
-                        if (busCurrentBusiness.Categories[0].Category.Equals(cat.Category))
+                        CategoryRef categorySearch = busCurrentBusiness.CategoryRefs.Find(x => x.Category.Category.Equals(cat.Category));
+
+                        if (categorySearch.Category.Category.Equals(cat.Category))
                         {
-                            BusinessRep rgCurrentBusinessRep = dbContext.BusinessReps.Where(e => e.BusinessId.Equals(busCurrentBusiness.Id)).First();
+/*                            BusinessRep rgCurrentBusinessRep = dbContext.BusinessReps.Where(e => e.BusinessId.Equals(busCurrentBusiness.Id)).First();
                             ContactPerson rgCurrentContactPerson = dbContext.ContactPeople.Where(e => e.Id.Equals(rgCurrentBusinessRep.ContactPersonId)).First();
 
                             // Phone numbers, addresses, and email addresses for current business
                             List<PhoneNumber> rgCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.ContactPersonId.Equals(rgCurrentContactPerson.Id)).ToList();
                             List<Address> rgCurrentBusAddresses = dbContext.Addresses.Where(e => e.Id.Equals(busCurrentBusiness.Id)).ToList();
-                            List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.ContactPersonId.Equals(rgCurrentContactPerson.Id)).ToList();
+                            List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.ContactPersonId.Equals(rgCurrentContactPerson.Id)).ToList();*/
 
                             if (intNumberOfItems == 3)             // Create a new row if there are three items to add to the row
                                 GWriter.WriteLine("<tr>");
 
-                            PrintMemberToTemplate(busCurrentBusiness, rgCurrentBusPhones, rgCurrentBusAddresses, rgCurrentBusEmails);
+                            PrintMemberToTemplate(busCurrentBusiness);
 
                             if (intNumberOfItems == 1)             // If this is the last of the three items in the row, then close the row
                             {
@@ -191,29 +216,38 @@ namespace DirectorsPortalWPF.ValidateWebsite
         {
             // Fourth table to hold Member details only for Associate members
             GWriter.WriteLine("<table id=\"Associates\" hidden=\"hidden\" style=\"font-family: Arial, Arial, Helvetica, sans-serif; margin: auto;\">");
-            GWriter.WriteLine("<tr><td><strong>Associates Members</strong></td><tr>");
+            GWriter.WriteLine("<tr><td><strong>Associate Members</strong></td><tr>");
 
             using (var dbContext = new DatabaseContext())     // Database context will be used to query membership details
             {
-                List<Business> rgAllBusinesses = dbContext.Businesses.Where(e => (int)e.MembershipLevel == 2).ToList();  // List of all associate businesses in DB
+                List<Business> rgAllBusinesses = dbContext.Businesses.Include(x => x.MailingAddress)
+                    .Include(x => x.PhysicalAddress)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.Emails)
+                    .Include(x => x.BusinessReps)
+                    .ThenInclude(x => x.ContactPerson)
+                    .ThenInclude(x => x.PhoneNumbers)
+                    .Where(e => (int)e.MembershipLevel == 3).ToList();  // List of all associate businesses in DB
+
                 rgAllBusinesses = rgAllBusinesses.OrderBy(e => e.BusinessName).ToList();
 
                 // Iterate through each Member and put them in the table
                 int intNumberOfItems = 3;  // The number of Members per row
                 foreach (Business busCurrentBusiness in rgAllBusinesses)
                 {
-                    BusinessRep rgCurrentBusinessRep = dbContext.BusinessReps.Where(e => e.BusinessId.Equals(busCurrentBusiness.Id)).First();
+/*                    BusinessRep rgCurrentBusinessRep = dbContext.BusinessReps.Where(e => e.BusinessId.Equals(busCurrentBusiness.Id)).First();
                     ContactPerson rgCurrentContactPerson = dbContext.ContactPeople.Where(e => e.Id.Equals(rgCurrentBusinessRep.ContactPersonId)).First();
 
                     // Phone numbers, addresses, and email addresses for current business
                     List<PhoneNumber> rgCurrentBusPhones = dbContext.PhoneNumbers.Where(e => e.ContactPersonId.Equals(rgCurrentContactPerson.Id)).ToList();
                     List<Address> rgCurrentBusAddresses = dbContext.Addresses.Where(e => e.Id.Equals(busCurrentBusiness.Id)).ToList();
-                    List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.ContactPersonId.Equals(rgCurrentContactPerson.Id)).ToList();
+                    List<Email> rgCurrentBusEmails = dbContext.Emails.Where(e => e.ContactPersonId.Equals(rgCurrentContactPerson.Id)).ToList();*/
 
                     if (intNumberOfItems == 3)             // Create a new row if there are three items to add to the row
                         GWriter.WriteLine("<tr>");
 
-                    PrintMemberToTemplate(busCurrentBusiness, rgCurrentBusPhones, rgCurrentBusAddresses, rgCurrentBusEmails);
+                    PrintMemberToTemplate(busCurrentBusiness);
 
                     if (intNumberOfItems == 1)             // If this is the last of the three items in the row, then close the row
                     {
@@ -348,36 +382,45 @@ namespace DirectorsPortalWPF.ValidateWebsite
         /// <param name="rgCurrentBusPhones">All phone numbers associated with the current business</param>
         /// <param name="rgCurrentBusAddresses">All addresses associated with the current business</param>
         /// <param name="rgCurrentBusEmails">All email addresses associated with the current business</param>
-        private void PrintMemberToTemplate(Business busCurrentBusiness, List<PhoneNumber> rgCurrentBusPhones, List<Address> rgCurrentBusAddresses, List<Email> rgCurrentBusEmails)
+        private void PrintMemberToTemplate(Business busCurrentBusiness)
         {
-
-            GWriter.WriteLine("<td style=\"padding: 10px 10px 10px 10px; color:#6d6d6d\" width=\"25%\">");
-            GWriter.WriteLine($"<strong style=\"color: #a88d2e\">{busCurrentBusiness.BusinessName}</strong>");
-
-            if (rgCurrentBusAddresses.Count > 0)
+            if (busCurrentBusiness.MembershipLevel != MembershipLevel.INDIVIDUAL &&
+                busCurrentBusiness.MembershipLevel != MembershipLevel.COURTESY &&
+                busCurrentBusiness.MembershipLevel != MembershipLevel.NONE)
             {
-                GWriter.WriteLine($"<br>{rgCurrentBusAddresses[0].StreetAddress}");
-                GWriter.WriteLine($"<br>{rgCurrentBusAddresses[0].City}, {rgCurrentBusAddresses[0].State} {rgCurrentBusAddresses[0].ZipCode} ");
-            }
+                GWriter.WriteLine("<td style=\"padding: 10px 10px 10px 10px; color:#6d6d6d\" width=\"25%\">");
+                GWriter.WriteLine($"<strong style=\"color: #a88d2e\">{busCurrentBusiness.BusinessName}</strong>");
 
-            if (rgCurrentBusPhones.Count > 0)
-            {
-                GWriter.WriteLine($"<br>{rgCurrentBusPhones[0].Number}");
-                GWriter.WriteLine($"<br>{rgCurrentBusPhones[0].Number}");
-            }
+                if (busCurrentBusiness != null)
+                {
+                    GWriter.WriteLine($"<br>{busCurrentBusiness.PhysicalAddress?.StreetAddress}");
+                    GWriter.WriteLine($"<br>{busCurrentBusiness.PhysicalAddress?.City}, {busCurrentBusiness.PhysicalAddress?.State} {busCurrentBusiness.PhysicalAddress?.ZipCode} ");
+                }
 
-            GWriter.Write($"<br>");
-            string strMap = rgCurrentBusAddresses[0].StreetAddress.Replace(". ", "+");
-            strMap = strMap.Replace(" ", "+");
-            GWriter.Write($"<a href=\"https://www.google.com/maps/search/?api=1&query={strMap}%2C+{rgCurrentBusAddresses[0].ZipCode} \" target=\"_blank\">Map</a>");
-            if (rgCurrentBusEmails.Count > 0)
-                GWriter.Write($" | <a href=\"mailto:{rgCurrentBusEmails[0].EmailAddress} \">Email</a>");
-                    
-            if (busCurrentBusiness.Website.Contains("http://"))
-                GWriter.WriteLine($" | <a href=\"{busCurrentBusiness.Website}\" target=\"_blank\">Web</a>");
-            else
-                GWriter.WriteLine($" | <a href=\"http://{busCurrentBusiness.Website}\" target=\"_blank\">Web</a>");
-            GWriter.WriteLine("</td>");
+                if (busCurrentBusiness.BusinessReps != null && busCurrentBusiness.BusinessReps.Count > 0)
+                {
+
+                    GWriter.WriteLine($"<br>{busCurrentBusiness.BusinessReps[0].ContactPerson.PhoneNumbers.Where(x => x.GEnumPhoneType == PhoneType.Office).FirstOrDefault()?.Number}");
+                    GWriter.WriteLine($"<br>{busCurrentBusiness.BusinessReps[0].ContactPerson.PhoneNumbers.Where(x => x.GEnumPhoneType == PhoneType.Fax).FirstOrDefault()?.Number}");
+                }
+
+                GWriter.Write($"<br>");
+                string strMap = "";
+                if (busCurrentBusiness.PhysicalAddress != null)
+                {
+                    strMap = busCurrentBusiness.PhysicalAddress?.StreetAddress.Replace(". ", "+");
+                    strMap = strMap.Replace(" ", "+");
+                }
+                GWriter.Write($"<a href=\"https://www.google.com/maps/search/?api=1&query={strMap}%2C+{busCurrentBusiness.PhysicalAddress?.ZipCode} \" target=\"_blank\">Map</a>");
+                if (busCurrentBusiness.BusinessReps != null && busCurrentBusiness.BusinessReps.Count > 0)
+                    GWriter.Write($" | <a href=\"mailto:{busCurrentBusiness.BusinessReps[0].ContactPerson.Emails.FirstOrDefault()?.EmailAddress} \">Email</a>");
+
+                if (busCurrentBusiness.Website.Contains("http://"))
+                    GWriter.WriteLine($" | <a href=\"{busCurrentBusiness?.Website}\" target=\"_blank\">Web</a>");
+                else
+                    GWriter.WriteLine($" | <a href=\"http://{busCurrentBusiness?.Website}\" target=\"_blank\">Web</a>");
+                GWriter.WriteLine("</td>");
+            }
         }
 
         /// <summary>
@@ -388,8 +431,10 @@ namespace DirectorsPortalWPF.ValidateWebsite
         public string GetTemplateLocation()
         {
             var strExePath = AppDomain.CurrentDomain.BaseDirectory;
-            var dinfPagesFolder = Directory.GetParent(strExePath).Parent.Parent;
-            string strTemplateFullPath = dinfPagesFolder.FullName + "\\Resources\\MembershipTemplate.html";
+
+
+            string strTemplateFullPath = Directory.GetParent(strExePath) + "\\Resources\\MembershipTemplate.html";
+
             Console.WriteLine(strTemplateFullPath);
 
             return strTemplateFullPath;

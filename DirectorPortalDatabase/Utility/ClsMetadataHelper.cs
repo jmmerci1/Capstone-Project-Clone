@@ -12,18 +12,12 @@ namespace DirectorPortalDatabase.Utility
     /// Utility class that allows the program to retrieve metadata about a table using only the table's model name.
     /// Also allows the program to grab a DbSet from the context when the type is not known at compile time.
     /// </summary>
-    /// <remarks>
-    /// Author: Patrick Ancel, 2/5/2021
-    /// </remarks>
     public class ClsMetadataHelper
     {
         /// <summary>
         /// Stores metadata on a single table field and allows for retrieval of a record's field value.
         /// </summary>
-        /// <remarks>
-        /// Author: Patrick Ancel, 2/5/2021
-        /// </remarks>
-        public class ClsTableField
+        public class ClsTableField : ClsFieldHelper.IDataField
         {
             /// <summary>
             /// The PropertyInfo object used to instantiate the ClsTableField.
@@ -44,49 +38,72 @@ namespace DirectorPortalDatabase.Utility
             /// </summary>
             /// <param name="recordInstance"></param>
             /// <remarks>
-            /// Author: Patrick Ancel, 2/5/2021
             /// You must pass in an instance of the class which actually has the underlying property.
             /// </remarks>
-            public object GetValue(object recordInstance)
+            public object GetValue(object objRecordInstance)
             {
-                return UnderlyingProperty.GetValue(recordInstance, null);
+                return UnderlyingProperty.GetValue(objRecordInstance, null);
             }
         }
 
         /// <summary>
         /// Holds a collection of ClsTableField objects to describe a database table's metadata.
         /// </summary>
-        /// <remarks>
-        /// Author: Patrick Ancel, 2/5/2021
-        /// </remarks>
         public class ClsDatabaseTable
         {
             /// <summary>
             /// The Type used to instantiate the ClsDatabaseTable.
             /// </summary>
             private Type TypeUnderlyingType { get; set; }
-            private ClsTableField[] RGFields { get; set; }
+            private ClsFieldHelper.IDataField[] RGFields { get; set; }
             public int IntNumberOfFields => RGFields.Length;
-            public ClsTableField GetField(int index)
+            
+            /// <summary>
+            /// Gets an object that provides metadata on one of this table's columns.
+            /// </summary>
+            /// <param name="intIndex"></param>
+            /// <returns></returns>
+            public ClsFieldHelper.IDataField GetField(int intIndex)
             {
-                return RGFields[index];
+                return RGFields[intIndex];
             }
 
             public ClsDatabaseTable(Type typeUnderlyingType)
             {
                 TypeUnderlyingType = typeUnderlyingType;
 
-                List<ClsTableField> rgFields = new List<ClsTableField>();
+                List<ClsFieldHelper.IDataField> rgFields = new List<ClsFieldHelper.IDataField>();
 
                 // Iterates over the properties of the underlying class type.
                 PropertyInfo[] rgProperties = typeUnderlyingType.GetProperties();
                 foreach (PropertyInfo recordProperty in rgProperties)
                 {
-                    // Checks if this is a property that we care about.
-                    if (recordProperty.PropertyType.IsPrimitive || recordProperty.PropertyType == typeof(string) || recordProperty.PropertyType.IsEnum)
+                    // Checks if this is a property type that we care about.
+                    if (recordProperty.PropertyType.IsPrimitive
+                        || recordProperty.PropertyType == typeof(string)
+                        || recordProperty.PropertyType.IsEnum
+                        || recordProperty.PropertyType == typeof(DateTime)
+                        || recordProperty.PropertyType == typeof(decimal))
                     {
-                        rgFields.Add(new ClsTableField(recordProperty));
+                        // Checks if this property is listed as one not to display.
+                        if (!(GDictPropertiesToAvoidByModelType.ContainsKey(TypeUnderlyingType) 
+                            && GDictPropertiesToAvoidByModelType[TypeUnderlyingType].Contains(recordProperty.Name)))
+                        {
+                            rgFields.Add(new ClsTableField(recordProperty));
+                        }
                     }
+                }
+
+                string strModelName = TypeUnderlyingType.Name;
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    List<ClsFieldHelper.IDataField> rgExtraFields = dbContext.AdditionalFields
+                        // Queries for all additional fields pointing to the underlying model.
+                        .Where(udtField => udtField.TableName == strModelName)
+                        // Stores the field names in objects that implement the ClsFieldHelper.IDataField interface.
+                        .Select(udtField => (ClsFieldHelper.IDataField)new ClsFieldHelper.ClsCustomField(udtField.FieldName)).ToList();
+
+                    rgFields.AddRange(rgExtraFields);
                 }
 
                 RGFields = rgFields.ToArray();
@@ -96,68 +113,34 @@ namespace DirectorPortalDatabase.Utility
         ///<summary>
         /// Used to get the human-readable version of a variable name.
         /// </summary>
-        /// <remarks>
-        /// Author: Patrick Ancel, 2/5/2021
-        /// The reason for hardcoding this dictionary here is that it breaks nothing if
-        /// class property names were to change, even if that means they no longer have
-        /// an entry here.
-        /// </remarks>
         private static Dictionary<string, string> GDictHumanReadableNames = new Dictionary<string, string>
         {
             // Table class names
-            ["Address"] = "Address",
-            ["ClsAddress"] = "Address",
-            ["Business"] = "Business",
-            ["ClsBusiness"] = "Business",
+            ["Categories"] = "Category",
             ["BusinessRep"] = "Business Representative",
-            ["ClsBusinessRep"] = "Business Representative",
-            ["ContactPerson"] = "Contact Person",
-            ["ClsContactPerson"] = "Contact Person",
-            ["Email"] = "Email",
-            ["ClsEmail"] = "Email",
-            ["PhoneNumber"] = "Phone Number",
-            ["ClsPhoneNumber"] = "Phone Number",
             ["Todo"] = "To-Do List Items",
-            ["ClsTodo"] = "To-Do List Items",
-            ["YearlyData"] = "Yearly Data",
-            ["ClsYearlyData"] = "Yearly Data",
             // Address class properties
-            ["GIntId"] = "ID",
-            ["GStrAddress"] = "Address",
-            ["GStrCity"] = "City",
-            ["GStrState"] = "State",
-            ["GIntZipCode"] = "ZIP Code",
-            // Business class properties
-            ["GStrBusinessName"] = "Business Name",
-            ["GIntYearEstablished"] = "Year Established",
-            ["GEnumMembershipLevel"] = "Membership Level",
-            ["GIntMailingAddressId"] = "Mailing Address ID",
-            ["GIntPhysicalAddressId"] = "Physical Address ID",
-            ["GStrWebsite"] = "Website",
-            ["GStrExtraNotes"] = "Extra Notes",
-            ["GStrExtraFields"] = "Extra Fields",
-            // BusinessRep class properties
-            ["GIntBusinessId"] = "Business ID",
-            ["GIntContactPersonId"] = "Contact Person ID",
-            // ContactPerson class properties
-            ["GStrName"] = "Name",
-            // Email class properties
-            ["GStrEmailAddress"] = "Email Address",
+            ["ZipCodeExt"] = "Extended Zip Code",
             // PhoneNumber class properties
-            ["GStrPhoneNumber"] = "Phone Number",
-            ["GStrNotes"] = "Notes",
-            ["GEnumPhoneType"] = "Phone Type",
-            // Todo class properties
-            ["GStrTitle"] = "Title",
-            ["GStrDescription"] = "Description",
-            ["GBlnMarkedAsDone"] = "Marked As Done",
-            // YearlyData properties
-            ["GIntYear"] = "Year",
-            ["GDblDuesPaid"] = "Dues Paid",
-            ["GDblTicketsReturned"] = "Raffle Tickets Returned",
-            ["GDblCredit"] = "Credit",
-            ["GEnumTermLength"] = "Term Length",
-            ["GIntBallotNumber"] = "Ballot Number"
+            ["GEnumPhoneType"] = "Phone Type"
+        };
+
+        /// <summary>
+        /// Used to get an array of the names of properties to avoid displaying to the user.
+        /// The key is the model type, and the value is the array of names.
+        /// </summary>
+        private static Dictionary<Type, string[]> GDictPropertiesToAvoidByModelType = new Dictionary<Type, string[]>
+        {
+            [typeof(Address)] = new string[] { "Id" },
+            [typeof(Business)] = new string[] { "Id", "MailingAddressId", "PhysicalAddressId", "ExtraFields" },
+            [typeof(Categories)] = new string[] { "Id" },
+            [typeof(ContactPerson)] = new string[] { "Id" },
+            [typeof(Email)] = new string[] { "Id", "ContactPersonId" },
+            [typeof(EmailGroup)] = new string[] { "Id" },
+            [typeof(Payment)] = new string[] { "Id" },
+            [typeof(PaymentItem)] = new string[] { "Id" },
+            [typeof(PhoneNumber)] = new string[] { "Id", "ContactPersonId" },
+            [typeof(YearlyData)] = new string[] { "Id", "BusinessId", "ExtraFields" }
         };
 
         /// <summary>
@@ -165,7 +148,6 @@ namespace DirectorPortalDatabase.Utility
         /// </summary>
         /// <param name="strClassOrPropertyName"></param>
         /// <remarks>
-        /// Author: Patrick Ancel, 2/5/2021
         /// Cannot yet parse names of unknown variables. Instead, for those, it returns what was passed in.
         /// </remarks>
         public static string GetHumanReadableFieldName(string strClassOrPropertyName)
@@ -177,7 +159,8 @@ namespace DirectorPortalDatabase.Utility
             }
             else
             {
-                return strClassOrPropertyName;
+                // Adds a space before every capital letter and then removes the leading space if there is one.
+                return System.Text.RegularExpressions.Regex.Replace(strClassOrPropertyName, "[A-Z]", " $0").TrimStart();
             }
         }
 
@@ -186,7 +169,7 @@ namespace DirectorPortalDatabase.Utility
             public Type TypeModelType { get; private set; }
             public ClsDatabaseTable UdtTableMetaData { get; private set; }
             public string StrHumanReadableName { get; private set; }
-            public ClsModelInfo (Type typeModelType)
+            public ClsModelInfo(Type typeModelType)
             {
                 TypeModelType = typeModelType;
                 UdtTableMetaData = new ClsDatabaseTable(typeModelType);
@@ -195,50 +178,144 @@ namespace DirectorPortalDatabase.Utility
             /// <summary>
             /// Gets the DbSet from the context for this ClsModelInfo instance's model type. The return type is technically IQueryable of object.
             /// </summary>
-            public IQueryable<object> GetContextDbSet(DatabaseContext context)
+            public IQueryable<object> GetContextDbSet(DatabaseContext dbContext)
             {
-                // Calls the generic method context.Set, which returns the DbSet for a generic type.
+                // Calls the generic method dbContext.Set, which returns the DbSet for a generic type.
                 // The call is modified to account for the fact that TypeModelType is not generic.
-                IQueryable qryAllRecords = (IQueryable)context.GetType().GetMethod("Set").MakeGenericMethod(TypeModelType).Invoke(context, null);
+                IQueryable qryAllRecords = (IQueryable)dbContext.GetType().GetMethod("Set").MakeGenericMethod(TypeModelType).Invoke(dbContext, null);
                 // Converts the IQueryable to IQueryable<object>.
                 return qryAllRecords.Cast<object>();
             }
+
+            /// <summary>
+            /// For ClsModelInfo instances, returns whether the model types are the same. For all other types, returns false.
+            /// </summary>
+            /// <param name="obj"></param>
+            /// <returns></returns>
+            public override bool Equals(object objOther)
+            {
+                Type typeOtherType = objOther.GetType();
+                if (typeOtherType == typeof(ClsModelInfo))
+                {
+                    ClsModelInfo udtOther = (ClsModelInfo)objOther;
+                    return this.TypeModelType == udtOther.TypeModelType;
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
-        private static Dictionary<Type, ClsModelInfo> dictModels = new Dictionary<Type, ClsModelInfo>
+        /// <summary>
+        /// Maps model types to ClsModelInfo instances that describe them.
+        /// </summary>
+        private static Dictionary<Type, ClsModelInfo> GDictModels = new Dictionary<Type, ClsModelInfo>
         {
             [typeof(Address)] = new ClsModelInfo(typeof(Address)),
             [typeof(Business)] = new ClsModelInfo(typeof(Business)),
             [typeof(BusinessRep)] = new ClsModelInfo(typeof(BusinessRep)),
+            [typeof(Categories)] = new ClsModelInfo(typeof(Categories)),
             [typeof(ContactPerson)] = new ClsModelInfo(typeof(ContactPerson)),
             [typeof(Email)] = new ClsModelInfo(typeof(Email)),
+            [typeof(EmailGroup)] = new ClsModelInfo(typeof(EmailGroup)),
+            [typeof(Payment)] = new ClsModelInfo(typeof(Payment)),
+            [typeof(PaymentItem)] = new ClsModelInfo(typeof(PaymentItem)),
             [typeof(PhoneNumber)] = new ClsModelInfo(typeof(PhoneNumber)),
-            [typeof(Todo)] = new ClsModelInfo(typeof(Todo)),
             [typeof(YearlyData)] = new ClsModelInfo(typeof(YearlyData))
         };
 
-        private static Type[] rgModels =
+        /// <summary>
+        /// Updates the GDictModels dictionary entries for models with extra fields.
+        /// This allows the report generator to respond to new fields without restarting the program.
+        /// </summary>
+        public static void RefreshModelInfo()
+        {
+            // Gets only the model types with extra fields.
+            Type[] rgModelsWithExtraFields = GDictModels.Keys
+                .Where(typeModelType => typeModelType.IsSubclassOf(typeof(HasExtraFields))).ToArray();
+
+            foreach (Type typeModelType in rgModelsWithExtraFields)
+            {
+                if (typeModelType.IsSubclassOf(typeof(HasExtraFields)))
+                {
+                    GDictModels[typeModelType] = new ClsModelInfo(typeModelType);
+                }
+            }
+        }
+
+        private static Type[] GRGModels =
         {
             typeof(Address),
             typeof(Business),
-            typeof(BusinessRep),
+            //typeof(BusinessRep),
+            typeof(Categories),
             typeof(ContactPerson),
             typeof(Email),
+            typeof(EmailGroup),
+            typeof(Payment),
+            typeof(PaymentItem),
             typeof(PhoneNumber),
-            typeof(Todo),
             typeof(YearlyData)
         };
 
-        public static int IntNumberOfModels => rgModels.Length;
+        /// <summary>
+        /// Maps the names of models to their types.
+        /// </summary>
+        private static Dictionary<string, Type> GDictTypeByName = new Dictionary<string, Type>
+        {
+            [typeof(Address).Name] = typeof(Address),
+            [typeof(Business).Name] = typeof(Business),
+            [typeof(BusinessRep).Name] = typeof(BusinessRep),
+            [typeof(Categories).Name] = typeof(Categories),
+            [typeof(ContactPerson).Name] = typeof(ContactPerson),
+            [typeof(Email).Name] = typeof(Email),
+            [typeof(EmailGroup).Name] = typeof(EmailGroup),
+            [typeof(Payment).Name] = typeof(Payment),
+            [typeof(PaymentItem).Name] = typeof(PaymentItem),
+            [typeof(PhoneNumber).Name] = typeof(PhoneNumber),
+            [typeof(YearlyData).Name] = typeof(YearlyData)
+        };
+
+        /// <summary>
+        /// Maps model types to their corresponding enums.
+        /// </summary>
+        private static Dictionary<Type, ClsJoinHelper.EnumTable> GDictEnumTableByType = new Dictionary<Type, ClsJoinHelper.EnumTable>
+        {
+            [typeof(Address)] = ClsJoinHelper.EnumTable.Address,
+            [typeof(Business)] = ClsJoinHelper.EnumTable.Business,
+            [typeof(BusinessRep)] = ClsJoinHelper.EnumTable.BusinessRep,
+            [typeof(Categories)] = ClsJoinHelper.EnumTable.Categories,
+            [typeof(ContactPerson)] = ClsJoinHelper.EnumTable.ContactPerson,
+            [typeof(Email)] = ClsJoinHelper.EnumTable.Email,
+            [typeof(EmailGroup)] = ClsJoinHelper.EnumTable.EmailGroup,
+            [typeof(Payment)] = ClsJoinHelper.EnumTable.Payment,
+            [typeof(PaymentItem)] = ClsJoinHelper.EnumTable.PaymentItem,
+            [typeof(PhoneNumber)] = ClsJoinHelper.EnumTable.PhoneNumber,
+            [typeof(YearlyData)] = ClsJoinHelper.EnumTable.YearlyData
+        };
+
+        public static int IntNumberOfModels => GRGModels.Length;
+        /// <summary>
+        /// Used to access the array of model types.
+        /// </summary>
+        /// <param name="intIndex"></param>
+        /// <returns></returns>
         public static Type GetModelTypeByIndex(int intIndex)
         {
-            return rgModels[intIndex];
+            return GRGModels[intIndex];
         }
+
+        /// <summary>
+        /// Returns an object that provides metadata pertaining to the model type that is passed in.
+        /// </summary>
+        /// <param name="typeModelType"></param>
+        /// <returns></returns>
         public static ClsModelInfo GetModelInfo(Type typeModelType)
         {
-            if (dictModels.ContainsKey(typeModelType))
+            if (GDictModels.ContainsKey(typeModelType))
             {
-                return dictModels[typeModelType];
+                return GDictModels[typeModelType];
             }
             else
             {
@@ -246,5 +323,39 @@ namespace DirectorPortalDatabase.Utility
             }
         }
 
+        /// <summary>
+        /// Converts a model type into an enum value that is used by the ClsJoinHelper utility class.
+        /// </summary>
+        /// <param name="typeModelType"></param>
+        /// <returns></returns>
+        public static ClsJoinHelper.EnumTable GetEnumTable(Type typeModelType)
+        {
+            if (GDictEnumTableByType.ContainsKey(typeModelType))
+            {
+                return GDictEnumTableByType[typeModelType];
+            }
+            else
+            {
+                throw new ArgumentException("This Type does not have an EnumTable.");
+            }
+        }
+
+        /// <summary>
+        /// Returns an object that provides metadata pertaining to the model type whose name matches the string passed in.
+        /// </summary>
+        /// <param name="strModelName"></param>
+        /// <returns></returns>
+        public static ClsModelInfo GetModelInfoByName(string strModelName)
+        {
+            if (GDictTypeByName.ContainsKey(strModelName))
+            {
+                Type typeModelType = GDictTypeByName[strModelName];
+                return GetModelInfo(typeModelType);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

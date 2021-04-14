@@ -16,6 +16,23 @@ namespace DirectorPortalDatabase.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.11");
 
+            modelBuilder.Entity("DirectorPortalDatabase.Models.AdditionalFields", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FieldName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TableName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AdditionalFields");
+                });
+
             modelBuilder.Entity("DirectorPortalDatabase.Models.Address", b =>
                 {
                     b.Property<int>("Id")
@@ -213,8 +230,6 @@ namespace DirectorPortalDatabase.Migrations
                     b.ToTable("EmailGroupMembers");
                 });
 
-            
-
             modelBuilder.Entity("DirectorPortalDatabase.Models.Payment", b =>
                 {
                     b.Property<int>("Id")
@@ -307,6 +322,9 @@ namespace DirectorPortalDatabase.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("ModelName")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ModelPropertyName")
                         .HasColumnType("TEXT");

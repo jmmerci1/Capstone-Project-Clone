@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DirectorPortalDatabase.Utility;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DirectorPortalDatabase.Models
 {
-    public class YearlyData
+    public class YearlyData : HasExtraFields
     {
         /// <summary>
         /// The Primary Key of the address in the database.
@@ -47,13 +48,6 @@ namespace DirectorPortalDatabase.Models
         /// The ballot number that the business gets
         /// </summary>
         public int BallotNumber { get; set; }
-        /// <summary>
-        /// Will be used as a way of adding extra fields
-        /// to the database. Designed to use a string encoded
-        /// json object with any additional fields that can
-        /// be decoded into regular C# objects.
-        /// </summary>
-        public string ExtraFields { get; set; }
     }
 
     /// <summary>

@@ -74,12 +74,30 @@
                             </StackPanel>
 
                             <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">Category:</Label>
+                                <ListBox x:Name ="lbCategories" Height="100" Width="400" SelectionMode="Multiple">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
+                                <Label Width="100">Add Category:</Label>
+                                <TextBox x:Name="txtAddCategory" Width="400"/>
+                                <Button x:Name="btnAddCategory" Content="Add Category" Click="BtnAddCategory_Click"
+                                    Template="{StaticResource smallButton}" Margin="5,5,5,5" Height="20" Padding="0,0,80,0" />
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
                                 <Label Width="100">Notes:</Label>
                                 <TextBox x:Name="txtNotes" TextWrapping="Wrap" AcceptsReturn="True" 
                                          VerticalScrollBarVisibility="Visible" Width="400" Height="100"/>
                             </StackPanel>
 
-                            <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
+                            <StackPanel Margin="0,0,0,3" Orientation="Horizontal">
                                 <Label Width="100">Level:</Label>
                                 <ComboBox x:Name="cboMemberLevel" Width="200">
                                     <ComboBoxItem Content="None"></ComboBoxItem>
@@ -89,6 +107,10 @@
                                     <ComboBoxItem Content="Individual"></ComboBoxItem>
                                     <ComboBoxItem Content="Courtesy"></ComboBoxItem>
                                 </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel x:Name="spExtraFields" Margin="0,0,0,10" Orientation="Vertical">
+                                <!--Extra fields are generated in code.-->
                             </StackPanel>
                         </StackPanel>
 
@@ -156,6 +178,7 @@
                         </TextBlock>
 
                         <StackPanel x:Name="SpContacts" Margin="0,0,0,3" Orientation="Vertical">
+                            <!--Contacts are generated in code.-->
                         </StackPanel>
 
                         <StackPanel Margin="5,0,0,3" Orientation="Horizontal">

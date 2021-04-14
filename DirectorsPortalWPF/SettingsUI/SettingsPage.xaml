@@ -20,11 +20,8 @@
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
                 <TextBlock Text="Settings" Foreground="Black"  Padding="49,15,0,15" FontSize="20" FontWeight="Bold"/>
-                <Button x:Name="btnSimulateConflict" Content="Simulate Import Conflict" Template="{StaticResource smallButton}" Grid.Row="0" Grid.Column="1"
-                        Margin="0,10,50,10" Padding="0,0,150,0" Height="35" Click="btnSimulateConflict_Click"/>
-
                 <Button x:Name="btnHelp" Click="HelpButtonHandler" Template="{StaticResource largeButton}" Width="20"
-                        Content="?" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,10,10,10" />
+                        Content="?" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,10,50,10" />
             </Grid>
 
 
@@ -93,15 +90,9 @@
                         </Grid.ColumnDefinitions>
 
                         <Button x:Name="btnImportExcel" Content="Import from Excel" Template="{StaticResource smallButton}" Grid.Row="0" Grid.Column="0" Margin="0,10,10,10" Padding="0,0,110,0" Height="20" Click="BtnImportExcel_Click"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Import data from Excel and replace all data in the system with the Excel data. NOTE: This action cannot be undone."  HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Import data from Excel and add/replace data in the system with the Excel data. NOTE: This action cannot be undone."  HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap"/>
 
                         <Separator Grid.Row="1" Grid.ColumnSpan="2" Margin="0,10,0,10" />
-
-
-                        <Label Grid.Row="2" Grid.Column="0" Content="Entity:" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                        <ComboBox x:Name="cmbEntity" Grid.Row="2" Grid.Column="1" Width="150" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Background="Transparent" Foreground="Black" IsEditable="True" SelectionChanged="CmbEntity_SelectionChanged" ItemsSource="{Binding Path=GUdtyReportTypes}" />
-
-                        <Separator Grid.Row="3" Grid.ColumnSpan="2" Margin="0,10,0,10" />
 
                         <Grid x:Name="gridFieldTable" Grid.Row="4" Grid.ColumnSpan ="2">
                             <Grid.ColumnDefinitions>
@@ -110,9 +101,10 @@
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition />
+                                <RowDefinition />
                             </Grid.RowDefinitions>
-
-                            <StackPanel x:Name="sPanelFields">
+                            <Label Grid.Row="0" Grid.ColumnSpan="2" Content="You can expand the tracked data by adding extra fields in the database. Use the 'Add Fields' button to add extra fields."/>
+                            <StackPanel Grid.Row="1" x:Name="sPanelFields">
 
                             </StackPanel>
 
@@ -131,9 +123,6 @@
 
                             <Label Grid.Row="0" Grid.Column="0" Content="Field Name:" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,30,0" />
                             <TextBox Grid.Row="0" Grid.Column="1" Name="txtBoxFieldName" Width="300" HorizontalAlignment="Left" VerticalAlignment="Center" Height="21.5"/>
-
-                            <Label Grid.Row="1" Grid.Column="0" Content="Field Format:" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,30,0" />
-                            <TextBox Grid.Row="1" Grid.Column="1" Name="txtBoxFieldFormat" Width="300" HorizontalAlignment="Left" VerticalAlignment="Center" Height="21.5"/>
 
                             <Button x:Name="btnSaveField" Content="Save Field" Template="{StaticResource smallButton}" Click="BtnSaveField_Click" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Margin="0,10,0,10" />
                         </Grid>

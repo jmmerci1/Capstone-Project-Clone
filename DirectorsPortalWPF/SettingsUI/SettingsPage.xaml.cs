@@ -10,6 +10,9 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.ComponentModel;
+using DirectorPortalPayPal;
+
 
 /// <summary>
 /// File Purpose:
@@ -30,6 +33,14 @@ namespace DirectorsPortalWPF.SettingsUI
     {
         private ClsMetadataHelper.ClsModelInfo GUdtSelectedReportType { get; set; }
 
+        //Reference to form needed to be displayed during import excel data
+        private ImportLoadPage frmLoadPage = new ImportLoadPage();
+        
+        //List using class Members to store Member information.
+        List<Members> Members = new List<Members>();
+
+        private List<string> rgAvailableFields;
+        private string strOldFieldName;
         /// <summary>
         /// Intializes the Page and content within the Page
         /// </summary>
@@ -37,34 +48,20 @@ namespace DirectorsPortalWPF.SettingsUI
         {
             InitializeComponent(); //initialize the GUI
 
+/*            Business business;
+            using (DatabaseContext dbContext = new DatabaseContext())
+            {
+                business = dbContext.Businesses.Where(x => x.Id == 1).FirstOrDefault();
+                business.SetField("Another Field", "Another Test", dbContext);
+            }*/
+
             //create selections for the combo box that allows the user to choose when they will recieve backup notifications
             cmbNotificationFrequency.ItemsSource = new List<string> { "None", "Daily", "Weekly", "Monthly" };
             cmbNotificationTime.ItemsSource = GenerateDropdownTimeList();
-
-            ComboBoxItem[] rgReportTypeItems = new ComboBoxItem[ClsMetadataHelper.IntNumberOfModels];
             
             //loads settings
             LoadSavedSettings();
-
-            for (int i = 0; i < ClsMetadataHelper.IntNumberOfModels; i++)
-            {
-                // Gets info on the i-th database model.
-                Type typeModelType = ClsMetadataHelper.GetModelTypeByIndex(i);
-                ClsMetadataHelper.ClsModelInfo udtModelInfo = ClsMetadataHelper.GetModelInfo(typeModelType);
-
-                // Stores model information in a new ComboBoxItem.
-                ComboBoxItem cbiModelItem = new ComboBoxItem();
-                cbiModelItem.Content = udtModelInfo.StrHumanReadableName;
-                cbiModelItem.Tag = udtModelInfo;
-
-                // Adds the ComboBoxItem to the array.
-                rgReportTypeItems[i] = cbiModelItem;
-            }
-
-            cmbEntity.ItemsSource = rgReportTypeItems;
-
-            
-
+            DisplayEditableFields();
         }
 
         /// <summary>
@@ -132,7 +129,7 @@ namespace DirectorsPortalWPF.SettingsUI
                 "2:00pm",
                 "3:00pm",
                 "4:00pm",
-                "5.00pm",
+                "5:00pm",
                 "6:00pm",
                 "7:00pm",
                 "8:00pm",
@@ -152,10 +149,9 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="sPanelToDelete">The Stack Panel containing the Field to be deleted.</param>
         private void DeleteTextField(object sender, RoutedEventArgs e, StackPanel sPanelToDelete)
         {
-
             TextBox txtBoxFieldEdit = (TextBox)sPanelToDelete.Children[0];
             MessageBoxResult confirmDelete = MessageBox.Show(
-                $"Are you sure you want to delete \'{txtBoxFieldEdit.Text}\'?",
+                $"Are you sure you want to delete \'{txtBoxFieldEdit.Text}\'? All data in this field will become inaccessible, this operation cannot be reversed.",
                 "Warning!",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
@@ -163,10 +159,14 @@ namespace DirectorsPortalWPF.SettingsUI
             switch (confirmDelete)
             {
                 case MessageBoxResult.Yes:
-                    sPanelFields.Children.Remove(sPanelToDelete);
-                    sPanelToDelete.Children.Clear();
-
-                    GC.Collect();               // Initiate garbage collection so rogue stack panel children isn't floating around in heap.
+                    {
+                        using (DatabaseContext dbContext = new DatabaseContext())
+                        {
+                            Business business = new Business();
+                            business.DeleteField(dbContext, txtBoxFieldEdit.Text);
+                            DisplayEditableFields();
+                        }
+                    }
                     break;
                 case MessageBoxResult.No:
                     return;
@@ -189,12 +189,20 @@ namespace DirectorsPortalWPF.SettingsUI
             if (txtBox.IsEnabled)
             {   // Disable the TextBox and Save, change the button lable back to "Edit"
                 txtBox.IsEnabled = false;
-                txtBox.Text = txtBox.Text;
+               
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    Business business = new Business();
+                    business.RenameField(dbContext, strOldFieldName, txtBox.Text);
+                    DisplayEditableFields();
+                }
+/*
                 btnEditText.Content = "Edit";
-                btnDelete.Visibility = Visibility.Hidden;
+                btnDelete.Visibility = Visibility.Hidden;*/
             }
             else
             {   // Enable the TextBox and change the button label to "Save"
+                strOldFieldName = txtBox.Text;
                 txtBox.IsEnabled = true;
                 btnEditText.Content = "Save";
                 btnDelete.Visibility = Visibility.Visible;
@@ -210,7 +218,7 @@ namespace DirectorsPortalWPF.SettingsUI
         {
             HelpUI.HelpScreenWindow helpWindow = new HelpUI.HelpScreenWindow();
             helpWindow.Show();
-            helpWindow.tabs.SelectedIndex = 6;
+            helpWindow.tabs.SelectedIndex = 7;
 
         }
 
@@ -307,27 +315,14 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="e">The click event</param>
         private void BtnSaveField_Click(object sender, RoutedEventArgs e)
         {
-            StackPanel sPanelTxtBoxAndBtn = CreateStackPanel(Orientation.Horizontal);
+            using (DatabaseContext dbContext = new DatabaseContext())
+            {
+                Business business = new Business();
+                business.AddField(dbContext, txtBoxFieldName.Text);
+                DisplayEditableFields();
+            }
 
-            TextBox txtBoxNewField = CreateTextBox(false);
-            txtBoxNewField.Text = txtBoxFieldName.Text;
-
-            txtBoxFieldName.Text = "";
             gridAddField.Visibility = Visibility.Hidden;
-
-            Button btnNewButtonEdit = CreateButton("Edit");
-            Button btnNewButtonDelete = CreateButton("Delete");
-            btnNewButtonDelete.Visibility = Visibility.Hidden;
-
-            btnNewButtonEdit.Click += (next_Sender, next_e) => SetTextField(next_Sender, next_e, txtBoxNewField, btnNewButtonDelete);
-            btnNewButtonDelete.Click += (next_Sender, next_e) => DeleteTextField(next_Sender, next_e, sPanelTxtBoxAndBtn);
-
-            sPanelTxtBoxAndBtn.Children.Add(txtBoxNewField);
-            sPanelTxtBoxAndBtn.Children.Add(btnNewButtonEdit);
-            sPanelTxtBoxAndBtn.Children.Add(btnNewButtonDelete);
-
-            sPanelFields.Children.Add(sPanelTxtBoxAndBtn);
-
             btnAddField.Content = "Add Field";
         }
 
@@ -452,8 +447,8 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="e"></param>
         private async void BtnImportExcel_Click(object sender, RoutedEventArgs e)
         {
-            //List using class Members to store Member information.
-            List<Members> Members = new List<Members>();
+            
+            BackgroundWorker bWrk = new BackgroundWorker();
 
             //String that contains the excel file that the user selects.
             string FilePath = FindFile();
@@ -461,10 +456,63 @@ namespace DirectorsPortalWPF.SettingsUI
             //Populated members List.
             Members = ReadExcelFile(FilePath);
 
+            List<Members> rgDuplicates = FindDuplicateExcelData(Members);
+
+            if (rgDuplicates.Count > 0)
+            {
+
+                foreach (Members duplicate in rgDuplicates)
+                {
+                    Members currentMember = Members.Find(x => x.gstrBusinessName.Equals(duplicate.gstrBusinessName));
+                    if (currentMember != null)
+                    {
+                        Members.Remove(currentMember);
+                        Console.WriteLine(currentMember.gstrBusinessName);
+                    }
+                }
+
+                NavigationService.Navigate(new DataConflictPage(rgDuplicates));
+            }
+
+            //Thread created to import data 
+            bWrk.DoWork += LoadHousingForImport;
+            bWrk.RunWorkerCompleted += LoadSettingsPage;
+            bWrk.RunWorkerAsync();
+
+            if (!(rgDuplicates.Count > 0))
+            {
+                //Form to display message to not click through the application during import data.
+                frmLoadPage.TopMost = true;
+                frmLoadPage.MaximizeBox = false;
+                frmLoadPage.MinimizeBox = false;
+                frmLoadPage.ControlBox = false;
+                frmLoadPage.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+                frmLoadPage.Show();
+            }
+
+
+        }
+
+        /// Contains the method needed to start importing data into the database.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LoadHousingForImport(Object sender, DoWorkEventArgs e)
+        {
+            //
             if (Members.Count > 0)
             {
                 ImportToDatabase(Members);
-            }                      
+            }
+        }
+
+        /// Method for when the thread stops to close the form that was previously displayed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LoadSettingsPage(object sender, RunWorkerCompletedEventArgs e)
+        {
+            frmLoadPage.Close();
         }
 
         private void BtnImportPayPal_Click(object sender, RoutedEventArgs e)
@@ -472,7 +520,62 @@ namespace DirectorsPortalWPF.SettingsUI
             string filePath = FindPayPalFile();
             if (!string.IsNullOrEmpty(filePath))
             {
-                DirectorPortalPayPal.CsvParser.RunImport(filePath);
+                List<Transaction> reportItems = new List<Transaction>();
+
+                try
+                {
+                    StreamReader fileReader = new StreamReader(filePath);
+
+                    string headerLine = fileReader.ReadLine();
+                    if(headerLine == null)
+                    {
+                        MessageBox.Show("The CSV file selected is empty.",
+                            "Empty CSV File");
+                        return;
+                    }
+                    string[] columnHeaders = headerLine.Split(',');
+
+                    string line = "";
+                    while ((line = fileReader.ReadLine()) != null)
+                    {
+                        string[] rowData = line.Split(',');
+                        Transaction transaction = new Transaction(columnHeaders, rowData);
+                        if (!transaction.IsValid)
+                        {
+                            MessageBox.Show("The data in the CSV file is of an unknown format.",
+                                "Invalid CSV File");
+                            return;
+                        }
+                        reportItems.Add(transaction);
+                    }
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Make sure the CSV file is not open in any other programs.",
+                            "Unable to open file");
+                    return;
+                }
+
+                TransactionImportResult result = CsvParser.RunImport(reportItems);
+                if(result.Successful())
+                {
+                    MessageBox.Show(result.ImportSuccesses.Count() +
+                        " PayPal transactions successfully imported into Payments.\n"
+                        + result.DuplicateCount() + " duplicates were skipped.",
+                        "PayPal Import Successful");
+                }
+                else
+                {
+                    int duplicateCount = result.DuplicateCount();
+                    MessageBox.Show(result.ImportSuccesses.Count()
+                        + " PayPal transactions successfully imported into Payments.\n"
+                        + (result.ImportFailures.Count() - duplicateCount) + " failed to import.\n"
+                        + duplicateCount + " duplicates were not imported.\n\n"
+                        + "The importing wizard will now walk through manually importing the failures.",
+                        "PayPal Import Needs Attention!");
+                    PayPalTransactionImportWizard wizard = new PayPalTransactionImportWizard(result.ImportFailures);
+                    wizard.Show();
+                }
             }
         }
 
@@ -497,17 +600,36 @@ namespace DirectorsPortalWPF.SettingsUI
                         //Reader that is used to hold data read from the excel file.
                         using (var Reader = ExcelReaderFactory.CreateReader(Stream))
                         {
+                            var dataset = Reader.AsDataSet(new ExcelDataSetConfiguration()
+                            {
+                                ConfigureDataTable = (_) => new ExcelDataTableConfiguration()
+                                {
+                                    UseHeaderRow = true
+                                }
+                            });
+                            int intExtraFieldCount = dataset.Tables[0].Columns.Count - 20;
+                            List<string> strlstColumnNames = new List<string>();
+                            for (int i = 0; i < intExtraFieldCount; i++)
+                            {
+                                strlstColumnNames.Add(dataset.Tables[0].Columns[i + 20].ColumnName);
+                            }
                             do
                             {
                                 while (Reader.Read())
                                 {
+                                    Dictionary<string, string> extraFieldData = new Dictionary<string, string>();
+                                    for (int i = 0; i < intExtraFieldCount; i++)
+                                    {
+                                        extraFieldData.Add(strlstColumnNames[i], Convert.ToString(Reader[20 + i]));
+                                    }
                                     //Add data that was read from the Excel sheet into a list.
                                     TempMembers.Add(new Members(Convert.ToString(Reader[0]), Convert.ToString(Reader[1]), Convert.ToString(Reader[2]),
                                                                 Convert.ToString(Reader[3]), Convert.ToString(Reader[4]), Convert.ToString(Reader[5]),
                                                                 Convert.ToString(Reader[6]), Convert.ToString(Reader[7]), Convert.ToString(Reader[8]),
                                                                 Convert.ToString(Reader[9]), Convert.ToString(Reader[10]), Convert.ToString(Reader[11]),
                                                                 Convert.ToString(Reader[12]), Convert.ToString(Reader[13]), Convert.ToString(Reader[14]),
-                                                                Convert.ToString(Reader[15]), Convert.ToString(Reader[17]), Convert.ToString(Reader[19])));
+                                                                Convert.ToString(Reader[15]), Convert.ToString(Reader[17]), Convert.ToString(Reader[19]),
+                                                                extraFieldData));
 
                                 }
                                 //Moves to the next sheet.
@@ -536,55 +658,37 @@ namespace DirectorsPortalWPF.SettingsUI
             return TempMembers;
         }
 
-        /// <summary>
-        /// After selecting a table from the 'Entity' combo box, a list of all fields will appear in that
-        /// selected table. Users will have the ability to edit/delete the field names in the selected table.
-        /// </summary>
-        /// <param name="sender">The Selected Table from the Combo Box</param>
-        /// <param name="e">The SelectionChange event</param>
-        private void CmbEntity_SelectionChanged(object sender, SelectionChangedEventArgs e)
+ 
+
+        public void DisplayEditableFields()
         {
-            // Gets the selected report type name from the combo box.
-            ComboBoxItem cbiSelectedReportTypeItem = (ComboBoxItem)cmbEntity.SelectedItem;
-            // Extracts the model information from the ComboBoxItem.
-            GUdtSelectedReportType = (ClsMetadataHelper.ClsModelInfo)cbiSelectedReportTypeItem.Tag;
-            // Clear the fields populated from the last table selection.
             sPanelFields.Children.Clear();
 
-            if (GUdtSelectedReportType != null)
+            using (DatabaseContext dbContext = new DatabaseContext())
             {
-                int intNumberOfFields = GUdtSelectedReportType.UdtTableMetaData.IntNumberOfFields;
+                Business business = new Business();
+                List<string> rgExtraFields = business.AvailableFields(dbContext);
 
-                for (int i = 0; i < intNumberOfFields; i++)
+                foreach (string field in rgExtraFields)
                 {
-                    ClsMetadataHelper.ClsTableField udtField = GUdtSelectedReportType.UdtTableMetaData.GetField(i);
-
                     StackPanel sPanelTxtBoxAndBtn = CreateStackPanel(Orientation.Horizontal);
 
                     Button btnEdit = CreateButton("Edit");
                     Button btnDelete = CreateButton("Delete");
                     btnDelete.Visibility = Visibility.Hidden;
 
-                    if (!udtField.StrHumanReadableName.Equals("Extra Fields"))
-                    {
-                        btnEdit.IsEnabled = false;
-                        btnDelete.IsEnabled = false;
-                        btnEdit.Content = "🔒";
-                        btnEdit.ToolTip = new ToolTip().Content = "This field is required in the database and cannot be modified.";
-                        btnDelete.ToolTip = new ToolTip().Content = "This field is required in the database and cannot be modified.";
-                    }
-
                     TextBox txtBoxFieldEdit = CreateTextBox(false);
-                    txtBoxFieldEdit.Text = $"{udtField.StrHumanReadableName}";
-
+                    txtBoxFieldEdit.Text = $"{field}";
                     btnEdit.Click += (next_sender, next_e) => SetTextField(next_sender, next_e, txtBoxFieldEdit, btnDelete);
                     btnDelete.Click += (next_sender, next_e) => DeleteTextField(next_sender, next_e, sPanelTxtBoxAndBtn);
+
 
                     sPanelTxtBoxAndBtn.Children.Add(txtBoxFieldEdit);
                     sPanelTxtBoxAndBtn.Children.Add(btnEdit);
                     sPanelTxtBoxAndBtn.Children.Add(btnDelete);
 
                     sPanelFields.Children.Add(sPanelTxtBoxAndBtn);
+
                 }
             }
         }
@@ -599,21 +703,82 @@ namespace DirectorsPortalWPF.SettingsUI
             btnSaveNotificationSettings.Visibility = Visibility.Visible;
         }
 
+        /// <summary>
+        /// FindDuplicateDBData method that will find existing business name in the database from the Excel file
+        /// </summary>
+        /// <param name="business"> List of all the members read from the Excel file</param>
+        /// <returns>List that contains duplicate business information from the database.</returns>
+        private List<Business> FindDuplicateDBData(List<Members> business)
+        {
+            List<Business> DuplicateBusinesses = new List<Business>();
+
+            using (var context = new DatabaseContext())
+            {
+                for (int intCounter = 0; intCounter < business.Count; intCounter++)
+                {
+                    List<Business> Business = context.Businesses.Where(strBusinessName => strBusinessName.BusinessName.Equals(business[intCounter].gstrBusinessName)).ToList();
+
+                    if (Business.Count > 0)
+                    {
+                        DuplicateBusinesses.Add(Business[0]);
+                    }
+                }
+            }
+            return DuplicateBusinesses;
+        }
+
+
+        /// <summary>
+        /// FindDuplicateExcelData method that will find existing business name in the database from the Excel file
+        /// </summary>
+        /// <param name="business"> List of all the members read from the Excel file</param>
+        /// <returns>List that contains duplicate business information from the Excel.</returns>
+        private List<Members> FindDuplicateExcelData(List<Members> business)
+        {
+            List<Members> DuplicateBusinesses = new List<Members>();
+
+            using (var context = new DatabaseContext())
+            {
+                for (int intCounter = 0; intCounter < business.Count; intCounter++)
+                {
+                    List<Business> Business = context.Businesses.Where(strBusinessName => strBusinessName.BusinessName.Equals(business[intCounter].gstrBusinessName)).ToList();
+
+                    if (Business.Count > 0)
+                    {
+                        DuplicateBusinesses.Add(business[intCounter]);
+                    }
+                }
+            }
+            return DuplicateBusinesses;
+        }
+
+
         /// Take in a List of members to sort and import data into the database
         /// </summary>
         /// <param name="Data">List of opbject members.</param>
-        private void ImportToDatabase(List<Members> Data)
+        public void ImportToDatabase(List<Members> Data)
         {
             List<string> lstStrFailedDataImports = new List<string>();
 
             using (var context = new DatabaseContext())
             {
+
+                if (Data.Count > 0)
+                {
+                    foreach (KeyValuePair<string, string> entry in Data[0].gdctExtraFields)
+                    {
+                        Business tmpBusiness = new Business();
+                        tmpBusiness.AddField(context, entry.Key);
+                    }
+                    context.SaveChanges();
+                }
+
                 for (int intCounter = 1; intCounter < Data.Count - 1; intCounter++)
                 {
                     if (Data[intCounter].gstrBusinessName.Equals(""))
                     {
                         break;
-                    } 
+                    }
 
                     String strCityStateZip = Data[intCounter].gstrCityStateZip;
                     String strLevelData = Data[intCounter].gstrLevel;
@@ -625,15 +790,15 @@ namespace DirectorsPortalWPF.SettingsUI
                     String[] arrSplitStateZip = arrSplit[1].Split(' ');
                     String strStateData = arrSplitStateZip[1];
                     String strZipData = arrSplitStateZip[2];
-              
+
                     try
                     {
                         Address objMailingAddress = new Address()
                         {
                             StreetAddress = Data[intCounter].gstrMailingAddress,
                             City = strCityData,
-                            State = strStateData,                      
-                        };                    
+                            State = strStateData,
+                        };
 
                         Address objLocationAddress = new Address()
                         {
@@ -663,7 +828,7 @@ namespace DirectorsPortalWPF.SettingsUI
                         String[] arrLocationSplit = strLocationAddress.Split(',');
                         String[] arrLocationSplitSlash = strLocationAddress.Split('/');
                         String[] arrLocationSplitAnd = strLocationAddress.Split('&');
-                        
+
                         if (arrLocationSplit.Length == 3)
                         {
                             String[] arrStateZip = arrLocationSplit[2].Split(' ');
@@ -675,7 +840,8 @@ namespace DirectorsPortalWPF.SettingsUI
                             objLocationAddress.ZipCode = Int32.Parse(arrStateZip[2]);
                             objLocationAddress.ZipCodeExt = strZipData;
 
-                        } else if (arrLocationSplitSlash.Length > 1)
+                        }
+                        else if (arrLocationSplitSlash.Length > 1)
                         {
                             objLocationAddress.StreetAddress = arrLocationSplit[0];
                             strAdditionalNote = " - Additional Location Addresses : ";
@@ -686,7 +852,7 @@ namespace DirectorsPortalWPF.SettingsUI
                             }
                         }
 
-                        arrLocationSplit = strLocationAddress.Split('&');                        
+                        arrLocationSplit = strLocationAddress.Split('&');
 
                         if (arrLocationSplit.Length > 1)
                         {
@@ -745,6 +911,9 @@ namespace DirectorsPortalWPF.SettingsUI
                         {
                             objBusiness.MembershipLevel = MembershipLevel.COURTESY;
                         }
+                        foreach (KeyValuePair<string, string> extraField in Data[intCounter].gdctExtraFields) {
+                            objBusiness.SetField(extraField.Key, extraField.Value, context);
+                        }
 
                         context.Businesses.Add(objBusiness);
 
@@ -761,7 +930,7 @@ namespace DirectorsPortalWPF.SettingsUI
                             {
                                 ContactPerson objContactPerson = new ContactPerson()
                                 {
-                                    Name = arrLocationSplit[intCount]
+                                    Name = arrLocationSplit[intCount].Trim()
                                 };
 
                                 context.ContactPeople.Add(objContactPerson);
@@ -814,7 +983,7 @@ namespace DirectorsPortalWPF.SettingsUI
                             {
                                 ContactPerson objContactPerson = new ContactPerson()
                                 {
-                                    Name = arrLocationSplitSlash[intCount]
+                                    Name = arrLocationSplitSlash[intCount].Trim()
                                 };
 
                                 context.ContactPeople.Add(objContactPerson);
@@ -865,7 +1034,7 @@ namespace DirectorsPortalWPF.SettingsUI
 
                             ContactPerson objContactPerson = new ContactPerson()
                             {
-                                Name = Data[intCounter].gstrContactPerson
+                                Name = Data[intCounter].gstrContactPerson.Trim()
                             };
 
                             context.ContactPeople.Add(objContactPerson);
@@ -965,11 +1134,6 @@ namespace DirectorsPortalWPF.SettingsUI
                        MessageBoxImage.Information);
 
             }
-            
-
-            MessageBox.Show("Excel Data finished Importing to Database", "Excel Import Notice",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
         }
 
         /// <summary>
@@ -1058,7 +1222,7 @@ namespace DirectorsPortalWPF.SettingsUI
         /// <param name="e">The Click Event</param>
         private void btnSimulateConflict_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.Navigate(new DataConflictPage());
+            // NavigationService.Navigate(new DataConflictPage());
         }
 
     }
@@ -1068,7 +1232,7 @@ namespace DirectorsPortalWPF.SettingsUI
 /// <summary>
 /// Class Members that contains the data fields for members.
 /// </summary>
-class Members
+public class Members
 {
     public string gstrEstablished { get; }
     public string gstrLevel { get; }
@@ -1088,13 +1252,12 @@ class Members
     public string gstrNotes { get; }
     public string gstrFreeWebAd { get; }
     public string gstrBallot { get; }
-
-public Members() { }
+    public Dictionary<string, string> gdctExtraFields { get; }
 
     public Members(string strEstablished, string strLevel, string strBusinessName, string strMailingAddress,
                    string strLocationAddress, string strCityStateZip, string strContactPerson, string strPhoneNumber,
                    string strFaxNumber, string strEmailAddress, string strWebsiteAddress, string strDuesPaid, string strRaffleTicketReturnedPaid,
-                   string strCredit, string strTerms, string strNotes, string strFreeWebAd, string strBallot)
+                   string strCredit, string strTerms, string strNotes, string strFreeWebAd, string strBallot, Dictionary<string, string> extraFieldData)
     {
         this.gstrEstablished = strEstablished;
         this.gstrLevel = strLevel;
@@ -1114,5 +1277,29 @@ public Members() { }
         this.gstrNotes = strNotes;
         this.gstrFreeWebAd = strFreeWebAd;
         this.gstrBallot = strBallot;
+        this.gdctExtraFields = extraFieldData;
+    }
+
+    public Members()
+    {
+        this.gstrEstablished = "";
+        this.gstrLevel = "";
+        this.gstrBusinessName = "";
+        this.gstrMailingAddress = "";
+        this.gstrLocationAddress = "";
+        this.gstrCityStateZip = "";
+        this.gstrContactPerson = "";
+        this.gstrPhoneNumber = "";
+        this.gstrFaxNumber = "";
+        this.gstrEmailAddress = "";
+        this.gstrWebsiteAddress = "";
+        this.gstrDuesPaid = "";
+        this.gstrRaffleTicketReturnedPaid = "";
+        this.gstrCredit = "";
+        this.gstrTerms = "";
+        this.gstrNotes = "";
+        this.gstrFreeWebAd = "";
+        this.gstrBallot = "";
+        this.gdctExtraFields = new Dictionary<string, string>();
     }
 }

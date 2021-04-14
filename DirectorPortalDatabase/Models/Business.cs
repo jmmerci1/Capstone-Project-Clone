@@ -1,3 +1,4 @@
+using DirectorPortalDatabase.Utility;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -5,7 +6,7 @@ using System.Linq;
 
 namespace DirectorPortalDatabase.Models
 {
-    public class Business
+    public class Business : HasExtraFields
     {
         /// <summary>
         /// The Primary Key of the address in the database.
@@ -54,14 +55,6 @@ namespace DirectorPortalDatabase.Models
         public string ExtraNotes { get; set; }
 
         /// <summary>
-        /// Will be used as a way of adding extra fields
-        /// to the database. Designed to use a string encoded
-        /// json object with any additional fields that can
-        /// be decoded into regular C# objects.
-        /// </summary>
-        public string ExtraFields { get; set; }
-
-        /// <summary>
         /// A list of the business reps for the business.
         /// </summary>
         public virtual List<BusinessRep> BusinessReps { get; set; }
@@ -69,7 +62,7 @@ namespace DirectorPortalDatabase.Models
         /// <summary>
         /// Represents an array of buisness type categories
         /// </summary>
-        public virtual List<Categories> Categories 
+/*        public virtual List<Categories> Categories 
         {
             get
             {
@@ -78,8 +71,9 @@ namespace DirectorPortalDatabase.Models
                     return dbContext.CategoryRef.Where(x => x.BusinessId == Id).Select(b => b.Category).ToList();
                 }
             }
-        }
+        }*/
 
+        public virtual List<CategoryRef> CategoryRefs { get; set; }
         /// <summary>
         /// Represents an array of the yearly data objects
         /// </summary>

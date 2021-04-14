@@ -56,6 +56,10 @@ namespace DirectorsPortalWPF
             ToolTipService.ShowOnDisabledProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(true));
             gObjConstContact = new ConstantContact();
 
+            // Populate the categories table, only if there are no categories already there.
+            if (dbContextIntialStartup.Categories.ToList().Count() == 0)
+                Categories.ImportFile();
+
             BackupUtility backupUtility = new BackupUtility();
             backupUtility.CheckBackupNotification();
 

@@ -55,7 +55,7 @@ namespace DirectorsPortalWPF.TodoUI
 
                 TextBlock txtBoxCardClicker = new TextBlock
                 {
-                    Text = "Click to View",
+                    Text = "",
                     Margin = new Thickness(5, 0, 5, 5),
                     FontSize = 10
                 };
@@ -202,7 +202,7 @@ namespace DirectorsPortalWPF.TodoUI
 
                 TextBlock txtBoxCardClicker = new TextBlock
                 {
-                    Text = "Click to View",
+                    Text = "",
                     Margin = new Thickness(5, 0, 5, 5),
                     FontSize = 10
                 };
@@ -226,7 +226,7 @@ namespace DirectorsPortalWPF.TodoUI
         {
             HelpUI.HelpScreenWindow helpWindow = new HelpUI.HelpScreenWindow();
             helpWindow.Show();
-            helpWindow.tabs.SelectedIndex = 5;
+            helpWindow.tabs.SelectedIndex = 6;
 
         }
     }

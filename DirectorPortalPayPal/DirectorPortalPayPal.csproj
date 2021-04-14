@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,5 +12,4 @@
   <ItemGroup>
     <ProjectReference Include="..\DirectorPortalDatabase\DirectorPortalDatabase.csproj" />
   </ItemGroup>
-
 </Project>

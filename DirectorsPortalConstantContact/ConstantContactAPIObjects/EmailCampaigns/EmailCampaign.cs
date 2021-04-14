@@ -26,6 +26,7 @@ namespace DirectorsPortalConstantContact
             return objTempCampaign;
         }
 
+
         public EmailCampaignActivity AddActivity(string strFromEmail, string strFromName, string strReplayToEmail, string strSubject, string strHTMLContent)
         {
             EmailCampaignActivity objNewActivity = new EmailCampaignActivity()

@@ -18,7 +18,10 @@ namespace DirectorsPortalConstantContact
 
 
 
-
+        /// <summary>
+        /// translate to POST for use with the API
+        /// </summary>
+        /// <returns></returns>
         public POSTEmailCampaignActivity NewActivity()
         {
             POSTEmailCampaignActivity objTempActivity = new POSTEmailCampaignActivity()
@@ -37,6 +40,10 @@ namespace DirectorsPortalConstantContact
             return objTempActivity;
         }
 
+        /// <summary>
+        /// translate to PUT for use with the API
+        /// </summary>
+        /// <returns></returns>
         public PUTEmailCampaignActivity Update()
         {
             return new PUTEmailCampaignActivity()

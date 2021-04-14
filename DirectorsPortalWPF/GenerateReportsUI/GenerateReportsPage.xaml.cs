@@ -12,6 +12,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using DirectorPortalDatabase.Utility;
 using ClosedXML.Excel;
+using System.Diagnostics;
 
 namespace DirectorsPortalWPF.GenerateReportsUI
 {
@@ -20,6 +21,40 @@ namespace DirectorsPortalWPF.GenerateReportsUI
     /// </summary>
     public partial class GenerateReportsPage : Page
     {
+        /// <summary>
+        /// A holder of metadata on both a model and one of its properties.
+        /// </summary>
+        private class ClsModelAndField
+        {
+            public ClsMetadataHelper.ClsModelInfo UdtModelInfo { get; set; }
+            public ClsFieldHelper.IDataField UdtDataField { get; set; }
+            public ClsModelAndField(ClsMetadataHelper.ClsModelInfo udtModelInfo, ClsFieldHelper.IDataField udtTableField)
+            {
+                UdtModelInfo = udtModelInfo;
+                UdtDataField = udtTableField;
+            }
+
+            /// <summary>
+            /// For other ClsModelAndField instances, compares both the model info and the table field name.
+            /// For all other types, returns false.
+            /// </summary>
+            /// <param name="objOther"></param>
+            /// <returns></returns>
+            public override bool Equals(object objOther)
+            {
+                Type typeOtherType = objOther.GetType();
+                if (typeOtherType == typeof(ClsModelAndField))
+                {
+                    ClsModelAndField udtOther = (ClsModelAndField)objOther;
+                    return this.UdtDataField.StrPropertyName == udtOther.UdtDataField.StrPropertyName
+                        && this.UdtModelInfo.Equals(udtOther.UdtModelInfo);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
 
         private ClsMetadataHelper.ClsModelInfo GUdtSelectedReportType { get; set; }
         private ComboBoxItem[] GRGReportTypeItems { get; set; }
@@ -41,11 +76,11 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 int intNumberOfFields = GUdtSelectedReportType.UdtTableMetaData.IntNumberOfFields;
                 ListBoxItem[] rgFieldItems = new ListBoxItem[intNumberOfFields];
 
-                // Iterates over the fields of the selected table.
+                // Iterates over the built-in fields of the selected table.
                 for (int i = 0; i < intNumberOfFields; i++)
                 {
-                    // Stores the i-th field's information in a new ListBoxItem.
-                    ClsMetadataHelper.ClsTableField udtField = GUdtSelectedReportType.UdtTableMetaData.GetField(i);
+                    // Stores the i-th built-in field's information in a new ListBoxItem.
+                    ClsFieldHelper.IDataField udtField = GUdtSelectedReportType.UdtTableMetaData.GetField(i);
                     ListBoxItem lbiFieldItem = new ListBoxItem();
                     lbiFieldItem.Content = udtField.StrHumanReadableName;
                     lbiFieldItem.Tag = udtField;
@@ -53,23 +88,15 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                     // Stores the new ListBoxItem in the array.
                     rgFieldItems[i] = lbiFieldItem;
                 }
+
                 // Displays the table's fields in the listbox.
                 lstReportFields.ItemsSource = rgFieldItems;
             }
         }
 
-        private List<ClsMetadataHelper.ClsTableField> GetSelectedFields()
-        {
-            List<ClsMetadataHelper.ClsTableField> rgSelectedFields = new List<ClsMetadataHelper.ClsTableField>();
-            // Iterates over the selected ListBoxItem objects and extracts their ClsTableField objects.
-            foreach (ListBoxItem lbiSelectedFieldItem in lstReportFields.SelectedItems)
-            {
-                ClsMetadataHelper.ClsTableField udtField = (ClsMetadataHelper.ClsTableField)lbiSelectedFieldItem.Tag;
-                rgSelectedFields.Add(udtField);
-            }
-            return rgSelectedFields;
-        }
-
+        /// <summary>
+        /// Draws the report in the UI.
+        /// </summary>
         private void RenderReport()
         {
             // Clears the existing grid content.
@@ -77,37 +104,104 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             grdReportContent.RowDefinitions.Clear();
             grdReportContent.ColumnDefinitions.Clear();
 
+            var wbWorkbook = new XLWorkbook();
+            wbWorkbook.AddWorksheet("sheetName");
+            var wsSheet = wbWorkbook.Worksheet("sheetName");
+
+
             int intRowCount = GRGCurrentReport.Count;
+            List<int> lstColumnSize = new List<int>();
+
+            //Loop to insert data into excel file.
+            for (int i = 0; i < GRGCurrentReport.Count; i++)
+            {
+                for (int j = 0; j < GRGCurrentReport[i].Length; j++)
+                {
+                    //If value is null then skip
+                    if (GRGCurrentReport[i].GetValue(j) == null)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        //Adds first value into list
+                        if (i == 0)
+                        {
+                            int intValueSize = GRGCurrentReport[i].GetValue(j).ToString().Length;
+                            lstColumnSize.Add(intValueSize);
+                        }
+
+                        //If new value is larger than initial value then sets larger value to new value.
+                        if (lstColumnSize[j] < GRGCurrentReport[i].GetValue(j).ToString().Length)
+                        {
+                            lstColumnSize[j] = GRGCurrentReport[i].GetValue(j).ToString().Length;
+
+                        }
+                    }
+
+                }
+            }
 
             if (intRowCount > 0)
             {
                 int intColCount = GRGCurrentReport[0].Length;
 
-                for (int i = 0; i < intColCount; i++)
+/*                for (int i = 0; i < intColCount; i++)
                 {
                     grdReportContent.ColumnDefinitions.Add(new ColumnDefinition());
                 }
                 for (int i = 0; i < intRowCount; i++)
                 {
                     grdReportContent.RowDefinitions.Add(new RowDefinition());
-                }
+                }*/
                 for (int i = 0; i < intRowCount; i++)
                 {
                     for (int j = 0; j < intColCount; j++)
                     {
                         // Stores the report cell data in a TextBox, which is inserted into the Grid.
-                        TextBox txtReportCell = new TextBox();
-                        txtReportCell.IsReadOnly = true;
-                        txtReportCell.Text = GRGCurrentReport[i][j];
-                        txtReportCell.SetValue(Grid.RowProperty, i);
-                        txtReportCell.SetValue(Grid.ColumnProperty, j);
-                        grdReportContent.Children.Add(txtReportCell);
+                        /*  TextBox txtReportCell = new TextBox();
+                          txtReportCell.IsReadOnly = true;
+                          txtReportCell.Text = GRGCurrentReport[i][j];
+                          txtReportCell.SetValue(Grid.RowProperty, i);
+                          txtReportCell.SetValue(Grid.ColumnProperty, j);
+                          grdReportContent.Children.Add(txtReportCell);*/
+                        //For the first row column size is set for excel columns
+                        if (i == 0)
+                        {
+                            //Sets column size
+                            wsSheet.Cell(i + 1, j + 1).WorksheetColumn().Width = lstColumnSize[j];
+                        }
+                        wsSheet.Cell(i + 1, j + 1).Value = GRGCurrentReport[i][j];
                     }
                 }
             }
+            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\Director's Portal Report.xlsx";
+            try
+            {
+                wbWorkbook.SaveAs(strFname);
+
+                Process.Start(strFname);
+            }
+            catch (IOException ex)
+            {
+                if (ex.Message.Contains("The process cannot access the file"))
+                {
+                    MessageBox.Show("Please close the current Excel report before generating a new report", "Alert");
+                    Console.WriteLine(ex);
+                }
+                else
+                {
+                    MessageBox.Show($"An error occured when attempting to generate the report: {ex}");
+                    Console.WriteLine(ex);
+                }
+            }
+
 
         }
 
+        /// <summary>
+        /// Draws the list of report templates in the UI.
+        /// </summary>
         private void RenderReportTemplateList()
         {
             // Clears any existing grid content on the second page.
@@ -127,6 +221,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 txtTemplateName.Text = GRGReportTemplates[i].ReportTemplateName;
                 txtTemplateName.SetValue(Grid.RowProperty, i);
                 txtTemplateName.SetValue(Grid.ColumnProperty, 0);
+                txtTemplateName.Margin = new Thickness(0, 5, 5, 5);
                 grdReportTemplateList.Children.Add(txtTemplateName);
 
                 // Creates a button to view the report.
@@ -136,6 +231,8 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 btnViewReport.Click += ViewReportButtonHandler;
                 btnViewReport.SetValue(Grid.RowProperty, i);
                 btnViewReport.SetValue(Grid.ColumnProperty, 1);
+                btnViewReport.Margin = new Thickness(0, 5, 5, 5);
+                btnViewReport.Template = (ControlTemplate)Application.Current.Resources["smallButton"];
                 grdReportTemplateList.Children.Add(btnViewReport);
 
                 // Creates a button to export the report to Excel.
@@ -145,6 +242,8 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 btnExportToExcel.Click += ExportToExcelButtonHandler;
                 btnExportToExcel.SetValue(Grid.RowProperty, i);
                 btnExportToExcel.SetValue(Grid.ColumnProperty, 2);
+                btnExportToExcel.Margin = new Thickness(0, 5, 5, 5);
+                btnExportToExcel.Template = (ControlTemplate)Application.Current.Resources["smallButton"];
                 grdReportTemplateList.Children.Add(btnExportToExcel);
 
                 // Creates a button to delete the report template.
@@ -154,10 +253,15 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 btnDeleteReport.Click += DeleteReportButtonHandler;
                 btnDeleteReport.SetValue(Grid.RowProperty, i);
                 btnDeleteReport.SetValue(Grid.ColumnProperty, 3);
+                btnDeleteReport.Margin = new Thickness(0, 5, 5, 5);
+                btnDeleteReport.Template = (ControlTemplate)Application.Current.Resources["smallButton"];
                 grdReportTemplateList.Children.Add(btnDeleteReport);
             }
         }
 
+        /// <summary>
+        /// Gets the list of report templates from the database.
+        /// </summary>
         private void GetReportTemplateList()
         {
             using (DirectorPortalDatabase.DatabaseContext dbContext = new DirectorPortalDatabase.DatabaseContext())
@@ -183,40 +287,85 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             return rgReportFields;
         }
 
+        /// <summary>
+        /// Generates the report itself.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void GenerateReportButtonHandler(object sender, EventArgs e)
         {
-            if (GUdtSelectedReportType != null)
+            if (lstIncludedReportFields.Items.Count > 0)
             {
+                List<ClsModelAndField> rgReportColumns = new List<ClsModelAndField>();
+                foreach (ListBoxItem lbiIncludedItem in lstIncludedReportFields.Items)
+                {
+                    ClsModelAndField udtModelAndField = (ClsModelAndField)lbiIncludedItem.Tag;
+                    rgReportColumns.Add(udtModelAndField);
+                }
+
+                // TODO: Start new thread here.
+                // ------------------------------------------------------------------------------
+
                 // The report is a list of rows, each in the form of a string array.
                 List<string[]> rgReport = new List<string[]>();
 
-                List<ClsMetadataHelper.ClsTableField> rgSelectedFields = GetSelectedFields();
-
-                string[] rgFieldNames = rgSelectedFields.Select(x => x.StrHumanReadableName).ToArray();
-
-                // The first row consists of the names of all included fields.
-                rgReport.Add(rgFieldNames);
-
-                using (DirectorPortalDatabase.DatabaseContext dbContext = new DirectorPortalDatabase.DatabaseContext())
+                // The first row of the report will contain the names of the fields (with their table names).
+                string[] rgReportHead = new string[rgReportColumns.Count];
+                for (int intLoop = 0; intLoop < rgReportColumns.Count; intLoop++)
                 {
-                    // Queries for all instances of the specified model.
-                    object[] udtModels = GUdtSelectedReportType.GetContextDbSet(dbContext).Cast<object>().ToArray();
+                    rgReportHead[intLoop] = rgReportColumns[intLoop].UdtModelInfo.StrHumanReadableName
+                        + ": " + rgReportColumns[intLoop].UdtDataField.StrHumanReadableName;
+                }
 
-                    foreach (object objRecord in udtModels)
+                rgReport.Add(rgReportHead);
+
+                // Makes a list of tables to be included in the report.
+                List<ClsJoinHelper.EnumTable> rgTables = new List<ClsJoinHelper.EnumTable>();
+                foreach (ClsModelAndField udtModelAndField in rgReportColumns)
+                {
+                    // Gets the model type.
+                    Type typeModelType = udtModelAndField.UdtModelInfo.TypeModelType;
+
+                    // Stores the corresponding EnumTable in the list if it isn't already there.
+                    ClsJoinHelper.EnumTable enumTable = ClsMetadataHelper.GetEnumTable(typeModelType);
+                    if (!rgTables.Contains(enumTable))
                     {
-                        string[] rgReportRow = new string[rgSelectedFields.Count];
+                        rgTables.Add(enumTable);
+                    }
+                }
 
-                        for (int i = 0; i < rgSelectedFields.Count; i++)
+                ClsJoinHelper.ClsJoinResult udtJoinResult;
+                ClsJoinResultRecord[] rgQueryResults;
+
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    // Performs all the querying to get the requested data.
+                    udtJoinResult = new ClsJoinHelper.ClsJoinResult(dbContext, rgTables);
+                    rgQueryResults = udtJoinResult.RGRecords;
+
+                    // Iterates over the result records.
+                    for (int intLoop = 0; intLoop < rgQueryResults.Length; intLoop++)
+                    {
+                        // Creates an array for this record.
+                        string[] rgReportRow = new string[rgReportColumns.Count];
+
+                        ClsJoinResultRecord udtRecord = rgQueryResults[intLoop];
+
+                        for (int intFieldIndex = 0; intFieldIndex < rgReportColumns.Count; intFieldIndex++)
                         {
-                            // Gets the value of the selected field in the current record.
-                            ClsMetadataHelper.ClsTableField udtSelectedField = rgSelectedFields[i];
-                            object objFieldValue = udtSelectedField.GetValue(objRecord);
+                            ClsModelAndField udtModelAndField = rgReportColumns[intFieldIndex];
 
-                            // Stores a string in the report row representing the value just obtained.
-                            string strReportCell = objFieldValue?.ToString() ?? "";
-                            rgReportRow[i] = strReportCell;
+                            // Gets the correct model from the record.
+                            object objModel = udtRecord.GetObjectByType(udtModelAndField.UdtModelInfo.TypeModelType);
+
+                            // Gets the value of the desired field.
+                            object objValue = udtModelAndField.UdtDataField.GetValue(objModel);
+
+                            // Stores the value in the report row (as a string).
+                            rgReportRow[intFieldIndex] = objValue?.ToString() ?? "";
                         }
 
+                        // Adds the array to the report.
                         rgReport.Add(rgReportRow);
                     }
                 }
@@ -242,13 +391,18 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         {
             HelpUI.HelpScreenWindow helpWindow = new HelpUI.HelpScreenWindow();
             helpWindow.Show();
-            helpWindow.tabs.SelectedIndex = 3;
+            helpWindow.tabs.SelectedIndex = 4;
 
         }
 
+        /// <summary>
+        /// Switches to the form in which the new template name is input.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void SaveReportTypeButtonHandler(object sender, EventArgs e)
         {
-            if (GUdtSelectedReportType != null)
+            if (lstIncludedReportFields.Items.Count > 0)
             {
                 // Switches to the template name input form.
                 tbcMainControl.Visibility = Visibility.Collapsed;
@@ -256,89 +410,57 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             }
         }
 
+        /// <summary>
+        /// Adds all of a report templates field's to the list of included fields.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void ViewReportButtonHandler(object sender, EventArgs e)
         {
+
+            // Clears out all existing ListBoxItems in the ListBox of included report items.
+            lstIncludedReportFields.Items.Clear();
+
             // Gets the report template instance from the button.
             Button btnSender = (Button)sender;
             ReportTemplate udtReportTemplate = (ReportTemplate)btnSender.Tag;
 
-            GUdtSelectedReportType = null;
+            // Gets all fields included in this report.
+            List<ReportField> rgReportFields = GetReportTemplateFields(udtReportTemplate);
 
-            // Searches for the combo box item with a matching table model.
-            for (int i = 0; i < GRGReportTypeItems.Length; i++)
+            foreach (ReportField udtReportField in rgReportFields)
             {
-                ComboBoxItem cbiReportTypeItem = GRGReportTypeItems[i];
+                // Gets the model information and class property metadata for this report item.
+                ClsMetadataHelper.ClsModelInfo udtModelInfo = ClsMetadataHelper.GetModelInfoByName(udtReportField.ModelName);
 
-                // Gets the model information from the ComboBoxItem.
-                ClsMetadataHelper.ClsModelInfo udtModelInfo = (ClsMetadataHelper.ClsModelInfo)cbiReportTypeItem.Tag;
-
-                // Checks for matching model names.
-                if (udtModelInfo.TypeModelType.Name == udtReportTemplate.ModelName)
+                // Searches for a property with a matching name.
+                for (int intLoop = 0; intLoop < udtModelInfo.UdtTableMetaData.IntNumberOfFields; intLoop++)
                 {
-
-                    // Sets this ComboBoxItem as active.
-                    cbiReportTypeItem.IsSelected = true;
-                    cboReportType.SelectedIndex = i;
-                    cboReportType.SelectedItem = cbiReportTypeItem;
-
-                    // Manually calls the ComboBox event handler to fill the ListBox with the appropriate fields.
-                    ReportTypeSelectedHandler(null, null);
-
-                    // Gets the fields belonging to the selected report template.
-                    List<ReportField> rgReportTemplateFields = GetReportTemplateFields(udtReportTemplate);
-
-                    // Iterates over the fields in the ListBox.
-                    foreach (ListBoxItem lbiFieldItem in lstReportFields.Items)
+                    ClsFieldHelper.IDataField udtTableField = udtModelInfo.UdtTableMetaData.GetField(intLoop);
+                    if (udtTableField.StrPropertyName == udtReportField.ModelPropertyName)
                     {
-                        // Iterates over the fields in the report template.
-                        foreach (ReportField udtReportTemplateField in rgReportTemplateFields)
-                        {
+                        // Creates a ListBoxItem to store this report item.
+                        ClsModelAndField udtModelAndField = new ClsModelAndField(udtModelInfo, udtTableField);
+                        ListBoxItem lbiReportItem = new ListBoxItem();
+                        lbiReportItem.Content = udtModelInfo.StrHumanReadableName + ": " + udtTableField.StrHumanReadableName;
+                        lbiReportItem.Tag = udtModelAndField;
 
-                            ClsMetadataHelper.ClsTableField udtTableField
-                                = (ClsMetadataHelper.ClsTableField)lbiFieldItem.Tag;
+                        // Adds the ListBoxItem to the ListBox.
+                        lstIncludedReportFields.Items.Add(lbiReportItem);
 
-                            // Checks for a match.
-                            if (udtReportTemplateField.ModelPropertyName == udtTableField.StrPropertyName)
-                            {
-                                // Selects the ListBoxItem.
-                                lbiFieldItem.IsSelected = true;
-                                lstReportFields.SelectedItems.Add(lbiFieldItem);
-                                break;
-                            }
-                        }
+                        break;
                     }
-
-                    // Manually calls the event handler to generate the report.
-                    GenerateReportButtonHandler(null, null);
-
-                    tbiGenerateReports.IsSelected = true;
-
-                    break;
                 }
             }
 
-            //for (int i = 0; i < ClsMetadataHelper.IntNumberOfModels; i++)
-            //{
-            //    Type typeModelType = ClsMetadataHelper.GetModelTypeByIndex(i);
-
-            //    if (typeModelType.Name == udtReportTemplate.GStrModelName)
-            //    {
-            //        GUdtSelectedReportType = ClsMetadataHelper.GetModelInfo(typeModelType);
-            //        break;
-            //    }
-            //}
-
-            //if (GUdtSelectedReportType != null)
-            //{
-            //    cboReportType.SelectedItem = cboReportType.Items
-            //}
+            tbiGenerateReports.IsSelected = true;
         }
 
         /// <summary>
         /// Gathers the selected data from the database, then allows the user to select where and what to name the 
         /// excel file. 
         /// </summary>
-        /// <param name="sender">The 'Exoirt to Excel' Button</param>
+        /// <param name="sender">The 'Export to Excel' Button</param>
         /// <param name="e">The Click Event</param>
         public void ExportToExcelButtonHandler(object sender, EventArgs e)
         {
@@ -346,83 +468,188 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             var wbWorkbook = new XLWorkbook();
             wbWorkbook.AddWorksheet("sheetName");
             var wsSheet = wbWorkbook.Worksheet("sheetName");
-
             //String for save file path
             String strfilepath = " ";
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            // Clears out all existing ListBoxItems in the ListBox of included report items.
+            lstIncludedReportFields.Items.Clear();
+
             // Gets the report template instance from the button.
             Button btnSender = (Button)sender;
             ReportTemplate udtReportTemplate = (ReportTemplate)btnSender.Tag;
 
-            GUdtSelectedReportType = null;
+            // Gets all fields included in this report.
+            List<ReportField> rgReportFields = GetReportTemplateFields(udtReportTemplate);
 
-            // Searches for the combo box item with a matching table model.
-            for (int i = 0; i < GRGReportTypeItems.Length; i++)
+            foreach (ReportField udtReportField in rgReportFields)
             {
-                ComboBoxItem cbiReportTypeItem = GRGReportTypeItems[i];
+                // Gets the model information and class property metadata for this report item.
+                ClsMetadataHelper.ClsModelInfo udtModelInfo = ClsMetadataHelper.GetModelInfoByName(udtReportField.ModelName);
 
-                // Gets the model information from the ComboBoxItem.
-                ClsMetadataHelper.ClsModelInfo udtModelInfo = (ClsMetadataHelper.ClsModelInfo)cbiReportTypeItem.Tag;
-
-                // Checks for matching model names.
-                if (udtModelInfo.TypeModelType.Name == udtReportTemplate.ModelName)
+                // Searches for a property with a matching name.
+                for (int intLoop = 0; intLoop < udtModelInfo.UdtTableMetaData.IntNumberOfFields; intLoop++)
                 {
-
-                    // Sets this ComboBoxItem as active.
-                    cbiReportTypeItem.IsSelected = true;
-                    cboReportType.SelectedIndex = i;
-                    cboReportType.SelectedItem = cbiReportTypeItem;
-
-                    // Manually calls the ComboBox event handler to fill the ListBox with the appropriate fields.
-                    ReportTypeSelectedHandler(null, null);
-
-                    // Gets the fields belonging to the selected report template.
-                    List<ReportField> rgReportTemplateFields = GetReportTemplateFields(udtReportTemplate);
-
-                    // Iterates over the fields in the ListBox.
-                    foreach (ListBoxItem lbiFieldItem in lstReportFields.Items)
+                    ClsFieldHelper.IDataField udtTableField = udtModelInfo.UdtTableMetaData.GetField(intLoop);
+                    if (udtTableField.StrPropertyName == udtReportField.ModelPropertyName)
                     {
-                        // Iterates over the fields in the report template.
-                        foreach (ReportField udtReportTemplateField in rgReportTemplateFields)
-                        {
+                        // Creates a ListBoxItem to store this report item.
+                        ClsModelAndField udtModelAndField = new ClsModelAndField(udtModelInfo, udtTableField);
+                        ListBoxItem lbiReportItem = new ListBoxItem();
+                        lbiReportItem.Content = udtModelInfo.StrHumanReadableName + ": " + udtTableField.StrHumanReadableName;
+                        lbiReportItem.Tag = udtModelAndField;
 
-                            ClsMetadataHelper.ClsTableField udtTableField
-                                = (ClsMetadataHelper.ClsTableField)lbiFieldItem.Tag;
+                        // Adds the ListBoxItem to the ListBox.
+                        lstIncludedReportFields.Items.Add(lbiReportItem);
 
-                            // Checks for a match.
-                            if (udtReportTemplateField.ModelPropertyName == udtTableField.StrPropertyName)
-                            {
-                                // Selects the ListBoxItem.
-                                lbiFieldItem.IsSelected = true;
-                                lstReportFields.SelectedItems.Add(lbiFieldItem);
-                                break;
-                            }
-                        }
+                        break;
                     }
-
-                    //Key to turn off Render report
-                    intKeyForExport = 1;
-
-                    // Manually calls the event handler to generate the report.
-                    GenerateReportButtonHandler(null, null);
-
-
-
-                    break;
                 }
+            }
+
+            if (lstIncludedReportFields.Items.Count > 0)
+            {
+                List<ClsModelAndField> rgReportColumns = new List<ClsModelAndField>();
+                foreach (ListBoxItem lbiIncludedItem in lstIncludedReportFields.Items)
+                {
+                    ClsModelAndField udtModelAndField = (ClsModelAndField)lbiIncludedItem.Tag;
+                    rgReportColumns.Add(udtModelAndField);
+                }
+
+                // TODO: Start new thread here.
+                // ------------------------------------------------------------------------------
+
+                // The report is a list of rows, each in the form of a string array.
+                List<string[]> rgReport = new List<string[]>();
+
+                // The first row of the report will contain the names of the fields (with their table names).
+                string[] rgReportHead = new string[rgReportColumns.Count];
+                for (int intLoop = 0; intLoop < rgReportColumns.Count; intLoop++)
+                {
+                    rgReportHead[intLoop] = rgReportColumns[intLoop].UdtModelInfo.StrHumanReadableName
+                        + ": " + rgReportColumns[intLoop].UdtDataField.StrHumanReadableName;
+                }
+
+                rgReport.Add(rgReportHead);
+
+                // Makes a list of tables to be included in the report.
+                List<ClsJoinHelper.EnumTable> rgTables = new List<ClsJoinHelper.EnumTable>();
+                foreach (ClsModelAndField udtModelAndField in rgReportColumns)
+                {
+                    // Gets the model type.
+                    Type typeModelType = udtModelAndField.UdtModelInfo.TypeModelType;
+
+                    // Stores the corresponding EnumTable in the list if it isn't already there.
+                    ClsJoinHelper.EnumTable enumTable = ClsMetadataHelper.GetEnumTable(typeModelType);
+                    if (!rgTables.Contains(enumTable))
+                    {
+                        rgTables.Add(enumTable);
+                    }
+                }
+
+                ClsJoinHelper.ClsJoinResult udtJoinResult;
+                ClsJoinResultRecord[] rgQueryResults;
+
+                using (DatabaseContext dbContext = new DatabaseContext())
+                {
+                    // Performs all the querying to get the requested data.
+                    udtJoinResult = new ClsJoinHelper.ClsJoinResult(dbContext, rgTables);
+                    rgQueryResults = udtJoinResult.RGRecords;
+
+                    // Iterates over the result records.
+                    for (int intLoop = 0; intLoop < rgQueryResults.Length; intLoop++)
+                    {
+                        // Creates an array for this record.
+                        string[] rgReportRow = new string[rgQueryResults.Length];
+
+                        ClsJoinResultRecord udtRecord = rgQueryResults[intLoop];
+
+                        for (int intFieldIndex = 0; intFieldIndex < rgReportColumns.Count; intFieldIndex++)
+                        {
+                            ClsModelAndField udtModelAndField = rgReportColumns[intFieldIndex];
+
+                            // Gets the correct model from the record.
+                            object objModel = udtRecord.GetObjectByType(udtModelAndField.UdtModelInfo.TypeModelType);
+
+                            // Gets the value of the desired field.
+                            object objValue = udtModelAndField.UdtDataField.GetValue(objModel);
+
+                            // Stores the value in the report row (as a string).
+                            rgReportRow[intFieldIndex] = objValue?.ToString() ?? "";
+                        }
+
+                        // Adds the array to the report.
+                        rgReport.Add(rgReportRow);
+                    }
+                }
+
+                GRGCurrentReport = rgReport;
+
+
 
 
             }
+            List<int> lstColumnSize = new List<int>();
 
             //Loop to insert data into excel file.
             for (int i = 0; i < GRGCurrentReport.Count; i++)
             {
                 for (int j = 0; j < GRGCurrentReport[i].Length; j++)
                 {
-                    wsSheet.Cell(i + 1, j + 1).Value = GRGCurrentReport[i].GetValue(j).ToString();
+                    //If value is null then skip
+                    if (GRGCurrentReport[i].GetValue(j) == null)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        //Adds first value into list
+                        if (i == 0)
+                        {
+                            int intValueSize = GRGCurrentReport[i].GetValue(j).ToString().Length;
+                            lstColumnSize.Add(intValueSize);
+                        }
+
+                        //If new value is larger than initial value then sets larger value to new value.
+                        if (lstColumnSize[j] < GRGCurrentReport[i].GetValue(j).ToString().Length)
+                        {
+                            lstColumnSize[j] = GRGCurrentReport[i].GetValue(j).ToString().Length;
+
+                        }
+                    }
+
                 }
             }
+
+
+
+            //Loop to insert data into excel file.
+            for (int i = 0; i < GRGCurrentReport.Count; i++)
+            {
+                for (int j = 0; j < GRGCurrentReport[i].Length; j++)
+                {
+                    //If the report value is null then skip
+                    if (GRGCurrentReport[i].GetValue(j) == null)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        //For the first row column size is set for excel columns
+                        if (i == 0)
+                        {
+                            //Sets column size
+                            wsSheet.Cell(i + 1, j + 1).WorksheetColumn().Width = lstColumnSize[j];
+                        }
+
+                        //Write report value to excel cell
+                        wsSheet.Cell(i + 1, j + 1).Value = GRGCurrentReport[i].GetValue(j).ToString();
+                    }
+
+                }
+            }
+
 
             //Open save file dialog for saving data
             if (saveFileDialog.ShowDialog() == true)
@@ -430,12 +657,22 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
             //Saving the workbook in the selected path
             wbWorkbook.SaveAs(strfilepath + ".xlsx");
-
-            //Returns key to activate RenderReport Method
-            intKeyForExport = 0;
-
+            try
+            {
+                System.Diagnostics.Process.Start(strfilepath + ".xlsx");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            lstIncludedReportFields.Items.Clear();
         }
 
+        /// <summary>
+        /// Deletes a report template from the database.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void DeleteReportButtonHandler(object sender, EventArgs e)
         {
             // Gets the report template from the button.
@@ -460,6 +697,9 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         public GenerateReportsPage()
         {
             InitializeComponent();
+
+            // Updates the model info dictionary to account for changes in extra fields.
+            ClsMetadataHelper.RefreshModelInfo();
 
             GRGCurrentReport = new List<string[]>();
             GRGReportTypeItems = new ComboBoxItem[ClsMetadataHelper.IntNumberOfModels];
@@ -502,7 +742,6 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 // Creates a model instance to represent the report template.
                 ReportTemplate udtTemplate = new ReportTemplate
                 {
-                    ModelName = GUdtSelectedReportType.TypeModelType.Name,
                     ReportTemplateName = strNewTemplateName
                 };
 
@@ -513,14 +752,15 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                     dbContext.SaveChanges();
 
                     // Creates a model instance for each field in the template.
-                    List<ClsMetadataHelper.ClsTableField> rgSelectedFields = GetSelectedFields();
-                    foreach (ClsMetadataHelper.ClsTableField udtField in rgSelectedFields)
+                    foreach (ListBoxItem lbiIncludedItem in lstIncludedReportFields.Items)
                     {
+                        ClsModelAndField udtModelAndField = (ClsModelAndField)lbiIncludedItem.Tag;
                         ReportField udtReportField = new ReportField
                         {
                             // This ID links to the template record.
                             TemplateId = udtTemplate.Id,
-                            ModelPropertyName = udtField.StrPropertyName
+                            ModelName = udtModelAndField.UdtModelInfo.TypeModelType.Name,
+                            ModelPropertyName = udtModelAndField.UdtDataField.StrPropertyName
                         };
 
                         dbContext.ReportFields.Add(udtReportField);
@@ -551,6 +791,79 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
             txtReportTemplateName.Text = "";
         }
+
+        /// <summary>
+        /// Called when a user clicks on a report field in the left list box.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LstReportFields_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Only does anything if an item was selected, rather than unselected.
+            if (lstReportFields.SelectedItem != null)
+            {
+                // Extracts the field from the selected listbox item.
+                ListBoxItem lbiSelectedItem = (ListBoxItem)lstReportFields.SelectedItem;
+                ClsFieldHelper.IDataField udtField = (ClsFieldHelper.IDataField)lbiSelectedItem.Tag;
+
+                // Creates an object to identify this report item.
+                ClsModelAndField udtModelAndField = new ClsModelAndField(GUdtSelectedReportType, udtField);
+
+                bool blnFound = false;
+                // Iterates over the listbox items to see if this report item is already in the list.
+                foreach (ListBoxItem lbiReportItemHolder in lstIncludedReportFields.Items)
+                {
+                    // Gets the report item from the listbox item.
+                    ClsModelAndField udtOtherModelAndField = (ClsModelAndField)lbiReportItemHolder.Tag;
+                    // Compares this with the item to be added.
+                    if (udtModelAndField.Equals(udtOtherModelAndField))
+                    {
+                        blnFound = true;
+                        break;
+                    }
+                }
+
+                if (!blnFound)
+                {
+                    // Creates a new listbox item for the other listbox.
+                    ListBoxItem lbiSelectedReportField = new ListBoxItem();
+                    lbiSelectedReportField.Content = GUdtSelectedReportType.StrHumanReadableName + ": " + udtField.StrHumanReadableName;
+
+                    // Stores both the current model and field metadata in the listbox item.
+                    lbiSelectedReportField.Tag = new ClsModelAndField(GUdtSelectedReportType, udtField);
+
+                    lstIncludedReportFields.Items.Add(lbiSelectedReportField);
+                }
+
+                lstReportFields.UnselectAll();
+            }
+        }
+
+        /// <summary>
+        /// Clears all included fields.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnClearFields_Click(object sender, RoutedEventArgs e)
+        {
+            lstIncludedReportFields.Items.Clear();
+        }
+
+        /// <summary>
+        /// Clears only the included fields that are selected.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnClearSelectedFields_Click(object sender, RoutedEventArgs e)
+        {
+            while (lstIncludedReportFields.SelectedItems.Count > 0)
+            {
+                ListBoxItem lbiSelectedItem = (ListBoxItem)lstIncludedReportFields.SelectedItems[0];
+                lstIncludedReportFields.Items.Remove(lbiSelectedItem);
+            }
+        }
+
+
     }
 
 }
