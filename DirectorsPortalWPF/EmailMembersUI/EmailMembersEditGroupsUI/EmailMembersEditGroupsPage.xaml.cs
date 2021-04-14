@@ -218,11 +218,15 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
             lstPopup.Items.Clear();
             string strSearchTerm = txtAddGroupMembers.Text;
             Boolean boolExistsInGroup = false;
+            List<BusinessRep> rgBusinessRepsWithValidEmails = null;
 
             popSearch.IsOpen = true;
             using (var context = new DatabaseContext())
             {
-                List<Business> queryBusinesses = context.Businesses.Where(
+                List<Business> queryBusinesses = context.Businesses.Include(x => x.BusinessReps)
+                    .ThenInclude(y => y.ContactPerson)
+                    .ThenInclude(z => z.Emails)
+                    .Where(
                     b => b.BusinessName.ToLower().Contains(strSearchTerm.ToLower())
                 ).ToList();
                 foreach (Business business in queryBusinesses)
@@ -234,8 +238,21 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
                             boolExistsInGroup = true;
                             break;
                         }
-                    if (!boolExistsInGroup)
-                        lstPopup.Items.Add(business);
+                    if (!boolExistsInGroup)     // If the business is not already selected...
+                    {
+                        try
+                        {
+                            rgBusinessRepsWithValidEmails = business.BusinessReps
+                                .FindAll(x => x.ContactPerson?.Emails?.Count() > 0)                                             // Chech there are email addresses under a business
+                                .FindAll(z => z.ContactPerson?.Emails?.FindAll(l => !l.EmailAddress.Equals("")).Count() > 0);   // Make sure the emails are not empty strings
+                            if (rgBusinessRepsWithValidEmails != null & rgBusinessRepsWithValidEmails.Count() > 0)
+                                lstPopup.Items.Add(business);
+                        }
+                        catch (NullReferenceException ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
+                    }
                 }
             }
         }
