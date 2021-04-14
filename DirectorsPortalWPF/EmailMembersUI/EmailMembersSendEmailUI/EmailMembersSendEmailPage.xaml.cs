@@ -2,6 +2,7 @@ using DirectorPortalDatabase;
 using DirectorPortalDatabase.Models;
 using DirectorsPortal;
 using DirectorsPortalWPF.EmailMembersUI;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -336,6 +337,7 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
             lstPopup.Items.Clear();
             string strToField = txtToField.Text;
             string strSearchTerm;
+            List<BusinessRep> rgBusinessRepsWithValidEmails = null;
             if (strToField.Contains(";"))
                 strSearchTerm = strToField.Substring(strToField.LastIndexOf(";")+1).Trim();
             else
@@ -344,11 +346,28 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
             popSearch.IsOpen = true;
             using (var context = new DatabaseContext())
             {
-                List<Business> queryBusinesses = context.Businesses.Where(
+                List<Business> queryBusinesses = context.Businesses.Include(x => x.BusinessReps)
+                    .ThenInclude(y => y.ContactPerson)
+                    .ThenInclude(z => z.Emails)
+                    .Where(
                     b => b.BusinessName.ToLower().Contains(strSearchTerm.ToLower())
                 ).ToList();
                 foreach (Business business in queryBusinesses)
-                    lstPopup.Items.Add(business);
+                {
+                    try
+                    {
+                        rgBusinessRepsWithValidEmails = business.BusinessReps
+                            .FindAll(x => x.ContactPerson?.Emails?.Count() > 0)                                             // Chech there are email addresses under a business
+                            .FindAll(z => z.ContactPerson?.Emails?.FindAll(l => !l.EmailAddress.Equals("")).Count() > 0);   // Make sure the emails are not empty strings
+                        if (rgBusinessRepsWithValidEmails != null & rgBusinessRepsWithValidEmails.Count() > 0)
+                            lstPopup.Items.Add(business);
+                    }
+                    catch (NullReferenceException ex)       // In case any of the references in the query are null, throw this exception and continue
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                }
+
             }
         }
 
