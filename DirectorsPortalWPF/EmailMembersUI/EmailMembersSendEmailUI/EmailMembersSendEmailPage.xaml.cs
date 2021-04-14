@@ -86,6 +86,7 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
                     LblAttachmentCount.Content = "";
                     emailGroups.Clear();
                     txtToField.Clear();
+                    popSearch.IsOpen = false;
                     txtSubject.Clear();
                     rtbEmailBody.Document.Blocks.Clear();
                     gStrAttachedFilePath.Clear();
@@ -109,6 +110,7 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
                     Console.WriteLine("Oops", ex.Message);
                 }
             }
+            
         }
         /// <summary>
         /// empty method for use later 
@@ -321,6 +323,90 @@ namespace DirectorsPortalWPF.EmailMembersSendEmailUI
             }
 
             return blnAllValid;
+        }
+
+        /// <summary>
+        /// Gets called when user types in To textbox.
+        /// Querys the database for data matching entered text
+        /// </summary>
+        /// <param name="sender">The To textbox object that has called the function.</param>
+        /// <param name="e">The text changed event</param>
+        private void SearchDatabase(object sender, TextChangedEventArgs e)
+        {
+            lstPopup.Items.Clear();
+            string strToField = txtToField.Text;
+            string strSearchTerm;
+            if (strToField.Contains(";"))
+                strSearchTerm = strToField.Substring(strToField.LastIndexOf(";")+1).Trim();
+            else
+                strSearchTerm = strToField.Trim();
+
+            popSearch.IsOpen = true;
+            using (var context = new DatabaseContext())
+            {
+                List<Business> queryBusinesses = context.Businesses.Where(
+                    b => b.BusinessName.ToLower().Contains(strSearchTerm.ToLower())
+                ).ToList();
+                foreach (Business business in queryBusinesses)
+                    lstPopup.Items.Add(business);
+            }
+        }
+
+        /// <summary>
+        /// Gets called when user clicks away from To textbox.
+        /// Hides the popup used to display search results
+        /// </summary>
+        /// <param name="sender">The To textbox object that has called the function.</param>
+        /// <param name="e">The lost focus event</param>
+        private void HideSearch(object sender, RoutedEventArgs e)
+        {
+            popSearch.IsOpen = false;
+        }
+
+        /// <summary>
+        /// Gets called when user selects an item from the popup.
+        /// Displays the item in the group members list box
+        /// </summary>
+        /// <param name="sender">The popup object that has called the function.</param>
+        /// <param name="e">The selection changed event</param>
+        private void AddRecipient(object sender, SelectionChangedEventArgs e)
+        {
+            if (lstPopup.SelectedIndex >= 0)
+            {
+                Business selectedBusiness = (Business)lstPopup.SelectedItem;
+                string strToField = txtToField.Text;
+                string strNewToEmails = "";
+
+                using (var context = new DatabaseContext())
+                {
+                    List<BusinessRep> queryBr = context.BusinessReps.Where(
+                            br => br.BusinessId.Equals(selectedBusiness.Id)
+                            ).ToList();
+                    foreach (BusinessRep br in queryBr)
+                    {
+                        List<Email> queryEmail = context.Emails.Where(
+                            email => email.ContactPersonId.Equals(br.ContactPersonId)
+                            ).ToList();
+                        foreach (Email email in queryEmail)
+                        {
+                            if (!strNewToEmails.Contains(email.EmailAddress) && !strToField.Contains(email.EmailAddress))
+                            {
+                                strNewToEmails += email.EmailAddress + "; ";
+                            }
+                        }
+                    }
+                }
+
+                
+                if (strToField.Contains(";"))
+                    strToField = strToField.Substring(0, strToField.LastIndexOf(";") + 2); // +2 to account for space after ;
+                else
+                    strToField = "";
+                strToField += strNewToEmails;
+
+                txtToField.Text = strToField;
+                popSearch.IsOpen = false;
+            }
         }
     }
 }

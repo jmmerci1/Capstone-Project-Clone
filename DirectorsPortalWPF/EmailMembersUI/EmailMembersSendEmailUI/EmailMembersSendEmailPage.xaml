@@ -55,7 +55,10 @@
         </Grid>
 
         <Label Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Content="To:" Margin="10,0,0,0" />
-        <TextBox x:Name="txtToField" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="0,10,10,10" Height="25" />
+        <TextBox x:Name="txtToField" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="0,10,10,10" Height="25" TextChanged="SearchDatabase" LostFocus="HideSearch" />
+        <Popup x:Name="popSearch" PlacementTarget = "{Binding ElementName=txtToField}">
+            <ListBox x:Name="lstPopup" SelectionChanged="AddRecipient" DisplayMemberPath="BusinessName"/>
+        </Popup>
         <Label Grid.Row="2" HorizontalAlignment="Right" Content="Subject:" VerticalAlignment="Center" Margin="10,0,0,0" />
         <TextBox x:Name="txtSubject" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="0,10,10,10" Height="25" />
         
