@@ -863,6 +863,40 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             }
         }
 
+        /// <summary>
+        /// Moves selected item within the "Included Report Fields" listbox up
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnReorderUp_Click(object sender, RoutedEventArgs e)
+        {
+            if(lstIncludedReportFields.SelectedIndex > 0)
+            {
+                int index = lstIncludedReportFields.SelectedIndex;
+                object item = lstIncludedReportFields.SelectedItem;
+                lstIncludedReportFields.Items.RemoveAt(lstIncludedReportFields.SelectedIndex);
+                lstIncludedReportFields.Items.Insert(index - 1, item);
+                lstIncludedReportFields.SelectedIndex = index - 1;
+            }
+        }
+
+        /// <summary>
+        /// Moves selected item within the "Included Report Fields" listbox down
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnReorderDown_Click(object sender, RoutedEventArgs e)
+        {
+            if (lstIncludedReportFields.SelectedIndex < lstIncludedReportFields.Items.Count - 1 && lstIncludedReportFields.SelectedIndex != -1)
+            {
+                int index = lstIncludedReportFields.SelectedIndex;
+                object item = lstIncludedReportFields.SelectedItem;
+                lstIncludedReportFields.Items.RemoveAt(lstIncludedReportFields.SelectedIndex);
+                lstIncludedReportFields.Items.Insert(index + 1, item);
+                lstIncludedReportFields.SelectedIndex = index + 1;
+            }
+        }
+
 
     }
 
