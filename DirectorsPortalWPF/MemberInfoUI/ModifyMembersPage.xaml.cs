@@ -1245,7 +1245,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             }
 
             Regex regexEmail = new Regex(@"\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b");
-            Regex regexPhoneNumber = new Regex(@"^[2-9]\d{2}-\d{3}-\d{4}$");
+            Regex regexPhoneNumber = new Regex(@"^[0-9]\d{2}-\d{3}-\d{4}$");
 
             foreach (UIElement uiContact in SpContacts.Children)
             {
