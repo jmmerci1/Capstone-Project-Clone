@@ -15,6 +15,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using DirectorsPortalConstantContact;
 
 
 namespace DirectorsPortalWPF.MemberInfoUI
@@ -31,6 +32,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
         public static Dictionary<string, string> GDicHumanReadableTableFields 
             = new Dictionary<string, string>();
 
+        private ConstantContact gObjConstContact;
         /// <summary>
         /// Intializes the Page and content within the Page and populates the
         /// dictionary of human readable property names.
@@ -45,10 +47,25 @@ namespace DirectorsPortalWPF.MemberInfoUI
             GDicHumanReadableTableFields.Clear();
             GDicHumanReadableTableFields = BusinessTableViewModel.PopulateHumanReadableTableDic();
         }
+        /// <summary>
+        /// Intializes the Page and content within the Page and populates the
+        /// dictionary of human readable property names.
+        /// </summary>
+        public MembersPage(ConstantContact gObjConstContact)
+        {
+            InitializeComponent();
+
+            /* Repopulate the dictionary to accoutn for any field changes. */
+            /* TODO: This is currently just a concept for when we have a better idea on how
+             * dynamic tables will function. */
+            GDicHumanReadableTableFields.Clear();
+            GDicHumanReadableTableFields = BusinessTableViewModel.PopulateHumanReadableTableDic();
+            this.gObjConstContact = gObjConstContact;
+        }
 
         private void BtnAddMember_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.Navigate(new ModifyMembersPage(null, null));
+            NavigationService.Navigate(new ModifyMembersPage(null, null, gObjConstContact));
         }
 
         /// <summary>
@@ -90,7 +107,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     .FirstOrDefault(business => business.BusinessName.Equals(selectedTableViewModel.StrBuisnessName));
             }
 
-            NavigationService.Navigate(new ModifyMembersPage(null, selectedBusiness));
+            NavigationService.Navigate(new ModifyMembersPage(null, selectedBusiness, gObjConstContact));
         }
 
         /// <summary>
@@ -395,7 +412,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 if (busToCheckExists == null)
                 {
                     if (dictFields.ContainsKey("Business Name"))
-                        NavigationService.Navigate(new ModifyMembersPage(dictFields, null));
+                        NavigationService.Navigate(new ModifyMembersPage(dictFields, null, gObjConstContact));
                 }
                 else
                     MessageBox.Show($"{ dictFields["Business Name"] } already exists in the Database", "Business Already Exists");
@@ -443,7 +460,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     if (busModified != null)
                     {
                         if (dictFields.ContainsKey("Business Name"))
-                            NavigationService.Navigate(new ModifyMembersPage(dictFields, busModified));
+                            NavigationService.Navigate(new ModifyMembersPage(dictFields, busModified, gObjConstContact));
                     }
                     else
                         MessageBox.Show($"{ dictFields["Business Name"] } is not an existing Businss in the Database", "Business Not Found");

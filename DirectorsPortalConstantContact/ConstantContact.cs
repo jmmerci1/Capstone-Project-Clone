@@ -49,6 +49,8 @@ namespace DirectorsPortalConstantContact
 
         public List<EmailCampaignActivityPreview> glstEmailCampaignActivityPreviews = new List<EmailCampaignActivityPreview>();
 
+        public bool PopupAsked = false;
+
         /// <summary>
         /// Constuctor. Attempts to load the last cached data
         /// </summary>
@@ -125,6 +127,11 @@ namespace DirectorsPortalConstantContact
             
 
 
+        }
+
+        public void ValidateAuth()
+        {
+            this.gobjCCAuth.ValidateAuthentication();
         }
 
         /// <summary>
@@ -641,7 +648,8 @@ namespace DirectorsPortalConstantContact
         /// <param name="objContact">Contact to send up to Constant Contact</param>
         public void Create(Contact objContact)
         {
-            this.gobjCCAuth.ValidateAuthentication();
+            if (!this.SignedIn)
+                return;
             POSTContact objTempContact = objContact.Create();
             string strJson = JsonConvert.SerializeObject(objTempContact, new JsonSerializerSettings
             {
@@ -659,7 +667,7 @@ namespace DirectorsPortalConstantContact
         /// <param name="objContactList"></param>
         public void Create(ContactList objContactList)
         {
-            this.gobjCCAuth.ValidateAuthentication();
+           
             POSTContactList objTempContactList = objContactList.Create();
             string strJson = JsonConvert.SerializeObject(objTempContactList, new JsonSerializerSettings
             {
