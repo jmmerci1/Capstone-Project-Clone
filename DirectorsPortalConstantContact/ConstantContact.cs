@@ -49,6 +49,8 @@ namespace DirectorsPortalConstantContact
 
         public List<EmailCampaignActivityPreview> glstEmailCampaignActivityPreviews = new List<EmailCampaignActivityPreview>();
 
+        public bool PopupAsked = false;
+
         /// <summary>
         /// Constuctor. Attempts to load the last cached data
         /// </summary>
