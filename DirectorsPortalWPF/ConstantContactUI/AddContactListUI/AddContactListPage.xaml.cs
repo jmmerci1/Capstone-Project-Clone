@@ -68,7 +68,11 @@ namespace DirectorsPortalWPF.ConstantContactUI.AddContactListUI
         /// <param name="e"></param>
         private void Add_List(object sender, RoutedEventArgs e)
         {
-            
+            if (!gObjConstContact.SignedIn)
+            {
+                MessageBox.Show("Please log in before adding a List", "Error");
+                return;
+            }
             string strGroupName = txtContactListName.Text;
             string strNotes = txtNotes.Text;
             if (!checkName(strGroupName))
@@ -167,7 +171,9 @@ namespace DirectorsPortalWPF.ConstantContactUI.AddContactListUI
         /// <param name="e">The button press event</param>
         private void Cancel(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new ConstantContactUI.ConstantContactPage(gObjConstContact));
+            txtAddContacts.Text = "";
+            txtContactListName.Text = "";
+            txtNotes.Text = "";
         }
     }
 }

@@ -220,6 +220,7 @@ namespace DirectorsPortalWPF.ConstantContactUI
             gObjConstContact.LogOut();
             MessageBox.Show("You are now logged out", "Alert");
             LoadContactLists(gObjConstContact);
+            ContactListFrame.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact, ContactListFrame, this));
         }
 
         /// <summary>
