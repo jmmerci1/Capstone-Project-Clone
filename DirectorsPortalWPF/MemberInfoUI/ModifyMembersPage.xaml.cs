@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Navigation;
+using DirectorsPortalConstantContact;
 
 namespace DirectorsPortalWPF.MemberInfoUI
 {
@@ -24,6 +25,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
         private Business MSelectedBusiness = null;
         private int MIntContactCount = 0;
         private bool MBoolIgnoreWarnings = false;
+        private ConstantContact gObjConstContact;
         /// <summary>
         /// A method for initializing the modify members page. This method determines whether the page should be
         /// setup to add a new member or edit an existing one based on the passed in Business parameter.
@@ -33,7 +35,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// The business selected from the list view that should be populated in the form. If this field is null
         /// the page will be setup to add a new member instead of editing an existing one.
         /// </param>
-        public ModifyMembersPage([Optional] Dictionary<string, string> dictPdfImport, Business selectedBusiness)
+        public ModifyMembersPage([Optional] Dictionary<string, string> dictPdfImport, Business selectedBusiness, ConstantContact gObjConstContact)
         {
             InitializeComponent();
 
@@ -41,6 +43,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             CreateExtraFields();
 
             RefreshCategories();
+            this.gObjConstContact = gObjConstContact;
 
             if (selectedBusiness != null)
             {
@@ -484,7 +487,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// <param name="e">Event data asscociated with this event.</param>
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.Navigate(new MembersPage());
+            NavigationService.Navigate(new MembersPage(gObjConstContact));
         }
 
         /// <summary>
@@ -595,6 +598,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                         {
                                             newContact.Emails.Add(newEmail);
                                         }
+
+                                        gObjConstContact.Create(new Contact(eiEmail.TxtEmail.Text, ciContact.TxtName.Text, ""));
                                     }
                                 }
 
@@ -651,7 +656,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 }
             }
 
-            NavigationService.Navigate(new MembersPage());
+            NavigationService.Navigate(new MembersPage(gObjConstContact));
         }
 
         /// <summary>
@@ -904,7 +909,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             AddCategories();
 
 
-            NavigationService.Navigate(new MembersPage());
+            NavigationService.Navigate(new MembersPage(gObjConstContact));
         }
 
         /// <summary>
@@ -963,7 +968,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         }
                     }
 
-                    NavigationService.Navigate(new MembersPage());
+                    NavigationService.Navigate(new MembersPage(gObjConstContact));
                     break;
 
                 case MessageBoxResult.No:
@@ -1414,6 +1419,14 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 GStrTitle = "Contact " + MIntContactCount + ":"
             };
 
+            
+            if (!gObjConstContact.SignedIn)
+            {
+                if (MessageBox.Show("You are not currently signed into Constant Contact. If you do not sign in, the current member will not be added to Constant Contact. Would you like to Sign in now?", "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    gObjConstContact.ValidateAuth();
+                }
+            }
             SpContacts.Children.Add(CiContact);
         }
 

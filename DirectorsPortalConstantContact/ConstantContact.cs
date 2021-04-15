@@ -127,6 +127,11 @@ namespace DirectorsPortalConstantContact
 
         }
 
+        public void ValidateAuth()
+        {
+            this.gobjCCAuth.ValidateAuthentication();
+        }
+
         /// <summary>
         /// Talks to this.ReadJsonFromUrl with the url for GETContacts and 
         ///     creates the coresponding objects that we are given
@@ -641,7 +646,8 @@ namespace DirectorsPortalConstantContact
         /// <param name="objContact">Contact to send up to Constant Contact</param>
         public void Create(Contact objContact)
         {
-            this.gobjCCAuth.ValidateAuthentication();
+            if (!this.SignedIn)
+                return;
             POSTContact objTempContact = objContact.Create();
             string strJson = JsonConvert.SerializeObject(objTempContact, new JsonSerializerSettings
             {
@@ -659,7 +665,7 @@ namespace DirectorsPortalConstantContact
         /// <param name="objContactList"></param>
         public void Create(ContactList objContactList)
         {
-            this.gobjCCAuth.ValidateAuthentication();
+           
             POSTContactList objTempContactList = objContactList.Create();
             string strJson = JsonConvert.SerializeObject(objTempContactList, new JsonSerializerSettings
             {

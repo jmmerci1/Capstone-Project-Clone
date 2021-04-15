@@ -311,7 +311,7 @@
             </Button>
 
         </StackPanel>
-        <Frame x:Name="mainFrame" Grid.Row="1" Grid.Column="1" NavigationUIVisibility="Hidden" Source="./MemberInfoUI/MembersPage.xaml"/>
+        <Frame x:Name="mainFrame" Grid.Row="1" Grid.Column="1" NavigationUIVisibility="Hidden" />
         <Ellipse x:Name="shapeNotificationLabel" Fill="#FFF51B0D" HorizontalAlignment="Left" Height="25" Stroke="#FFF80A0A" VerticalAlignment="Top" Width="25" Margin="120,287,0,0" Grid.Row="1" RenderTransformOrigin="0.479,0.487" Visibility="Hidden"/>
         <Label x:Name="lblNotificationTodo" Content="10" Margin="120,285,6.333,0" Grid.Row="1" Foreground="White" HorizontalAlignment="Center" Width="25" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="25" Visibility="Hidden"/>
     </Grid>
