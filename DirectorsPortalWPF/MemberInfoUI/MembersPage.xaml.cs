@@ -671,6 +671,10 @@ namespace DirectorsPortalWPF.MemberInfoUI
                     strArrCityStateZip = new string[0];
                 }
 
+                if (!pdfFormFields.Fields.ContainsKey("Business Name"))
+                {
+                    MessageBox.Show("This PDF is not compatible with the PDF Import Tool, please fill out the member details manually.", "Alert");
+                }
 
                 //dictionary add statements to add pdf data to ui
                 dicToAdd.Add("Business Name", pdfFormFields.GetField("Business Name"));

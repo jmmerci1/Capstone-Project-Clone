@@ -386,7 +386,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         CiContact.TxtName.Text = dictPdfImport["Contact Name"];
                     }
 
-                    if (!dictPdfImport["Email Address"].Equals("") && dictPdfImport["Email Address"] != null)
+                    if (dictPdfImport["Email Address"] != null && !dictPdfImport["Email Address"].Equals(""))
                     {
                         CiContact.GntEmailCount++;
 
@@ -400,7 +400,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         CiContact.SpContactEmails.Children.Add(eiEmail);
                     }
 
-                    if (!dictPdfImport["Phone Number"].Equals("") && dictPdfImport["Phone Number"] != null)
+                    if (dictPdfImport["Phone Number"] != null && !dictPdfImport["Phone Number"].Equals(""))
                     {
                         CiContact.GIntNumberCount++;
 
@@ -415,7 +415,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         CiContact.SpContactNumbers.Children.Add(cniNumber);
                     }
 
-                    if (!dictPdfImport["Fax Number"].Equals("") && dictPdfImport["Fax Number"] != null)
+                    if (dictPdfImport["Fax Number"] != null && !dictPdfImport["Fax Number"].Equals(""))
                     {
                         CiContact.GIntNumberCount++;
 
