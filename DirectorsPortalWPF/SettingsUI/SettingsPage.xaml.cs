@@ -780,19 +780,19 @@ namespace DirectorsPortalWPF.SettingsUI
                         break;
                     }
 
-                    String strCityStateZip = Data[intCounter].gstrCityStateZip;
-                    String strLevelData = Data[intCounter].gstrLevel;
-                    String strAdditionalNote = "";
-
-                    String[] arrSplit = strCityStateZip.Split(',');
-                    String strCityData = arrSplit[0];
-
-                    String[] arrSplitStateZip = arrSplit[1].Split(' ');
-                    String strStateData = arrSplitStateZip[1];
-                    String strZipData = arrSplitStateZip[2];
-
                     try
                     {
+                        String strCityStateZip = Data[intCounter].gstrCityStateZip;
+                        String strLevelData = Data[intCounter].gstrLevel;
+                        String strAdditionalNote = "";
+
+                        String[] arrSplit = strCityStateZip.Split(',');
+                        String strCityData = arrSplit[0];
+
+                        String[] arrSplitStateZip = arrSplit[1].Split(' ');
+                        String strStateData = arrSplitStateZip[1];
+                        String strZipData = arrSplitStateZip[2];
+
                         Address objMailingAddress = new Address()
                         {
                             StreetAddress = Data[intCounter].gstrMailingAddress,
@@ -883,13 +883,20 @@ namespace DirectorsPortalWPF.SettingsUI
                         Business objBusiness = new Business()
                         {
                             BusinessName = Data[intCounter].gstrBusinessName,
-                            YearEstablished = Int32.Parse(Data[intCounter].gstrEstablished),
                             Website = Data[intCounter].gstrWebsiteAddress,
                             ExtraNotes = Data[intCounter].gstrNotes + " " + strAdditionalNote,
                             MailingAddress = objMailingAddress,
                             PhysicalAddress = objLocationAddress
 
                         };
+                        if (Data[intCounter].gstrEstablished.Equals(""))
+                        {
+                            objBusiness.YearEstablished = 0;
+                        }
+                        else
+                        {
+                            objBusiness.YearEstablished = Int32.Parse(Data[intCounter].gstrEstablished);
+                        }
 
                         if (strLevelData.Equals("Gold"))
                         {
@@ -1088,14 +1095,44 @@ namespace DirectorsPortalWPF.SettingsUI
 
                         YearlyData objYearlyData = new YearlyData
                         {
-                           Year = Int32.Parse(strCurrentYear.Year.ToString()),
-                           Business = objBusiness,
-                           DuesPaid = Double.Parse(Data[intCounter].gstrDuesPaid),
-                           TicketsReturned = Double.Parse(Data[intCounter].gstrRaffleTicketReturnedPaid),
-                           Credit = Double.Parse(Data[intCounter].gstrCredit),
-                           BallotNumber = Int32.Parse(Data[intCounter].gstrBallot),
-
+                            Year = Int32.Parse(strCurrentYear.Year.ToString()),
+                            Business = objBusiness,
                         };
+
+                        if (Data[intCounter].gstrCredit.Equals(""))
+                        {
+                            objYearlyData.Credit = 0;
+                        }
+                        else
+                        {
+                            objYearlyData.Credit = Double.Parse(Data[intCounter].gstrCredit);
+                        }
+
+                        if (Data[intCounter].gstrDuesPaid.Equals(""))
+                        {
+                            objYearlyData.DuesPaid = 0;
+                        }
+                        else
+                        {
+                            objYearlyData.DuesPaid = Double.Parse(Data[intCounter].gstrDuesPaid);
+                        }
+                        if (Data[intCounter].gstrRaffleTicketReturnedPaid.Equals(""))
+                        {
+                            objYearlyData.TicketsReturned = 0;
+                        }
+                        else 
+                        {
+                            objYearlyData.TicketsReturned = Double.Parse(Data[intCounter].gstrRaffleTicketReturnedPaid);
+                        }
+                        if (Data[intCounter].gstrBallot.Equals(""))
+                        {
+                            objYearlyData.BallotNumber = 0;
+                        }
+                        else
+                        {
+                            objYearlyData.BallotNumber = Int32.Parse(Data[intCounter].gstrBallot);
+                        }
+
 
                         if (Data[intCounter].gstrTerms.Equals("Annually"))
                         {
@@ -1129,7 +1166,7 @@ namespace DirectorsPortalWPF.SettingsUI
             string strMessage = string.Join(Environment.NewLine, lstStrFailedDataImports);
 
             if (strMessage.Length > 0) {
-                MessageBox.Show("ALL DATA ENTRY FAILED TO IMPORT TO DATABASE BELOW \n" + strMessage, "Excel Import Notice",
+                MessageBox.Show("Excel Import Failed. \n" + " \n"  +"The failed businesses were: \n" + " \n" + strMessage, "Excel Import Notice",
                        MessageBoxButton.OK,
                        MessageBoxImage.Information);
 
