@@ -60,16 +60,11 @@ namespace DirectorsPortalWPF
                 File.AppendAllText(strFname, "\n\n");
             }
 
-
             Exception e = (Exception)args.ExceptionObject;
             string strTime = DateTime.Now.ToString();
             File.AppendAllText(strFname, $"------------------------------BEGIN {strTime}------------------------------\n");
-            File.AppendAllText(strFname,  "------------------------------LEVEL 1--------------------------------------\n");
-            File.AppendAllText(strFname, $"{e}\n");
-            File.AppendAllText(strFname,  "------------------------------LEVEL 2--------------------------------------\n");
-            File.AppendAllText(strFname, $"{e.InnerException}\n");
-            File.AppendAllText(strFname,  "------------------------------LEVEL 3--------------------------------------\n");
-            File.AppendAllText(strFname, $"{e.InnerException.InnerException}\n");
+            File.AppendAllText(strFname, $"{e.Message}\n");
+            File.AppendAllText(strFname, $"{e.StackTrace}\n");
             File.AppendAllText(strFname, $"------------------------------END {strTime}--------------------------------\n");
         }
     }

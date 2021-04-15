@@ -561,7 +561,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                     for (int intLoop = 0; intLoop < rgQueryResults.Length; intLoop++)
                     {
                         // Creates an array for this record.
-                        string[] rgReportRow = new string[rgQueryResults.Length];
+                        string[] rgReportRow = new string[rgReportColumns.Count]; //[rgQueryResults.Length];
 
                         ClsJoinResultRecord udtRecord = rgQueryResults[intLoop];
 
