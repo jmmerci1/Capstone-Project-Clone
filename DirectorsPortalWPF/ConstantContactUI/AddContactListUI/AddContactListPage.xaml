@@ -9,7 +9,7 @@
       Title="AddContactListPage">
 
 
-    <Grid Background="White">
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -19,7 +19,7 @@
             <RowDefinition Height="20" />
         </Grid.RowDefinitions>
 
-        <Grid Margin="50,57,50,0" Grid.Column="0" Grid.Row="1">
+        <Grid Grid.Column="0" Grid.Row="1">
             <Grid.Resources>
                 <Style TargetType="{x:Type TextBox}">
                     <Setter Property="Margin" Value="5,5,5,10"></Setter>
