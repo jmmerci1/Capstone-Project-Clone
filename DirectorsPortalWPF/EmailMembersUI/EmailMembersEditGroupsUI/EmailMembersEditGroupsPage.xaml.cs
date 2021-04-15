@@ -132,53 +132,61 @@ namespace DirectorsPortalWPF.EmailMembersEditGroupsUI
             // TODO: Still needs to be implemented
             string strGroupName = txtGroupName.Text;
             //List<Business> businesses = new List<Business>();
-            string strNotes = txtNotes.Text;
-            int intEmailGroupId;
-            EmailGroup emailGroup = dbContext.EmailGroups.Where(x => x.GroupName.Equals(selectedEmailGroup.GroupName)).FirstOrDefault();
-            //EmailGroup emailGroup = new EmailGroup();
-            //emailGroup.GroupName = strGroupName;
-            //emailGroup.Notes = strNotes;
-            //dbContext.Add(emailGroup);
-            //dbContext.SaveChanges();
-            emailGroup.GroupName = strGroupName;
-            emailGroup.Notes = strNotes;
-            // List<EmailGroup> eg = dbContext.EmailGroups.Where(x => strGroupName == x.GroupName).ToList();
 
-            intEmailGroupId = selectedEmailGroup.Id;
+            if (!txtGroupName.Text.Equals(""))
             {
-                List<EmailGroupMember> objEmailGroupMems = dbContext.EmailGroupMembers.Where(x => x.GroupId == selectedEmailGroup.Id).ToList();
-                foreach (Business groupMember in rgRemoveFromGroup)
-                {
-                    List<BusinessRep> br = dbContext.BusinessReps.Where(x => groupMember.Id == x.BusinessId).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
-                    int intEmailId = br[0].ContactPerson.Emails[0].Id;
+                string strNotes = txtNotes.Text;
+                int intEmailGroupId;
+                EmailGroup emailGroup = dbContext.EmailGroups.Where(x => x.GroupName.Equals(selectedEmailGroup.GroupName)).FirstOrDefault();
+                //EmailGroup emailGroup = new EmailGroup();
+                //emailGroup.GroupName = strGroupName;
+                //emailGroup.Notes = strNotes;
+                //dbContext.Add(emailGroup);
+                //dbContext.SaveChanges();
+                emailGroup.GroupName = strGroupName;
+                emailGroup.Notes = strNotes;
+                // List<EmailGroup> eg = dbContext.EmailGroups.Where(x => strGroupName == x.GroupName).ToList();
 
-                    dbContext.Remove(objEmailGroupMems.Find(g => g.EmailId == intEmailId));
-                    dbContext.SaveChanges();
+                intEmailGroupId = selectedEmailGroup.Id;
+                {
+                    List<EmailGroupMember> objEmailGroupMems = dbContext.EmailGroupMembers.Where(x => x.GroupId == selectedEmailGroup.Id).ToList();
+                    foreach (Business groupMember in rgRemoveFromGroup)
+                    {
+                        List<BusinessRep> br = dbContext.BusinessReps.Where(x => groupMember.Id == x.BusinessId).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
+                        int intEmailId = br[0].ContactPerson.Emails[0].Id;
+
+                        dbContext.Remove(objEmailGroupMems.Find(g => g.EmailId == intEmailId));
+                        dbContext.SaveChanges();
+                    }
+
+                    foreach (Business groupMember in rgAddToGroup)
+                    {
+                        Business b = dbContext.Businesses.FirstOrDefault(x => x.Id == groupMember.Id);
+                        List<BusinessRep> br = dbContext.BusinessReps.Where(x => b.Id == x.BusinessId).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
+                        int intEmailId = br[0].ContactPerson.Emails[0].Id;
+
+                        EmailGroupMember emailGroupMember = new EmailGroupMember();
+                        emailGroupMember.GroupId = intEmailGroupId;
+                        emailGroupMember.EmailId = intEmailId;
+
+                        dbContext.Add(emailGroupMember);
+                        dbContext.SaveChanges();
+                    }
                 }
 
-                foreach (Business groupMember in rgAddToGroup)
-                {
-                    Business b = dbContext.Businesses.FirstOrDefault(x => x.Id == groupMember.Id);
-                    List<BusinessRep> br = dbContext.BusinessReps.Where(x => b.Id == x.BusinessId).Include(x => x.ContactPerson).ThenInclude(x => x.Emails).ToList();
-                    int intEmailId = br[0].ContactPerson.Emails[0].Id;
+                selectedEmailGroup.GroupName = txtGroupName.Text;
+                selectedEmailGroup.Notes = txtNotes.Text;
+                dbContext.SaveChanges();
 
-                    EmailGroupMember emailGroupMember = new EmailGroupMember();
-                    emailGroupMember.GroupId = intEmailGroupId;
-                    emailGroupMember.EmailId = intEmailId;
 
-                    dbContext.Add(emailGroupMember);
-                    dbContext.SaveChanges();
-                }
+                this.objEmailPage.LoadEmailGroups();
+                // TODO: Link with database once implemented
+                this.NavigationService.Navigate(objSendPage);
             }
-
-            selectedEmailGroup.GroupName = txtGroupName.Text;
-            selectedEmailGroup.Notes = txtNotes.Text;
-            dbContext.SaveChanges();
-
-
-            this.objEmailPage.LoadEmailGroups();
-            // TODO: Link with database once implemented
-            this.NavigationService.Navigate(objSendPage);
+            else
+            {
+                MessageBox.Show("Please enter a Email Group Name", "Alert");
+            }
         }
 
         /// <summary>
