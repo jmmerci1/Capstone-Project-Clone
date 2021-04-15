@@ -925,7 +925,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
             string strMessage = "Are you sure you want to delete this memeber?\n"
-                + "This action cannot be undone.";
+                + "This action cannot be undone.\n\n"
+                + "NOTE: A business with payment info cannot be deleted. Payment info must be removed from the Payment Info Screen.";
 
             MessageBoxResult messageBoxResult = MessageBox.Show(strMessage, "Delete Member", MessageBoxButton.YesNo);
             switch (messageBoxResult)
