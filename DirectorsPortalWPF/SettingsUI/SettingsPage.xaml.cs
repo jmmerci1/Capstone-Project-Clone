@@ -533,12 +533,12 @@ namespace DirectorsPortalWPF.SettingsUI
                             "Empty CSV File");
                         return;
                     }
-                    string[] columnHeaders = headerLine.Split(',');
+                    string[] columnHeaders = headerLine.Replace("\"", "").Split(',');
 
                     string line = "";
                     while ((line = fileReader.ReadLine()) != null)
                     {
-                        string[] rowData = line.Split(',');
+                        string[] rowData = line.Replace("\"", "").Split(',');
                         Transaction transaction = new Transaction(columnHeaders, rowData);
                         if (!transaction.IsValid)
                         {
@@ -1197,7 +1197,7 @@ namespace DirectorsPortalWPF.SettingsUI
 
             FileExtension = Path.GetExtension(FileDialog.FileName);
 
-            if (FileExtension == ".csv")
+            if (FileExtension.ToLower() == ".csv")
             {
                 FileName = FileDialog.FileName;
             }
