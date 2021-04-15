@@ -1426,7 +1426,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             
             if (!gObjConstContact.SignedIn && !gObjConstContact.PopupAsked)
             {
-                if (MessageBox.Show("You are not currently signed into Constant Contact. If you do not sign in, any new members will not be added to Constant Contact. If you do not sign in now, you will need to refresh on the Constant Contact screen. Would you like to Sign in now?", "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (MessageBox.Show("You are not currently signed into Constant Contact. If you do not sign in, any new members will not be added to Constant Contact. Would you like to Sign in now?", "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
                     gObjConstContact.ValidateAuth();
                 }
