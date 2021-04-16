@@ -368,7 +368,7 @@ namespace DirectorsPortalWPF.PaymentInfoUI
 
                 Label lblPaymentNetPay = new Label();
                 lblPaymentNetPay.Padding = new Thickness(10, 0, 0, 0);
-                lblPaymentNetPay.Content = payment.NetPay().ToString("C", CultureInfo.CurrentCulture);
+                lblPaymentNetPay.Content = payment.GrossPay.ToString("C", CultureInfo.CurrentCulture);
 
                 Button btnEdit = new Button();
                 btnEdit.Margin = new Thickness(7, 2, 5, 2);
