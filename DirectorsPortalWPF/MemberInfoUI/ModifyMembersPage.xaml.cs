@@ -175,7 +175,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             txtMailZip.FontWeight = FontWeights.Bold;
                         }
                         else
-                            txtMailZip.Text = selectedBusiness.MailingAddress?.ZipCode.ToString();
+                            txtMailZip.Text = selectedBusiness.MailingAddress?.ZipCodeExt.ToString();
 
                         if (selectedBusiness.MailingAddressId == selectedBusiness.PhysicalAddressId && !(dictPdfImport != null && !dictPdfImport["Location Address"].Equals("")))
                         {
@@ -217,7 +217,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                 txtLocationZip.FontWeight = FontWeights.Bold;
                             } 
                             else
-                                txtLocationZip.Text = selectedBusiness.PhysicalAddress?.ZipCode.ToString();
+                                txtLocationZip.Text = selectedBusiness.PhysicalAddress?.ZipCodeExt.ToString();
                         }
 
                         /* Populate the contacts for the selected business. */
@@ -537,8 +537,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         newMailingAddress.City = txtMailCity.Text;
                         newMailingAddress.State = txtMailState.Text;
 
-                        int.TryParse(txtMailZip.Text, out int intMailZipCode);
+                        int.TryParse(txtMailZip.Text.Split('-')[0], out int intMailZipCode);
                         newMailingAddress.ZipCode = intMailZipCode;
+                        newMailingAddress.ZipCodeExt = txtMailZip.Text;
 
                         /* Get the location address from the form. */
                         Address newPhysicalAddress = new Address();
@@ -548,8 +549,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             newPhysicalAddress.City = txtLocationCity.Text;
                             newPhysicalAddress.State = txtLocationState.Text;
 
-                            int.TryParse(txtLocationZip.Text, out int intLocationZipCode);
+                            int.TryParse(txtLocationZip.Text.Split('-')[0], out int intLocationZipCode);
                             newPhysicalAddress.ZipCode = intLocationZipCode;
+                            newPhysicalAddress.ZipCodeExt = txtLocationZip.Text;
                         }
                         else
                         {
@@ -715,8 +717,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         MSelectedBusiness.MailingAddress.City = txtMailCity.Text;
                         MSelectedBusiness.MailingAddress.State = txtMailState.Text;
 
-                        int.TryParse(txtMailZip.Text, out int intMailZipCode);
+                        int.TryParse(txtMailZip.Text.Split('-')[0], out int intMailZipCode);
                         MSelectedBusiness.MailingAddress.ZipCode = intMailZipCode;
+                        MSelectedBusiness.MailingAddress.ZipCodeExt = txtMailZip.Text;
 
                         if (MSelectedBusiness.MailingAddressId == MSelectedBusiness.PhysicalAddressId &&
                             ChkLocationSameAsMailing.IsChecked == false)
@@ -728,8 +731,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             newLocationAddress.City = txtLocationCity.Text;
                             newLocationAddress.State = txtLocationState.Text;
 
-                            int.TryParse(txtLocationZip.Text, out int intLocationZipCode);
+                            int.TryParse(txtLocationZip.Text.Split('-')[0], out int intLocationZipCode);
                             newLocationAddress.ZipCode = intLocationZipCode;
+                            newLocationAddress.ZipCodeExt = txtLocationZip.Text;
 
                             if (!newLocationAddress.IsEmpty())
                             {
@@ -754,8 +758,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             MSelectedBusiness.PhysicalAddress.City = txtLocationCity.Text;
                             MSelectedBusiness.PhysicalAddress.State = txtLocationState.Text;
 
-                            int.TryParse(txtLocationZip.Text, out int intLocationZipCode);
+                            int.TryParse(txtLocationZip.Text.Split('-')[0], out int intLocationZipCode);
                             MSelectedBusiness.PhysicalAddress.ZipCode = intLocationZipCode;
+                            MSelectedBusiness.PhysicalAddress.ZipCodeExt = txtLocationZip.Text;
                         }
 
                         /* Update the contacts from the form. */
@@ -1154,14 +1159,14 @@ namespace DirectorsPortalWPF.MemberInfoUI
             }
 
             if (!txtMailZip.Text.Equals("")
-                && !int.TryParse(txtMailZip.Text, out int intMailZip))
+                && !int.TryParse(txtMailZip.Text.Split('-')[0], out int intMailZip))
             {
                 boolAllDataIsValid = false;
 
                 txtMailZip.BorderBrush = Brushes.Red;
 
                 ToolTip ttMailZip = new ToolTip();
-                ttMailZip.Content = "Zip code must be a number.";
+                ttMailZip.Content = "Zip code must be in the following format ##### or #####-####";
 
                 txtMailZip.ToolTip = ttMailZip;
             }
@@ -1222,14 +1227,14 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 }
 
                 if (!txtLocationZip.Text.Equals("")
-                    && !int.TryParse(txtLocationZip.Text, out int intLocationZip))
+                    && !int.TryParse(txtLocationZip.Text.Split('-')[0], out int intLocationZip))
                 {
                     boolAllDataIsValid = false;
 
                     txtLocationZip.BorderBrush = Brushes.Red;
 
                     ToolTip ttLocationZip = new ToolTip();
-                    ttLocationZip.Content = "Zip code must be a number.";
+                    ttLocationZip.Content = "Zip code must be in the following format ##### or #####-####";
 
                     txtLocationZip.ToolTip = ttLocationZip;
                 }
