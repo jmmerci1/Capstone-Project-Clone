@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DirectorPortalDatabase.Utility
 {
-    public class ClsJoinHelper
+    public class JoinHelper
     {
         public enum EnumTable
         {
@@ -16,9 +16,9 @@ namespace DirectorPortalDatabase.Utility
             Payment, PaymentItem, PhoneNumber, YearlyData
         }
 
-        public class ClsJoinResult
+        public class JoinResult
         {
-            private IEnumerable<ClsJoinResultRecord> EnmRecords { get; set; }
+            private IEnumerable<JoinResultRecord> EnmRecords { get; set; }
             /// <summary>
             /// Table enums are removed from this list when the JoinResult joins with them.
             /// </summary>
@@ -30,15 +30,15 @@ namespace DirectorPortalDatabase.Utility
             private List<EnumTable> RGTablesJoined { get; set; }
 
             /// <summary>
-            /// Indicates whether to perform outer joins instead of inner joins.
+            /// Indicates whether to perform left joins instead of inner joins.
             /// </summary>
-            private readonly bool BlnUserOuterJoins;
+            private readonly bool BlnUseLeftJoins;
 
-            public ClsJoinResultRecord[] RGRecords => EnmRecords.ToArray();
+            public JoinResultRecord[] RGRecords => EnmRecords.ToArray();
 
-            public ClsJoinResult (DatabaseContext dbContext, List<EnumTable> rgTablesToJoinWith, bool blnUseOuterJoins = false)
+            public JoinResult (DatabaseContext dbContext, List<EnumTable> rgTablesToJoinWith, bool blnUseLeftJoins = true)
             {
-                BlnUserOuterJoins = blnUseOuterJoins;
+                BlnUseLeftJoins = blnUseLeftJoins;
                 // The argument's list elements are copied into this object's list.
                 this.RGTablesToJoinWith = new List<EnumTable>(rgTablesToJoinWith.Count);
                 foreach (EnumTable enumTable in rgTablesToJoinWith)
@@ -47,7 +47,7 @@ namespace DirectorPortalDatabase.Utility
                 }
                 this.RGTablesJoined = new List<EnumTable>();
                 // The data retrieval always begins by selecting all records from the central (Businesses) table.
-                this.EnmRecords = dbContext.Businesses.AsEnumerable().Select(business => new ClsJoinResultRecord { UdtBusiness = business });
+                this.EnmRecords = dbContext.Businesses.AsEnumerable().Select(business => new JoinResultRecord { UdtBusiness = business });
                 this.RGTablesJoined.Add(EnumTable.Business);
                 this.RGTablesToJoinWith.Remove(EnumTable.Business);
 
@@ -62,6 +62,13 @@ namespace DirectorPortalDatabase.Utility
             /// <param name="enumTable"></param>
             private void JoinWith(DatabaseContext dbContext, EnumTable enumTable)
             {
+                List<JoinResultRecord> rgDataCopy = null;
+
+                if (BlnUseLeftJoins)
+                    // Copies all the current data so that records excluded from the result of the inner join
+                    // can be added back to the dataset afterwords.
+                    rgDataCopy = EnmRecords.ToList();
+
                 if (enumTable == EnumTable.Address)
                 {
                     // The Addresses table is handled differently because it is connected to the Businesses
@@ -69,13 +76,13 @@ namespace DirectorPortalDatabase.Utility
                     // union of their results is taken.
                     IQueryable<Address> qryAddresses = dbContext.Addresses;
                     // Joins on mailing address id.
-                    IEnumerable<ClsJoinResultRecord> enmJoinResult1 = EnmRecords.Join(qryAddresses,
-                        item => item.UdtBusiness.MailingAddressId,
+                    IEnumerable<JoinResultRecord> enmJoinResult1 = EnmRecords.Join(qryAddresses,
+                        item => item.UdtBusiness?.MailingAddressId,
                         address => address.Id,
                         (item, address) => item.CopyAndReplace(address));
                     // Joins on physical address id.
-                    IEnumerable<ClsJoinResultRecord> enmJoinResult2 = EnmRecords.Join(qryAddresses,
-                        item => item.UdtBusiness.PhysicalAddressId,
+                    IEnumerable<JoinResultRecord> enmJoinResult2 = EnmRecords.Join(qryAddresses,
+                        item => item.UdtBusiness?.PhysicalAddressId,
                         address => address.Id,
                         (item, address) => item.CopyAndReplace(address));
                     // Takes the union of these join results.
@@ -84,7 +91,7 @@ namespace DirectorPortalDatabase.Utility
                 else if (enumTable == EnumTable.BusinessRep)
                 {
                     EnmRecords = EnmRecords.Join(dbContext.BusinessReps,
-                        item => item.UdtBusiness.Id,
+                        item => item.UdtBusiness?.Id,
                         businessRep => businessRep.BusinessId,
                         (item, businessRep) => item.CopyAndReplace(businessRep));
                 }
@@ -92,14 +99,14 @@ namespace DirectorPortalDatabase.Utility
                 {
                     // Categories are accessed via CategoryRefs.
                     EnmRecords = EnmRecords.Join(dbContext.Categories,
-                        item => item.UdtCategoryRef.CategoryId,
+                        item => item.UdtCategoryRef?.CategoryId,
                         categories => categories.Id,
                         (item, categories) => item.CopyAndReplace(categories));
                 }
                 else if (enumTable == EnumTable.CategoryRef)
                 {
                     EnmRecords = EnmRecords.Join(dbContext.CategoryRef,
-                        item => item.UdtBusiness.Id,
+                        item => item.UdtBusiness?.Id,
                         categoryRef => categoryRef.BusinessId,
                         (item, categoryRef) => item.CopyAndReplace(categoryRef));
                 }
@@ -107,7 +114,7 @@ namespace DirectorPortalDatabase.Utility
                 {
                     // ContactPeople are accessed via BusinessReps.
                     EnmRecords = EnmRecords.Join(dbContext.ContactPeople,
-                        item => item.UdtBusinessRep.ContactPersonId,
+                        item => item.UdtBusinessRep?.ContactPersonId,
                         contactPerson => contactPerson.Id,
                         (item, contactPerson) => item.CopyAndReplace(contactPerson));
                 }
@@ -115,7 +122,7 @@ namespace DirectorPortalDatabase.Utility
                 {
                     // Emails are accessed via ContactPeople.
                     EnmRecords = EnmRecords.Join(dbContext.Emails,
-                        item => item.UdtContactPerson.Id,
+                        item => item.UdtContactPerson?.Id,
                         email => email.ContactPersonId,
                         (item, email) => item.CopyAndReplace(email));
                 }
@@ -123,7 +130,7 @@ namespace DirectorPortalDatabase.Utility
                 {
                     // EmailGroups are accessed via EmailGroupMembers.
                     EnmRecords = EnmRecords.Join(dbContext.EmailGroups,
-                        item => item.UdtEmailGroupMember.GroupId,
+                        item => item.UdtEmailGroupMember?.GroupId,
                         emailGroup => emailGroup.Id,
                         (item, emailGroup) => item.CopyAndReplace(emailGroup));
                 }
@@ -131,7 +138,7 @@ namespace DirectorPortalDatabase.Utility
                 {
                     // EmailGroupMembers are accessed via Emails.
                     EnmRecords = EnmRecords.Join(dbContext.EmailGroupMembers,
-                        item => item.UdtEmail.Id,
+                        item => item.UdtEmail?.Id,
                         emailGroupMember => emailGroupMember.EmailId,
                         (item, emailGroupMember) => item.CopyAndReplace(emailGroupMember));
                 }
@@ -139,7 +146,7 @@ namespace DirectorPortalDatabase.Utility
                 {
                     IQueryable<Payment> qryPayments = dbContext.Payments.Include(payment => payment.Business);
                     EnmRecords = EnmRecords.Join(qryPayments,
-                        item => item.UdtBusiness.Id,
+                        item => item.UdtBusiness?.Id,
                         payment => payment.Business.Id,
                         (item, payment) => item.CopyAndReplace(payment));
                 }
@@ -148,7 +155,7 @@ namespace DirectorPortalDatabase.Utility
                     // PaymentItems are accessed via Payments.
                     IQueryable<PaymentItem> qryPaymentItems = dbContext.PaymentItems.Include(paymentItem => paymentItem.Payment);
                     EnmRecords = EnmRecords.Join(qryPaymentItems,
-                        item => item.UdtPayment.Id,
+                        item => item.UdtPayment?.Id,
                         paymentItem => paymentItem.Payment.Id,
                         (item, paymentItem) => item.CopyAndReplace(paymentItem));
                 }
@@ -156,20 +163,30 @@ namespace DirectorPortalDatabase.Utility
                 {
                     // PhoneNumbers are accessed via ContactPeople.
                     EnmRecords = EnmRecords.Join(dbContext.PhoneNumbers,
-                        item => item.UdtContactPerson.Id,
+                        item => item.UdtContactPerson?.Id,
                         phoneNumber => phoneNumber.ContactPersonId,
                         (item, phoneNumber) => item.CopyAndReplace(phoneNumber));
                 }
                 else if (enumTable == EnumTable.YearlyData)
                 {
                     EnmRecords = EnmRecords.Join(dbContext.BusinessYearlyData,
-                        item => item.UdtBusiness.Id,
+                        item => item.UdtBusiness?.Id,
                         yearlyData => yearlyData.BusinessId,
                         (item, yearlyData) => item.CopyAndReplace(yearlyData));
                 }
                 else
                 {
                     throw new ArgumentException($"Cannot join with this table: {enumTable}");
+                }
+
+                if (BlnUseLeftJoins)
+                {
+                    // Takes the difference between the original dataset and the current one.
+                    // The records left behind are the ones that were excluded from the inner join result.
+                    IEnumerable<JoinResultRecord> enmMissingRecords = rgDataCopy.Except(EnmRecords);
+
+                    // Adds the missing records back into the dataset.
+                    EnmRecords = EnmRecords.Union(enmMissingRecords);
                 }
 
                 RGTablesJoined.Add(enumTable);

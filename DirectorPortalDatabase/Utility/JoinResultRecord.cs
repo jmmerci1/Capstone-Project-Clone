@@ -11,7 +11,7 @@ namespace DirectorPortalDatabase.Utility
     /// Used to store a row of the result of a JOIN operation.
     /// Each class that could be involved in the joining is included as a property.
     /// </summary>
-    public class ClsJoinResultRecord
+    public class JoinResultRecord : IEquatable<JoinResultRecord>
     {
         public Address UdtAddress { get; set; }
         public Business UdtBusiness { get; set; }
@@ -27,7 +27,7 @@ namespace DirectorPortalDatabase.Utility
         public PhoneNumber UdtPhoneNumber { get; set; }
         public YearlyData UdtYearlyData { get; set; }
 
-        public ClsJoinResultRecord()
+        public JoinResultRecord()
         {
 
         }
@@ -67,16 +67,16 @@ namespace DirectorPortalDatabase.Utility
             else if (typeModelType == typeof(YearlyData))
                 return this.UdtYearlyData;
             else
-                throw new ArgumentException($"ClsJoinResultRecord contains no property of type {typeModelType.Name}");
+                throw new ArgumentException($"JoinResultRecord contains no property of type {typeModelType.Name}");
         }
 
         /// <summary>
-        /// Returns a copy of this ClsJoinResultRecord. Only the references are copied, not the objects themselves.
+        /// Returns a copy of this JoinResultRecord. Only the references are copied, not the objects themselves.
         /// </summary>
         /// <returns></returns>
-        private ClsJoinResultRecord Copy ()
+        private JoinResultRecord Copy ()
         {
-            return new ClsJoinResultRecord
+            return new JoinResultRecord
             {
                 UdtAddress = UdtAddress,
                 UdtBusiness = UdtBusiness,
@@ -99,10 +99,10 @@ namespace DirectorPortalDatabase.Utility
         /// </summary>
         /// <param name="objReplacement"></param>
         /// <returns></returns>
-        public ClsJoinResultRecord CopyAndReplace(object objReplacement)
+        public JoinResultRecord CopyAndReplace(object objReplacement)
         {
 
-            ClsJoinResultRecord udtNewRecord = Copy();
+            JoinResultRecord udtNewRecord = Copy();
 
             // If the replacement is null, don't replace anything.
             if (objReplacement != null)
@@ -171,5 +171,33 @@ namespace DirectorPortalDatabase.Utility
             return udtNewRecord;
         }
 
+        /// <summary>
+        /// Compares this record with another by comparing the Ids of the individual models.
+        /// Corresponding models are automatically considered equal if one of them is null;
+        /// this allows for detection of duplicates even when one record contains more data
+        /// than the other.
+        /// </summary>
+        /// <param name="udtOther"></param>
+        /// <returns></returns>
+        bool IEquatable<JoinResultRecord>.Equals(JoinResultRecord udtOther)
+        {
+            if ((UdtAddress == null || udtOther.UdtAddress == null || UdtAddress.Id == udtOther.UdtAddress.Id)
+                && (UdtBusiness == null || udtOther.UdtBusiness == null || UdtBusiness.Id == udtOther.UdtBusiness.Id)
+                && (UdtBusinessRep == null || udtOther.UdtBusinessRep == null || UdtBusinessRep.Id == udtOther.UdtBusinessRep.Id)
+                && (UdtCategories == null || udtOther.UdtCategories == null || UdtCategories.Id == udtOther.UdtCategories.Id)
+                && (UdtCategoryRef == null || udtOther.UdtCategoryRef == null || UdtCategoryRef.Id == udtOther.UdtCategoryRef.Id)
+                && (UdtContactPerson == null || udtOther.UdtContactPerson == null || UdtContactPerson.Id == udtOther.UdtContactPerson.Id)
+                && (UdtEmail == null || udtOther.UdtEmail == null || UdtEmail.Id == udtOther.UdtEmail.Id)
+                && (UdtEmailGroup == null || udtOther.UdtEmailGroup == null || UdtEmailGroup.Id == udtOther.UdtEmailGroup.Id)
+                && (UdtEmailGroupMember == null || udtOther.UdtEmailGroupMember == null || UdtEmailGroupMember.Id == udtOther.UdtEmailGroupMember.Id)
+                && (UdtPayment == null || udtOther.UdtPayment == null || UdtPayment.Id == udtOther.UdtPayment.Id)
+                && (UdtPaymentItem == null || udtOther.UdtPaymentItem == null || UdtPaymentItem.Id == udtOther.UdtPaymentItem.Id)
+                && (UdtPhoneNumber == null || udtOther.UdtPhoneNumber == null || UdtPhoneNumber.Id == udtOther.UdtPhoneNumber.Id)
+                && (UdtYearlyData == null || udtOther.UdtYearlyData == null || UdtYearlyData.Id == udtOther.UdtYearlyData.Id))
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

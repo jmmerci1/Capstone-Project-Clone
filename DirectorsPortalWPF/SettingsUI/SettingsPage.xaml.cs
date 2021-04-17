@@ -31,7 +31,7 @@ namespace DirectorsPortalWPF.SettingsUI
     /// </summary>
     public partial class SettingsPage : Page
     {
-        private ClsMetadataHelper.ClsModelInfo GUdtSelectedReportType { get; set; }
+        private MetadataHelper.ModelInfo GUdtSelectedReportType { get; set; }
 
         //Reference to form needed to be displayed during import excel data
         private ImportLoadPage frmLoadPage = new ImportLoadPage();

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DirectorPortalDatabase.Utility
 {
-    public class ClsFieldHelper
+    public class FieldHelper
     {
         /// <summary>
         /// An interface that defines methods for a class representing a data field that is either a database
@@ -37,7 +37,7 @@ namespace DirectorPortalDatabase.Utility
         /// <summary>
         /// Used to access data from a custom field whose value is stored within a JSON object.
         /// </summary>
-        public class ClsCustomField : IDataField
+        public class CustomField : IDataField
         {
             /// <summary>
             /// Custom field values are always stored as strings.
@@ -61,7 +61,7 @@ namespace DirectorPortalDatabase.Utility
                 }
             }
 
-            public ClsCustomField(string strPropertyName)
+            public CustomField(string strPropertyName)
             {
                 StrPropertyName = strPropertyName;
             }
