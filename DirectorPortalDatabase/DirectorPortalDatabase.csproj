@@ -212,10 +212,10 @@
     <Compile Include="Models\Todo.cs" />
     <Compile Include="Models\YearlyData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utility\ClsFieldHelper.cs" />
-    <Compile Include="Utility\ClsJoinHelper.cs" />
-    <Compile Include="Utility\ClsMetadataHelper.cs" />
-    <Compile Include="Utility\ClsJoinResultRecord.cs" />
+    <Compile Include="Utility\FieldHelper.cs" />
+    <Compile Include="Utility\JoinHelper.cs" />
+    <Compile Include="Utility\MetadataHelper.cs" />
+    <Compile Include="Utility\JoinResultRecord.cs" />
     <Compile Include="Utility\HasExtraFields.cs" />
   </ItemGroup>
   <ItemGroup>
