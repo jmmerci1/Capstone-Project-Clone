@@ -1166,6 +1166,7 @@ namespace DirectorsPortalWPF.SettingsUI
             string strMessage = string.Join(Environment.NewLine, lstStrFailedDataImports);
 
             if (strMessage.Length > 0) {
+                frmLoadPage.Close();
                 MessageBox.Show("Excel Import Failed. \n" + " \n" + "The failed businesses were: \n" + " \n" + strMessage, "Excel Import Notice",
                        MessageBoxButton.OK,
                        MessageBoxImage.Information);
