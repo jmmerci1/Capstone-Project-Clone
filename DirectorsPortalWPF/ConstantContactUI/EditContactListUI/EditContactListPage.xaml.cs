@@ -1,4 +1,5 @@
 ﻿using DirectorPortalDatabase;
+using DirectorPortalDatabase.Models;
 using DirectorsPortalConstantContact;
 using Microsoft.EntityFrameworkCore;
 using MS.WindowsAPICodePack.Internal;
@@ -59,10 +60,10 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
             foreach (Contact item in clEditList.glstMembers)
             {
 
-                List<DirectorPortalDatabase.Models.ContactPerson> objDatabaseContact = rgContacts.FindAll(x => x.Name.Equals(item.first_name));
+                DirectorPortalDatabase.Models.ContactPerson objDatabaseContact = rgContacts.Find(x => x.Emails.Any(r => r.EmailAddress.Equals(item.email_address.address)));
 
                 if (objDatabaseContact != null)
-                    lstContacts.Items.Add(item);
+                    lstContacts.Items.Add(objDatabaseContact);
             }
 
         }
@@ -103,24 +104,52 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
             clEditList.description = txtNotes.Text;
             gObjConstContact.Update(clEditList);
             clEditList = gObjConstContact.FindListByName(txtContactListName.Text);
-            foreach (Contact contactMember in lstContacts.Items)
+            foreach (DirectorPortalDatabase.Models.ContactPerson contactMember in lstContacts.Items)
             {
-                Contact contactVal = gObjConstContact.gdctContacts.Values.FirstOrDefault(x => x.strFullname.Equals(contactMember.strFullname));
-                if(!clEditList.glstMembers.Contains(contactVal))
-                    gObjConstContact.AddContactToContactList(clEditList, contactVal);
+
+                Contact contactVal = null;
+                foreach (Email groupMemberEmail in contactMember.Emails)
+                {
+                    contactVal = gObjConstContact.FindContactByEmail(groupMemberEmail.EmailAddress);
+                }
+
+
+                //Contact contactVal = gObjConstContact.gdctContacts.Values.FirstOrDefault(x => x.strFullname.Equals(contactMember.strFullname));
+                if (contactVal != null)
+                {
+                    if(!clEditList.glstMembers.Contains(contactVal))
+                        gObjConstContact.AddContactToContactList(clEditList, contactVal);
+                }
+                else
+                {
+                    Contact objContactNotInConstCont = new Contact(contactMember.Emails[0].EmailAddress, contactMember.Name.Trim(), "");
+                    gObjConstContact.Create(objContactNotInConstCont);
+                    objContactNotInConstCont = gObjConstContact.FindContactByEmail(objContactNotInConstCont.email_address.address);
+                    //System.Threading.Thread.Sleep(2000);
+                    if (!clEditList.glstMembers.Contains(objContactNotInConstCont))
+                    gObjConstContact.AddContactToContactList(clEditList, objContactNotInConstCont);
+                }
+
             }
 
-            for (int i = clEditList.glstMembers.Count()-1;i>=0;i--)
+            List<DirectorPortalDatabase.Models.ContactPerson> rgContacts;
+            using (DatabaseContext dbContext = new DatabaseContext())
+            {
+                rgContacts = dbContext.ContactPeople.Include(x => x.Emails).Where(x => x.Emails.Count() > 0 && x.Emails.Any(y => !y.EmailAddress.Equals(""))).ToList();
+            }
+
+            for (int i = clEditList.glstMembers.Count() - 1; i>=0; i--)
             {
                 Contact contactVal = clEditList.glstMembers[i];
-                if (!lstContacts.Items.Contains(contactVal))
+                DirectorPortalDatabase.Models.ContactPerson objDatabaseContact = rgContacts.Find(x => x.Emails.Any(r => r.EmailAddress.Equals(contactVal.email_address.address)));
+                if (!lstContacts.Items.Contains(objDatabaseContact))
                 {
                     gObjConstContact.RemoveContactFromContactList(clEditList, contactVal);
                 }
 
                     
             }
-
+            gObjConstContact.RefreshData();
             ContactListFrame.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact, ContactListFrame, objCallBackPage));
 
         }
@@ -220,9 +249,9 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
         {
             if (lstPopup.SelectedIndex >= 0)
             {
-                foreach (Contact objContact in lstContacts.Items)
+                foreach (DirectorPortalDatabase.Models.ContactPerson objContact in lstContacts.Items)
                 {
-                    if (objContact.strFullname!=((Contact)lstPopup.SelectedItem).strFullname)
+                    if (objContact.Name!=((DirectorPortalDatabase.Models.ContactPerson)lstPopup.SelectedItem).Name)
                     {
                         lstContacts.Items.Add(lstPopup.SelectedItem);
                         txtAddContacts.Clear();
