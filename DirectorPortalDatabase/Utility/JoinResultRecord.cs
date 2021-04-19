@@ -11,6 +11,9 @@ namespace DirectorPortalDatabase.Utility
     /// Used to store a row of the result of a JOIN operation.
     /// Each class that could be involved in the joining is included as a property.
     /// </summary>
+    /// <remarks>
+    /// The GetHashCode method should not be used.
+    /// </remarks>
     public class JoinResultRecord : IEquatable<JoinResultRecord>
     {
         public Address UdtAddress { get; set; }
@@ -177,7 +180,7 @@ namespace DirectorPortalDatabase.Utility
         /// this allows for detection of duplicates even when one record contains more data
         /// than the other.
         /// </summary>
-        /// <param name="udtOther"></param>
+        /// <param name="udtOther">Another JoinResultRecord.</param>
         /// <returns></returns>
         bool IEquatable<JoinResultRecord>.Equals(JoinResultRecord udtOther)
         {
@@ -199,5 +202,21 @@ namespace DirectorPortalDatabase.Utility
             }
             return false;
         }
+
+        /// <summary>
+        /// Uses the custom Equals method above.
+        /// </summary>
+        /// <param name="objOther">Another object that is intented to be as JoinResultRecord.</param>
+        /// <returns></returns>
+        public override bool Equals(object objOther) => Equals(objOther as JoinResultRecord);
+
+        /// <summary>
+        /// This override is necessary because Equals is overridden. It produces false positives and should not be relied on.
+        /// The false positives force falling back on the Equals method.
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode() => 0; /* (UdtAddress?.Id, UdtBusiness?.Id, UdtBusinessRep?.Id, 
+            UdtCategories?.Id, UdtCategoryRef?.Id, UdtContactPerson?.Id, UdtEmail?.Id, UdtEmailGroup?.Id,
+            UdtEmailGroupMember?.Id, UdtPayment?.Id, UdtPaymentItem?.Id, UdtPhoneNumber?.Id, UdtYearlyData?.Id).GetHashCode(); */
     }
 }
