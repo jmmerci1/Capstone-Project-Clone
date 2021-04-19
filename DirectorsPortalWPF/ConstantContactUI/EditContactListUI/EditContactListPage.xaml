@@ -67,11 +67,11 @@
             <Label Grid.Row="2" HorizontalAlignment="Right" Content="Add Contacts:" VerticalAlignment="Center" Margin="0,10,0,9" Width="auto" Height="auto" />
             <TextBox x:Name="txtAddContacts" Grid.Row="2" Grid.Column="1" Margin="20,20,20,20" TextChanged="Search_Database" LostFocus="Hide_Search"/>
             <Popup x:Name="popSearch" PlacementTarget = "{Binding ElementName=txtAddContacts}">
-                <ListBox x:Name="lstPopup" SelectionChanged="Add_Contact_To_List" DisplayMemberPath="strFullname"/>
+                <ListBox x:Name="lstPopup" SelectionChanged="Add_Contact_To_List" DisplayMemberPath="Name"/>
             </Popup>
             <Label Grid.Row="3" HorizontalAlignment="Right" Content="Contacts:" VerticalAlignment="Center" Margin="0,10,0,9" Width="auto" Height="auto" />
             <StackPanel Grid.Row="3" Grid.Column="1">
-                <ListBox x:Name="lstContacts" Grid.Row="3" Grid.Column="1" Margin="20,20,20,0" Height="100" DisplayMemberPath="strFullname"/>
+                <ListBox x:Name="lstContacts" Grid.Row="3" Grid.Column="1" Margin="20,20,20,0" Height="100" DisplayMemberPath="Name"/>
                 <Button x:Name="btnRemoveContact" Click="Remove_Contact" HorizontalAlignment="Right" Template="{StaticResource smallButton}" Grid.Column="1" Grid.Row="3" Content="Remove Contact" Margin="0,5,10,0" Padding="0,0,75,0" Height="20" Width="100"/>
             </StackPanel>
             <Grid Grid.Row="4" Grid.ColumnSpan="2">

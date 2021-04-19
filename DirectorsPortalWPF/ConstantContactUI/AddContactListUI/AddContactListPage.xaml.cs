@@ -1,4 +1,7 @@
-﻿using DirectorsPortalConstantContact;
+﻿using DirectorPortalDatabase;
+using DirectorPortalDatabase.Models;
+using DirectorsPortalConstantContact;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,13 +91,30 @@ namespace DirectorsPortalWPF.ConstantContactUI.AddContactListUI
             ContactList newList = new ContactList(strGroupName, strNotes);
             gObjConstContact.Create(newList);
             newList = gObjConstContact.FindListByName(strGroupName);
-                foreach (Contact groupMember in lstContacts.Items)
+            foreach (DirectorPortalDatabase.Models.ContactPerson groupMember in lstContacts.Items)
+            {
+                Contact b = null;
+                foreach (Email groupMemberEmail in groupMember.Emails)
                 {
-                    Contact b = gObjConstContact.gdctContacts.Values.FirstOrDefault(x => x.strFullname.Equals(groupMember.strFullname));
-                    gObjConstContact.AddContactToContactList(newList, b);
+                    b = gObjConstContact.FindContactByEmail(groupMemberEmail.EmailAddress);
                 }
 
+                //Contact b = gObjConstContact.gdctContacts.Values.FirstOrDefault(x => x.strFullname.Equals(groupMember.strFullname));
+                if (b != null) 
+                    gObjConstContact.AddContactToContactList(newList, b);
+                else
+                {
+                    Contact objContactNotInConstCont = new Contact(groupMember.Emails[0].EmailAddress, groupMember.Name.Trim(), "");
+                    gObjConstContact.Create(objContactNotInConstCont);
+                    objContactNotInConstCont = gObjConstContact.FindContactByEmail(objContactNotInConstCont.email_address.address);
+                    //System.Threading.Thread.Sleep(2000);
+                    gObjConstContact.AddContactToContactList(newList, objContactNotInConstCont);
+                }
+                    
+            }
+
             objParent.LoadContactLists(gObjConstContact);
+            gObjConstContact.RefreshData();
             ContactListFrame.Navigate(new AddContactListPage(gObjConstContact, ContactListFrame, objParent));
 
         }
@@ -108,19 +128,30 @@ namespace DirectorsPortalWPF.ConstantContactUI.AddContactListUI
         {
             lstPopup.Items.Clear();
             string strSearchTerm = txtAddContacts.Text;
-
+            List<DirectorPortalDatabase.Models.ContactPerson> rgContacts;
             popSearch.IsOpen = true;
 
-
-            foreach (Contact objContact in gObjConstContact.gdctContacts.Values)
+            using (DatabaseContext dbContext = new DatabaseContext())
             {
+                rgContacts = dbContext.ContactPeople.Include(x => x.Emails).Where(x => x.Emails.Count() > 0 && x.Emails.Any(y => !y.EmailAddress.Equals(""))).ToList();
+            }
+
+/*                foreach (Contact objContact in gObjConstContact.gdctContacts.Values)
+                {
                     if (objContact.strFullname.ToLower().Contains(strSearchTerm.ToLower()) && !CheckAlreadyInList(objContact))
                     {
                         lstPopup.Items.Add(objContact);
                     }
-                        
-                
+                }*/
+
+            foreach (DirectorPortalDatabase.Models.ContactPerson currentContact in rgContacts)
+            {
+                if (currentContact.Name.ToLower().Contains(strSearchTerm.ToLower()) && !CheckAlreadyInList(currentContact))
+                {
+                    lstPopup.Items.Add(currentContact);
+                }
             }
+
         }
 
         /// <summary>
@@ -133,6 +164,21 @@ namespace DirectorsPortalWPF.ConstantContactUI.AddContactListUI
             foreach (Contact objTemp in lstContacts.Items)
             {
                 if (objContact.strFullname.Equals(objTemp.strFullname))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// given a contact, check if it is already in the list
+        /// </summary>
+        /// <param name="objContact">Contact to check</param>
+        /// <returns></returns>
+        private bool CheckAlreadyInList(DirectorPortalDatabase.Models.ContactPerson objContact)
+        {
+            foreach (DirectorPortalDatabase.Models.ContactPerson objTemp in lstContacts.Items)
+            {
+                if (objContact.Name.Equals(objTemp.Name))
                     return true;
             }
             return false;

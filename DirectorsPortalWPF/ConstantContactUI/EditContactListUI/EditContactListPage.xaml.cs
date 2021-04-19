@@ -1,4 +1,6 @@
-﻿using DirectorsPortalConstantContact;
+﻿using DirectorPortalDatabase;
+using DirectorsPortalConstantContact;
+using Microsoft.EntityFrameworkCore;
 using MS.WindowsAPICodePack.Internal;
 using System;
 using System.Collections.Generic;
@@ -48,9 +50,19 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
         {
             txtContactListName.Text = clEditList.name;
             txtNotes.Text = clEditList.description;
+            List<DirectorPortalDatabase.Models.ContactPerson> rgContacts;
+            using (DatabaseContext dbContext = new DatabaseContext())
+            {
+                rgContacts = dbContext.ContactPeople.Include(x => x.Emails).Where(x => x.Emails.Count() > 0 && x.Emails.Any(y => !y.EmailAddress.Equals(""))).ToList();
+            }
+
             foreach (Contact item in clEditList.glstMembers)
             {
-                lstContacts.Items.Add(item);
+
+                List<DirectorPortalDatabase.Models.ContactPerson> objDatabaseContact = rgContacts.FindAll(x => x.Name.Equals(item.first_name));
+
+                if (objDatabaseContact != null)
+                    lstContacts.Items.Add(item);
             }
 
         }
@@ -122,19 +134,30 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
         {
             lstPopup.Items.Clear();
             string strSearchTerm = txtAddContacts.Text;
-
+            List<DirectorPortalDatabase.Models.ContactPerson> rgContacts;
             popSearch.IsOpen = true;
 
-
-            foreach (Contact objContact in gObjConstContact.gdctContacts.Values)
+            using (DatabaseContext dbContext = new DatabaseContext())
             {
-                
-                if (objContact.strFullname.ToLower().Contains(strSearchTerm.ToLower()) && !CheckAlreadyInList(objContact))
-                {
-                    lstPopup.Items.Add(objContact);
-                }
-
+                rgContacts = dbContext.ContactPeople.Include(x => x.Emails).Where(x => x.Emails.Count() > 0 && x.Emails.Any(y => !y.EmailAddress.Equals(""))).ToList();
             }
+
+            /*            foreach (Contact objContact in gObjConstContact.gdctContacts.Values)
+                        {
+                            if (objContact.strFullname.ToLower().Contains(strSearchTerm.ToLower()) && !CheckAlreadyInList(objContact))
+                            {
+                                lstPopup.Items.Add(objContact);
+                            }
+                        }*/
+
+            foreach (DirectorPortalDatabase.Models.ContactPerson currentContact in rgContacts)
+            {
+                if (currentContact.Name.ToLower().Contains(strSearchTerm.ToLower()) && !CheckAlreadyInList(currentContact))
+                {
+                    lstPopup.Items.Add(currentContact);
+                }
+            }
+
         }
 
         /// <summary>
@@ -147,6 +170,21 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
             foreach (Contact objTemp in lstContacts.Items)
             {
                 if (objContact.strFullname.Equals(objTemp.strFullname))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// given a contact, check if it is already in the list
+        /// </summary>
+        /// <param name="objContact">Contact to check</param>
+        /// <returns></returns>
+        private bool CheckAlreadyInList(DirectorPortalDatabase.Models.ContactPerson objContact)
+        {
+            foreach (DirectorPortalDatabase.Models.ContactPerson objTemp in lstContacts.Items)
+            {
+                if (objContact.Name.Equals(objTemp.Name))
                     return true;
             }
             return false;
