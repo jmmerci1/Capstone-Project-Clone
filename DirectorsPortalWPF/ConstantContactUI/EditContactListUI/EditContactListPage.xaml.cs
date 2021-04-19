@@ -140,7 +140,7 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
 
             for (int i = clEditList.glstMembers.Count() - 1; i>=0; i--)
             {
-                Contact contactVal = clEditList.glstMembers[i];
+                Contact contactVal = clEditList.glstMembers.Last(); ;
                 DirectorPortalDatabase.Models.ContactPerson objDatabaseContact = rgContacts.Find(x => x.Emails.Any(r => r.EmailAddress.Equals(contactVal.email_address.address)));
                 if (!lstContacts.Items.Contains(objDatabaseContact))
                 {
@@ -258,8 +258,15 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
                         popSearch.IsOpen = false;
                         return;
                     }
+                    
                 }
-                
+                if (lstContacts.Items.Count == 0)
+                {
+                    lstContacts.Items.Add(lstPopup.SelectedItem);
+                    txtAddContacts.Clear();
+                    popSearch.IsOpen = false;
+                    return;
+                }
             }
         }
 

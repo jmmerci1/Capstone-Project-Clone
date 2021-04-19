@@ -601,7 +601,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                             newContact.Emails.Add(newEmail);
                                         }
 
-                                        gObjConstContact.Create(new Contact(eiEmail.TxtEmail.Text, ciContact.TxtName.Text, "")
+                                        gObjConstContact.Create(new Contact(eiEmail.TxtEmail.Text, ciContact.TxtName.Text.Split(' ')[0], ciContact.TxtName.Text.Split(' ')[1])
                                             {
                                                 company_name = txtBusinessName.Text
                                             }
