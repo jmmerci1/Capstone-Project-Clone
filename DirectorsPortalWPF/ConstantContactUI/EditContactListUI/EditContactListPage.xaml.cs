@@ -133,7 +133,6 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
                 {
                     lstPopup.Items.Add(objContact);
                 }
-
             }
         }
 
@@ -191,6 +190,13 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
                         popSearch.IsOpen = false;
                         return;
                     }
+                }
+                if (lstContacts.Items.Count == 0)
+                {
+                    lstContacts.Items.Add(lstPopup.SelectedItem);
+                    txtAddContacts.Clear();
+                    popSearch.IsOpen = false;
+                    return;
                 }
                 
             }
