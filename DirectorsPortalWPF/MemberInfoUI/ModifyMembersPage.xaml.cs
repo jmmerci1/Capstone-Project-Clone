@@ -26,6 +26,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
         private int MIntContactCount = 0;
         private bool MBoolIgnoreWarnings = false;
         private ConstantContact gObjConstContact;
+        private List<string> rgFailedCCEmailAdds;
         /// <summary>
         /// A method for initializing the modify members page. This method determines whether the page should be
         /// setup to add a new member or edit an existing one based on the passed in Business parameter.
@@ -40,6 +41,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
             InitializeComponent();
 
             MSelectedBusiness = selectedBusiness;
+            rgFailedCCEmailAdds = new List<string>();
             CreateExtraFields();
 
             RefreshCategories();
@@ -497,6 +499,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// <param name="e">Event data asscociated with this event.</param>
         private void BtnAddMember_Click(object sender, RoutedEventArgs e)
         {
+            bool blnAddToCC = false;
+
             if (!ValidateDataInForm(MBoolIgnoreWarnings)) 
             {
                 /* Return early since the form has invalid or missing data. */
@@ -601,11 +605,18 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                             newContact.Emails.Add(newEmail);
                                         }
 
-                                        gObjConstContact.Create(new Contact(eiEmail.TxtEmail.Text, ciContact.TxtName.Text, "")
-                                            {
-                                                company_name = txtBusinessName.Text
-                                            }
-                                        );
+                                        blnAddToCC = MessageBox.Show($"Would you like to add {ciContact.TxtName.Text} to your Constant Contact account?", "Alert", MessageBoxButton.YesNo) == MessageBoxResult.Yes;
+
+                                        if (blnAddToCC)
+                                        {
+                                            gObjConstContact.Create(new Contact(eiEmail.TxtEmail.Text, ciContact.TxtName.Text, "")
+                                                {
+                                                    company_name = txtBusinessName.Text
+                                                }
+                                            );
+                                            if (gObjConstContact.FindContactByEmail(eiEmail.TxtEmail.Text) == null)
+                                                rgFailedCCEmailAdds.Add(eiEmail.TxtEmail.Text);
+                                        }
                                     }
                                 }
 
@@ -662,6 +673,17 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 }
             }
 
+            string strListOfFailures = "";
+            foreach (string failedEmail in rgFailedCCEmailAdds)
+            {
+                strListOfFailures += failedEmail + ", ";
+            }
+
+            if (rgFailedCCEmailAdds.Count() > 0 && blnAddToCC)
+                MessageBox.Show("The following Constant Contact Emails failed to add to Constant Contact: " 
+                    + strListOfFailures.Substring(0, strListOfFailures.Length - 2).ToString() + 
+                    ". Please try adding the emails manually to  Constant Contact", "Alert");
+
             NavigationService.Navigate(new MembersPage(gObjConstContact));
         }
 
@@ -673,6 +695,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// <param name="e">Event data asscociated with this event.</param>
         private void BtnUpdateMember_Click(object sender, RoutedEventArgs e)
         {
+            bool blnAddToCC = false;
             if (!ValidateDataInForm(MBoolIgnoreWarnings))
             {
                 /* Return early since the form has invalid or missing data. */
@@ -876,6 +899,18 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
                                                 newEmail.EmailAddress = eiEmail.TxtEmail.Text;
                                                 newRep.ContactPerson.Emails.Add(newEmail);
+
+                                                blnAddToCC = MessageBox.Show($"Would you like to add {ciContact.TxtName.Text} to your Constant Contact account?", "Alert", MessageBoxButton.YesNo) == MessageBoxResult.Yes;
+                                                if (blnAddToCC)
+                                                {
+                                                    gObjConstContact.Create(new Contact(eiEmail.TxtEmail.Text, ciContact.TxtName.Text, "")
+                                                    {
+                                                        company_name = txtBusinessName.Text
+                                                    }
+                                                );
+                                                    if (gObjConstContact.FindContactByEmail(eiEmail.TxtEmail.Text) == null)
+                                                        rgFailedCCEmailAdds.Add(eiEmail.TxtEmail.Text);
+                                                }
                                             }
                                         }
 
@@ -893,7 +928,6 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                                 newRep.ContactPerson.PhoneNumbers.Add(newPhoneNumber);
                                             }
                                         }
-
                                         context.BusinessReps.Add(newRep);
                                         MSelectedBusiness.BusinessReps.Add(newRep);
                                     }
@@ -917,6 +951,16 @@ namespace DirectorsPortalWPF.MemberInfoUI
             DeleteCategories();
             AddCategories();
 
+            string strListOfFailures = "";
+            foreach (string failedEmail in rgFailedCCEmailAdds)
+            {
+                strListOfFailures += failedEmail + ", ";
+            }
+
+            if (rgFailedCCEmailAdds.Count() > 0 && blnAddToCC)
+                MessageBox.Show("The following Constant Contact Emails failed to add to Constant Contact: "
+                    + strListOfFailures.Substring(0, strListOfFailures.Length - 2).ToString() +
+                    ". Please try adding the emails manually to  Constant Contact", "Alert");
 
             NavigationService.Navigate(new MembersPage(gObjConstContact));
         }

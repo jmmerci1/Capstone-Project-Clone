@@ -164,7 +164,7 @@ namespace DirectorsPortalWPF.ConstantContactUI
             if (!gObjConstContact.Updating)
             {
                 BackgroundWorker bWrk = new BackgroundWorker();
-
+                
                 btnRefreshConstantContact.Content = "Refreshing...";
                 btnRefreshConstantContact.Width = 100;
 
@@ -172,6 +172,8 @@ namespace DirectorsPortalWPF.ConstantContactUI
                 bWrk.RunWorkerCompleted += LoadConstantContactData;
 
                 bWrk.RunWorkerAsync();
+
+                ContactListFrame.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact, ContactListFrame, this));
             }
             else
             {
