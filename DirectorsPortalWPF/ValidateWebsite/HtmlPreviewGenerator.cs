@@ -87,7 +87,7 @@ namespace DirectorsPortalWPF.ValidateWebsite
                     .ThenInclude(x => x.Emails)
                     .Include(x => x.BusinessReps)
                     .ThenInclude(x => x.ContactPerson)
-                    .ThenInclude(x => x.PhoneNumbers).ToList();  // List of all businesses in DB
+                    .ThenInclude(x => x.PhoneNumbers).OrderBy(x => x.BusinessName).ToList();  // List of all businesses in DB
 
                 // Iterate through each Member and put them in the table
                 foreach (string strAlpha in rgAlpha)
@@ -154,7 +154,7 @@ namespace DirectorsPortalWPF.ValidateWebsite
                     .ThenInclude(x => x.Emails)
                     .Include(x => x.BusinessReps)
                     .ThenInclude(x => x.ContactPerson)
-                    .ThenInclude(x => x.PhoneNumbers).ToList(); // List of all businesses in DB
+                    .ThenInclude(x => x.PhoneNumbers).OrderBy(x => x.BusinessName).ToList(); // List of all businesses in DB
 
                 List<Categories> rgAllCategories = dbContext.Categories.ToList();
                 List<CategoryRef> rgAllCategoryRefs = dbContext.CategoryRef.ToList();
