@@ -43,7 +43,7 @@ namespace DirectorsPortalWPF.ValidateWebsite
                 {
                     // Featured businesses header
                     GWriter.WriteLine("<h3 style=\"text-align: center; font-family: sans-serif; color:#448eb8; font-weight: bold;" +
-                        " font-size: 1cm\">Featured Businesses</h3>");
+                        " font-size: 1cm\">Chamber Member Businesses</h3>");
 
                     // Div to align content within margins
                     GWriter.WriteLine("<div style=\"margin-left: 10%; margin-right:10% \">");

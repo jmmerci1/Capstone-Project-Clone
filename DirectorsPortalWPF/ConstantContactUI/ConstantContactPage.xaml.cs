@@ -53,7 +53,7 @@ namespace DirectorsPortalWPF.ConstantContactUI
 
             //MessageBox.Show(CC.gdctEmailCampaigns.ElementAt(i).Value.Activities.First().permalink_url);
 
-            LoadEmailCampaigns(ccHelper);
+            //LoadEmailCampaigns(ccHelper);
             LoadContactLists(ccHelper);
 
             /*Update Contact
@@ -71,7 +71,9 @@ namespace DirectorsPortalWPF.ConstantContactUI
 
             //add campaign
             //CC.AddCampaign();
-            
+
+            ContactListFrame.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact, ContactListFrame, this));
+
         }
 
         /// <summary>
@@ -117,14 +119,7 @@ namespace DirectorsPortalWPF.ConstantContactUI
                         };
                     }
 
-                    Button btnEmailGroupSelectButton = new Button()
-                    {
-                        Content = "Select",
-                        HorizontalAlignment = HorizontalAlignment.Right,
-                        Template = (ControlTemplate)Application.Current.Resources["smallButton"],
-                        Padding = new Thickness(0, 0, 42, 0),
-                        Height = 15
-                    };
+                    
                     Button btnEmailGroupEditButton = new Button()
                     {
                         Content = "Edit",
@@ -146,132 +141,14 @@ namespace DirectorsPortalWPF.ConstantContactUI
                         else if (gObjConstContact.Updating)
                             MessageBox.Show("Please wait for update to finish before making changes", "Alert");
                         else
-                        this.NavigationService.Navigate(new EditContactListUI.EditContactListPage(ccHelper, ccEmailGroup.Value.name));
+                            ContactListFrame.Navigate(new EditContactListUI.EditContactListPage(ccHelper, ccEmailGroup.Value.name, ContactListFrame, this));
                     };
-                    btnEmailGroupSelectButton.Click += (sender, e) => AddEmailGroupToMessage(sender, e, ccEmailGroup.Value.name);
-                    hspEmailGroupRow.Children.Add(btnEmailGroupSelectButton);
                     hspEmailGroupRow.Children.Add(btnEmailGroupEditButton);
                     hspEmailGroupRow.Children.Add(lblEmailGroupName);
                     vspContactList.Children.Add(hspEmailGroupRow);
                     
                 }
             }
-        }
-
-        /// <summary>
-        /// Pulls the list of email campaigns. This function allows for a dynamic load
-        /// of the email campaigns to the 'email campaigns' sidepane on the Constant Contact page.
-        /// </summary>
-        public void LoadEmailCampaigns(ConstantContact ccHelper)
-        {
-            // Pull the email campaign element from the page
-            object nodGroupList = FindName("EmailCampaignList");
-            // Ensure that the email campaign element is a stack panel
-            if (nodGroupList is StackPanel)
-            {
-                // Cast Email Campaign list to stack panel so it can be used
-                StackPanel vspGroupList = nodGroupList as StackPanel;
-                vspGroupList.Children.Clear();
-                foreach (var dctCampaigns in ccHelper.EmailCampaigns)
-                {
-                    if (!dctCampaigns.current_status.Equals("DRAFT"))
-                    {
-                        foreach (var rgActivities in dctCampaigns.Activities)
-                        {
-                            if (rgActivities.role.Equals("primary_email"))
-                            {
-                                // For every Email Campaign found in the API, create a row
-                                // in the Email Campaign list with label and an edit button
-                                StackPanel hspEmailGroupRow = new StackPanel()
-                                {
-                                    Orientation = Orientation.Horizontal
-                                };
-
-                                Label lblEmailGroupName;
-                                if ((dctCampaigns.name + ": " + rgActivities.subject).Length > 18)
-                                {
-                                    lblEmailGroupName = new Label()
-                                    {
-                                        Content = (dctCampaigns.name + ": " + rgActivities.subject).Substring(0, 18) + "..."
-                                    };
-                                }
-                                else
-                                {
-                                    lblEmailGroupName = new Label()
-                                    {
-                                        Content = dctCampaigns.name + ": " + rgActivities.subject
-                                    };
-                                }
-
-                                Button btnEmailGroupSelectButton = new Button()
-                                {
-                                    Content = "Select",
-                                    HorizontalAlignment = HorizontalAlignment.Right,
-                                    Template = (ControlTemplate)Application.Current.Resources["smallButton"],
-                                    Padding = new Thickness(0, 0, 35, 0),
-                                    Height = 15
-                                };
-
-                                if (!(rgActivities.mobjPreview == null))
-                                    btnEmailGroupSelectButton.Click += (sender, e) => PreviewCampaignActivity(sender, e, rgActivities);
-                                else
-                                    btnEmailGroupSelectButton.Click += (sender, e) => MessageBox.Show("There are no associated emails created for this Activity", "Alert");
-
-                                hspEmailGroupRow.Children.Add(btnEmailGroupSelectButton);
-                                hspEmailGroupRow.Children.Add(lblEmailGroupName);
-                                vspGroupList.Children.Add(hspEmailGroupRow);
-
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Sets the Email Campaign preview to the Activity selected by the user on the 
-        /// 'Email Campaign' sidebar
-        /// </summary>
-        /// <param name="sender">The 'Select' button for a particular Email Campaign</param>
-        /// <param name="e">The click event</param>
-        /// <param name="ObjCurrentActivity">The permanent link for the selected Activity for an Email Campaign as a String</param>
-        private void PreviewCampaignActivity(object sender, RoutedEventArgs e, EmailCampaignActivity ObjCurrentActivity)
-        {
-            gObjCurrentlySelectedActivity = ObjCurrentActivity;
-            frmCampaignTemplate.NavigateToString(ObjCurrentActivity.mobjPreview.preview_html_content);
-        }
-
-        /// <summary>
-        /// Adds an email group to the 'To:' field, delimited by a semicolon (;)
-        /// </summary>
-        /// <param name="sender">The 'Select' button for the selected email group</param>
-        /// <param name="e">The click event</param>
-        /// <param name="emailGroup">The email group name being selected</param>
-        private void AddEmailGroupToMessage(object sender, RoutedEventArgs e, string emailGroup)
-        {
-            // This is just template code for now. In the future this method should be able to read a emailGroup object
-            // and load the group name to the 'To' field.
-            if (this.gObjConstContact.SignedIn)
-            {
-                Button btnSelection = (Button)sender;
-
-                // Only add the email group if it hasn't been selected, otherwise remove the group.
-                if (txtEmailGroups.Text.Contains(emailGroup))
-                {
-                    txtEmailGroups.Text = txtEmailGroups.Text.Replace($"{emailGroup}; ", "");
-                    btnSelection.Content = "Select";
-                }
-                else
-                {
-                    txtEmailGroups.Text += $"{emailGroup}; ";
-                    btnSelection.Content = "Remove";
-                }
-            }
-            else
-            {
-                MessageBox.Show("Please make sure that you are logged in before making changes.", "Alert");
-            }
-            
         }
 
         /// <summary>
@@ -287,7 +164,7 @@ namespace DirectorsPortalWPF.ConstantContactUI
             if (!gObjConstContact.Updating)
             {
                 BackgroundWorker bWrk = new BackgroundWorker();
-
+                
                 btnRefreshConstantContact.Content = "Refreshing...";
                 btnRefreshConstantContact.Width = 100;
 
@@ -295,6 +172,8 @@ namespace DirectorsPortalWPF.ConstantContactUI
                 bWrk.RunWorkerCompleted += LoadConstantContactData;
 
                 bWrk.RunWorkerAsync();
+
+                ContactListFrame.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact, ContactListFrame, this));
             }
             else
             {
@@ -313,11 +192,11 @@ namespace DirectorsPortalWPF.ConstantContactUI
         private void LoadConstantContactData(object sender, RunWorkerCompletedEventArgs e)
         {
             LoadContactLists(gObjConstContact);
-            LoadEmailCampaigns(gObjConstContact);
+            //LoadEmailCampaigns(gObjConstContact);
 
             btnRefreshConstantContact.Content = "Refresh";
             btnRefreshConstantContact.Width = 60;
-            txtEmailGroups.Text = "";
+            //txtEmailGroups.Text = "";
 
         }
 
@@ -329,65 +208,10 @@ namespace DirectorsPortalWPF.ConstantContactUI
         /// <param name="e">The arguments for the 'DoWork' event</param>
         private void AuthenticateConstantContact(object sender, DoWorkEventArgs e)
         {
-            
             gObjConstContact.RefreshData();
         }
 
-        /// <summary>
-        /// Sends an previewed Activity in Constant Contact to the Contact Lists assigned
-        /// to the Activity. 
-        /// </summary>
-        /// <param name="sender">The Send button.</param>
-        /// <param name="e">The button press event</param>
-        private void SendActivity_Click(object sender, RoutedEventArgs e)
-        {
-            txtEmailGroups.Text = txtEmailGroups.Text.Trim();
-            string[] rgContactListNames = txtEmailGroups.Text.Split(';');
-
-            if (gObjCurrentlySelectedActivity != null && gObjConstContact.SignedIn && !gObjConstContact.Updating)
-            {
-                if (rgContactListNames.Length != 0)
-                {
-                    foreach (var contactLstName in rgContactListNames)
-                    {
-                        string strCleanedName = contactLstName.Trim();
-                        if (!strCleanedName.Equals(""))
-                        {
-                            ContactList objCurrentList = gObjConstContact.FindListByName(strCleanedName);
-                            gObjConstContact.AddListToActivity(objCurrentList, gObjCurrentlySelectedActivity);
-                        }
-                    }
-
-                    gObjConstContact.SendActivity(gObjCurrentlySelectedActivity);
-                    MessageBox.Show($"'{gObjCurrentlySelectedActivity.subject}' has been sent!", "Message Sent!");
-                }
-                else
-                {
-                    MessageBox.Show("No Contact Lists have been assigned to this Activity. Please assign a Contact List and re-send", "No Contact List Assinged");
-                }
-            }
-            else
-            {
-                if (!gObjConstContact.SignedIn)
-                    MessageBox.Show("Please select an Email to send first.", "Alert");
-                else if (gObjConstContact.Updating)
-                    MessageBox.Show("Currently updating Constant Contact data, please wait before sending", "Alert");
-                else
-                    MessageBox.Show("Please make sure that you are logged in before sending an Email.", "Alert");
-            }
-        }
-
-        private void Add_Contact_List(object sender, RoutedEventArgs e)
-        {
-            if (!gObjConstContact.SignedIn)
-                MessageBox.Show("Please make sure that you are logged in before making changes.", "Alert");
-            else if (gObjConstContact.Updating)
-                MessageBox.Show("Please wait for the current update to finish.", "Alert");
-            else
-                this.NavigationService.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact));
-
-        }
-
+        
         /// <summary>
         /// Logs out of the constant contact service, if logged in.
         /// </summary>
@@ -397,6 +221,8 @@ namespace DirectorsPortalWPF.ConstantContactUI
         {
             gObjConstContact.LogOut();
             MessageBox.Show("You are now logged out", "Alert");
+            LoadContactLists(gObjConstContact);
+            ContactListFrame.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact, ContactListFrame, this));
         }
 
         /// <summary>

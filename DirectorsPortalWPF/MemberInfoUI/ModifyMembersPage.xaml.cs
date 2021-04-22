@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Navigation;
+using DirectorsPortalConstantContact;
 
 namespace DirectorsPortalWPF.MemberInfoUI
 {
@@ -24,6 +25,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
         private Business MSelectedBusiness = null;
         private int MIntContactCount = 0;
         private bool MBoolIgnoreWarnings = false;
+        private ConstantContact gObjConstContact;
+        private List<string> rgFailedCCEmailAdds;
         /// <summary>
         /// A method for initializing the modify members page. This method determines whether the page should be
         /// setup to add a new member or edit an existing one based on the passed in Business parameter.
@@ -33,14 +36,16 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// The business selected from the list view that should be populated in the form. If this field is null
         /// the page will be setup to add a new member instead of editing an existing one.
         /// </param>
-        public ModifyMembersPage([Optional] Dictionary<string, string> dictPdfImport, Business selectedBusiness)
+        public ModifyMembersPage([Optional] Dictionary<string, string> dictPdfImport, Business selectedBusiness, ConstantContact gObjConstContact)
         {
             InitializeComponent();
 
             MSelectedBusiness = selectedBusiness;
+            rgFailedCCEmailAdds = new List<string>();
             CreateExtraFields();
 
             RefreshCategories();
+            this.gObjConstContact = gObjConstContact;
 
             if (selectedBusiness != null)
             {
@@ -172,7 +177,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             txtMailZip.FontWeight = FontWeights.Bold;
                         }
                         else
-                            txtMailZip.Text = selectedBusiness.MailingAddress?.ZipCode.ToString();
+                            txtMailZip.Text = selectedBusiness.MailingAddress?.ZipCodeExt.ToString();
 
                         if (selectedBusiness.MailingAddressId == selectedBusiness.PhysicalAddressId && !(dictPdfImport != null && !dictPdfImport["Location Address"].Equals("")))
                         {
@@ -214,7 +219,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                 txtLocationZip.FontWeight = FontWeights.Bold;
                             } 
                             else
-                                txtLocationZip.Text = selectedBusiness.PhysicalAddress?.ZipCode.ToString();
+                                txtLocationZip.Text = selectedBusiness.PhysicalAddress?.ZipCodeExt.ToString();
                         }
 
                         /* Populate the contacts for the selected business. */
@@ -386,7 +391,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         CiContact.TxtName.Text = dictPdfImport["Contact Name"];
                     }
 
-                    if (!dictPdfImport["Email Address"].Equals("") && dictPdfImport["Email Address"] != null)
+                    if (dictPdfImport["Email Address"] != null && !dictPdfImport["Email Address"].Equals(""))
                     {
                         CiContact.GntEmailCount++;
 
@@ -400,7 +405,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         CiContact.SpContactEmails.Children.Add(eiEmail);
                     }
 
-                    if (!dictPdfImport["Phone Number"].Equals("") && dictPdfImport["Phone Number"] != null)
+                    if (dictPdfImport["Phone Number"] != null && !dictPdfImport["Phone Number"].Equals(""))
                     {
                         CiContact.GIntNumberCount++;
 
@@ -415,7 +420,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         CiContact.SpContactNumbers.Children.Add(cniNumber);
                     }
 
-                    if (!dictPdfImport["Fax Number"].Equals("") && dictPdfImport["Fax Number"] != null)
+                    if (dictPdfImport["Fax Number"] != null && !dictPdfImport["Fax Number"].Equals(""))
                     {
                         CiContact.GIntNumberCount++;
 
@@ -484,7 +489,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// <param name="e">Event data asscociated with this event.</param>
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.Navigate(new MembersPage());
+            NavigationService.Navigate(new MembersPage(gObjConstContact));
         }
 
         /// <summary>
@@ -494,6 +499,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// <param name="e">Event data asscociated with this event.</param>
         private void BtnAddMember_Click(object sender, RoutedEventArgs e)
         {
+            bool blnAddToCC = false;
+
             if (!ValidateDataInForm(MBoolIgnoreWarnings)) 
             {
                 /* Return early since the form has invalid or missing data. */
@@ -534,8 +541,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         newMailingAddress.City = txtMailCity.Text;
                         newMailingAddress.State = txtMailState.Text;
 
-                        int.TryParse(txtMailZip.Text, out int intMailZipCode);
+                        int.TryParse(txtMailZip.Text.Split('-')[0], out int intMailZipCode);
                         newMailingAddress.ZipCode = intMailZipCode;
+                        newMailingAddress.ZipCodeExt = txtMailZip.Text;
 
                         /* Get the location address from the form. */
                         Address newPhysicalAddress = new Address();
@@ -545,8 +553,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             newPhysicalAddress.City = txtLocationCity.Text;
                             newPhysicalAddress.State = txtLocationState.Text;
 
-                            int.TryParse(txtLocationZip.Text, out int intLocationZipCode);
+                            int.TryParse(txtLocationZip.Text.Split('-')[0], out int intLocationZipCode);
                             newPhysicalAddress.ZipCode = intLocationZipCode;
+                            newPhysicalAddress.ZipCodeExt = txtLocationZip.Text;
                         }
                         else
                         {
@@ -594,6 +603,19 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                         if (!newEmail.EmailAddress.Equals("")) 
                                         {
                                             newContact.Emails.Add(newEmail);
+                                        }
+
+                                        blnAddToCC = MessageBox.Show($"Would you like to add {ciContact.TxtName.Text} to your Constant Contact account?", "Alert", MessageBoxButton.YesNo) == MessageBoxResult.Yes;
+
+                                        if (blnAddToCC)
+                                        {
+                                            gObjConstContact.Create(new Contact(eiEmail.TxtEmail.Text, ciContact.TxtName.Text, "")
+                                                {
+                                                    company_name = txtBusinessName.Text
+                                                }
+                                            );
+                                            if (gObjConstContact.FindContactByEmail(eiEmail.TxtEmail.Text) == null)
+                                                rgFailedCCEmailAdds.Add(eiEmail.TxtEmail.Text);
                                         }
                                     }
                                 }
@@ -651,7 +673,18 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 }
             }
 
-            NavigationService.Navigate(new MembersPage());
+            string strListOfFailures = "";
+            foreach (string failedEmail in rgFailedCCEmailAdds)
+            {
+                strListOfFailures += failedEmail + ", ";
+            }
+
+            if (rgFailedCCEmailAdds.Count() > 0 && blnAddToCC)
+                MessageBox.Show("The following Constant Contact Emails failed to add to Constant Contact: " 
+                    + strListOfFailures.Substring(0, strListOfFailures.Length - 2).ToString() + 
+                    ". Please try adding the emails manually to  Constant Contact", "Alert");
+
+            NavigationService.Navigate(new MembersPage(gObjConstContact));
         }
 
         /// <summary>
@@ -662,6 +695,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
         /// <param name="e">Event data asscociated with this event.</param>
         private void BtnUpdateMember_Click(object sender, RoutedEventArgs e)
         {
+            bool blnAddToCC = false;
             if (!ValidateDataInForm(MBoolIgnoreWarnings))
             {
                 /* Return early since the form has invalid or missing data. */
@@ -706,8 +740,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         MSelectedBusiness.MailingAddress.City = txtMailCity.Text;
                         MSelectedBusiness.MailingAddress.State = txtMailState.Text;
 
-                        int.TryParse(txtMailZip.Text, out int intMailZipCode);
+                        int.TryParse(txtMailZip.Text.Split('-')[0], out int intMailZipCode);
                         MSelectedBusiness.MailingAddress.ZipCode = intMailZipCode;
+                        MSelectedBusiness.MailingAddress.ZipCodeExt = txtMailZip.Text;
 
                         if (MSelectedBusiness.MailingAddressId == MSelectedBusiness.PhysicalAddressId &&
                             ChkLocationSameAsMailing.IsChecked == false)
@@ -719,8 +754,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             newLocationAddress.City = txtLocationCity.Text;
                             newLocationAddress.State = txtLocationState.Text;
 
-                            int.TryParse(txtLocationZip.Text, out int intLocationZipCode);
+                            int.TryParse(txtLocationZip.Text.Split('-')[0], out int intLocationZipCode);
                             newLocationAddress.ZipCode = intLocationZipCode;
+                            newLocationAddress.ZipCodeExt = txtLocationZip.Text;
 
                             if (!newLocationAddress.IsEmpty())
                             {
@@ -745,8 +781,9 @@ namespace DirectorsPortalWPF.MemberInfoUI
                             MSelectedBusiness.PhysicalAddress.City = txtLocationCity.Text;
                             MSelectedBusiness.PhysicalAddress.State = txtLocationState.Text;
 
-                            int.TryParse(txtLocationZip.Text, out int intLocationZipCode);
+                            int.TryParse(txtLocationZip.Text.Split('-')[0], out int intLocationZipCode);
                             MSelectedBusiness.PhysicalAddress.ZipCode = intLocationZipCode;
+                            MSelectedBusiness.PhysicalAddress.ZipCodeExt = txtLocationZip.Text;
                         }
 
                         /* Update the contacts from the form. */
@@ -862,6 +899,18 @@ namespace DirectorsPortalWPF.MemberInfoUI
 
                                                 newEmail.EmailAddress = eiEmail.TxtEmail.Text;
                                                 newRep.ContactPerson.Emails.Add(newEmail);
+
+                                                blnAddToCC = MessageBox.Show($"Would you like to add {ciContact.TxtName.Text} to your Constant Contact account?", "Alert", MessageBoxButton.YesNo) == MessageBoxResult.Yes;
+                                                if (blnAddToCC)
+                                                {
+                                                    gObjConstContact.Create(new Contact(eiEmail.TxtEmail.Text, ciContact.TxtName.Text, "")
+                                                    {
+                                                        company_name = txtBusinessName.Text
+                                                    }
+                                                );
+                                                    if (gObjConstContact.FindContactByEmail(eiEmail.TxtEmail.Text) == null)
+                                                        rgFailedCCEmailAdds.Add(eiEmail.TxtEmail.Text);
+                                                }
                                             }
                                         }
 
@@ -879,7 +928,6 @@ namespace DirectorsPortalWPF.MemberInfoUI
                                                 newRep.ContactPerson.PhoneNumbers.Add(newPhoneNumber);
                                             }
                                         }
-
                                         context.BusinessReps.Add(newRep);
                                         MSelectedBusiness.BusinessReps.Add(newRep);
                                     }
@@ -903,8 +951,18 @@ namespace DirectorsPortalWPF.MemberInfoUI
             DeleteCategories();
             AddCategories();
 
+            string strListOfFailures = "";
+            foreach (string failedEmail in rgFailedCCEmailAdds)
+            {
+                strListOfFailures += failedEmail + ", ";
+            }
 
-            NavigationService.Navigate(new MembersPage());
+            if (rgFailedCCEmailAdds.Count() > 0 && blnAddToCC)
+                MessageBox.Show("The following Constant Contact Emails failed to add to Constant Contact: "
+                    + strListOfFailures.Substring(0, strListOfFailures.Length - 2).ToString() +
+                    ". Please try adding the emails manually to  Constant Contact", "Alert");
+
+            NavigationService.Navigate(new MembersPage(gObjConstContact));
         }
 
         /// <summary>
@@ -916,7 +974,8 @@ namespace DirectorsPortalWPF.MemberInfoUI
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
             string strMessage = "Are you sure you want to delete this memeber?\n"
-                + "This action cannot be undone.";
+                + "This action cannot be undone.\n\n"
+                + "NOTE: A business with payment info cannot be deleted. Payment info must be removed from the Payment Info Screen.";
 
             MessageBoxResult messageBoxResult = MessageBox.Show(strMessage, "Delete Member", MessageBoxButton.YesNo);
             switch (messageBoxResult)
@@ -963,7 +1022,7 @@ namespace DirectorsPortalWPF.MemberInfoUI
                         }
                     }
 
-                    NavigationService.Navigate(new MembersPage());
+                    NavigationService.Navigate(new MembersPage(gObjConstContact));
                     break;
 
                 case MessageBoxResult.No:
@@ -1144,14 +1203,14 @@ namespace DirectorsPortalWPF.MemberInfoUI
             }
 
             if (!txtMailZip.Text.Equals("")
-                && !int.TryParse(txtMailZip.Text, out int intMailZip))
+                && !int.TryParse(txtMailZip.Text.Split('-')[0], out int intMailZip))
             {
                 boolAllDataIsValid = false;
 
                 txtMailZip.BorderBrush = Brushes.Red;
 
                 ToolTip ttMailZip = new ToolTip();
-                ttMailZip.Content = "Zip code must be a number.";
+                ttMailZip.Content = "Zip code must be in the following format ##### or #####-####";
 
                 txtMailZip.ToolTip = ttMailZip;
             }
@@ -1212,14 +1271,14 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 }
 
                 if (!txtLocationZip.Text.Equals("")
-                    && !int.TryParse(txtLocationZip.Text, out int intLocationZip))
+                    && !int.TryParse(txtLocationZip.Text.Split('-')[0], out int intLocationZip))
                 {
                     boolAllDataIsValid = false;
 
                     txtLocationZip.BorderBrush = Brushes.Red;
 
                     ToolTip ttLocationZip = new ToolTip();
-                    ttLocationZip.Content = "Zip code must be a number.";
+                    ttLocationZip.Content = "Zip code must be in the following format ##### or #####-####";
 
                     txtLocationZip.ToolTip = ttLocationZip;
                 }
@@ -1414,6 +1473,15 @@ namespace DirectorsPortalWPF.MemberInfoUI
                 GStrTitle = "Contact " + MIntContactCount + ":"
             };
 
+            
+            if (!gObjConstContact.SignedIn && !gObjConstContact.PopupAsked)
+            {
+                if (MessageBox.Show("You are not currently signed into Constant Contact. If you do not sign in, any new members will not be added to Constant Contact. Would you like to Sign in now?", "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    gObjConstContact.ValidateAuth();
+                }
+                gObjConstContact.PopupAsked = true;
+            }
             SpContacts.Children.Add(CiContact);
         }
 

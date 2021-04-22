@@ -97,7 +97,7 @@ namespace DirectorPortalPayPal
                 CountryCode = csvLine[Array.IndexOf(headers, HeaderStrings.CountryCode)];
                 BalanceImpact = csvLine[Array.IndexOf(headers, HeaderStrings.BalanceImpact)];
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 IsValid = false;
             }

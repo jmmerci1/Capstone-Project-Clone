@@ -22,10 +22,15 @@ namespace DirectorsPortalWPF.ConstantContactUI.AddContactListUI
     public partial class AddContactListPage : Page
     {
         private ConstantContact gObjConstContact;
-        public AddContactListPage(ConstantContact ccHelper)
+        private Frame ContactListFrame;
+        private ConstantContactPage objParent;
+
+        public AddContactListPage(ConstantContact ccHelper, Frame ContactListFrame, ConstantContactPage objPage)
         {
             InitializeComponent();
             gObjConstContact = ccHelper;
+            this.ContactListFrame = ContactListFrame;
+            this.objParent = objPage;
         }
 
         /// <summary>
@@ -63,12 +68,21 @@ namespace DirectorsPortalWPF.ConstantContactUI.AddContactListUI
         /// <param name="e"></param>
         private void Add_List(object sender, RoutedEventArgs e)
         {
-            
+            if (!gObjConstContact.SignedIn)
+            {
+                MessageBox.Show("Please log in before adding a List", "Error");
+                return;
+            }
             string strGroupName = txtContactListName.Text;
             string strNotes = txtNotes.Text;
             if (!checkName(strGroupName))
             {
                 MessageBox.Show("Error Contact List name in use, please use a different name", "Error");
+                return;
+            }
+            if (txtContactListName.Text.Trim().Equals(""))
+            {
+                MessageBox.Show("Error Contact List name empty, please enter a name name", "Error");
                 return;
             }
             ContactList newList = new ContactList(strGroupName, strNotes);
@@ -80,7 +94,8 @@ namespace DirectorsPortalWPF.ConstantContactUI.AddContactListUI
                     gObjConstContact.AddContactToContactList(newList, b);
                 }
 
-            this.NavigationService.Navigate(new ConstantContactUI.ConstantContactPage(gObjConstContact));
+            objParent.LoadContactLists(gObjConstContact);
+            ContactListFrame.Navigate(new AddContactListPage(gObjConstContact, ContactListFrame, objParent));
 
         }
 
@@ -97,15 +112,30 @@ namespace DirectorsPortalWPF.ConstantContactUI.AddContactListUI
             popSearch.IsOpen = true;
 
 
-            foreach (Contact business in gObjConstContact.gdctContacts.Values)
+            foreach (Contact objContact in gObjConstContact.gdctContacts.Values)
             {
-                    if (business.strFullname.ToLower().Contains(strSearchTerm.ToLower()))
+                    if (objContact.strFullname.ToLower().Contains(strSearchTerm.ToLower()) && !CheckAlreadyInList(objContact))
                     {
-                        lstPopup.Items.Add(business);
+                        lstPopup.Items.Add(objContact);
                     }
                         
                 
             }
+        }
+
+        /// <summary>
+        /// given a contact, check if it is already in the list
+        /// </summary>
+        /// <param name="objContact">Contact to check</param>
+        /// <returns></returns>
+        private bool CheckAlreadyInList(Contact objContact)
+        {
+            foreach (Contact objTemp in lstContacts.Items)
+            {
+                if (objContact.strFullname.Equals(objTemp.strFullname))
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -141,7 +171,9 @@ namespace DirectorsPortalWPF.ConstantContactUI.AddContactListUI
         /// <param name="e">The button press event</param>
         private void Cancel(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new ConstantContactUI.ConstantContactPage(gObjConstContact));
+            txtAddContacts.Text = "";
+            txtContactListName.Text = "";
+            txtNotes.Text = "";
         }
     }
 }

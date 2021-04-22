@@ -1,5 +1,5 @@
 ﻿using DirectorsPortalConstantContact;
-
+using MS.WindowsAPICodePack.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,14 +25,19 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
         private ConstantContact gObjConstContact;
         private ContactList clEditList;
         private string GStrListName;
+        private Frame ContactListFrame;
 
-        public EditContactListPage(ConstantContact ccHelper, string GStrCList)
+        private ConstantContactPage objCallBackPage;
+
+        public EditContactListPage(ConstantContact ccHelper, string GStrCList, Frame ContactListFrame, ConstantContactPage objPage)
         {
             InitializeComponent();
             gObjConstContact = ccHelper;
             GStrListName = GStrCList;
             clEditList = gObjConstContact.gdctContactLists.Values.FirstOrDefault(x => x.name.Equals(GStrCList));
             Load_Data(clEditList);
+            this.ContactListFrame = ContactListFrame;
+            objCallBackPage = objPage;
         }
 
         /// <summary>
@@ -104,7 +109,7 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
                     
             }
 
-            this.NavigationService.Navigate(new ConstantContactUI.ConstantContactPage(gObjConstContact));
+            ContactListFrame.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact, ContactListFrame, objCallBackPage));
 
         }
 
@@ -121,15 +126,29 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
             popSearch.IsOpen = true;
 
 
-            foreach (Contact business in gObjConstContact.gdctContacts.Values)
+            foreach (Contact objContact in gObjConstContact.gdctContacts.Values)
             {
-                if (business.strFullname.ToLower().Contains(strSearchTerm.ToLower()))
+                
+                if (objContact.strFullname.ToLower().Contains(strSearchTerm.ToLower()) && !CheckAlreadyInList(objContact))
                 {
-                    lstPopup.Items.Add(business);
+                    lstPopup.Items.Add(objContact);
                 }
-
-
             }
+        }
+
+        /// <summary>
+        /// given a contact, check if it is already in the list
+        /// </summary>
+        /// <param name="objContact">Contact to check</param>
+        /// <returns></returns>
+        private bool CheckAlreadyInList(Contact objContact)
+        {
+            foreach (Contact objTemp in lstContacts.Items)
+            {
+                if (objContact.strFullname.Equals(objTemp.strFullname))
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -162,9 +181,24 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
         {
             if (lstPopup.SelectedIndex >= 0)
             {
-                lstContacts.Items.Add(lstPopup.SelectedItem);
-                txtAddContacts.Clear();
-                popSearch.IsOpen = false;
+                foreach (Contact objContact in lstContacts.Items)
+                {
+                    if (objContact.strFullname!=((Contact)lstPopup.SelectedItem).strFullname)
+                    {
+                        lstContacts.Items.Add(lstPopup.SelectedItem);
+                        txtAddContacts.Clear();
+                        popSearch.IsOpen = false;
+                        return;
+                    }
+                }
+                if (lstContacts.Items.Count == 0)
+                {
+                    lstContacts.Items.Add(lstPopup.SelectedItem);
+                    txtAddContacts.Clear();
+                    popSearch.IsOpen = false;
+                    return;
+                }
+                
             }
         }
 
@@ -176,7 +210,24 @@ namespace DirectorsPortalWPF.ConstantContactUI.EditContactListUI
         /// <param name="e">The button press event</param>
         private void Cancel(object sender, RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new ConstantContactUI.ConstantContactPage(gObjConstContact));
+            ContactListFrame.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact, ContactListFrame, objCallBackPage));
+        }
+
+        /// <summary>
+        /// remove a contactlist from constant contact
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnRemove_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show($"Are you sure you want to delete {txtContactListName.Text}?", "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                gObjConstContact.RemoveContactList(gObjConstContact.FindListByName(txtContactListName.Text));
+                ContactListFrame.Navigate(new AddContactListUI.AddContactListPage(gObjConstContact, ContactListFrame, objCallBackPage));
+
+                objCallBackPage.LoadContactLists(gObjConstContact);
+            }
+
         }
     }
 }

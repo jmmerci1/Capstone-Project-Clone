@@ -68,6 +68,8 @@ namespace DirectorsPortalWPF
             m_oTimer.Elapsed += NotificationTimer; // Timer callback
             m_oTimer.Enabled = true; // Start timer
 
+            mainFrame.Navigate(new MembersPage(gObjConstContact));
+
         }
         private void NotificationTimer(Object source, ElapsedEventArgs e)
         {
@@ -143,7 +145,7 @@ namespace DirectorsPortalWPF
         /// <param name="e">The Click Event</param>
         private void MembersPage_Navigate(object sender, RoutedEventArgs e)
         {
-            mainFrame.Navigate(new MembersPage());
+            mainFrame.Navigate(new MembersPage(gObjConstContact));
 
             btnSettings.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));
             btnEmail.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF1F2F7"));

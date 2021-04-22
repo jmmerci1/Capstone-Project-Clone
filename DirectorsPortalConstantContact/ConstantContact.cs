@@ -49,6 +49,8 @@ namespace DirectorsPortalConstantContact
 
         public List<EmailCampaignActivityPreview> glstEmailCampaignActivityPreviews = new List<EmailCampaignActivityPreview>();
 
+        public bool PopupAsked = false;
+
         /// <summary>
         /// Constuctor. Attempts to load the last cached data
         /// </summary>
@@ -105,7 +107,7 @@ namespace DirectorsPortalConstantContact
 
                 this.UpdateContactLists();
 
-                this.UpdateContactCustomFields();
+                /*this.UpdateContactCustomFields();
                 System.Threading.Thread.Sleep(300);
 
                 this.UpdateEmailCampaigns();
@@ -114,10 +116,10 @@ namespace DirectorsPortalConstantContact
                 this.UpdateEmailCampaignActivities();
                 System.Threading.Thread.Sleep(200);
 
-                this.UpdateEmailCampaignActivityPreviews();
+                this.UpdateEmailCampaignActivityPreviews();*/
 
                 this.ContactListAssignment();
-                this.CustomFieldAssignment();
+                //this.CustomFieldAssignment();
 
                 this.CacheData();
                 this.isUpdating = false;
@@ -125,6 +127,11 @@ namespace DirectorsPortalConstantContact
             
 
 
+        }
+
+        public void ValidateAuth()
+        {
+            this.gobjCCAuth.ValidateAuthentication();
         }
 
         /// <summary>
@@ -641,7 +648,8 @@ namespace DirectorsPortalConstantContact
         /// <param name="objContact">Contact to send up to Constant Contact</param>
         public void Create(Contact objContact)
         {
-            this.gobjCCAuth.ValidateAuthentication();
+            if (!this.SignedIn)
+                return;
             POSTContact objTempContact = objContact.Create();
             string strJson = JsonConvert.SerializeObject(objTempContact, new JsonSerializerSettings
             {
@@ -659,7 +667,7 @@ namespace DirectorsPortalConstantContact
         /// <param name="objContactList"></param>
         public void Create(ContactList objContactList)
         {
-            this.gobjCCAuth.ValidateAuthentication();
+           
             POSTContactList objTempContactList = objContactList.Create();
             string strJson = JsonConvert.SerializeObject(objTempContactList, new JsonSerializerSettings
             {
@@ -675,13 +683,14 @@ namespace DirectorsPortalConstantContact
         /// Deletes a list in the constant Contact API
         /// </summary>
         /// <param name="objList"></param>
-        private void DELETEContactList(ContactList objList)
+        public void RemoveContactList(ContactList objList)
         {
+            this.gobjCCAuth.ValidateAuthentication();
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("Authorization", this.mstrTokenHeader);
 
             var response = client.DeleteAsync(this.gstrBaseURL + $"contact_lists/{objList.list_id}").Result;
-            this.UpdateContactLists();
+            this.gdctContactLists.Remove(objList.list_id);
             this.CacheData();
 
         }
@@ -833,6 +842,18 @@ namespace DirectorsPortalConstantContact
         public void LogOut()
         {
             this.gobjCCAuth.LogOut();
+            this.RemoveLocalCache();
+            gdctContacts.Clear();
+            gdctContactLists.Clear();
+    }
+
+        private void RemoveLocalCache()
+        {
+            string strFname = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ChamberOfCommerce\\DirectorsPortal\\CCSaveData.JSON";
+            if (File.Exists(strFname))
+            {
+                File.Delete(strFname);
+            }
         }
 
         /// <summary>

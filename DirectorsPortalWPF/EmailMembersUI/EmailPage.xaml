@@ -69,9 +69,10 @@
 
                     <Label Content="Email Groups" VerticalAlignment="Center" Foreground="White" HorizontalAlignment="Left" Margin="10,0,0,0" />
                 </Grid>
-
-                <StackPanel Name="EmailGroupList" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" Margin="10,10,10,10">
-                </StackPanel>
+                <ScrollViewer Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,1,3">
+                    <StackPanel Name="EmailGroupList" Orientation="Vertical" Margin="10,10,10,10">
+                    </StackPanel>
+                </ScrollViewer>
             </Grid>
 
             <Frame x:Name="emailFrame" Margin="15,0,0,0" Grid.Column="2" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>

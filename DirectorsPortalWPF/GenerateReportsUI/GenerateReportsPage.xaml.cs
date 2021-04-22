@@ -24,18 +24,18 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         /// <summary>
         /// A holder of metadata on both a model and one of its properties.
         /// </summary>
-        private class ClsModelAndField
+        private class ModelAndField
         {
-            public ClsMetadataHelper.ClsModelInfo UdtModelInfo { get; set; }
-            public ClsFieldHelper.IDataField UdtDataField { get; set; }
-            public ClsModelAndField(ClsMetadataHelper.ClsModelInfo udtModelInfo, ClsFieldHelper.IDataField udtTableField)
+            public MetadataHelper.ModelInfo UdtModelInfo { get; set; }
+            public FieldHelper.IDataField UdtDataField { get; set; }
+            public ModelAndField(MetadataHelper.ModelInfo udtModelInfo, FieldHelper.IDataField udtTableField)
             {
                 UdtModelInfo = udtModelInfo;
                 UdtDataField = udtTableField;
             }
 
             /// <summary>
-            /// For other ClsModelAndField instances, compares both the model info and the table field name.
+            /// For other ModelAndField instances, compares both the model info and the table field name.
             /// For all other types, returns false.
             /// </summary>
             /// <param name="objOther"></param>
@@ -43,9 +43,9 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             public override bool Equals(object objOther)
             {
                 Type typeOtherType = objOther.GetType();
-                if (typeOtherType == typeof(ClsModelAndField))
+                if (typeOtherType == typeof(ModelAndField))
                 {
-                    ClsModelAndField udtOther = (ClsModelAndField)objOther;
+                    ModelAndField udtOther = (ModelAndField)objOther;
                     return this.UdtDataField.StrPropertyName == udtOther.UdtDataField.StrPropertyName
                         && this.UdtModelInfo.Equals(udtOther.UdtModelInfo);
                 }
@@ -56,7 +56,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             }
         }
 
-        private ClsMetadataHelper.ClsModelInfo GUdtSelectedReportType { get; set; }
+        private MetadataHelper.ModelInfo GUdtSelectedReportType { get; set; }
         private ComboBoxItem[] GRGReportTypeItems { get; set; }
         private List<string[]> GRGCurrentReport { get; set; }
         private List<ReportTemplate> GRGReportTemplates { get; set; }
@@ -70,7 +70,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             // Gets the selected report type name from the combo box.
             ComboBoxItem cbiSelectedReportTypeItem = (ComboBoxItem)cboReportType.SelectedItem;
             // Extracts the model information from the ComboBoxItem.
-            GUdtSelectedReportType = (ClsMetadataHelper.ClsModelInfo)cbiSelectedReportTypeItem.Tag;
+            GUdtSelectedReportType = (MetadataHelper.ModelInfo)cbiSelectedReportTypeItem.Tag;
             if (GUdtSelectedReportType != null)
             {
                 int intNumberOfFields = GUdtSelectedReportType.UdtTableMetaData.IntNumberOfFields;
@@ -80,7 +80,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 for (int i = 0; i < intNumberOfFields; i++)
                 {
                     // Stores the i-th built-in field's information in a new ListBoxItem.
-                    ClsFieldHelper.IDataField udtField = GUdtSelectedReportType.UdtTableMetaData.GetField(i);
+                    FieldHelper.IDataField udtField = GUdtSelectedReportType.UdtTableMetaData.GetField(i);
                     ListBoxItem lbiFieldItem = new ListBoxItem();
                     lbiFieldItem.Content = udtField.StrHumanReadableName;
                     lbiFieldItem.Tag = udtField;
@@ -296,14 +296,14 @@ namespace DirectorsPortalWPF.GenerateReportsUI
         {
             if (lstIncludedReportFields.Items.Count > 0)
             {
-                List<ClsModelAndField> rgReportColumns = new List<ClsModelAndField>();
+                List<ModelAndField> rgReportColumns = new List<ModelAndField>();
                 foreach (ListBoxItem lbiIncludedItem in lstIncludedReportFields.Items)
                 {
-                    ClsModelAndField udtModelAndField = (ClsModelAndField)lbiIncludedItem.Tag;
+                    ModelAndField udtModelAndField = (ModelAndField)lbiIncludedItem.Tag;
                     rgReportColumns.Add(udtModelAndField);
                 }
 
-                // TODO: Start new thread here.
+                // TODO: Remove duplicate code.
                 // ------------------------------------------------------------------------------
 
                 // The report is a list of rows, each in the form of a string array.
@@ -320,27 +320,27 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 rgReport.Add(rgReportHead);
 
                 // Makes a list of tables to be included in the report.
-                List<ClsJoinHelper.EnumTable> rgTables = new List<ClsJoinHelper.EnumTable>();
-                foreach (ClsModelAndField udtModelAndField in rgReportColumns)
+                List<JoinHelper.EnumTable> rgTables = new List<JoinHelper.EnumTable>();
+                foreach (ModelAndField udtModelAndField in rgReportColumns)
                 {
                     // Gets the model type.
                     Type typeModelType = udtModelAndField.UdtModelInfo.TypeModelType;
 
                     // Stores the corresponding EnumTable in the list if it isn't already there.
-                    ClsJoinHelper.EnumTable enumTable = ClsMetadataHelper.GetEnumTable(typeModelType);
+                    JoinHelper.EnumTable enumTable = MetadataHelper.GetEnumTable(typeModelType);
                     if (!rgTables.Contains(enumTable))
                     {
                         rgTables.Add(enumTable);
                     }
                 }
 
-                ClsJoinHelper.ClsJoinResult udtJoinResult;
-                ClsJoinResultRecord[] rgQueryResults;
+                JoinHelper.JoinResult udtJoinResult;
+                JoinResultRecord[] rgQueryResults;
 
                 using (DatabaseContext dbContext = new DatabaseContext())
                 {
                     // Performs all the querying to get the requested data.
-                    udtJoinResult = new ClsJoinHelper.ClsJoinResult(dbContext, rgTables);
+                    udtJoinResult = new JoinHelper.JoinResult(dbContext, rgTables);
                     rgQueryResults = udtJoinResult.RGRecords;
 
                     // Iterates over the result records.
@@ -349,11 +349,14 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                         // Creates an array for this record.
                         string[] rgReportRow = new string[rgReportColumns.Count];
 
-                        ClsJoinResultRecord udtRecord = rgQueryResults[intLoop];
+                        JoinResultRecord udtRecord = rgQueryResults[intLoop];
+
+                        // This boolean is used to prevent adding completely empty rows to the report.
+                        bool blnAllEmpty = true;
 
                         for (int intFieldIndex = 0; intFieldIndex < rgReportColumns.Count; intFieldIndex++)
                         {
-                            ClsModelAndField udtModelAndField = rgReportColumns[intFieldIndex];
+                            ModelAndField udtModelAndField = rgReportColumns[intFieldIndex];
 
                             // Gets the correct model from the record.
                             object objModel = udtRecord.GetObjectByType(udtModelAndField.UdtModelInfo.TypeModelType);
@@ -363,10 +366,18 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
                             // Stores the value in the report row (as a string).
                             rgReportRow[intFieldIndex] = objValue?.ToString() ?? "";
+
+                            if (rgReportRow[intFieldIndex] != "")
+                            {
+                                blnAllEmpty = false;
+                            }
                         }
 
-                        // Adds the array to the report.
-                        rgReport.Add(rgReportRow);
+                        if (!blnAllEmpty)
+                        {
+                            // Adds the array to the report.
+                            rgReport.Add(rgReportRow);
+                        }
                     }
                 }
 
@@ -431,16 +442,16 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             foreach (ReportField udtReportField in rgReportFields)
             {
                 // Gets the model information and class property metadata for this report item.
-                ClsMetadataHelper.ClsModelInfo udtModelInfo = ClsMetadataHelper.GetModelInfoByName(udtReportField.ModelName);
+                MetadataHelper.ModelInfo udtModelInfo = MetadataHelper.GetModelInfoByName(udtReportField.ModelName);
 
                 // Searches for a property with a matching name.
                 for (int intLoop = 0; intLoop < udtModelInfo.UdtTableMetaData.IntNumberOfFields; intLoop++)
                 {
-                    ClsFieldHelper.IDataField udtTableField = udtModelInfo.UdtTableMetaData.GetField(intLoop);
+                    FieldHelper.IDataField udtTableField = udtModelInfo.UdtTableMetaData.GetField(intLoop);
                     if (udtTableField.StrPropertyName == udtReportField.ModelPropertyName)
                     {
                         // Creates a ListBoxItem to store this report item.
-                        ClsModelAndField udtModelAndField = new ClsModelAndField(udtModelInfo, udtTableField);
+                        ModelAndField udtModelAndField = new ModelAndField(udtModelInfo, udtTableField);
                         ListBoxItem lbiReportItem = new ListBoxItem();
                         lbiReportItem.Content = udtModelInfo.StrHumanReadableName + ": " + udtTableField.StrHumanReadableName;
                         lbiReportItem.Tag = udtModelAndField;
@@ -486,16 +497,16 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             foreach (ReportField udtReportField in rgReportFields)
             {
                 // Gets the model information and class property metadata for this report item.
-                ClsMetadataHelper.ClsModelInfo udtModelInfo = ClsMetadataHelper.GetModelInfoByName(udtReportField.ModelName);
+                MetadataHelper.ModelInfo udtModelInfo = MetadataHelper.GetModelInfoByName(udtReportField.ModelName);
 
                 // Searches for a property with a matching name.
                 for (int intLoop = 0; intLoop < udtModelInfo.UdtTableMetaData.IntNumberOfFields; intLoop++)
                 {
-                    ClsFieldHelper.IDataField udtTableField = udtModelInfo.UdtTableMetaData.GetField(intLoop);
+                    FieldHelper.IDataField udtTableField = udtModelInfo.UdtTableMetaData.GetField(intLoop);
                     if (udtTableField.StrPropertyName == udtReportField.ModelPropertyName)
                     {
                         // Creates a ListBoxItem to store this report item.
-                        ClsModelAndField udtModelAndField = new ClsModelAndField(udtModelInfo, udtTableField);
+                        ModelAndField udtModelAndField = new ModelAndField(udtModelInfo, udtTableField);
                         ListBoxItem lbiReportItem = new ListBoxItem();
                         lbiReportItem.Content = udtModelInfo.StrHumanReadableName + ": " + udtTableField.StrHumanReadableName;
                         lbiReportItem.Tag = udtModelAndField;
@@ -510,14 +521,14 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
             if (lstIncludedReportFields.Items.Count > 0)
             {
-                List<ClsModelAndField> rgReportColumns = new List<ClsModelAndField>();
+                List<ModelAndField> rgReportColumns = new List<ModelAndField>();
                 foreach (ListBoxItem lbiIncludedItem in lstIncludedReportFields.Items)
                 {
-                    ClsModelAndField udtModelAndField = (ClsModelAndField)lbiIncludedItem.Tag;
+                    ModelAndField udtModelAndField = (ModelAndField)lbiIncludedItem.Tag;
                     rgReportColumns.Add(udtModelAndField);
                 }
 
-                // TODO: Start new thread here.
+                // TODO: Remove duplicate code.
                 // ------------------------------------------------------------------------------
 
                 // The report is a list of rows, each in the form of a string array.
@@ -534,40 +545,43 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                 rgReport.Add(rgReportHead);
 
                 // Makes a list of tables to be included in the report.
-                List<ClsJoinHelper.EnumTable> rgTables = new List<ClsJoinHelper.EnumTable>();
-                foreach (ClsModelAndField udtModelAndField in rgReportColumns)
+                List<JoinHelper.EnumTable> rgTables = new List<JoinHelper.EnumTable>();
+                foreach (ModelAndField udtModelAndField in rgReportColumns)
                 {
                     // Gets the model type.
                     Type typeModelType = udtModelAndField.UdtModelInfo.TypeModelType;
 
                     // Stores the corresponding EnumTable in the list if it isn't already there.
-                    ClsJoinHelper.EnumTable enumTable = ClsMetadataHelper.GetEnumTable(typeModelType);
+                    JoinHelper.EnumTable enumTable = MetadataHelper.GetEnumTable(typeModelType);
                     if (!rgTables.Contains(enumTable))
                     {
                         rgTables.Add(enumTable);
                     }
                 }
 
-                ClsJoinHelper.ClsJoinResult udtJoinResult;
-                ClsJoinResultRecord[] rgQueryResults;
+                JoinHelper.JoinResult udtJoinResult;
+                JoinResultRecord[] rgQueryResults;
 
                 using (DatabaseContext dbContext = new DatabaseContext())
                 {
                     // Performs all the querying to get the requested data.
-                    udtJoinResult = new ClsJoinHelper.ClsJoinResult(dbContext, rgTables);
+                    udtJoinResult = new JoinHelper.JoinResult(dbContext, rgTables);
                     rgQueryResults = udtJoinResult.RGRecords;
+
+                    // This boolean is used to prevent adding completely empty rows to the report.
+                    bool blnAllEmpty = true;
 
                     // Iterates over the result records.
                     for (int intLoop = 0; intLoop < rgQueryResults.Length; intLoop++)
                     {
                         // Creates an array for this record.
-                        string[] rgReportRow = new string[rgQueryResults.Length];
+                        string[] rgReportRow = new string[rgReportColumns.Count]; //[rgQueryResults.Length];
 
-                        ClsJoinResultRecord udtRecord = rgQueryResults[intLoop];
+                        JoinResultRecord udtRecord = rgQueryResults[intLoop];
 
                         for (int intFieldIndex = 0; intFieldIndex < rgReportColumns.Count; intFieldIndex++)
                         {
-                            ClsModelAndField udtModelAndField = rgReportColumns[intFieldIndex];
+                            ModelAndField udtModelAndField = rgReportColumns[intFieldIndex];
 
                             // Gets the correct model from the record.
                             object objModel = udtRecord.GetObjectByType(udtModelAndField.UdtModelInfo.TypeModelType);
@@ -577,10 +591,18 @@ namespace DirectorsPortalWPF.GenerateReportsUI
 
                             // Stores the value in the report row (as a string).
                             rgReportRow[intFieldIndex] = objValue?.ToString() ?? "";
+
+                            if (rgReportRow[intFieldIndex] != "")
+                            {
+                                blnAllEmpty = false;
+                            }
                         }
 
-                        // Adds the array to the report.
-                        rgReport.Add(rgReportRow);
+                        if (!blnAllEmpty)
+                        {
+                            // Adds the array to the report.
+                            rgReport.Add(rgReportRow);
+                        }
                     }
                 }
 
@@ -699,16 +721,16 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             InitializeComponent();
 
             // Updates the model info dictionary to account for changes in extra fields.
-            ClsMetadataHelper.RefreshModelInfo();
+            MetadataHelper.RefreshModelInfo();
 
             GRGCurrentReport = new List<string[]>();
-            GRGReportTypeItems = new ComboBoxItem[ClsMetadataHelper.IntNumberOfModels];
+            GRGReportTypeItems = new ComboBoxItem[MetadataHelper.IntNumberOfModels];
 
-            for (int i = 0; i < ClsMetadataHelper.IntNumberOfModels; i++)
+            for (int i = 0; i < MetadataHelper.IntNumberOfModels; i++)
             {
                 // Gets info on the i-th database model.
-                Type typeModelType = ClsMetadataHelper.GetModelTypeByIndex(i);
-                ClsMetadataHelper.ClsModelInfo udtModelInfo = ClsMetadataHelper.GetModelInfo(typeModelType);
+                Type typeModelType = MetadataHelper.GetModelTypeByIndex(i);
+                MetadataHelper.ModelInfo udtModelInfo = MetadataHelper.GetModelInfo(typeModelType);
 
                 // Stores model information in a new ComboBoxItem.
                 ComboBoxItem cbiModelItem = new ComboBoxItem();
@@ -754,7 +776,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                     // Creates a model instance for each field in the template.
                     foreach (ListBoxItem lbiIncludedItem in lstIncludedReportFields.Items)
                     {
-                        ClsModelAndField udtModelAndField = (ClsModelAndField)lbiIncludedItem.Tag;
+                        ModelAndField udtModelAndField = (ModelAndField)lbiIncludedItem.Tag;
                         ReportField udtReportField = new ReportField
                         {
                             // This ID links to the template record.
@@ -804,17 +826,17 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             {
                 // Extracts the field from the selected listbox item.
                 ListBoxItem lbiSelectedItem = (ListBoxItem)lstReportFields.SelectedItem;
-                ClsFieldHelper.IDataField udtField = (ClsFieldHelper.IDataField)lbiSelectedItem.Tag;
+                FieldHelper.IDataField udtField = (FieldHelper.IDataField)lbiSelectedItem.Tag;
 
                 // Creates an object to identify this report item.
-                ClsModelAndField udtModelAndField = new ClsModelAndField(GUdtSelectedReportType, udtField);
+                ModelAndField udtModelAndField = new ModelAndField(GUdtSelectedReportType, udtField);
 
                 bool blnFound = false;
                 // Iterates over the listbox items to see if this report item is already in the list.
                 foreach (ListBoxItem lbiReportItemHolder in lstIncludedReportFields.Items)
                 {
                     // Gets the report item from the listbox item.
-                    ClsModelAndField udtOtherModelAndField = (ClsModelAndField)lbiReportItemHolder.Tag;
+                    ModelAndField udtOtherModelAndField = (ModelAndField)lbiReportItemHolder.Tag;
                     // Compares this with the item to be added.
                     if (udtModelAndField.Equals(udtOtherModelAndField))
                     {
@@ -830,7 +852,7 @@ namespace DirectorsPortalWPF.GenerateReportsUI
                     lbiSelectedReportField.Content = GUdtSelectedReportType.StrHumanReadableName + ": " + udtField.StrHumanReadableName;
 
                     // Stores both the current model and field metadata in the listbox item.
-                    lbiSelectedReportField.Tag = new ClsModelAndField(GUdtSelectedReportType, udtField);
+                    lbiSelectedReportField.Tag = new ModelAndField(GUdtSelectedReportType, udtField);
 
                     lstIncludedReportFields.Items.Add(lbiSelectedReportField);
                 }
@@ -860,6 +882,40 @@ namespace DirectorsPortalWPF.GenerateReportsUI
             {
                 ListBoxItem lbiSelectedItem = (ListBoxItem)lstIncludedReportFields.SelectedItems[0];
                 lstIncludedReportFields.Items.Remove(lbiSelectedItem);
+            }
+        }
+
+        /// <summary>
+        /// Moves selected item within the "Included Report Fields" listbox up
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnReorderUp_Click(object sender, RoutedEventArgs e)
+        {
+            if(lstIncludedReportFields.SelectedIndex > 0)
+            {
+                int index = lstIncludedReportFields.SelectedIndex;
+                object item = lstIncludedReportFields.SelectedItem;
+                lstIncludedReportFields.Items.RemoveAt(lstIncludedReportFields.SelectedIndex);
+                lstIncludedReportFields.Items.Insert(index - 1, item);
+                lstIncludedReportFields.SelectedIndex = index - 1;
+            }
+        }
+
+        /// <summary>
+        /// Moves selected item within the "Included Report Fields" listbox down
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnReorderDown_Click(object sender, RoutedEventArgs e)
+        {
+            if (lstIncludedReportFields.SelectedIndex < lstIncludedReportFields.Items.Count - 1 && lstIncludedReportFields.SelectedIndex != -1)
+            {
+                int index = lstIncludedReportFields.SelectedIndex;
+                object item = lstIncludedReportFields.SelectedItem;
+                lstIncludedReportFields.Items.RemoveAt(lstIncludedReportFields.SelectedIndex);
+                lstIncludedReportFields.Items.Insert(index + 1, item);
+                lstIncludedReportFields.SelectedIndex = index + 1;
             }
         }
 

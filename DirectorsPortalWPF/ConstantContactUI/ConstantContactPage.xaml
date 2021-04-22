@@ -38,7 +38,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" Grid.RowSpan="1" Grid.Column="0" Margin="0,0,0,5">
+            <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Margin="0,0,0,20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
@@ -69,114 +69,21 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto" />
                         </Grid.RowDefinitions>
-                        <Button Content="Add" Template="{StaticResource smallButtonGrey}" FontSize="11" Margin="5,5,5,5" Width="35" Padding="10,10,10,10" Click="Add_Contact_List" />
                     </Grid>
 
 
                     <Label Content="Contact Lists" VerticalAlignment="Center" Foreground="White" HorizontalAlignment="Left" Margin="10,0,0,0" />
                 </Grid>
 
-                <ScrollViewer Grid.Row="1" Margin="2,2,2,2" >
+                <ScrollViewer Grid.Row="1" Margin="2,2,2,15" >
                     <StackPanel Name="ContactList" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" Margin="10,10,10,10">
                     </StackPanel>
                 </ScrollViewer>
             </Grid>
 
-            <Grid Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Margin="0,5,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <Grid.Background>
-                    <SolidColorBrush Color="#FFF1F2F7" />
-                </Grid.Background>
-                <Border Grid.RowSpan="2" Grid.ColumnSpan="1" BorderBrush="#FFACACAC" BorderThickness="1" CornerRadius="5" />
-
-                <Grid Grid.Row="0" Grid.Column="0" Width="220">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="auto" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <Border Background="#FF00B0F0" Grid.RowSpan="5" Grid.ColumnSpan="3" BorderBrush="#FFACACAC" BorderThickness="0" CornerRadius="5,5,0,0"/>
-
-                    <Grid Grid.Column="1" VerticalAlignment="Center">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="30" />
-                        </Grid.RowDefinitions>
-                    </Grid>
-
-                    <Label Content="Email Campaigns" VerticalAlignment="Center" Foreground="White" HorizontalAlignment="Left" Margin="10,0,0,0" />
-                </Grid>
-
-                <ScrollViewer Grid.Row="1" Margin="2,2,2,2" >
-                    <StackPanel Name="EmailCampaignList" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" Margin="10,10,10,10">
-                    </StackPanel>
-                </ScrollViewer>
-            </Grid>
-
-
-
-
-            <Grid Margin="15,0,0,0" Grid.Column="2" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <Grid.Resources>
-                    <Style TargetType="{x:Type TextBox}">
-                        <Setter Property="Margin" Value="5,5,5,10"></Setter>
-                    </Style>
-                </Grid.Resources>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="auto"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="auto"/>
-                </Grid.RowDefinitions>
-                <Grid.Background>
-                    <SolidColorBrush Color="#FFF1F2F7" />
-                </Grid.Background>
-                <Border Grid.RowSpan="4" Grid.ColumnSpan="2" BorderBrush="#FFACACAC" BorderThickness="1" CornerRadius="5" />
-
-                <Grid Grid.Row="0" Grid.ColumnSpan="3">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <Border Background="#FF00B0F0" Grid.RowSpan="5" Grid.ColumnSpan="3" Height="30" BorderBrush="#FFACACAC" BorderThickness="0" CornerRadius="5,5,0,0"/>
-                    <Label Content="Email Campaign" HorizontalAlignment="Left" Foreground="White" Margin="10,0,15,0" VerticalAlignment="Center" />
-                </Grid>
-                <Label Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Content="To:" Margin="10,0,0,0" />
-                <TextBox Grid.Row="2" Grid.ColumnSpan="2" x:Name="txtEmailGroups" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0,15,10" Height="50"  TextWrapping="Wrap"/>
-                <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="1">
-                    <Button HorizontalAlignment="Right" Click="SendActivity_Click" Template="{StaticResource smallButton}" Content="Send" Margin="5,5,15,5" Padding="0,0,75,0" Height="20" />
-                </StackPanel>
-                <Grid Grid.Row="3" Grid.ColumnSpan="3">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <Border BorderBrush="#FFACACAC" Margin="15,0,15,15" BorderThickness="1" />
-
-                    <WebBrowser x:Name="frmCampaignTemplate" Grid.Row="0" Grid.Column="0" Margin="15.9,1,15.9,15.9" />
-
-                </Grid>
-            </Grid>
+            
+            <Frame x:Name="ContactListFrame" Margin="15,0,0,0" Grid.Column="2" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            
         </Grid>
     </Grid>
 </Page>
