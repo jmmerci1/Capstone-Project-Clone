@@ -474,20 +474,26 @@ namespace DirectorsPortalWPF.SettingsUI
                 NavigationService.Navigate(new DataConflictPage(rgDuplicates));
             }
 
-            //Thread created to import data 
-            bWrk.DoWork += LoadHousingForImport;
-            bWrk.RunWorkerCompleted += LoadSettingsPage;
-            bWrk.RunWorkerAsync();
-
-            if (!(rgDuplicates.Count > 0))
+            try
             {
-                //Form to display message to not click through the application during import data.
-                frmLoadPage.TopMost = true;
-                frmLoadPage.MaximizeBox = false;
-                frmLoadPage.MinimizeBox = false;
-                frmLoadPage.ControlBox = false;
-                frmLoadPage.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-                frmLoadPage.Show();
+                //Thread created to import data 
+                bWrk.DoWork += LoadHousingForImport;
+                bWrk.RunWorkerCompleted += LoadSettingsPage;
+                bWrk.RunWorkerAsync();
+
+                if (!(rgDuplicates.Count > 0))
+                {
+                    //Form to display message to not click through the application during import data.
+                    frmLoadPage.TopMost = true;
+                    frmLoadPage.MaximizeBox = false;
+                    frmLoadPage.MinimizeBox = false;
+                    frmLoadPage.ControlBox = false;
+                    frmLoadPage.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+                    frmLoadPage.Show();
+                }
+            }
+            catch
+            {
             }
 
 
@@ -643,7 +649,7 @@ namespace DirectorsPortalWPF.SettingsUI
                                MessageBoxButton.OK,
                                MessageBoxImage.Information);
                     }
-                   
+
                 }
                 catch (System.IO.IOException)
                 {
@@ -652,6 +658,13 @@ namespace DirectorsPortalWPF.SettingsUI
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                 }
+                catch
+                {
+                    // Alert the user! Let them know the Excel file is open and needs to be clsoed
+                    MessageBox.Show("Excel file format does not match. Please check the Excel file", "Excel Import Notice",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }          
             }
 
             //Returns the temporary list for further use.
